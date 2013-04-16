@@ -1,0 +1,41 @@
+Protokoll Sitzung 11.04.2013
+
+Allgemeine Informationen:
+
+Verwendung von Java 7 (neueste Version) als Entwicklungsgrundlage
+Dokumentation in Form von Javadoc und Benutzerdokumentation im Git-Repo
+Modularisierung einzelner Projektabschnitte mithilfe von Packages, wobei jeder Teilabschnitt die dazugehörigen Interfaces beinhaltet
+
+
+Aufgabenzuteilung:
+
+Projektleitung:					Sven
+Interfaces:						Sven, Björn
+Lexer/Parser:					Björn, Samuel, Thomas
+Semantische Codeanalyse:		Christoph, Eduard, Sven
+Zwischencodeerzeugung (TAC):	Frank, Danny, Manuel
+Zielcodeerzeugung (LLVM-IR):	Roman, Moritz, Jens
+
+
+Weitere Aufgaben:
+
+Vortrag über LLVM: Roman, Moritz
+Anlegung einer LaTeX-Struktur inkl. Präambel im Git-Repo fuc für die Dokumentation: Sven
+Git-Account erstellen und den Namen an Sven(sven.pilz@fu-berlin.de) senden: alle die betroffen sind
+
+
+Vorgenommene Abstimmungen:
+
+Verteilung der Aufgaben auf Gruppen 										-> 12 Stimmen dafuer, 0 Stimmen dagegen, 0 Enthaltungen; ANGENOMMEN
+Visualisierungsteil wird zusammen mit der jeweiligen Teilgruppe erledigt 	-> 5  Stimmen dafuer, 4 Stimmen dagegen, 3 Enthaltungen; ANGENOMMEN
+Projektleitung: Sven														-> 12 Stimmen dafuer, 0 Stimmen dagegen, 0 Enthaltungen; ANGENOMMEN
+LaTeX und Javadoc als "Dokumentations-Technologie"							-> 8  Stimmen dafuer, x Stimmen dagegen, x Enthaltungen; ANGENOMMEN
+Eingliederung des Designs der Visualisierung in das Projekt					-> AUSSTEHEND
+
+
+Termine:
+
+Nächste Sitzung am 18.04.2013, 14.00 Uhr (Klärung Interfaces)
+Vorträge (wer betroffen, siehe "Weitere Aufgaben") am 18.04.2013
+Klärung der Interfaces und Organisation des Projektes bis zum 25.04.2013
+1. Milestone "Arithmetik" am 09.05.2013 
