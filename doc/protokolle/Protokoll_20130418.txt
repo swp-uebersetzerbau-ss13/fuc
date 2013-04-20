@@ -1,0 +1,44 @@
+Protokoll Sitzung 18.04.2013
+
+Agenda:
+1. 3-Adress-Code
+2. Controlling der Module
+3. Lexer/Parser/AST
+
+
+1. 3-Adress-Code
+
+Für Milestone 1:
+ Casting von:
+  long zu double
+  double zu long (abhängig von LLVM, Roman untersucht diesen Befehl)
+ Assignments für Arithmetik (String und Boolean ZUSÄTZLICH!)
+
+Allgemein:
+ Typisierung von derived Types im 3-Adress-Code?
+ Einsatz von Labels bzgl. Sprünge und breaks
+
+2. Controlling der Module
+
+Nutzung von festen Datenstrukturen, wie z.B. Liste oder ähnliches
+Es wird alles übergeben
+Einsatz eines Controllers für Kommunikation zwischen den Modulen (einen)
+
+
+3. Lexer/Parser/AST
+
+Parser trägt z.B. Deklarationen in die Symboltabelle ein
+
+
+4. Interfaces
+
+Ant und Riddle für Build-Management
+-> Semnatik muss noch genauer spezifiziert werden
+
+
+
+Abstimmung:
+Abildung primitver Typen im 3-Adress-Code -> 10 dafür, 0 dagegen, 2 Enthaltungen; ANGENOMMEN
+
+
+
