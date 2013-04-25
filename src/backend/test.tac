@@ -1,0 +1,4 @@
+DECLARE_LONG|#5|!|x
+DECLARE_LONG|!|!|y
+ADD_LONG|#2|x|y
+RETURN|y|!|!
