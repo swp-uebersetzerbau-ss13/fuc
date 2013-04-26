@@ -1,0 +1,9 @@
+<project basedir="." name="FUC Compiler" default="run">
+	<!-- === property definitions === -->
+	<property name="src.dir" value="src" />
+	<property name="test.dir" value="test" />
+	<property name="bin.dir" value="bin" />
+	<property name="doc.dir" value="doc" />
+	<property name="lib.dir" value="../lib" />
+	<property name="interfaces.dir" value="../common/interfaces" />
+</project>
