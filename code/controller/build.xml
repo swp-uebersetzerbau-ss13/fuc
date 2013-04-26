@@ -6,11 +6,14 @@
 	<property name="doc.dir" value="doc" />
 	<property name="lib.dir" value="../lib" />
 	<property name="interfaces.dir" value="../common/interfaces" />
+	<property name="etc.dir" value="../etc" />
 	
 	<!-- === class path === -->
 	<path id="classpath">
 		<pathelement location="${interfaces.dir}/${bin.dir}" />
 		<pathelement location="${bin.dir}" />
+		<pathelement location="${etc.dir}" />
+		<pathelement location="${lib.dir}/log4j-1.2.17.jar" />
 	</path>
 	<path id="classpath-test">
 		<path refid="classpath" />
