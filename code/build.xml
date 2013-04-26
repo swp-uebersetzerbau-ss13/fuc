@@ -6,4 +6,8 @@
 	<property name="doc.dir" value="doc" />
 	<property name="lib.dir" value="../lib" />
 	<property name="interfaces.dir" value="../common/interfaces" />
+	
+	<target name="run">
+		<echo message="This build.xml is not yet implemented, please give me some more time ;)" />
+	</target>
 </project>
