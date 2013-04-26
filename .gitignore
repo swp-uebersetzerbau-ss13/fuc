@@ -8,3 +8,6 @@
 # Project Files #
 .classpath
 .project
+
+# allow the lib directory #
+!code/lib/*.jar
