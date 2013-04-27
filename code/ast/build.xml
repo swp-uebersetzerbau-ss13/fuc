@@ -68,7 +68,7 @@
 	
 	<!-- === run JUnit test classes === -->
 	<target name="run-test" depends="build-test" description="run the JUnit test classes">
-		<junit haltonerror="yes" printsummary="no" haltonfailure="yes">
+		<junit errorProperty="test.failed" failureProperty="test.failed">
 			<classpath>
 				<path refid="classpath-test" />
 			</classpath>
@@ -79,6 +79,7 @@
 				</fileset>
 			</batchtest>
 		</junit>
+		<fail if="test.failed" message="one or more unit tests failed"/>
 	</target>
 	
 	<!-- === run === -->

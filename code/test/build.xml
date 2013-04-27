@@ -53,23 +53,25 @@
 	
 	<!-- === compile JUnit test classes === -->
 	<target name="build-test" depends="dependencies" description="compile the JUnit test classes">
+		<mkdir dir="${bin.dir}" />
 		<javac srcdir="${test.dir}" destdir="${bin.dir}" classpathref="classpath-test" includeantruntime="false"/>
 	</target>
 	
 	<!-- === run JUnit test classes === -->
-	<target name="run-test" depends="build-test" description="run the JUnit test classes">
-		<junit haltonerror="yes" printsummary="no" haltonfailure="yes">
-			<classpath>
-				<path refid="classpath-test" />
-			</classpath>
-			<formatter type="plain" usefile="no" />
-			<batchtest>
-				<fileset dir="${test.dir}">
-					<include name="**/*Test.java" />
-				</fileset>
-			</batchtest>
-		</junit>
-	</target>
+		<target name="run-test" depends="build-test" description="run the JUnit test classes">
+			<junit errorProperty="test.failed" failureProperty="test.failed">
+				<classpath>
+					<path refid="classpath-test" />
+				</classpath>
+				<formatter type="plain" usefile="no" />
+				<batchtest>
+					<fileset dir="${test.dir}">
+						<include name="**/*Test.java" />
+					</fileset>
+				</batchtest>
+			</junit>
+			<fail if="test.failed" message="one or more unit tests failed"/>
+		</target>
 	
 	<!-- === run === -->
 	<target name="run" depends="run-test" description="run all tests">
