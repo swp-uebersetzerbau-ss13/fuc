@@ -1,6 +1,5 @@
 package swp_compiler_ss13.fuc.ast;
 
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -48,12 +47,6 @@ public class BranchNodeImpl extends ASTNodeImpl implements BranchNode {
 	public Integer getNumberOfNodes() {
 		return this.condition.getNumberOfNodes() + this.trueBlock.getNumberOfNodes()
 				+ this.falseBlock.getNumberOfNodes() + 1;
-	}
-
-	@Override
-	public Iterator<ASTNode> getDFSLTRNodeIterator() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override

@@ -1,6 +1,5 @@
 package swp_compiler_ss13.fuc.ast;
 
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -44,12 +43,6 @@ public class StructIdentifierNodeImpl extends ASTNodeImpl implements StructIdent
 			return 1;
 		}
 		return 1 + this.identifier.getNumberOfNodes();
-	}
-
-	@Override
-	public Iterator<ASTNode> getDFSLTRNodeIterator() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override

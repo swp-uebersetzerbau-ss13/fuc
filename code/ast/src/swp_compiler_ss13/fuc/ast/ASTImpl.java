@@ -73,8 +73,7 @@ public class ASTImpl implements AST {
 
 	@Override
 	public Iterator<ASTNode> getDFSLTRIterator() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.rootNode.getDFSLTRNodeIterator();
 	}
 
 	@Override

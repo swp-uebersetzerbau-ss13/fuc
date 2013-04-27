@@ -1,6 +1,5 @@
 package swp_compiler_ss13.fuc.ast;
 
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -45,12 +44,6 @@ public abstract class BinaryExpressionNodeImpl extends ASTNodeImpl implements Bi
 			nodes += this.rightExpression.getNumberOfNodes();
 		}
 		return nodes;
-	}
-
-	@Override
-	public Iterator<ASTNode> getDFSLTRNodeIterator() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override

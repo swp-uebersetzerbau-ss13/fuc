@@ -1,6 +1,5 @@
 package swp_compiler_ss13.fuc.ast;
 
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -33,12 +32,6 @@ public class ReturnNodeImpl extends ASTNodeImpl implements ReturnNode {
 		}
 
 		return 1 + this.rightNode.getNumberOfNodes();
-	}
-
-	@Override
-	public Iterator<ASTNode> getDFSLTRNodeIterator() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override

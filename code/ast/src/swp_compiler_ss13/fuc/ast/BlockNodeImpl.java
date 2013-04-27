@@ -63,12 +63,6 @@ public class BlockNodeImpl extends ASTNodeImpl implements BlockNode {
 	}
 
 	@Override
-	public Iterator<ASTNode> getDFSLTRNodeIterator() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public List<ASTNode> getChildren() {
 		List<ASTNode> children = new LinkedList<>();
 		children.addAll(this.declarationNodes);
