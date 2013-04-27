@@ -26,12 +26,16 @@ import swp_compiler_ss13.fuc.ast.ArithmeticBinaryExpressionNodeImpl;
  */
 public class ArithmeticBinaryExpressionNodeImplTest {
 
+	/**
+	 * The node under test
+	 */
 	private ArithmeticBinaryExpressionNode node;
 
 	/**
 	 * Set up test environment
 	 * 
 	 * @throws Exception
+	 *             Set up failed.
 	 */
 	@Before
 	public void setUp() throws Exception {
