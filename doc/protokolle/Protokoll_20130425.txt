@@ -1,0 +1,39 @@
+Protokoll Sitzung 25.04.2013
+
+1. Plugins/Controller
+2. Test
+3. Symboltabelle/Semantische Analyse-Abgrenzung
+4. Weiteres Vorgehen
+
+
+1. Plugins/Controller
+
+- Config-File für einzelne Teile des Übersetzers
+- austauschbare Teile auch über die beiden Gruppen hinaus
+- Zuständig: Roman
+
+
+2. Test
+
+- Tests mit JUnit
+- Tests auch unter den Gruppen (später?)
+- Einsatz von Coverage-Tools (vorerst festgelegter Prozentsatz: 90%), Bsp.-Plugin kommt über die Mailing-Liste
+- Entwicklung Testdriven
+
+
+3. Symboltabelle/Semantische Analyse-Abgrenzung
+
+- Symboltabelle wird NUR im Parser gefüllt (Lexer komplett ohne)
+- semantische Analyse OHNE casten
+
+
+4. Weiteres Vorgehen
+
+- nur Master-Branch ist festgelegt; Bedingung: Master-Branch muss immer lauffähig sein
+- beliebig weitere Branches
+- Kompilierung einheitlich mit Ant (mehrere Targets)
+- semantische Analyse und Parser werden als ein Modul gehandhabt
+- Fehler im Source-Code werden abgefangen, aber NICHT als Exception, sondern werden an den Controller übergeben über Singleton-Instanz
+- Lexer gibt immer Token zurück, wirft keine Fehler, z.B. durch UNDEFINED-Token
+- EOF-Token für letzten Token
+- bis NÄCHSTE WOCHE Do Testfälle fertig implementiert

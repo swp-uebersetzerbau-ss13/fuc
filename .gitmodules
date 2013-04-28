@@ -1,0 +1,3 @@
+[submodule "code/common"]
+	path = code/common
+	url = git@github.com:swp-uebersetzerbau-ss13/common.git
