@@ -15,7 +15,7 @@ import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;
  * @author "Frank Zechert, Danny Maasch"
  * @version 1
  */
-public class BasicIdentifierImpl extends ASTNodeImpl implements BasicIdentifierNode {
+public class BasicIdentifierNodeImpl extends ASTNodeImpl implements BasicIdentifierNode {
 
 	/**
 	 * The logger
