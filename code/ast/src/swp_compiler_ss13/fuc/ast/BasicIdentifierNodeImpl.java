@@ -51,8 +51,7 @@ public class BasicIdentifierNodeImpl extends ASTNodeImpl implements BasicIdentif
 	public String getIdentifier() {
 		if (this.identifier == null) {
 			logger.warn("Returning null as the identifier!");
-		}
-		if (this.identifier.length() == 0) {
+		} else if (this.identifier.length() == 0) {
 			logger.warn("Returning an empty string as the identifier");
 		}
 		return this.identifier;
