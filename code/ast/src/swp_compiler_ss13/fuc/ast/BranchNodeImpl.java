@@ -45,16 +45,31 @@ public class BranchNodeImpl extends ASTNodeImpl implements BranchNode {
 
 	@Override
 	public Integer getNumberOfNodes() {
-		return this.condition.getNumberOfNodes() + this.trueBlock.getNumberOfNodes()
-				+ this.falseBlock.getNumberOfNodes() + 1;
+		Integer nodes = 1;
+		if (this.condition != null) {
+			nodes += this.condition.getNumberOfNodes();
+		}
+		if (this.trueBlock != null) {
+			nodes += this.trueBlock.getNumberOfNodes();
+		}
+		if (this.falseBlock != null) {
+			nodes += this.falseBlock.getNumberOfNodes();
+		}
+		return nodes;
 	}
 
 	@Override
 	public List<ASTNode> getChildren() {
 		List<ASTNode> children = new LinkedList<>();
-		children.add(this.condition);
-		children.add(this.trueBlock);
-		children.add(this.falseBlock);
+		if (this.condition != null) {
+			children.add(this.condition);
+		}
+		if (this.trueBlock != null) {
+			children.add(this.trueBlock);
+		}
+		if (this.falseBlock != null) {
+			children.add(this.falseBlock);
+		}
 		return children;
 	}
 

@@ -104,6 +104,13 @@ public class BlockNodeImplTest {
 	 */
 	@Test
 	public void testAddDeclaration() {
+
+		try {
+			this.node.addDeclaration(null);
+			fail("expected IllegalArgumentException!");
+		} catch (IllegalArgumentException e) {
+		}
+
 		DeclarationNode n1 = new DeclarationNodeImpl();
 		DeclarationNode n2 = new DeclarationNodeImpl();
 		DeclarationNode n3 = new DeclarationNodeImpl();
@@ -128,6 +135,13 @@ public class BlockNodeImplTest {
 	 */
 	@Test
 	public void testAddStatement() {
+
+		try {
+			this.node.addStatement(null);
+			fail("expected IllegalArgumentException!");
+		} catch (IllegalArgumentException e) {
+		}
+
 		StatementNode n1 = new BlockNodeImpl();
 		StatementNode n2 = new BlockNodeImpl();
 		StatementNode n3 = new BlockNodeImpl();
