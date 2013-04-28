@@ -9,6 +9,7 @@
 .classpath
 .project
 *.iml
+.idea/
 
 # allow the lib directory #
 !code/lib/*.jar
