@@ -1,16 +1,12 @@
-import java.io.InputStream;
-import java.io.FileOutputStream;
-import java.io.FileInputStream;
-import java.io.PrintWriter;
-import java.io.InputStreamReader;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
+package swp_compiler_ss13.fuc.backend;
 
-import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.backend.Backend;
+import swp_compiler_ss13.common.backend.Quadruple;
+
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This class describes a just-in-time compiler

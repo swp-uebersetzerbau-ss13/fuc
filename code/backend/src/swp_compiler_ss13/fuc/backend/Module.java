@@ -1,21 +1,12 @@
-
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.FileOutputStream;
-import java.io.PrintWriter;
-import java.io.ByteArrayOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.InputStreamReader;
-import java.io.BufferedReader;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Arrays;
+package swp_compiler_ss13.fuc.backend;
 
 import swp_compiler_ss13.common.backend.Quadruple;
-import swp_compiler_ss13.common.backend.Backend;
 import swp_compiler_ss13.common.types.Type;
+
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This class allows for the generation of an LLVM IR module.
