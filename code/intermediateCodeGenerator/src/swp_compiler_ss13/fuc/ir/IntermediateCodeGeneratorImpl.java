@@ -273,8 +273,11 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 	}
 
 	private void processBasicIdentifierNode(BasicIdentifierNode node) throws IntermediateCodeGeneratorException {
-		// TODO Auto-generated method stub
-
+		String identifier = node.getIdentifier();
+		Type identifierType = this.currentSymbolTable.peek().lookupType(identifier);
+		String actualIdentifier = this.loadIdentifier(identifier);
+		this.intermediateResults.push(actualIdentifier);
+		this.intermediateTypes.push(identifierType);
 	}
 
 	private void processAssignmentNode(AssignmentNode node) throws IntermediateCodeGeneratorException {
