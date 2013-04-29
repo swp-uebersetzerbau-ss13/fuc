@@ -33,6 +33,10 @@ import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.ir.IntermediateCodeGenerator;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 import swp_compiler_ss13.common.parser.SymbolTable;
+import swp_compiler_ss13.common.types.Type;
+import swp_compiler_ss13.common.types.Type.Kind;
+import swp_compiler_ss13.common.types.primitive.DoubleType;
+import swp_compiler_ss13.common.types.primitive.LongType;
 
 /**
  * Create the intermediate code representation for the given AST
@@ -63,6 +67,13 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 	private Stack<SymbolTable> currentSymbolTable;
 
 	/**
+	 * Store for intermediate results
+	 */
+	private Stack<String> intermediateResults;
+
+	private Stack<Type> intermediateTypes;
+
+	/**
 	 * Reset the intermediate code generator
 	 */
 	private void reset() {
@@ -70,6 +81,8 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 		this.usedNames = new LinkedList<>();
 		this.currentScopeRenames = new Stack<>();
 		this.currentSymbolTable = new Stack<>();
+		this.intermediateResults = new Stack<>();
+		this.intermediateTypes = new Stack<>();
 	}
 
 	@Override
@@ -81,36 +94,13 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 	}
 
 	/**
-	 * Process a block node and generate the needed IR Code
+	 * call the method that handles the node in the AST
 	 * 
 	 * @param node
-	 *            The block node to process
+	 *            The node to handle
 	 * @throws IntermediateCodeGeneratorException
-	 *             an error occurred while process the node
+	 *             An error occurred
 	 */
-	private void processBlockNode(BlockNode node) throws IntermediateCodeGeneratorException {
-		// push new renaming scope
-		this.currentScopeRenames.push(new HashMap<String, String>());
-		// push current symbol table
-		this.currentSymbolTable.push(node.getSymbolTable());
-
-		// get declarations
-		Iterator<DeclarationNode> declIterator = node.getDeclarationIterator();
-		while (declIterator.hasNext()) {
-			this.processDeclarationNode(declIterator.next());
-		}
-
-		Iterator<StatementNode> statementIterator = node.getStatementIterator();
-		while (statementIterator.hasNext()) {
-			StatementNode statement = statementIterator.next();
-			this.callProcessing(statement);
-		}
-
-		// pop the symbol scope and the renaming scope
-		this.currentScopeRenames.pop();
-		this.currentSymbolTable.pop();
-	}
-
 	private void callProcessing(ASTNode node) throws IntermediateCodeGeneratorException {
 		switch (node.getNodeType()) {
 		case ArithmeticBinaryExpressionNode:
@@ -172,6 +162,37 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 		}
 	}
 
+	/**
+	 * Process a block node and generate the needed IR Code
+	 * 
+	 * @param node
+	 *            The block node to process
+	 * @throws IntermediateCodeGeneratorException
+	 *             an error occurred while process the node
+	 */
+	private void processBlockNode(BlockNode node) throws IntermediateCodeGeneratorException {
+		// push new renaming scope
+		this.currentScopeRenames.push(new HashMap<String, String>());
+		// push current symbol table
+		this.currentSymbolTable.push(node.getSymbolTable());
+
+		// get declarations
+		Iterator<DeclarationNode> declIterator = node.getDeclarationIterator();
+		while (declIterator.hasNext()) {
+			this.processDeclarationNode(declIterator.next());
+		}
+
+		Iterator<StatementNode> statementIterator = node.getStatementIterator();
+		while (statementIterator.hasNext()) {
+			StatementNode statement = statementIterator.next();
+			this.callProcessing(statement);
+		}
+
+		// pop the symbol scope and the renaming scope
+		this.currentScopeRenames.pop();
+		this.currentSymbolTable.pop();
+	}
+
 	private void processWhileNode(WhileNode node) throws IntermediateCodeGeneratorException {
 		// TODO Auto-generated method stub
 
@@ -210,8 +231,21 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 	}
 
 	private void processLiteralNode(LiteralNode node) throws IntermediateCodeGeneratorException {
-		// TODO Auto-generated method stub
-
+		String literal = node.getLiteral();
+		Type type = node.getLiteralType();
+		this.intermediateTypes.push(type);
+		switch (type.getKind()) {
+		case DOUBLE:
+		case LONG:
+			this.intermediateResults.push("#" + literal);
+			break;
+		case STRING:
+			this.intermediateResults.push("#\"" + literal + "\"");
+			break;
+		default:
+			throw new IntermediateCodeGeneratorException("Literal node of type " + node.getLiteralType().toString()
+					+ " is not supported");
+		}
 	}
 
 	private void processDoWhileNode(DoWhileNode node) throws IntermediateCodeGeneratorException {
@@ -221,25 +255,10 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 
 	private void processDeclarationNode(DeclarationNode node) throws IntermediateCodeGeneratorException {
 		String identifierName = node.getIdentifier();
-		if (this.usedNames.contains(identifierName)) {
-			// a variable of this name has already been declared
-			// a renaming is needed. The renaming is only valid inside
-			// this block. It is not valid outside this block because
-			// outside the meaning of the variable can change (happens
-			// when variable shadowing occurs in the source code)
-			String newName = this.currentSymbolTable.peek().getNextFreeTemporary();
-			this.currentSymbolTable.peek().putTemporary(newName, node.getType());
-			this.usedNames.add(newName);
-			this.currentScopeRenames.peek().put(identifierName, newName);
-		} else {
-			// no renaming is needed for this declaration
-			this.usedNames.add(identifierName);
-			this.currentScopeRenames.peek().put(identifierName, identifierName);
-		}
+		Type identifierType = node.getType();
+		String id = this.saveIdentifier(identifierName, identifierType);
 
-		// create the TAC
-		final String actualId = this.getActualIdentifierName(identifierName);
-		final Quadruple quadruple = QuadrupleFactory.declaration(actualId, node.getType());
+		final Quadruple quadruple = QuadrupleFactory.declaration(id, node.getType());
 		this.irCode.add(quadruple);
 	}
 
@@ -274,34 +293,126 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 
 	}
 
+	/**
+	 * Binary Arithmetic Operation
+	 * 
+	 * @param node
+	 * @throws IntermediateCodeGeneratorException
+	 */
 	private void processArithmeticBinaryExpressionNode(ArithmeticBinaryExpressionNode node)
 			throws IntermediateCodeGeneratorException {
-		// TODO Auto-generated method stub
+		this.callProcessing(node.getLeftValue());
+		this.callProcessing(node.getRightValue());
+
+		Type rightType = this.intermediateTypes.pop();
+		Type leftType = this.intermediateTypes.pop();
+
+		String rightValue = this.intermediateResults.pop();
+		String leftValue = this.intermediateResults.pop();
+
+		if (leftType.getKind() == Kind.LONG && rightType.getKind() == Kind.LONG) {
+			// Just long types
+			String temp = this.createAndSaveTemporaryIdentifier(new LongType());
+			Quadruple tac = QuadrupleFactory.longArithmeticBinaryOperation(node.getOperator(), leftValue, rightValue,
+					temp);
+			this.irCode.add(tac);
+			this.intermediateResults.push(temp);
+			this.intermediateTypes.push(new LongType());
+		} else {
+			// double types or mix of double and long
+			String castLeft = leftValue;
+			if (leftType.getKind() == Kind.LONG) {
+				// cast the left value to double
+				castLeft = this.createAndSaveTemporaryIdentifier(new DoubleType());
+				Quadruple cleft = QuadrupleFactory.castLongToDouble(leftValue, castLeft);
+				this.irCode.add(cleft);
+			}
+			String castRight = rightValue;
+			if (rightType.getKind() == Kind.LONG) {
+				// cast the right value to double
+				castRight = this.createAndSaveTemporaryIdentifier(new DoubleType());
+				Quadruple cright = QuadrupleFactory.castLongToDouble(rightValue, castRight);
+				this.irCode.add(cright);
+			}
+			// double binary operation
+			String temp = this.createAndSaveTemporaryIdentifier(new DoubleType());
+			Quadruple tac = QuadrupleFactory.longArithmeticBinaryOperation(node.getOperator(), castLeft, castRight,
+					temp);
+			this.irCode.add(tac);
+			this.intermediateResults.push(temp);
+			this.intermediateTypes.push(new DoubleType());
+		}
 
 	}
 
 	/**
-	 * Return the identifier name that is used inside the TAC for the given
-	 * identifier name. (Resolving identifier renames).
+	 * Save the given identifier to the interal store of variables
 	 * 
-	 * @param identifierName
-	 *            The identifier to resolve
-	 * @return the resolved name
+	 * @param identifier
+	 *            The name of the variable
+	 * @param type
+	 *            the type of the variable
+	 * @return The renamed name of the variable that was stored
 	 * @throws IntermediateCodeGeneratorException
-	 *             The variable could not be resolved
+	 *             an exception occurred
 	 */
-	private String getActualIdentifierName(String identifierName) throws IntermediateCodeGeneratorException {
+	private String saveIdentifier(String identifier, Type type) throws IntermediateCodeGeneratorException {
+		if (!this.usedNames.contains(identifier)) {
+			this.usedNames.add(identifier);
+			this.currentScopeRenames.peek().put(identifier, identifier);
+			return identifier;
+		} else {
+			// rename is required to keep single static assignment
+			String newName = this.currentSymbolTable.peek().getNextFreeTemporary();
+			this.currentSymbolTable.peek().putTemporary(newName, type);
+			this.usedNames.add(newName);
+			this.currentScopeRenames.peek().put(identifier, newName);
+			this.irCode.add(QuadrupleFactory.declaration(newName, type));
+			return newName;
+		}
+	}
+
+	/**
+	 * Create a new temporary value and save it to the internal store of
+	 * variables
+	 * 
+	 * @param type
+	 *            The type of the new variable
+	 * @return The name of the new variable
+	 * @throws IntermediateCodeGeneratorException
+	 *             An error occurred
+	 */
+	private String createAndSaveTemporaryIdentifier(Type type) throws IntermediateCodeGeneratorException {
+		String id = this.currentSymbolTable.peek().getNextFreeTemporary();
+		this.currentSymbolTable.peek().putTemporary(id, type);
+		this.usedNames.add(id);
+		this.currentScopeRenames.peek().put(id, id);
+		this.irCode.add(QuadrupleFactory.declaration(id, type));
+		return id;
+	}
+
+	/**
+	 * Load the given identifier and return its actual name (if renaming was
+	 * done)
+	 * 
+	 * @param id
+	 *            The identifier name to load
+	 * @return The actual name of the identifier
+	 * @throws IntermediateCodeGeneratorException
+	 *             Identifier was not found
+	 */
+	private String loadIdentifier(String id) throws IntermediateCodeGeneratorException {
 		@SuppressWarnings("unchecked")
-		Stack<Map<String, String>> scopes = (Stack<Map<String, String>>) this.currentScopeRenames.clone();
+		Stack<Map<String, String>> renameScopes = (Stack<Map<String, String>>) this.currentScopeRenames.clone();
 		try {
 			while (true) {
-				Map<String, String> renamings = scopes.pop();
-				if (renamings.containsKey(identifierName)) {
-					return renamings.get(identifierName);
+				Map<String, String> renamedIds = renameScopes.pop();
+				if (renamedIds.containsKey(id)) {
+					return renamedIds.get(id);
 				}
 			}
-		} catch (EmptyStackException ex) {
-			throw new IntermediateCodeGeneratorException("Referenced unknown variable " + identifierName);
+		} catch (EmptyStackException e) {
+			throw new IntermediateCodeGeneratorException("Undeclared variable found: " + id);
 		}
 	}
 }
