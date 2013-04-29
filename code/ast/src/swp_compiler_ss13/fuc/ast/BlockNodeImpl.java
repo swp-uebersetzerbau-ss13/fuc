@@ -128,7 +128,7 @@ public class BlockNodeImpl extends ASTNodeImpl implements BlockNode {
 
 	@Override
 	public void setSymbolTable(SymbolTable symbolTable) {
-		if (this.symbolTable == null) {
+		if (symbolTable == null) {
 			logger.error("The argument symbolTable can not be null!");
 			throw new IllegalArgumentException("The argument symbolTable can not be null!");
 		}
