@@ -339,7 +339,7 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 			}
 			// double binary operation
 			String temp = this.createAndSaveTemporaryIdentifier(new DoubleType());
-			Quadruple tac = QuadrupleFactory.longArithmeticBinaryOperation(node.getOperator(), castLeft, castRight,
+			Quadruple tac = QuadrupleFactory.doubleArithmeticBinaryOperation(node.getOperator(), castLeft, castRight,
 					temp);
 			this.irCode.add(tac);
 			this.intermediateResults.push(temp);
