@@ -11,6 +11,8 @@ import org.junit.runners.Suite.SuiteClasses;
  * @version 1
  */
 @RunWith(Suite.class)
-@SuiteClasses({ ArithmeticBinaryExpressionNodeImplTest.class, ArithmeticUnaryExpressionNodeImplTest.class })
+@SuiteClasses({ ArithmeticBinaryExpressionNodeImplTest.class, ArithmeticUnaryExpressionNodeImplTest.class,
+		ArrayIdentifierNodeImplTest.class, AssignmentNodeImplTest.class, BasicIdentifierNodeImplTest.class,
+		BlockNodeImplTest.class })
 public class TestSuite {
 }
