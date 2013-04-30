@@ -115,7 +115,8 @@
 				<classfiles>
 					<fileset dir="${bin.dir}">
 						<include name="**/*.class" />
-						<exclude name="**/*Test.class" />
+                        <exclude name="**/*Test.class" />
+                        <exclude name="**/*Test$*.class" />
 					</fileset>
 				</classfiles>
 			</structure>
