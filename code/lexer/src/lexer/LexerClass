@@ -3,11 +3,10 @@
  */
 package swp_compiler_ss13.common.lexer;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.LineNumberReader;
 import java.io.UnsupportedEncodingException;
 
 /**
@@ -16,7 +15,7 @@ import java.io.UnsupportedEncodingException;
  */
 public abstract class LexerClass implements Lexer {
 
-  InputStream is;
+	InputStream is;
 	public static int currentindex = 0;
 	
 	/**
@@ -60,9 +59,9 @@ public abstract class LexerClass implements Lexer {
 	 */
 	public Token getNextToken(){
 		
-		Reader r;
+		LineNumberReader r;
 		try {
-			r = new BufferedReader(new InputStreamReader(this.is, "UTF-8"));
+			r = new LineNumberReader(new InputStreamReader(this.is, "UTF-8"));
 		
 			try {
 				int offset = 0;
@@ -80,6 +79,7 @@ public abstract class LexerClass implements Lexer {
 					
 					switch (ch) {
 						case 't': r.read(charbuf4, offset, 4);
+							line = r.getLineNumber();
 							if(new String(charbuf4) == "true") {
 								currentcolumn = column;
 								offset += 4;
@@ -87,6 +87,7 @@ public abstract class LexerClass implements Lexer {
 								return new TokenClass("true", TokenType.TRUE, line, currentcolumn);
 							}
 						case 'f': r.read(charbuf5, offset, 5);
+							line = r.getLineNumber();
 							if(new String(charbuf5) == "false") {
 								currentcolumn = column;
 								offset += 5;
@@ -94,6 +95,7 @@ public abstract class LexerClass implements Lexer {
 								return new TokenClass("false", TokenType.FALSE, line, currentcolumn);
 							}
 						case 'i': r.read(charbuf2, offset, 2);
+							line = r.getLineNumber();
 							if(new String(charbuf2) == "if") {
 								currentcolumn = column;
 								offset += 2;
@@ -101,6 +103,7 @@ public abstract class LexerClass implements Lexer {
 								return new TokenClass("if", TokenType.IF, line, currentcolumn);
 							}
 						case 'w': r.read(charbuf5, offset, 5);
+							line = r.getLineNumber();
 							if(new String(charbuf5) == "while") {
 								currentcolumn = column;
 								offset += 5;
@@ -108,6 +111,7 @@ public abstract class LexerClass implements Lexer {
 								return new TokenClass("while", TokenType.WHILE, line, currentcolumn);
 							}
 						case 'd': r.read(charbuf2, offset, 2);
+							line = r.getLineNumber();
 							if(new String(charbuf2) == "do") {
 								currentcolumn = column;
 								offset += 2;
@@ -115,6 +119,7 @@ public abstract class LexerClass implements Lexer {
 								return new TokenClass("do", TokenType.DO, line, currentcolumn);
 							}
 						case 'b': r.read(charbuf5, offset, 5);
+							line = r.getLineNumber();
 							if(new String(charbuf5) == "break") {
 								currentcolumn = column;
 								offset += 5;
@@ -122,6 +127,7 @@ public abstract class LexerClass implements Lexer {
 								return new TokenClass("break", TokenType.BREAK, line, currentcolumn);
 							}
 						case 'r': r.read(charbuf6, offset, 6);
+							line = r.getLineNumber();
 							if(new String(charbuf6) == "return") {
 								currentcolumn = column;
 								offset += 6;
@@ -129,6 +135,7 @@ public abstract class LexerClass implements Lexer {
 								return new TokenClass("return", TokenType.RETURN, line, currentcolumn);
 							}
 						case 'p': r.read(charbuf5, offset, 5);
+							line = r.getLineNumber();
 							if(new String(charbuf5) == "print") {
 								currentcolumn = column;
 								offset += 5;
@@ -136,6 +143,7 @@ public abstract class LexerClass implements Lexer {
 								return new TokenClass("print", TokenType.PRINT, line, currentcolumn);
 							}
 						case '=': r.read(charbuf2, offset, 2);
+							line = r.getLineNumber();
 							currentcolumn = column;
 							if(new String(charbuf2) == "==") {
 								offset += 2;
@@ -147,6 +155,7 @@ public abstract class LexerClass implements Lexer {
 								return new TokenClass("=", TokenType.ASSIGNOP, line, currentcolumn);
 							}
 						case '&': r.read(charbuf2, offset, 2);
+							line = r.getLineNumber();
 							currentcolumn = column;
 							if(new String(charbuf2) == "&&") {
 								offset += 2;
@@ -158,6 +167,7 @@ public abstract class LexerClass implements Lexer {
 								return new TokenClass("&", TokenType.NOT_A_TOKEN, line, currentcolumn);
 							}
 						case '|': r.read(charbuf2, offset, 2);
+							line = r.getLineNumber();
 							currentcolumn = column;
 							if(new String(charbuf2) == "||") {
 								offset += 2;
@@ -169,6 +179,7 @@ public abstract class LexerClass implements Lexer {
 								return new TokenClass("|", TokenType.NOT_A_TOKEN, line, currentcolumn);
 							}
 						case '!': r.read(charbuf2, offset, 2);
+							line = r.getLineNumber();
 							currentcolumn = column;
 							if(new String(charbuf2) == "!=") {
 								offset += 2;
@@ -180,6 +191,7 @@ public abstract class LexerClass implements Lexer {
 								return new TokenClass("!", TokenType.NOT, line, currentcolumn);
 							}
 						case '<': r.read(charbuf2, offset, 2);
+							line = r.getLineNumber();
 							currentcolumn = column;
 							if(new String(charbuf2) == "<=") {
 								offset += 2;
@@ -191,6 +203,7 @@ public abstract class LexerClass implements Lexer {
 								return new TokenClass("<", TokenType.LESS, line, currentcolumn);
 							}
 						case '>': r.read(charbuf2, offset, 2);
+							line = r.getLineNumber();
 							currentcolumn = column;
 							if(new String(charbuf2) == ">=") {
 								offset += 2;
@@ -202,56 +215,67 @@ public abstract class LexerClass implements Lexer {
 								return new TokenClass(">", TokenType.GREATER, line, currentcolumn);
 							}
 						case '+': 
+							line = r.getLineNumber();
 							currentcolumn = column;
 							offset += 1;
 							column += 1;
 							return new TokenClass("+", TokenType.PLUS, line, currentcolumn);
 						case '-': 
+							line = r.getLineNumber();
 							currentcolumn = column;
 							offset += 1;
 							column += 1;
 							return new TokenClass("-", TokenType.MINUS, line, currentcolumn);
 						case '*': 
+							line = r.getLineNumber();
 							currentcolumn = column;
 							offset += 1;
 							column += 1;
 							return new TokenClass("*", TokenType.TIMES, line, currentcolumn);
 						case '/': 
+							line = r.getLineNumber();
 							currentcolumn = column;
 							offset += 1;
 							column += 1;
 							return new TokenClass("/", TokenType.DIVIDE, line, currentcolumn);
 						case '(': 
+							line = r.getLineNumber();
 							currentcolumn = column;
 							offset += 1;
 							column += 1;
 							return new TokenClass("(", TokenType.LEFT_PARAN, line, currentcolumn);
 						case ')': 
+							line = r.getLineNumber();
 							currentcolumn = column;
 							offset += 1;
 							column += 1;
 							return new TokenClass(")", TokenType.RIGHT_PARAN, line, currentcolumn);
 						case '[': 
+							line = r.getLineNumber();
 							currentcolumn = column;
 							offset += 1;
 							column += 1;
 							return new TokenClass("[", TokenType.LEFT_BRACKET, line, currentcolumn);
 						case ']': 
+							line = r.getLineNumber();
 							currentcolumn = column;
 							offset += 1;
 							column += 1;
 							return new TokenClass("]", TokenType.RIGHT_BRACKET, line, currentcolumn);
 						case '{': 
+							line = r.getLineNumber();
 							currentcolumn = column;
 							offset += 1;
 							column += 1;
 							return new TokenClass("{", TokenType.LEFT_BRACE, line, currentcolumn);
 						case '}': 
+							line = r.getLineNumber();
 							currentcolumn = column;
 							offset += 1;
 							column += 1;
 							return new TokenClass("}", TokenType.RIGHT_BRACE, line, currentcolumn);
 						case ';': 
+							line = r.getLineNumber();
 							currentcolumn = column;
 							offset += 1;
 							column += 1;
