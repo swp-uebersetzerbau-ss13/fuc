@@ -39,15 +39,15 @@ public class InputStreamTest {
 
 	@Test
 	public void setInputStreamCorrect() throws IOException {
-		assertTrue(this.lexer.is != null);
+		assertTrue(this.lexer.inputstream != null);
 
-		assertEquals(this.stream.read() != -1, this.lexer.is.read() != -1);
+		assertEquals(this.stream.read() != -1, this.lexer.inputstream.read() != -1);
 	}
 
 	@Test
 	public void readTokenCorrect() {
-		
 		TokenClass token = this.lexer.getNextToken();
+		
 		assertTrue(token != null);
 	}
 	
