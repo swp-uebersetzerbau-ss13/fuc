@@ -17,7 +17,8 @@ import static org.junit.Assert.assertEquals;
  */
 public class LLVMBackendTest {
 
-	static LLVMBackend backend;
+	private static LLVMBackend backend;
+	private static ArrayList<Quadruple> tac;
 
 
 	/* Called before all the tests are started*/
@@ -34,6 +35,7 @@ public class LLVMBackendTest {
 	/* Called before every test */
 	@Before
 	public void setUp() throws Exception {
+		tac = new ArrayList<Quadruple>();
 	}
 
 	/* Called after every test */
@@ -43,26 +45,24 @@ public class LLVMBackendTest {
 
 	@Test
 	public void generateTargetCodeTest_DeclareLong() throws IOException {
-		Quadruple declaration = new Q(
-			Quadruple.Operator.DECLARE_LONG,
-			Quadruple.EmptyArgument,
-			Quadruple.EmptyArgument,
-			"longVariable");
-		InputStream codeStream = generateCode(declaration);
-		String generatedCode = buildString(codeStream);
+		tac.add(new Q(
+			        Quadruple.Operator.DECLARE_LONG,
+			        Quadruple.EmptyArgument,
+			        Quadruple.EmptyArgument,
+			        "longVariable"));
+		String generatedCode = generateCodeAsString(tac);
 		String expectedCode = "define i64 @main() {\n  %longVariable = alloca i64\n  ret i64 0\n}\n";
 		assertEquals(expectedCode, generatedCode);
 	}
 
 	@Test
 	public void generateTargetCodeTest_DeclareLong_InitConst() throws IOException {
-		Quadruple declaration = new Q(
-			Quadruple.Operator.DECLARE_LONG,
-			"#0",
-			Quadruple.EmptyArgument,
-			"longVariable");
-		InputStream codeStream = generateCode(declaration);
-		String generatedCode = buildString(codeStream);
+		tac.add(new Q(
+			        Quadruple.Operator.DECLARE_LONG,
+			        "#0",
+			        Quadruple.EmptyArgument,
+			        "longVariable"));
+		String generatedCode = generateCodeAsString(tac);
 		String expectedCode = "define i64 @main() {\n"
 			+ "  %longVariable = alloca i64\n"
 			+ "  store i64 0, i64* %longVariable\n"
@@ -72,7 +72,6 @@ public class LLVMBackendTest {
 
 	@Test
 	public void generateTargetCodeTest_DeclareLong_InitVar() throws IOException {
-		ArrayList<Quadruple> tac = new ArrayList<Quadruple>();
 		tac.add(new Q(
 			        Quadruple.Operator.DECLARE_LONG,
 			        Quadruple.EmptyArgument,
@@ -96,12 +95,12 @@ public class LLVMBackendTest {
 
 	@Test
 	public void generateTargetCodeTest_DeclareDouble() throws IOException {
-		Quadruple declaration = new Q(
-			Quadruple.Operator.DECLARE_DOUBLE,
-			Quadruple.EmptyArgument,
-			Quadruple.EmptyArgument,
-			"doubleVariable");
-		InputStream codeStream = generateCode(declaration);
+		tac.add(new Q(
+			        Quadruple.Operator.DECLARE_DOUBLE,
+			        Quadruple.EmptyArgument,
+			        Quadruple.EmptyArgument,
+			        "doubleVariable"));
+		InputStream codeStream = generateCode(tac);
 		String generatedCode = buildString(codeStream);
 		String expectedCode = "define i64 @main() {\n  %doubleVariable = alloca double\n  ret i64 0\n}\n";
 		assertEquals(expectedCode, generatedCode);
@@ -109,12 +108,12 @@ public class LLVMBackendTest {
 
 	@Test
 	public void generateTargetCodeTest_DeclareDouble_InitConst() throws IOException {
-		Quadruple declaration = new Q(
-			Quadruple.Operator.DECLARE_DOUBLE,
-			"#0.0",
-			Quadruple.EmptyArgument,
-			"doubleVariable");
-		InputStream codeStream = generateCode(declaration);
+		tac.add(new Q(
+			        Quadruple.Operator.DECLARE_DOUBLE,
+			        "#0.0",
+			        Quadruple.EmptyArgument,
+			        "doubleVariable"));
+		InputStream codeStream = generateCode(tac);
 		String generatedCode = buildString(codeStream);
 		String expectedCode = "define i64 @main() {\n"
 			+ "  %doubleVariable = alloca double\n"
@@ -125,7 +124,6 @@ public class LLVMBackendTest {
 
 	@Test
 	public void generateTargetCodeTest_DeclareDouble_InitVar() throws IOException {
-		ArrayList<Quadruple> tac = new ArrayList<Quadruple>();
 		tac.add(new Q(
 			        Quadruple.Operator.DECLARE_DOUBLE,
 			        Quadruple.EmptyArgument,
@@ -149,12 +147,12 @@ public class LLVMBackendTest {
 
 	@Test
 	public void generateTargetCodeTest_DeclareBoolean() throws IOException {
-		Quadruple declaration = new Q(
-			Quadruple.Operator.DECLARE_BOOLEAN,
-			Quadruple.EmptyArgument,
-			Quadruple.EmptyArgument,
-			"boolVariable");
-		InputStream codeStream = generateCode(declaration);
+		tac.add(new Q(
+			        Quadruple.Operator.DECLARE_BOOLEAN,
+			        Quadruple.EmptyArgument,
+			        Quadruple.EmptyArgument,
+			        "boolVariable"));
+		InputStream codeStream = generateCode(tac);
 		String generatedCode = buildString(codeStream);
 		String expectedCode = "define i64 @main() {\n  %boolVariable = alloca i8\n  ret i64 0\n}\n";
 		assertEquals(expectedCode, generatedCode);
@@ -162,12 +160,12 @@ public class LLVMBackendTest {
 
 	@Test
 	public void generateTargetCodeTest_DeclareBoolean_InitConst_False() throws IOException {
-		Quadruple declaration = new Q(
-			Quadruple.Operator.DECLARE_BOOLEAN,
-			"#FALSE",
-			Quadruple.EmptyArgument,
-			"booleanVariable");
-		InputStream codeStream = generateCode(declaration);
+		tac.add(new Q(
+			        Quadruple.Operator.DECLARE_BOOLEAN,
+			        "#FALSE",
+			        Quadruple.EmptyArgument,
+			        "booleanVariable"));
+		InputStream codeStream = generateCode(tac);
 		String generatedCode = buildString(codeStream);
 		String expectedCode = "define i64 @main() {\n"
 			+ "  %booleanVariable = alloca i8\n"
@@ -178,12 +176,12 @@ public class LLVMBackendTest {
 
 	@Test
 	public void generateTargetCodeTest_DeclareBoolean_InitConst_True() throws IOException {
-		Quadruple declaration = new Q(
-			Quadruple.Operator.DECLARE_BOOLEAN,
-			"#TRUE",
-			Quadruple.EmptyArgument,
-			"booleanVariable");
-		InputStream codeStream = generateCode(declaration);
+		tac.add(new Q(
+			        Quadruple.Operator.DECLARE_BOOLEAN,
+			        "#TRUE",
+			        Quadruple.EmptyArgument,
+			        "booleanVariable"));
+		InputStream codeStream = generateCode(tac);
 		String generatedCode = buildString(codeStream);
 		String expectedCode = "define i64 @main() {\n"
 			+ "  %booleanVariable = alloca i8\n"
@@ -194,7 +192,6 @@ public class LLVMBackendTest {
 
 	@Test
 	public void generateTargetCodeTest_DeclareBoolean_InitVar() throws IOException {
-		ArrayList<Quadruple> tac = new ArrayList<Quadruple>();
 		tac.add(new Q(
 			        Quadruple.Operator.DECLARE_BOOLEAN,
 			        Quadruple.EmptyArgument,
@@ -218,12 +215,12 @@ public class LLVMBackendTest {
 
 	@Test
 	public void generateTargetCodeTest_DeclareString() throws IOException {
-		Quadruple declaration = new Q(
-			Quadruple.Operator.DECLARE_STRING,
-			Quadruple.EmptyArgument,
-			Quadruple.EmptyArgument,
-			"stringVariable");
-		InputStream codeStream = generateCode(declaration);
+		tac.add(new Q(
+			        Quadruple.Operator.DECLARE_STRING,
+			        Quadruple.EmptyArgument,
+			        Quadruple.EmptyArgument,
+			        "stringVariable"));
+		InputStream codeStream = generateCode(tac);
 		String generatedCode = buildString(codeStream);
 		String expectedCode = "define i64 @main() {\n  %stringVariable = alloca i8*\n  ret i64 0\n}\n";
 		assertEquals(expectedCode, generatedCode);
@@ -231,12 +228,12 @@ public class LLVMBackendTest {
 
 	@Test
 	public void generateTargetCodeTest_DeclareString_InitConst() throws IOException {
-		Quadruple declaration = new Q(
-			Quadruple.Operator.DECLARE_STRING,
-			"#\"Foo\"",
-			Quadruple.EmptyArgument,
-			"stringVariable");
-		InputStream codeStream = generateCode(declaration);
+		tac.add(new Q(
+			        Quadruple.Operator.DECLARE_STRING,
+			        "#\"Foo\"",
+			        Quadruple.EmptyArgument,
+			        "stringVariable"));
+		InputStream codeStream = generateCode(tac);
 		String generatedCode = buildString(codeStream);
 		String expectedCode = "define i64 @main() {\n"
 			+ "  %stringVariable = alloca i8*\n"
@@ -250,7 +247,6 @@ public class LLVMBackendTest {
 
 	@Test
 	public void generateTargetCodeTest_DeclareString_InitVar() throws IOException {
-		ArrayList<Quadruple> tac = new ArrayList<Quadruple>();
 		tac.add(new Q(
 			        Quadruple.Operator.DECLARE_STRING,
 			        Quadruple.EmptyArgument,
@@ -276,7 +272,6 @@ public class LLVMBackendTest {
 
 	@Test
 	public void generateTargetCodeTest_LongToDouble() throws IOException {
-		ArrayList<Quadruple> tac = new ArrayList<Quadruple>();
 		tac.add(new Q(
 			        Quadruple.Operator.DECLARE_LONG,
 			        Quadruple.EmptyArgument,
@@ -306,7 +301,6 @@ public class LLVMBackendTest {
 
 	@Test
 	public void generateTargetCodeTest_DoubleToLong() throws IOException {
-		ArrayList<Quadruple> tac = new ArrayList<Quadruple>();
 		tac.add(new Q(
 			        Quadruple.Operator.DECLARE_LONG,
 			        Quadruple.EmptyArgument,
@@ -339,7 +333,6 @@ public class LLVMBackendTest {
 
 	@Test
 	public void generateTargetCodeTest_AssignLong_Const() throws IOException {
-		ArrayList<Quadruple> tac = new ArrayList<Quadruple>();
 		tac.add(new Q(
 			        Quadruple.Operator.DECLARE_LONG,
 			        Quadruple.EmptyArgument,
@@ -361,7 +354,6 @@ public class LLVMBackendTest {
 
 	@Test
 	public void generateTargetCodeTest_AssignLong_Var() throws IOException {
-		ArrayList<Quadruple> tac = new ArrayList<Quadruple>();
 		tac.add(new Q(
 			        Quadruple.Operator.DECLARE_LONG,
 			        Quadruple.EmptyArgument,
@@ -390,7 +382,6 @@ public class LLVMBackendTest {
 
 	@Test
 	public void generateTargetCodeTest_AssignDouble_Const() throws IOException {
-		ArrayList<Quadruple> tac = new ArrayList<Quadruple>();
 		tac.add(new Q(
 			        Quadruple.Operator.DECLARE_DOUBLE,
 			        Quadruple.EmptyArgument,
@@ -412,7 +403,6 @@ public class LLVMBackendTest {
 
 	@Test
 	public void generateTargetCodeTest_AssignDouble_Var() throws IOException {
-		ArrayList<Quadruple> tac = new ArrayList<Quadruple>();
 		tac.add(new Q(
 			        Quadruple.Operator.DECLARE_DOUBLE,
 			        Quadruple.EmptyArgument,
@@ -441,7 +431,6 @@ public class LLVMBackendTest {
 
 	@Test
 	public void generateTargetCodeTest_AssignBoolean_Const_False() throws IOException {
-		ArrayList<Quadruple> tac = new ArrayList<Quadruple>();
 		tac.add(new Q(
 			        Quadruple.Operator.DECLARE_BOOLEAN,
 			        Quadruple.EmptyArgument,
@@ -463,7 +452,6 @@ public class LLVMBackendTest {
 
 	@Test
 	public void generateTargetCodeTest_AssignBoolean_Const_True() throws IOException {
-		ArrayList<Quadruple> tac = new ArrayList<Quadruple>();
 		tac.add(new Q(
 			        Quadruple.Operator.DECLARE_BOOLEAN,
 			        Quadruple.EmptyArgument,
@@ -485,7 +473,6 @@ public class LLVMBackendTest {
 
 	@Test
 	public void generateTargetCodeTest_AssignBoolean_Var() throws IOException {
-		ArrayList<Quadruple> tac = new ArrayList<Quadruple>();
 		tac.add(new Q(
 			        Quadruple.Operator.DECLARE_BOOLEAN,
 			        Quadruple.EmptyArgument,
@@ -514,7 +501,6 @@ public class LLVMBackendTest {
 
 	@Test
 	public void generateTargetCodeTest_AssignString_Const() throws IOException {
-		ArrayList<Quadruple> tac = new ArrayList<Quadruple>();
 		tac.add(new Q(
 			        Quadruple.Operator.DECLARE_STRING,
 			        Quadruple.EmptyArgument,
@@ -539,7 +525,6 @@ public class LLVMBackendTest {
 
 	@Test
 	public void generateTargetCodeTest_AssignString_Var() throws IOException {
-		ArrayList<Quadruple> tac = new ArrayList<Quadruple>();
 		tac.add(new Q(
 			        Quadruple.Operator.DECLARE_STRING,
 			        Quadruple.EmptyArgument,
@@ -570,7 +555,6 @@ public class LLVMBackendTest {
 
 	@Test
 	public void generateTargetCodeTest_Return_Const() throws IOException {
-		ArrayList<Quadruple> tac = new ArrayList<Quadruple>();
 		tac.add(new Q(
 			        Quadruple.Operator.RETURN,
 			        "#1",
@@ -585,7 +569,6 @@ public class LLVMBackendTest {
 
 	@Test
 	public void generateTargetCodeTest_Return_Var() throws IOException {
-		ArrayList<Quadruple> tac = new ArrayList<Quadruple>();
 		tac.add(new Q(
 			        Quadruple.Operator.DECLARE_LONG,
 			        "#1",
@@ -606,7 +589,7 @@ public class LLVMBackendTest {
 		assertEquals(expectedCode, generatedCode);
 	}
 
-	// Misc
+	// Util
 
 	private InputStream generateCode(Quadruple quadruple) {
 		ArrayList<Quadruple> tacList = new ArrayList<Quadruple>();
@@ -624,6 +607,16 @@ public class LLVMBackendTest {
 
 	private String buildString(InputStream inputStream) throws IOException {
 		BufferedReader in = new BufferedReader(new InputStreamReader(inputStream));
+		StringBuilder builder = new StringBuilder();
+		for (String line = in.readLine(); line != null; line = in.readLine())
+			builder.append(line + "\n");
+		return builder.toString();
+	}
+
+	private String generateCodeAsString(ArrayList<Quadruple> tac) throws IOException {
+		Map<String, InputStream> result = backend.generateTargetCode(tac);
+		InputStream module = result.get(".ll");
+		BufferedReader in = new BufferedReader(new InputStreamReader(module));
 		StringBuilder builder = new StringBuilder();
 		for (String line = in.readLine(); line != null; line = in.readLine())
 			builder.append(line + "\n");
