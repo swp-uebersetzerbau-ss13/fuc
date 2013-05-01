@@ -1,0 +1,62 @@
+/**
+ * 
+ */
+package swp_compiler_ss13.common.lexer;
+
+/**
+ * @author Ho, Tay Phuong
+ *
+ */
+public class BoolTokenClass implements BoolToken {
+  
+	private String value;
+	private TokenType type;
+	private Integer line;
+	private Integer column;
+
+	/**
+	 * 
+	 */
+	public BoolTokenClass(String value, TokenType type, Integer line, Integer column) {
+		
+		this.value = value;
+		this.type = type;
+		this.line = line;
+		this.column = column;
+	}
+	
+	/**
+	 * @return string readed by lexer for this token
+	 */
+	public String getValue() {
+		return this.value;
+	}
+
+	/**
+	 * @return type of token
+	 */
+	public TokenType getTokenType() {
+		return this.type;
+	}
+	
+	/**
+	 * @return line of code in source file
+	 */
+	public Integer getLine() {
+		return this.line;
+	}
+
+	/**
+	 * @return column of code in source file
+	 */
+	public Integer getColumn() {
+		return this.column;
+	}
+	
+	public Boolean getBooleanValue(){
+		if (this.value == "true")
+			return true;
+		else return false;
+	}
+	
+}
