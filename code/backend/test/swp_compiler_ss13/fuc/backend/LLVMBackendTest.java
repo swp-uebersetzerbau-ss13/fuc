@@ -108,6 +108,46 @@ public class LLVMBackendTest {
     }
 
 	@Test
+    public void generateTargetCodeTest_DeclareDouble_InitConst() throws IOException {
+        Quadruple declaration = new Q(
+	        Quadruple.Operator.DECLARE_DOUBLE,
+	        "#0.0",
+	        Quadruple.EmptyArgument,
+	        "doubleVariable");
+        InputStream codeStream = generateCode(declaration);
+        String generatedCode = buildString(codeStream);
+        String expectedCode = "define i64 @main() {\n"
+	        + "  %doubleVariable = alloca double\n"
+	        + "  store double 0.0, double* %doubleVariable\n"
+	        + "  ret i64 0\n}\n";
+        assertEquals(expectedCode, generatedCode);
+    }
+
+	@Test
+    public void generateTargetCodeTest_DeclareDouble_InitVar() throws IOException {
+        ArrayList<Quadruple> tac = new ArrayList<Quadruple>();
+		tac.add(new Q(
+			        Quadruple.Operator.DECLARE_DOUBLE,
+			        Quadruple.EmptyArgument,
+			        Quadruple.EmptyArgument,
+			        "init"));
+		tac.add(new Q(
+			        Quadruple.Operator.DECLARE_DOUBLE,
+			        "init",
+			        Quadruple.EmptyArgument,
+			        "doubleVariable"));
+        InputStream codeStream = generateCode(tac);
+        String generatedCode = buildString(codeStream);
+        String expectedCode = "define i64 @main() {\n"
+	        + "  %init = alloca double\n"
+	        + "  %doubleVariable = alloca double\n"
+	        + "  %init.0 = load double* %init\n"
+	        + "  store double %init.0, double* %doubleVariable\n"
+	        + "  ret i64 0\n}\n";
+        assertEquals(expectedCode, generatedCode);
+    }
+
+	@Test
     public void generateTargetCodeTest_DeclareBoolean() throws IOException {
         Quadruple declaration = new Q(
 	        Quadruple.Operator.DECLARE_BOOLEAN,
@@ -121,6 +161,62 @@ public class LLVMBackendTest {
     }
 
 	@Test
+    public void generateTargetCodeTest_DeclareBoolean_InitConst_False() throws IOException {
+        Quadruple declaration = new Q(
+	        Quadruple.Operator.DECLARE_BOOLEAN,
+	        "#FALSE",
+	        Quadruple.EmptyArgument,
+	        "booleanVariable");
+        InputStream codeStream = generateCode(declaration);
+        String generatedCode = buildString(codeStream);
+        String expectedCode = "define i64 @main() {\n"
+	        + "  %booleanVariable = alloca i8\n"
+	        + "  store i8 0, i8* %booleanVariable\n"
+	        + "  ret i64 0\n}\n";
+        assertEquals(expectedCode, generatedCode);
+    }
+
+	@Test
+    public void generateTargetCodeTest_DeclareBoolean_InitConst_True() throws IOException {
+        Quadruple declaration = new Q(
+	        Quadruple.Operator.DECLARE_BOOLEAN,
+	        "#TRUE",
+	        Quadruple.EmptyArgument,
+	        "booleanVariable");
+        InputStream codeStream = generateCode(declaration);
+        String generatedCode = buildString(codeStream);
+        String expectedCode = "define i64 @main() {\n"
+	        + "  %booleanVariable = alloca i8\n"
+	        + "  store i8 1, i8* %booleanVariable\n"
+	        + "  ret i64 0\n}\n";
+        assertEquals(expectedCode, generatedCode);
+    }
+
+	@Test
+    public void generateTargetCodeTest_DeclareBoolean_InitVar() throws IOException {
+        ArrayList<Quadruple> tac = new ArrayList<Quadruple>();
+		tac.add(new Q(
+			        Quadruple.Operator.DECLARE_BOOLEAN,
+			        Quadruple.EmptyArgument,
+			        Quadruple.EmptyArgument,
+			        "init"));
+		tac.add(new Q(
+			        Quadruple.Operator.DECLARE_BOOLEAN,
+			        "init",
+			        Quadruple.EmptyArgument,
+			        "booleanVariable"));
+        InputStream codeStream = generateCode(tac);
+        String generatedCode = buildString(codeStream);
+        String expectedCode = "define i64 @main() {\n"
+	        + "  %init = alloca i8\n"
+	        + "  %booleanVariable = alloca i8\n"
+	        + "  %init.0 = load i8* %init\n"
+	        + "  store i8 %init.0, i8* %booleanVariable\n"
+	        + "  ret i64 0\n}\n";
+        assertEquals(expectedCode, generatedCode);
+    }
+
+	@Test
     public void generateTargetCodeTest_DeclareString() throws IOException {
         Quadruple declaration = new Q(
 	        Quadruple.Operator.DECLARE_STRING,
@@ -130,6 +226,49 @@ public class LLVMBackendTest {
         InputStream codeStream = generateCode(declaration);
         String generatedCode = buildString(codeStream);
         String expectedCode = "define i64 @main() {\n  %stringVariable = alloca i8*\n  ret i64 0\n}\n";
+        assertEquals(expectedCode, generatedCode);
+    }
+
+	@Test
+    public void generateTargetCodeTest_DeclareString_InitConst() throws IOException {
+        Quadruple declaration = new Q(
+	        Quadruple.Operator.DECLARE_STRING,
+	        "#\"Foo\"",
+	        Quadruple.EmptyArgument,
+	        "stringVariable");
+        InputStream codeStream = generateCode(declaration);
+        String generatedCode = buildString(codeStream);
+        String expectedCode = "define i64 @main() {\n"
+	        + "  %stringVariable = alloca i8*\n"
+	        + "  %.string_0 = alloca [3 x i8]\n"
+	        + "  store [3 x i8] c\"Foo\", [3 x i8]* %.string_0\n"
+	        + "  %stringVariable.0 = getelementptr [3 x i8]* %.string_0, i64 0, i64 0\n"
+	        + "  store i8* %stringVariable.0, i8** %stringVariable\n"
+	        + "  ret i64 0\n}\n";
+        assertEquals(expectedCode, generatedCode);
+    }
+
+	@Test
+    public void generateTargetCodeTest_DeclareString_InitVar() throws IOException {
+        ArrayList<Quadruple> tac = new ArrayList<Quadruple>();
+		tac.add(new Q(
+			        Quadruple.Operator.DECLARE_STRING,
+			        Quadruple.EmptyArgument,
+			        Quadruple.EmptyArgument,
+			        "init"));
+		tac.add(new Q(
+			        Quadruple.Operator.DECLARE_STRING,
+			        "init",
+			        Quadruple.EmptyArgument,
+			        "stringVariable"));
+        InputStream codeStream = generateCode(tac);
+        String generatedCode = buildString(codeStream);
+        String expectedCode = "define i64 @main() {\n"
+	        + "  %init = alloca i8*\n"
+	        + "  %stringVariable = alloca i8*\n"
+	        + "  %init.0 = load i8** %init\n"
+	        + "  store i8* %init.0, i8** %stringVariable\n"
+	        + "  ret i64 0\n}\n";
         assertEquals(expectedCode, generatedCode);
     }
 
