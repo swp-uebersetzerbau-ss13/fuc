@@ -121,8 +121,11 @@ public class SemanticAnalyser {
 
 	private void handleNode(BasicIdentifierNode node, SymbolTable table) {
 		setAttribute(node, Attribute.IDENTIFIER, node.getIdentifier());
-		setAttribute(node, Attribute.HAS_VALUE, isInitialized(getIdentifierSymboltable(table, node
-				.getIdentifier()), node.getIdentifier()) ? IS_INITIALIZED : IS_NOT_INITIALIZED);
+		setAttribute(
+				node,
+				Attribute.HAS_VALUE,
+				isInitialized(getIdentifierSymboltable(table, node.getIdentifier()), node.getIdentifier()) ? IS_INITIALIZED
+						: IS_NOT_INITIALIZED);
 	}
 
 	private void handleNode(ReturnNode node, SymbolTable table) {
@@ -130,8 +133,8 @@ public class SemanticAnalyser {
 		traverseAstNode(identifier, table);
 		switch (getAttribute(identifier, Attribute.HAS_VALUE)) {
 		case IS_NOT_INITIALIZED:
-			_errorLog.reportError("", -1, -1, "Variable"
-					+ getAttribute(identifier, Attribute.IDENTIFIER) + " is not initialized");
+			_errorLog.reportError("", -1, -1, "Variable" + getAttribute(identifier, Attribute.IDENTIFIER)
+					+ " is not initialized");
 			break;
 		case IS_INITIALIZED:
 			break;
