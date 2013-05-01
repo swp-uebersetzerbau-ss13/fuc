@@ -14,6 +14,8 @@ import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
 import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ReturnNode;
+import swp_compiler_ss13.common.parser.SymbolTable;
+import swp_compiler_ss13.common.types.primitive.LongType;
 import swp_compiler_ss13.fuc.ast.ASTImpl;
 import swp_compiler_ss13.fuc.ast.BasicIdentifierNodeImpl;
 import swp_compiler_ss13.fuc.ast.BlockNodeImpl;
@@ -54,6 +56,8 @@ public class SemanticAnalyserTest {
 	}
 
 	private AST createErrorUndefReturnAst() {
+		SymbolTable symbolTable = new TestSymbolTable();
+		symbolTable.insert("spam", new LongType());
 		DeclarationNode declaration = new DeclarationNodeImpl();
 		declaration.setIdentifier("spam");
 		BasicIdentifierNode identifier = new BasicIdentifierNodeImpl();
@@ -63,6 +67,7 @@ public class SemanticAnalyserTest {
 		BlockNode blockNode = new BlockNodeImpl();
 		blockNode.addDeclaration(declaration);
 		blockNode.addStatement(returnNode);
+		blockNode.setSymbolTable(symbolTable);
 		AST ast = new ASTImpl();
 		ast.setRootNode(blockNode);
 		return ast;
