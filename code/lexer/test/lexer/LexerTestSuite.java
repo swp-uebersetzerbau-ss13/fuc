@@ -13,7 +13,7 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 /**
- * @author Thomas Benndorf
+ * @author Thomas Benndorf, Tay Phuong Ho
  * @since 28.04.2013
  * 
  */
@@ -22,14 +22,14 @@ import org.junit.runners.Suite.SuiteClasses;
 		ArithmeticExpressionsTest.class })
 public class LexerTestSuite {
 	public static final String fileLocation1 = "~/common/examples/m1/add.prog";
-	public static final String fileLocation2;
-	public static final String fileLocation3;
-	public static final String fileLocation4;
-	public static final String fileLocation5;
-	public static final String fileLocation6;
-	public static final String fileLocation7;
-	public static final String fileLocation8;
-	public static final String fileLocation9;
+	public static final String fileLocation2 = "~/common/examples/m1/error_double_decl.prog";
+	public static final String fileLocation3 = "~/common/examples/m1/error_invalid_ids.prog";
+	public static final String fileLocation4 = "~/common/examples/m1/error_multiple_minus_e_notation.prog";
+	public static final String fileLocation5 = "~/common/examples/m1/error_multiple_pluses_in_exp.prog";
+	public static final String fileLocation6 = "~/common/examples/m1/error_undef_return.prog";
+	public static final String fileLocation7 = "~/common/examples/m1/paratheses.prog";
+	public static final String fileLocation8 = "~/common/examples/m1/simple_add.prog";
+	public static final String fileLocation9 = "~/common/examples/m1/simple_mul.prog";
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
