@@ -589,7 +589,279 @@ public class LLVMBackendTest {
 		assertEquals(expectedCode, generatedCode);
 	}
 
+	// ARITHMETIC
+	
+	// Add
+
+
+	@Test
+	public void generateTargetCodeTest_AddLong_Const() throws IOException {
+		tac.add(new Q(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
+		tac.add(new Q(Quadruple.Operator.ADD_LONG, "#23", "#42", "result"));
+		String expectedCode = "define i64 @main() {\n" +
+				"  %result = alloca i64\n" + 
+				"  %result.0 = add i64 23, 42\n" +
+				"  store i64 %result.0, i64* %result\n" + 
+				"  ret i64 0\n" + 
+				"}\n";
+		test(tac, expectedCode);
+	}
+
+	@Test
+	public void generateTargetCodeTest_AddLong_Var() throws IOException {
+		tac.add(new Q(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "longVar1"));
+		tac.add(new Q(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "longVar2"));
+		tac.add(new Q(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
+		tac.add(new Q(Quadruple.Operator.ADD_LONG, "longVar1", "longVar2", "result"));
+		String expectedCode = "define i64 @main() {\n" +
+				"  %longVar1 = alloca i64\n" +
+				"  %longVar2 = alloca i64\n" +
+				"  %result = alloca i64\n" +
+				"  %longVar1.0 = load i64* %longVar1\n" +
+				"  %longVar2.0 = load i64* %longVar2\n" +
+				"  %result.0 = add i64 %longVar1.0, %longVar2.0\n" +
+				"  store i64 %result.0, i64* %result\n" +
+				"  ret i64 0\n" +
+				"}\n";
+        test(tac, expectedCode);
+	}
+
+	@Test
+	public void generateTargetCodeTest_AddDouble_Const() throws IOException {
+		tac.add(new Q(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
+		tac.add(new Q(Quadruple.Operator.ADD_DOUBLE, "#23.0", "#42.0", "result"));
+		String expectedCode = "define i64 @main() {\n"
+				+ "  %result = alloca double\n"
+				+ "  %result.0 = fadd double 23.0, 42.0\n"
+				+ "  store double %result.0, double* %result\n"
+				+ "  ret i64 0\n"
+				+ "}\n";
+		test(tac, expectedCode);
+	}
+
+	@Test
+	public void generateTargetCodeTest_AddDouble_Var() throws IOException {
+		tac.add(new Q(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "doubleVar1"));
+		tac.add(new Q(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "doubleVar2"));
+		tac.add(new Q(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
+		tac.add(new Q(Quadruple.Operator.ADD_DOUBLE, "doubleVar1", "doubleVar2", "result"));
+		String expectedCode = "define i64 @main() {\n" +
+				"  %doubleVar1 = alloca double\n" +
+				"  %doubleVar2 = alloca double\n" +
+				"  %result = alloca double\n" +
+				"  %doubleVar1.0 = load double* %doubleVar1\n" +
+				"  %doubleVar2.0 = load double* %doubleVar2\n" +
+				"  %result.0 = fadd double %doubleVar1.0, %doubleVar2.0\n" +
+				"  store double %result.0, double* %result\n" +
+				"  ret i64 0\n" +
+				"}\n";
+		test(tac, expectedCode);
+	}
+
+	// Sub
+
+	@Test
+	public void generateTargetCodeTest_SubLong_Const() throws IOException {
+		tac.add(new Q(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
+		tac.add(new Q(Quadruple.Operator.SUB_LONG, "#23", "#42", "result"));
+		String expectedCode = "define i64 @main() {\n" +
+				"  %result = alloca i64\n" +
+				"  %result.0 = sub i64 23, 42\n" +
+				"  store i64 %result.0, i64* %result\n" +
+				"  ret i64 0\n" +
+				"}\n";
+		test(tac, expectedCode);
+	}
+
+	@Test
+	public void generateTargetCodeTest_SubLong_Var() throws IOException {
+		tac.add(new Q(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "longVar1"));
+		tac.add(new Q(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "longVar2"));
+		tac.add(new Q(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
+		tac.add(new Q(Quadruple.Operator.SUB_LONG, "longVar1", "longVar2", "result"));
+		String expectedCode = "define i64 @main() {\n" +
+				"  %longVar1 = alloca i64\n" +
+				"  %longVar2 = alloca i64\n" +
+				"  %result = alloca i64\n" +
+				"  %longVar1.0 = load i64* %longVar1\n" +
+				"  %longVar2.0 = load i64* %longVar2\n" +
+				"  %result.0 = sub i64 %longVar1.0, %longVar2.0\n" +
+				"  store i64 %result.0, i64* %result\n" +
+				"  ret i64 0\n" +
+				"}\n";
+		test(tac, expectedCode);
+	}
+
+	@Test
+	public void generateTargetCodeTest_SubDouble_Const() throws IOException {
+		tac.add(new Q(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
+		tac.add(new Q(Quadruple.Operator.SUB_DOUBLE, "#23.0", "#42.0", "result"));
+		String expectedCode = "define i64 @main() {\n"
+				+ "  %result = alloca double\n"
+				+ "  %result.0 = fsub double 23.0, 42.0\n"
+				+ "  store double %result.0, double* %result\n"
+				+ "  ret i64 0\n"
+				+ "}\n";
+		test(tac, expectedCode);
+	}
+
+	@Test
+	public void generateTargetCodeTest_SubDouble_Var() throws IOException {
+		tac.add(new Q(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "doubleVar1"));
+		tac.add(new Q(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "doubleVar2"));
+		tac.add(new Q(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
+		tac.add(new Q(Quadruple.Operator.SUB_DOUBLE, "doubleVar1", "doubleVar2", "result"));
+		String expectedCode = "define i64 @main() {\n" +
+				"  %doubleVar1 = alloca double\n" +
+				"  %doubleVar2 = alloca double\n" +
+				"  %result = alloca double\n" +
+				"  %doubleVar1.0 = load double* %doubleVar1\n" +
+				"  %doubleVar2.0 = load double* %doubleVar2\n" +
+				"  %result.0 = fsub double %doubleVar1.0, %doubleVar2.0\n" +
+				"  store double %result.0, double* %result\n" +
+				"  ret i64 0\n" +
+				"}\n";
+		test(tac, expectedCode);
+	}
+
+	// Multiplication
+
+	@Test
+	public void generateTargetCodeTest_MulLong_Const() throws IOException {
+		tac.add(new Q(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
+		tac.add(new Q(Quadruple.Operator.MUL_LONG, "#23", "#42", "result"));
+		String expectedCode = "define i64 @main() {\n" +
+				"  %result = alloca i64\n" +
+				"  %result.0 = mul i64 23, 42\n" +
+				"  store i64 %result.0, i64* %result\n" +
+				"  ret i64 0\n" +
+				"}\n";
+		test(tac, expectedCode);
+	}
+
+	@Test
+	public void generateTargetCodeTest_MulLong_Var() throws IOException {
+		tac.add(new Q(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "longVar1"));
+		tac.add(new Q(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "longVar2"));
+		tac.add(new Q(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
+		tac.add(new Q(Quadruple.Operator.MUL_LONG, "longVar1", "longVar2", "result"));
+		String expectedCode = "define i64 @main() {\n" +
+				"  %longVar1 = alloca i64\n" +
+				"  %longVar2 = alloca i64\n" +
+				"  %result = alloca i64\n" +
+				"  %longVar1.0 = load i64* %longVar1\n" +
+				"  %longVar2.0 = load i64* %longVar2\n" +
+				"  %result.0 = mul i64 %longVar1.0, %longVar2.0\n" +
+				"  store i64 %result.0, i64* %result\n" +
+				"  ret i64 0\n" +
+				"}\n";
+		test(tac, expectedCode);
+	}
+
+	@Test
+	public void generateTargetCodeTest_MulDouble_Const() throws IOException {
+		tac.add(new Q(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
+		tac.add(new Q(Quadruple.Operator.MUL_DOUBLE, "#23.0", "#42.0", "result"));
+		String expectedCode = "define i64 @main() {\n"
+				+ "  %result = alloca double\n"
+				+ "  %result.0 = fmul double 23.0, 42.0\n"
+				+ "  store double %result.0, double* %result\n"
+				+ "  ret i64 0\n"
+				+ "}\n";
+		test(tac, expectedCode);
+	}
+
+	@Test
+	public void generateTargetCodeTest_MulDouble_Var() throws IOException {
+		tac.add(new Q(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "doubleVar1"));
+		tac.add(new Q(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "doubleVar2"));
+		tac.add(new Q(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
+		tac.add(new Q(Quadruple.Operator.MUL_DOUBLE, "doubleVar1", "doubleVar2", "result"));
+		String expectedCode = "define i64 @main() {\n" +
+				"  %doubleVar1 = alloca double\n" +
+				"  %doubleVar2 = alloca double\n" +
+				"  %result = alloca double\n" +
+				"  %doubleVar1.0 = load double* %doubleVar1\n" +
+				"  %doubleVar2.0 = load double* %doubleVar2\n" +
+				"  %result.0 = fmul double %doubleVar1.0, %doubleVar2.0\n" +
+				"  store double %result.0, double* %result\n" +
+				"  ret i64 0\n" +
+				"}\n";
+		test(tac, expectedCode);
+	}
+
+	// Division
+
+	@Test
+	public void generateTargetCodeTest_DivLong_Const() throws IOException {
+		tac.add(new Q(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
+		tac.add(new Q(Quadruple.Operator.DIV_LONG, "#23", "#42", "result"));
+		String expectedCode = "define i64 @main() {\n" +
+				"  %result = alloca i64\n" +
+				"  %result.0 = sdiv i64 23, 42\n" +
+				"  store i64 %result.0, i64* %result\n" +
+				"  ret i64 0\n" +
+				"}\n";
+		test(tac, expectedCode);
+	}
+
+	@Test
+	public void generateTargetCodeTest_DivLong_Var() throws IOException {
+		tac.add(new Q(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "longVar1"));
+		tac.add(new Q(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "longVar2"));
+		tac.add(new Q(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
+		tac.add(new Q(Quadruple.Operator.DIV_LONG, "longVar1", "longVar2", "result"));
+		String expectedCode = "define i64 @main() {\n" +
+				"  %longVar1 = alloca i64\n" +
+				"  %longVar2 = alloca i64\n" +
+				"  %result = alloca i64\n" +
+				"  %longVar1.0 = load i64* %longVar1\n" +
+				"  %longVar2.0 = load i64* %longVar2\n" +
+				"  %result.0 = sdiv i64 %longVar1.0, %longVar2.0\n" +
+				"  store i64 %result.0, i64* %result\n" +
+				"  ret i64 0\n" +
+				"}\n";
+		test(tac, expectedCode);
+	}
+
+	@Test
+	public void generateTargetCodeTest_DivDouble_Const() throws IOException {
+		tac.add(new Q(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
+		tac.add(new Q(Quadruple.Operator.DIV_DOUBLE, "#23.0", "#42.0", "result"));
+		String expectedCode = "define i64 @main() {\n"
+				+ "  %result = alloca double\n"
+				+ "  %result.0 = fdiv double 23.0, 42.0\n"
+				+ "  store double %result.0, double* %result\n"
+				+ "  ret i64 0\n"
+				+ "}\n";
+		test(tac, expectedCode);
+	}
+
+	@Test
+	public void generateTargetCodeTest_DivDouble_Var() throws IOException {
+		tac.add(new Q(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "doubleVar1"));
+		tac.add(new Q(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "doubleVar2"));
+		tac.add(new Q(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
+		tac.add(new Q(Quadruple.Operator.DIV_DOUBLE, "doubleVar1", "doubleVar2", "result"));
+		String expectedCode = "define i64 @main() {\n" +
+				"  %doubleVar1 = alloca double\n" +
+				"  %doubleVar2 = alloca double\n" +
+				"  %result = alloca double\n" +
+				"  %doubleVar1.0 = load double* %doubleVar1\n" +
+				"  %doubleVar2.0 = load double* %doubleVar2\n" +
+				"  %result.0 = fdiv double %doubleVar1.0, %doubleVar2.0\n" +
+				"  store double %result.0, double* %result\n" +
+				"  ret i64 0\n" +
+				"}\n";
+		test(tac, expectedCode);
+	}
+
 	// Util
+
+    private void test(ArrayList<Quadruple> tac, String expectedCode) throws IOException {
+        String generatedCode = generateCodeAsString(tac);
+        assertEquals(expectedCode, generatedCode);
+    }
 
 	private InputStream generateCode(Quadruple quadruple) {
 		ArrayList<Quadruple> tacList = new ArrayList<Quadruple>();
