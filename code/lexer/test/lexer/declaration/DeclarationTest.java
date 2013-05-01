@@ -8,7 +8,7 @@ import org.junit.Test;
 
 /**
  * 
- * @author cruaier
+ * @author Thomas Benndorf, Tay Phuong Ho
  * @since 28.04.2013
  * 
  */
