@@ -206,6 +206,31 @@ public class Module
 	}
 
 	/**
+	 * Convert a three adress code boolean
+	 * to an LLVM IR boolean.
+	 * All other public functions expect booleans
+	 * to be in the LLVM IR format.
+	 *
+	 * @param constant a TAC boolean
+	 * @return the converted LLVM IR boolean
+	 */
+	public static String toIRBoolean(String bool)
+	{
+		if(bool.equals("#FALSE"))
+		{
+			return "#0";
+		}
+		else if(bool.equals("#TRUE"))
+		{
+			return "#1";
+		}
+		else
+		{
+			return bool;
+		}
+	}
+
+	/**
 	 * Generates a new string literal from a <code>String</code>
 	 * value and returns its id (i.e. its position in the
 	 * list of string literals <code>stringLiterals</code>).

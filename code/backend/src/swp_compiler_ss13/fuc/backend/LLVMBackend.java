@@ -56,7 +56,7 @@ public class LLVMBackend implements Backend
 					m.addPrimitiveDeclare(
 						Type.Kind.BOOLEAN,
 						q.getResult(),
-						q.getArgument1());
+						Module.toIRBoolean(q.getArgument1()));
 					break;
 				case DECLARE_STRING:
 					m.addPrimitiveDeclare(
@@ -98,7 +98,7 @@ public class LLVMBackend implements Backend
 					m.addPrimitiveAssign(
 						Type.Kind.BOOLEAN,
 						q.getResult(),
-						q.getArgument1());
+						Module.toIRBoolean(q.getArgument1()));
 					break;
 				case ASSIGN_STRING:
 					m.addPrimitiveAssign(
