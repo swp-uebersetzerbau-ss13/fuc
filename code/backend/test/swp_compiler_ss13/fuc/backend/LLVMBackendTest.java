@@ -50,9 +50,9 @@ public class LLVMBackendTest {
 			        Quadruple.EmptyArgument,
 			        Quadruple.EmptyArgument,
 			        "longVariable"));
-		String generatedCode = generateCodeAsString(tac);
 		String expectedCode = "define i64 @main() {\n  %longVariable = alloca i64\n  ret i64 0\n}\n";
-		assertEquals(expectedCode, generatedCode);
+		assertEquals(expectedCode, generateCodeAsString(tac));
+
 	}
 
 	@Test
@@ -62,12 +62,12 @@ public class LLVMBackendTest {
 			        "#0",
 			        Quadruple.EmptyArgument,
 			        "longVariable"));
-		String generatedCode = generateCodeAsString(tac);
 		String expectedCode = "define i64 @main() {\n"
 			+ "  %longVariable = alloca i64\n"
 			+ "  store i64 0, i64* %longVariable\n"
 			+ "  ret i64 0\n}\n";
-		assertEquals(expectedCode, generatedCode);
+		assertEquals(expectedCode, generateCodeAsString(tac));
+
 	}
 
 	@Test
@@ -82,15 +82,13 @@ public class LLVMBackendTest {
 			        "init",
 			        Quadruple.EmptyArgument,
 			        "longVariable"));
-		InputStream codeStream = generateCode(tac);
-		String generatedCode = buildString(codeStream);
 		String expectedCode = "define i64 @main() {\n"
 			+ "  %init = alloca i64\n"
 			+ "  %longVariable = alloca i64\n"
 			+ "  %init.0 = load i64* %init\n"
 			+ "  store i64 %init.0, i64* %longVariable\n"
 			+ "  ret i64 0\n}\n";
-		assertEquals(expectedCode, generatedCode);
+		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -100,10 +98,8 @@ public class LLVMBackendTest {
 			        Quadruple.EmptyArgument,
 			        Quadruple.EmptyArgument,
 			        "doubleVariable"));
-		InputStream codeStream = generateCode(tac);
-		String generatedCode = buildString(codeStream);
 		String expectedCode = "define i64 @main() {\n  %doubleVariable = alloca double\n  ret i64 0\n}\n";
-		assertEquals(expectedCode, generatedCode);
+		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -113,13 +109,11 @@ public class LLVMBackendTest {
 			        "#0.0",
 			        Quadruple.EmptyArgument,
 			        "doubleVariable"));
-		InputStream codeStream = generateCode(tac);
-		String generatedCode = buildString(codeStream);
 		String expectedCode = "define i64 @main() {\n"
 			+ "  %doubleVariable = alloca double\n"
 			+ "  store double 0.0, double* %doubleVariable\n"
 			+ "  ret i64 0\n}\n";
-		assertEquals(expectedCode, generatedCode);
+		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -134,15 +128,13 @@ public class LLVMBackendTest {
 			        "init",
 			        Quadruple.EmptyArgument,
 			        "doubleVariable"));
-		InputStream codeStream = generateCode(tac);
-		String generatedCode = buildString(codeStream);
 		String expectedCode = "define i64 @main() {\n"
 			+ "  %init = alloca double\n"
 			+ "  %doubleVariable = alloca double\n"
 			+ "  %init.0 = load double* %init\n"
 			+ "  store double %init.0, double* %doubleVariable\n"
 			+ "  ret i64 0\n}\n";
-		assertEquals(expectedCode, generatedCode);
+		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -152,10 +144,8 @@ public class LLVMBackendTest {
 			        Quadruple.EmptyArgument,
 			        Quadruple.EmptyArgument,
 			        "boolVariable"));
-		InputStream codeStream = generateCode(tac);
-		String generatedCode = buildString(codeStream);
 		String expectedCode = "define i64 @main() {\n  %boolVariable = alloca i8\n  ret i64 0\n}\n";
-		assertEquals(expectedCode, generatedCode);
+		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -165,13 +155,11 @@ public class LLVMBackendTest {
 			        "#FALSE",
 			        Quadruple.EmptyArgument,
 			        "booleanVariable"));
-		InputStream codeStream = generateCode(tac);
-		String generatedCode = buildString(codeStream);
 		String expectedCode = "define i64 @main() {\n"
 			+ "  %booleanVariable = alloca i8\n"
 			+ "  store i8 0, i8* %booleanVariable\n"
 			+ "  ret i64 0\n}\n";
-		assertEquals(expectedCode, generatedCode);
+		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -181,13 +169,11 @@ public class LLVMBackendTest {
 			        "#TRUE",
 			        Quadruple.EmptyArgument,
 			        "booleanVariable"));
-		InputStream codeStream = generateCode(tac);
-		String generatedCode = buildString(codeStream);
 		String expectedCode = "define i64 @main() {\n"
 			+ "  %booleanVariable = alloca i8\n"
 			+ "  store i8 1, i8* %booleanVariable\n"
 			+ "  ret i64 0\n}\n";
-		assertEquals(expectedCode, generatedCode);
+		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -202,15 +188,13 @@ public class LLVMBackendTest {
 			        "init",
 			        Quadruple.EmptyArgument,
 			        "booleanVariable"));
-		InputStream codeStream = generateCode(tac);
-		String generatedCode = buildString(codeStream);
 		String expectedCode = "define i64 @main() {\n"
 			+ "  %init = alloca i8\n"
 			+ "  %booleanVariable = alloca i8\n"
 			+ "  %init.0 = load i8* %init\n"
 			+ "  store i8 %init.0, i8* %booleanVariable\n"
 			+ "  ret i64 0\n}\n";
-		assertEquals(expectedCode, generatedCode);
+		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -220,10 +204,8 @@ public class LLVMBackendTest {
 			        Quadruple.EmptyArgument,
 			        Quadruple.EmptyArgument,
 			        "stringVariable"));
-		InputStream codeStream = generateCode(tac);
-		String generatedCode = buildString(codeStream);
 		String expectedCode = "define i64 @main() {\n  %stringVariable = alloca i8*\n  ret i64 0\n}\n";
-		assertEquals(expectedCode, generatedCode);
+		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -233,8 +215,6 @@ public class LLVMBackendTest {
 			        "#\"Foo\"",
 			        Quadruple.EmptyArgument,
 			        "stringVariable"));
-		InputStream codeStream = generateCode(tac);
-		String generatedCode = buildString(codeStream);
 		String expectedCode = "define i64 @main() {\n"
 			+ "  %stringVariable = alloca i8*\n"
 			+ "  %.string_0 = alloca [3 x i8]\n"
@@ -242,7 +222,7 @@ public class LLVMBackendTest {
 			+ "  %stringVariable.0 = getelementptr [3 x i8]* %.string_0, i64 0, i64 0\n"
 			+ "  store i8* %stringVariable.0, i8** %stringVariable\n"
 			+ "  ret i64 0\n}\n";
-		assertEquals(expectedCode, generatedCode);
+		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -257,15 +237,13 @@ public class LLVMBackendTest {
 			        "init",
 			        Quadruple.EmptyArgument,
 			        "stringVariable"));
-		InputStream codeStream = generateCode(tac);
-		String generatedCode = buildString(codeStream);
 		String expectedCode = "define i64 @main() {\n"
 			+ "  %init = alloca i8*\n"
 			+ "  %stringVariable = alloca i8*\n"
 			+ "  %init.0 = load i8** %init\n"
 			+ "  store i8* %init.0, i8** %stringVariable\n"
 			+ "  ret i64 0\n}\n";
-		assertEquals(expectedCode, generatedCode);
+		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
 	// Conversion
@@ -287,8 +265,6 @@ public class LLVMBackendTest {
 			        "longVariable",
 			        Quadruple.EmptyArgument,
 			        "doubleVariable"));
-		InputStream codeStream = generateCode(tac);
-		String generatedCode = buildString(codeStream);
 		String expectedCode = "define i64 @main() {\n"
 			+ "  %longVariable = alloca i64\n"
 			+ "  %doubleVariable = alloca double\n"
@@ -296,7 +272,7 @@ public class LLVMBackendTest {
 			+ "  %doubleVariable.0 = sitofp i64 %longVariable.0 to double\n"
 			+ "  store double %doubleVariable.0, double* %doubleVariable\n"
 			+ "  ret i64 0\n}\n";
-		assertEquals(expectedCode, generatedCode);
+		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -316,8 +292,6 @@ public class LLVMBackendTest {
 			        "doubleVariable",
 			        Quadruple.EmptyArgument,
 			        "longVariable"));
-		InputStream codeStream = generateCode(tac);
-		String generatedCode = buildString(codeStream);
 		String expectedCode = "define i64 @main() {\n"
 			+ "  %longVariable = alloca i64\n"
 			+ "  %doubleVariable = alloca double\n"
@@ -325,7 +299,7 @@ public class LLVMBackendTest {
 			+ "  %longVariable.0 = fptosi double %doubleVariable.0 to i64\n"
 			+ "  store i64 %longVariable.0, i64* %longVariable\n"
 			+ "  ret i64 0\n}\n";
-		assertEquals(expectedCode, generatedCode);
+		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
 
@@ -343,13 +317,11 @@ public class LLVMBackendTest {
 			        "#0",
 			        Quadruple.EmptyArgument,
 			        "longVariable"));
-		InputStream codeStream = generateCode(tac);
-		String generatedCode = buildString(codeStream);
 		String expectedCode = "define i64 @main() {\n"
 			+ "  %longVariable = alloca i64\n"
 			+ "  store i64 0, i64* %longVariable\n"
 			+ "  ret i64 0\n}\n";
-		assertEquals(expectedCode, generatedCode);
+		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -369,15 +341,13 @@ public class LLVMBackendTest {
 			        "init",
 			        Quadruple.EmptyArgument,
 			        "longVariable"));
-		InputStream codeStream = generateCode(tac);
-		String generatedCode = buildString(codeStream);
 		String expectedCode = "define i64 @main() {\n"
 			+ "  %init = alloca i64\n"
 			+ "  %longVariable = alloca i64\n"
 			+ "  %init.0 = load i64* %init\n"
 			+ "  store i64 %init.0, i64* %longVariable\n"
 			+ "  ret i64 0\n}\n";
-		assertEquals(expectedCode, generatedCode);
+		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -392,13 +362,11 @@ public class LLVMBackendTest {
 			        "#0.0",
 			        Quadruple.EmptyArgument,
 			        "doubleVariable"));
-		InputStream codeStream = generateCode(tac);
-		String generatedCode = buildString(codeStream);
 		String expectedCode = "define i64 @main() {\n"
 			+ "  %doubleVariable = alloca double\n"
 			+ "  store double 0.0, double* %doubleVariable\n"
 			+ "  ret i64 0\n}\n";
-		assertEquals(expectedCode, generatedCode);
+		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -418,15 +386,13 @@ public class LLVMBackendTest {
 			        "init",
 			        Quadruple.EmptyArgument,
 			        "doubleVariable"));
-		InputStream codeStream = generateCode(tac);
-		String generatedCode = buildString(codeStream);
 		String expectedCode = "define i64 @main() {\n"
 			+ "  %init = alloca double\n"
 			+ "  %doubleVariable = alloca double\n"
 			+ "  %init.0 = load double* %init\n"
 			+ "  store double %init.0, double* %doubleVariable\n"
 			+ "  ret i64 0\n}\n";
-		assertEquals(expectedCode, generatedCode);
+		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -441,13 +407,11 @@ public class LLVMBackendTest {
 			        "#FALSE",
 			        Quadruple.EmptyArgument,
 			        "booleanVariable"));
-		InputStream codeStream = generateCode(tac);
-		String generatedCode = buildString(codeStream);
 		String expectedCode = "define i64 @main() {\n"
 			+ "  %booleanVariable = alloca i8\n"
 			+ "  store i8 0, i8* %booleanVariable\n"
 			+ "  ret i64 0\n}\n";
-		assertEquals(expectedCode, generatedCode);
+		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -462,13 +426,11 @@ public class LLVMBackendTest {
 			        "#TRUE",
 			        Quadruple.EmptyArgument,
 			        "booleanVariable"));
-		InputStream codeStream = generateCode(tac);
-		String generatedCode = buildString(codeStream);
 		String expectedCode = "define i64 @main() {\n"
 			+ "  %booleanVariable = alloca i8\n"
 			+ "  store i8 1, i8* %booleanVariable\n"
 			+ "  ret i64 0\n}\n";
-		assertEquals(expectedCode, generatedCode);
+		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -488,15 +450,13 @@ public class LLVMBackendTest {
 			        "init",
 			        Quadruple.EmptyArgument,
 			        "booleanVariable"));
-		InputStream codeStream = generateCode(tac);
-		String generatedCode = buildString(codeStream);
 		String expectedCode = "define i64 @main() {\n"
 			+ "  %init = alloca i8\n"
 			+ "  %booleanVariable = alloca i8\n"
 			+ "  %init.0 = load i8* %init\n"
 			+ "  store i8 %init.0, i8* %booleanVariable\n"
 			+ "  ret i64 0\n}\n";
-		assertEquals(expectedCode, generatedCode);
+		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -511,8 +471,6 @@ public class LLVMBackendTest {
 			        "#\"Foo\"",
 			        Quadruple.EmptyArgument,
 			        "stringVariable"));
-		InputStream codeStream = generateCode(tac);
-		String generatedCode = buildString(codeStream);
 		String expectedCode = "define i64 @main() {\n"
 			+ "  %stringVariable = alloca i8*\n"
 			+ "  %.string_0 = alloca [3 x i8]\n"
@@ -520,7 +478,7 @@ public class LLVMBackendTest {
 			+ "  %stringVariable.0 = getelementptr [3 x i8]* %.string_0, i64 0, i64 0\n"
 			+ "  store i8* %stringVariable.0, i8** %stringVariable\n"
 			+ "  ret i64 0\n}\n";
-		assertEquals(expectedCode, generatedCode);
+		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -540,15 +498,13 @@ public class LLVMBackendTest {
 			        "init",
 			        Quadruple.EmptyArgument,
 			        "stringVariable"));
-		InputStream codeStream = generateCode(tac);
-		String generatedCode = buildString(codeStream);
 		String expectedCode = "define i64 @main() {\n"
 			+ "  %init = alloca i8*\n"
 			+ "  %stringVariable = alloca i8*\n"
 			+ "  %init.0 = load i8** %init\n"
 			+ "  store i8* %init.0, i8** %stringVariable\n"
 			+ "  ret i64 0\n}\n";
-		assertEquals(expectedCode, generatedCode);
+		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
 	// Control flow
@@ -560,11 +516,9 @@ public class LLVMBackendTest {
 			        "#1",
 			        Quadruple.EmptyArgument,
 			        Quadruple.EmptyArgument));
-		InputStream codeStream = generateCode(tac);
-		String generatedCode = buildString(codeStream);
 		String expectedCode = "define i64 @main() {\n"
 			+ "  ret i64 1\n}\n";
-		assertEquals(expectedCode, generatedCode);
+		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -579,15 +533,14 @@ public class LLVMBackendTest {
 			        "res",
 			        Quadruple.EmptyArgument,
 			        Quadruple.EmptyArgument));
-		InputStream codeStream = generateCode(tac);
-		String generatedCode = buildString(codeStream);
 		String expectedCode = "define i64 @main() {\n"
 			+ "  %res = alloca i64\n"
 			+ "  store i64 1, i64* %res\n"
 			+ "  %res.0 = load i64* %res\n"
 			+ "  ret i64 %res.0\n}\n";
-		assertEquals(expectedCode, generatedCode);
+		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
+
 
 	// ARITHMETIC
 	
@@ -604,7 +557,7 @@ public class LLVMBackendTest {
 				"  store i64 %result.0, i64* %result\n" + 
 				"  ret i64 0\n" + 
 				"}\n";
-		test(tac, expectedCode);
+		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -623,7 +576,7 @@ public class LLVMBackendTest {
 				"  store i64 %result.0, i64* %result\n" +
 				"  ret i64 0\n" +
 				"}\n";
-        test(tac, expectedCode);
+        assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -636,7 +589,7 @@ public class LLVMBackendTest {
 				+ "  store double %result.0, double* %result\n"
 				+ "  ret i64 0\n"
 				+ "}\n";
-		test(tac, expectedCode);
+		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -655,7 +608,7 @@ public class LLVMBackendTest {
 				"  store double %result.0, double* %result\n" +
 				"  ret i64 0\n" +
 				"}\n";
-		test(tac, expectedCode);
+		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
 	// Sub
@@ -670,7 +623,7 @@ public class LLVMBackendTest {
 				"  store i64 %result.0, i64* %result\n" +
 				"  ret i64 0\n" +
 				"}\n";
-		test(tac, expectedCode);
+		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -689,7 +642,7 @@ public class LLVMBackendTest {
 				"  store i64 %result.0, i64* %result\n" +
 				"  ret i64 0\n" +
 				"}\n";
-		test(tac, expectedCode);
+		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -702,7 +655,7 @@ public class LLVMBackendTest {
 				+ "  store double %result.0, double* %result\n"
 				+ "  ret i64 0\n"
 				+ "}\n";
-		test(tac, expectedCode);
+		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -721,7 +674,7 @@ public class LLVMBackendTest {
 				"  store double %result.0, double* %result\n" +
 				"  ret i64 0\n" +
 				"}\n";
-		test(tac, expectedCode);
+		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
 	// Multiplication
@@ -736,7 +689,7 @@ public class LLVMBackendTest {
 				"  store i64 %result.0, i64* %result\n" +
 				"  ret i64 0\n" +
 				"}\n";
-		test(tac, expectedCode);
+		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -755,7 +708,7 @@ public class LLVMBackendTest {
 				"  store i64 %result.0, i64* %result\n" +
 				"  ret i64 0\n" +
 				"}\n";
-		test(tac, expectedCode);
+		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -768,7 +721,7 @@ public class LLVMBackendTest {
 				+ "  store double %result.0, double* %result\n"
 				+ "  ret i64 0\n"
 				+ "}\n";
-		test(tac, expectedCode);
+		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -787,7 +740,7 @@ public class LLVMBackendTest {
 				"  store double %result.0, double* %result\n" +
 				"  ret i64 0\n" +
 				"}\n";
-		test(tac, expectedCode);
+		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
 	// Division
@@ -802,7 +755,7 @@ public class LLVMBackendTest {
 				"  store i64 %result.0, i64* %result\n" +
 				"  ret i64 0\n" +
 				"}\n";
-		test(tac, expectedCode);
+		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -821,7 +774,7 @@ public class LLVMBackendTest {
 				"  store i64 %result.0, i64* %result\n" +
 				"  ret i64 0\n" +
 				"}\n";
-		test(tac, expectedCode);
+		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -834,7 +787,7 @@ public class LLVMBackendTest {
 				+ "  store double %result.0, double* %result\n"
 				+ "  ret i64 0\n"
 				+ "}\n";
-		test(tac, expectedCode);
+		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -853,37 +806,11 @@ public class LLVMBackendTest {
 				"  store double %result.0, double* %result\n" +
 				"  ret i64 0\n" +
 				"}\n";
-		test(tac, expectedCode);
+		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
 	// Util
 
-    private void test(ArrayList<Quadruple> tac, String expectedCode) throws IOException {
-        String generatedCode = generateCodeAsString(tac);
-        assertEquals(expectedCode, generatedCode);
-    }
-
-	private InputStream generateCode(Quadruple quadruple) {
-		ArrayList<Quadruple> tacList = new ArrayList<Quadruple>();
-		tacList.add(quadruple);
-		Map<String, InputStream> result = backend.generateTargetCode(tacList);
-		InputStream module = result.get(".ll");
-		return module;
-	}
-
-	private InputStream generateCode(ArrayList<Quadruple> tac) {
-		Map<String, InputStream> result = backend.generateTargetCode(tac);
-		InputStream module = result.get(".ll");
-		return module;
-	}
-
-	private String buildString(InputStream inputStream) throws IOException {
-		BufferedReader in = new BufferedReader(new InputStreamReader(inputStream));
-		StringBuilder builder = new StringBuilder();
-		for (String line = in.readLine(); line != null; line = in.readLine())
-			builder.append(line + "\n");
-		return builder.toString();
-	}
 
 	private String generateCodeAsString(ArrayList<Quadruple> tac) throws IOException {
 		Map<String, InputStream> result = backend.generateTargetCode(tac);
