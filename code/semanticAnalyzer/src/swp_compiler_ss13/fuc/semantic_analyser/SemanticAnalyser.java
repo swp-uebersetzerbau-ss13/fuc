@@ -8,8 +8,11 @@ import java.util.Set;
 import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.ast.ASTNode;
 import swp_compiler_ss13.common.ast.nodes.IdentifierNode;
+import swp_compiler_ss13.common.ast.nodes.StatementNode;
 import swp_compiler_ss13.common.ast.nodes.binary.AssignmentNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;
+import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
+import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ReturnNode;
 import swp_compiler_ss13.common.parser.ReportLog;
 import swp_compiler_ss13.common.parser.SymbolTable;
@@ -91,11 +94,22 @@ public class SemanticAnalyser {
 		case BranchNode:
 			break;
 		case BlockNode:
+			handleNode((BlockNode) node);
 			break;
 
 		default:
 			_errorLog.reportError("", -1, -1, "unknown ASTNodeType");
 			break;
+		}
+	}
+
+	private void handleNode(BlockNode node) {
+		SymbolTable newTable = node.getSymbolTable();
+		for (DeclarationNode child : node.getDeclarationList()) {
+			traverseAstNode(child, newTable);
+		}
+		for (StatementNode child : node.getStatementList()) {
+			traverseAstNode(child, newTable);
 		}
 	}
 
