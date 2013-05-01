@@ -1,0 +1,285 @@
+/**
+ * 
+ */
+package swp_compiler_ss13.common.lexer;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.UnsupportedEncodingException;
+
+/**
+ * @author Ho, Tay Phuong
+ *
+ */
+public abstract class LexerClass implements Lexer {
+
+  InputStream is;
+	public static int currentindex = 0;
+	
+	/**
+	 * 
+	 */
+	public LexerClass() {
+		// TODO Auto-generated constructor stub
+	}
+
+	/**
+	 * Defines the stream for program source. The stream has to be ready for
+	 * reading. Normally the lexer will read the complete stream till it ends,
+	 * but this is not guaranteed.
+	 * 
+	 * After every call to this method, the lexer behaves as if after the first
+	 * call.
+	 * 
+	 * @param stream
+	 */
+	public void setSourceStream(InputStream stream) {
+		this.is = stream;
+	}
+
+	/** 
+	 * As long as not all characters are tokenized, it returns a token with
+	 * token.getTokenType() != TokenType.EOF
+	 * 
+	 * If there are no characters left for tokenization it always returns a
+	 * EOF-token.
+	 * 
+	 * For all minimal sequences of characters which are not matched by a
+	 * token definition, the lexer returns these as NOT_A_TOKEN-tokens, eg:
+	 * 3 + $$$$ 4 2w
+	 * would result in:
+	 * <NUM, '3'> <PLUS, '+'> <NOT_A_TOKEN, '$$$$'> <NUM, '4'> <NOT_A_TOKEN, '2w'>
+	 * 
+	 * Note that whitespaces are ignored but are essentially for token split. 
+	 * This means '2w' may not be parsed as <NUM, '2'> <ID, 'w'>.
+	 * 
+	 * @return a token instance
+	 */
+	public Token getNextToken(){
+		
+		Reader r;
+		try {
+			r = new BufferedReader(new InputStreamReader(this.is, "UTF-8"));
+		
+			try {
+				int offset = 0;
+				int line = 1;
+				int currentcolumn = 0;
+				int column = 1;
+				int input;
+				char[] charbuf2 = { '1', '2'};
+				char[] charbuf4 = { '1', '2', '3', '4'};
+				char[] charbuf5 = { '1', '2', '3', '4', '5'};
+				char[] charbuf6 = { '1', '2', '3', '4', '5', '6'};
+				
+				while ((input = r.read()) != -1) {
+					int ch = (char) input;
+					
+					switch (ch) {
+						case 't': r.read(charbuf4, offset, 4);
+							if(new String(charbuf4) == "true") {
+								currentcolumn = column;
+								offset += 4;
+								column += 4;
+								return new TokenClass("true", TokenType.TRUE, line, currentcolumn);
+							}
+						case 'f': r.read(charbuf5, offset, 5);
+							if(new String(charbuf5) == "false") {
+								currentcolumn = column;
+								offset += 5;
+								column += 5;
+								return new TokenClass("false", TokenType.FALSE, line, currentcolumn);
+							}
+						case 'i': r.read(charbuf2, offset, 2);
+							if(new String(charbuf2) == "if") {
+								currentcolumn = column;
+								offset += 2;
+								column += 2;
+								return new TokenClass("if", TokenType.IF, line, currentcolumn);
+							}
+						case 'w': r.read(charbuf5, offset, 5);
+							if(new String(charbuf5) == "while") {
+								currentcolumn = column;
+								offset += 5;
+								column += 5;
+								return new TokenClass("while", TokenType.WHILE, line, currentcolumn);
+							}
+						case 'd': r.read(charbuf2, offset, 2);
+							if(new String(charbuf2) == "do") {
+								currentcolumn = column;
+								offset += 2;
+								column += 2;
+								return new TokenClass("do", TokenType.DO, line, currentcolumn);
+							}
+						case 'b': r.read(charbuf5, offset, 5);
+							if(new String(charbuf5) == "break") {
+								currentcolumn = column;
+								offset += 5;
+								column += 5;
+								return new TokenClass("break", TokenType.BREAK, line, currentcolumn);
+							}
+						case 'r': r.read(charbuf6, offset, 6);
+							if(new String(charbuf6) == "return") {
+								currentcolumn = column;
+								offset += 6;
+								column += 6;
+								return new TokenClass("return", TokenType.RETURN, line, currentcolumn);
+							}
+						case 'p': r.read(charbuf5, offset, 5);
+							if(new String(charbuf5) == "print") {
+								currentcolumn = column;
+								offset += 5;
+								column += 5;
+								return new TokenClass("print", TokenType.PRINT, line, currentcolumn);
+							}
+						case '=': r.read(charbuf2, offset, 2);
+							currentcolumn = column;
+							if(new String(charbuf2) == "==") {
+								offset += 2;
+								column += 2;
+								return new TokenClass("==", TokenType.EQUALS, line, currentcolumn);
+							} else {
+								offset += 1;
+								column += 1;
+								return new TokenClass("=", TokenType.ASSIGNOP, line, currentcolumn);
+							}
+						case '&': r.read(charbuf2, offset, 2);
+							currentcolumn = column;
+							if(new String(charbuf2) == "&&") {
+								offset += 2;
+								column += 2;
+								return new TokenClass("&&", TokenType.AND, line, currentcolumn);
+							} else {
+								offset += 1;
+								column += 1;
+								return new TokenClass("&", TokenType.NOT_A_TOKEN, line, currentcolumn);
+							}
+						case '|': r.read(charbuf2, offset, 2);
+							currentcolumn = column;
+							if(new String(charbuf2) == "||") {
+								offset += 2;
+								column += 2;
+								return new TokenClass("||", TokenType.OR, line, currentcolumn);
+							} else {
+								offset += 1;
+								column += 1;
+								return new TokenClass("|", TokenType.NOT_A_TOKEN, line, currentcolumn);
+							}
+						case '!': r.read(charbuf2, offset, 2);
+							currentcolumn = column;
+							if(new String(charbuf2) == "!=") {
+								offset += 2;
+								column += 2;
+								return new TokenClass("!=", TokenType.NOT_EQUALS, line, currentcolumn);
+							} else {
+								offset += 1;
+								column += 1;
+								return new TokenClass("!", TokenType.NOT, line, currentcolumn);
+							}
+						case '<': r.read(charbuf2, offset, 2);
+							currentcolumn = column;
+							if(new String(charbuf2) == "<=") {
+								offset += 2;
+								column += 2;
+								return new TokenClass("<=", TokenType.LESS_OR_EQUAL, line, currentcolumn);
+							} else {
+								offset += 1;
+								column += 1;
+								return new TokenClass("<", TokenType.LESS, line, currentcolumn);
+							}
+						case '>': r.read(charbuf2, offset, 2);
+							currentcolumn = column;
+							if(new String(charbuf2) == ">=") {
+								offset += 2;
+								column += 2;
+								return new TokenClass(">=", TokenType.GREATER_EQUAL, line, currentcolumn);
+							} else {
+								offset += 1;
+								column += 1;
+								return new TokenClass(">", TokenType.GREATER, line, currentcolumn);
+							}
+						case '+': 
+							currentcolumn = column;
+							offset += 1;
+							column += 1;
+							return new TokenClass("+", TokenType.PLUS, line, currentcolumn);
+						case '-': 
+							currentcolumn = column;
+							offset += 1;
+							column += 1;
+							return new TokenClass("-", TokenType.MINUS, line, currentcolumn);
+						case '*': 
+							currentcolumn = column;
+							offset += 1;
+							column += 1;
+							return new TokenClass("*", TokenType.TIMES, line, currentcolumn);
+						case '/': 
+							currentcolumn = column;
+							offset += 1;
+							column += 1;
+							return new TokenClass("/", TokenType.DIVIDE, line, currentcolumn);
+						case '(': 
+							currentcolumn = column;
+							offset += 1;
+							column += 1;
+							return new TokenClass("(", TokenType.LEFT_PARAN, line, currentcolumn);
+						case ')': 
+							currentcolumn = column;
+							offset += 1;
+							column += 1;
+							return new TokenClass(")", TokenType.RIGHT_PARAN, line, currentcolumn);
+						case '[': 
+							currentcolumn = column;
+							offset += 1;
+							column += 1;
+							return new TokenClass("[", TokenType.LEFT_BRACKET, line, currentcolumn);
+						case ']': 
+							currentcolumn = column;
+							offset += 1;
+							column += 1;
+							return new TokenClass("]", TokenType.RIGHT_BRACKET, line, currentcolumn);
+						case '{': 
+							currentcolumn = column;
+							offset += 1;
+							column += 1;
+							return new TokenClass("{", TokenType.LEFT_BRACE, line, currentcolumn);
+						case '}': 
+							currentcolumn = column;
+							offset += 1;
+							column += 1;
+							return new TokenClass("}", TokenType.RIGHT_BRACE, line, currentcolumn);
+						case ';': 
+							currentcolumn = column;
+							offset += 1;
+							column += 1;
+							return new TokenClass(";", TokenType.SEMICOLON, line, currentcolumn);
+							
+					}
+				}
+				return new TokenClass("$", TokenType.EOF, line, column);
+				
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				
+			} finally {
+				try {
+					r.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		
+		} catch (UnsupportedEncodingException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		return new TokenClass("$", TokenType.EOF, 1, 1);
+	}
+	
+}
