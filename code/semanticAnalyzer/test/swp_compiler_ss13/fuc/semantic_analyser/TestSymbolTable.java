@@ -10,11 +10,11 @@ import swp_compiler_ss13.common.types.Type;
 public class TestSymbolTable implements SymbolTable {
 
 	private final Map<String, Type> table;
-	
+
 	public TestSymbolTable() {
 		table = new HashMap<String, Type>();
 	}
-	
+
 	@Override
 	public SymbolTable getParentSymbolTable() {
 		// TODO Auto-generated method stub
@@ -24,7 +24,7 @@ public class TestSymbolTable implements SymbolTable {
 	@Override
 	public Boolean isDeclared(String identifier) {
 		// TODO Auto-generated method stub
-		return null;
+		return table.get(identifier) != null;
 	}
 
 	@Override
@@ -47,8 +47,7 @@ public class TestSymbolTable implements SymbolTable {
 	}
 
 	@Override
-	public void setLivelinessInformation(String identifier,
-			Liveliness liveliness) {
+	public void setLivelinessInformation(String identifier, Liveliness liveliness) {
 		// TODO Auto-generated method stub
 
 	}

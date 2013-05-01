@@ -27,13 +27,16 @@ public class SemanticAnalyserTest {
 	private SemanticAnalyser analyzer;
 	private TestReportLog log;
 
-	public SemanticAnalyserTest() {}
+	public SemanticAnalyserTest() {
+	}
 
 	@BeforeClass
-	public static void setUpClass() {}
+	public static void setUpClass() {
+	}
 
 	@AfterClass
-	public static void tearDownClass() {}
+	public static void tearDownClass() {
+	}
 
 	@Before
 	public void setUp() {
