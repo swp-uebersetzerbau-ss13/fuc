@@ -57,15 +57,13 @@ public class SemanticAnalyserTest {
 		log = null;
 	}
 
+	/**
+	 * # error: id spam is not initialized and returned<br/>
+	 * long spam;<br/>
+	 * return spam;
+	 */
 	@Test
 	public void testInitialization() {
-		AST ast = createErrorUndefReturnAst();
-		analyzer.analyse(ast);
-		assertEquals(1, log.errors.size());
-		// TODO report log contains error
-	}
-
-	private AST createErrorUndefReturnAst() {
 		SymbolTable symbolTable = new TestSymbolTable();
 		symbolTable.insert("spam", new LongType());
 		DeclarationNode declaration = new DeclarationNodeImpl();
@@ -80,23 +78,35 @@ public class SemanticAnalyserTest {
 		blockNode.setSymbolTable(symbolTable);
 		AST ast = new ASTImpl();
 		ast.setRootNode(blockNode);
-		return ast;
+		analyzer.analyse(ast);
+		assertEquals(1, log.errors.size());
+		// TODO report log contains error
 	}
 
+	/**
+	 * # return 27<br/>
+	 * long l;<br/>
+	 * l = 10 +<br/>
+	 * 23 # - 23<br/>
+	 * - 23<br/>
+	 * + 100 /<br/>
+	 * <br/>
+	 * 2<br/>
+	 * - 30<br/>
+	 * - 9 / 3;<br/>
+	 * return l;
+	 */
 	@Test
 	public void testAddProg() {
-		//TODO don't exceed your responsibilities
-		log.errors.clear();
-		
 		SymbolTable symbolTable = new TestSymbolTable();
 		symbolTable.insert("l", new LongType());
-		
+
 		DeclarationNode declaration = new DeclarationNodeImpl();
 		declaration.setIdentifier("l");
-		
+
 		BasicIdentifierNode identifier = new BasicIdentifierNodeImpl();
 		identifier.setIdentifier("l");
-		
+
 		LiteralNode literal10 = new LiteralNodeImpl();
 		literal10.setLiteral("10");
 		literal10.setLiteralType(new LongType());
@@ -121,7 +131,7 @@ public class SemanticAnalyserTest {
 		LiteralNode literal3 = new LiteralNodeImpl();
 		literal3.setLiteral("3");
 		literal3.setLiteralType(new LongType());
-		
+
 		ArithmeticBinaryExpressionNode add1 = new ArithmeticBinaryExpressionNodeImpl();
 		add1.setOperator(BinaryOperator.ADDITION);
 		add1.setLeftValue(literal10);
@@ -150,41 +160,44 @@ public class SemanticAnalyserTest {
 		sub2.setOperator(BinaryOperator.SUBSTRACTION);
 		sub2.setLeftValue(add3);
 		sub2.setRightValue(div2);
-		
+
 		AssignmentNode assignment = new AssignmentNodeImpl();
 		assignment.setLeftValue(identifier);
 		assignment.setRightValue(sub2);
-		
+
 		ReturnNode returnNode = new ReturnNodeImpl();
 		returnNode.setRightValue(identifier);
-		
+
 		BlockNode blockNode = new BlockNodeImpl();
 		blockNode.addDeclaration(declaration);
 		blockNode.addStatement(assignment);
 		blockNode.addStatement(returnNode);
 		blockNode.setSymbolTable(symbolTable);
-		
+
 		AST ast = new ASTImpl();
 		ast.setRootNode(blockNode);
-		
+
 		analyzer.analyse(ast);
 		assertEquals(0, log.errors.size());
 	}
-	
+
+	/**
+	 * # returns 8 or does it?<br/>
+	 * long l;<br/>
+	 * l = ( 3 + 3 ) * 2 - ( l = ( 2 + ( 16 / 8 ) ) );<br/>
+	 * return l;
+	 */
 	@Test
 	public void parathesesProg() {
-		//TODO don't exceed your responsibilities
-		log.errors.clear();
-		
 		SymbolTable symbolTable = new TestSymbolTable();
 		symbolTable.insert("l", new LongType());
-		
+
 		DeclarationNode declaration = new DeclarationNodeImpl();
 		declaration.setIdentifier("l");
-		
+
 		BasicIdentifierNode identifier = new BasicIdentifierNodeImpl();
 		identifier.setIdentifier("l");
-		
+
 		LiteralNode literal3 = new LiteralNodeImpl();
 		literal3.setLiteral("3");
 		literal3.setLiteralType(new LongType());
@@ -197,7 +210,7 @@ public class SemanticAnalyserTest {
 		LiteralNode literal8 = new LiteralNodeImpl();
 		literal8.setLiteral("8");
 		literal8.setLiteralType(new LongType());
-		
+
 		ArithmeticBinaryExpressionNode div1 = new ArithmeticBinaryExpressionNodeImpl();
 		div1.setOperator(BinaryOperator.DIVISION);
 		div1.setLeftValue(literal16);
@@ -206,11 +219,11 @@ public class SemanticAnalyserTest {
 		add2.setOperator(BinaryOperator.ADDITION);
 		add2.setLeftValue(literal2);
 		add2.setRightValue(div1);
-		
+
 		AssignmentNode assignment2 = new AssignmentNodeImpl();
 		assignment2.setLeftValue(identifier);
 		assignment2.setRightValue(add2);
-		
+
 		ArithmeticBinaryExpressionNode add1 = new ArithmeticBinaryExpressionNodeImpl();
 		add1.setOperator(BinaryOperator.ADDITION);
 		add1.setLeftValue(literal3);
@@ -223,112 +236,118 @@ public class SemanticAnalyserTest {
 		sub1.setOperator(BinaryOperator.SUBSTRACTION);
 		sub1.setLeftValue(mul1);
 		sub1.setRightValue(identifier);
-		
+
 		AssignmentNode assignment = new AssignmentNodeImpl();
 		assignment.setLeftValue(identifier);
 		assignment.setRightValue(sub1);
-		
+
 		ReturnNode returnNode = new ReturnNodeImpl();
 		returnNode.setRightValue(identifier);
-		
+
 		BlockNode blockNode = new BlockNodeImpl();
 		blockNode.addDeclaration(declaration);
 		blockNode.addStatement(assignment2);
 		blockNode.addStatement(assignment);
 		blockNode.addStatement(returnNode);
 		blockNode.setSymbolTable(symbolTable);
-		
+
 		AST ast = new ASTImpl();
 		ast.setRootNode(blockNode);
-		
+
 		analyzer.analyse(ast);
 		assertEquals(0, log.errors.size());
 	}
-	
+
+	/**
+	 * # return 6 <br/>
+	 * long l;<br/>
+	 * l = 3 + 3;<br/>
+	 * return l;
+	 */
 	@Test
 	public void simpleAddProg() {
-		//TODO don't exceed your responsibilities
-		log.errors.clear();
-		
 		SymbolTable symbolTable = new TestSymbolTable();
 		symbolTable.insert("l", new LongType());
-		
+
 		DeclarationNode declaration = new DeclarationNodeImpl();
 		declaration.setIdentifier("l");
-		
+
 		BasicIdentifierNode identifier = new BasicIdentifierNodeImpl();
 		identifier.setIdentifier("l");
-		
+
 		LiteralNode literal3 = new LiteralNodeImpl();
 		literal3.setLiteral("3");
-		
+
 		ArithmeticBinaryExpressionNode add = new ArithmeticBinaryExpressionNodeImpl();
 		add.setOperator(BinaryOperator.ADDITION);
 		add.setLeftValue(literal3);
 		add.setRightValue(literal3);
-		
+
 		AssignmentNode assignment = new AssignmentNodeImpl();
 		assignment.setLeftValue(identifier);
 		assignment.setRightValue(add);
-		
+
 		ReturnNode returnNode = new ReturnNodeImpl();
 		returnNode.setRightValue(identifier);
-		
+
 		BlockNode blockNode = new BlockNodeImpl();
 		blockNode.addDeclaration(declaration);
 		blockNode.addStatement(assignment);
 		blockNode.addStatement(returnNode);
 		blockNode.setSymbolTable(symbolTable);
-		
+
 		AST ast = new ASTImpl();
 		ast.setRootNode(blockNode);
-		
+
 		analyzer.analyse(ast);
 		assertEquals(0, log.errors.size());
 	}
-	
+
+	/**
+	 * # return 9 <br/>
+	 * long l;<br/>
+	 * l = 3 * 3;<br/>
+	 * return l;
+	 */
 	@Test
 	public void simpleMulProg() {
-		//TODO don't exceed your responsibilities
-		log.errors.clear();
-		
 		SymbolTable symbolTable = new TestSymbolTable();
 		symbolTable.insert("l", new LongType());
-		
+
 		DeclarationNode declaration = new DeclarationNodeImpl();
 		declaration.setIdentifier("l");
-		
+
 		BasicIdentifierNode identifier = new BasicIdentifierNodeImpl();
 		identifier.setIdentifier("l");
-		
+
 		LiteralNode literal3 = new LiteralNodeImpl();
 		literal3.setLiteral("3");
-		
+
 		ArithmeticBinaryExpressionNode mul = new ArithmeticBinaryExpressionNodeImpl();
 		mul.setOperator(BinaryOperator.MULTIPLICATION);
 		mul.setLeftValue(literal3);
 		mul.setRightValue(literal3);
-		
+
 		AssignmentNode assignment = new AssignmentNodeImpl();
 		assignment.setLeftValue(identifier);
 		assignment.setRightValue(mul);
-		
+
 		ReturnNode returnNode = new ReturnNodeImpl();
 		returnNode.setRightValue(identifier);
-		
+
 		BlockNode blockNode = new BlockNodeImpl();
 		blockNode.addDeclaration(declaration);
 		blockNode.addStatement(assignment);
 		blockNode.addStatement(returnNode);
 		blockNode.setSymbolTable(symbolTable);
-		
+
 		AST ast = new ASTImpl();
 		ast.setRootNode(blockNode);
-		
+
 		analyzer.analyse(ast);
 		assertEquals(0, log.errors.size());
 	}
-	
+
 	/**
 	 * Test of analyse method, of class SemanticAnalyser.
 	 */

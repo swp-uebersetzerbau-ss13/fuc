@@ -7,12 +7,15 @@ import java.util.Set;
 
 import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.ast.ASTNode;
+import swp_compiler_ss13.common.ast.nodes.ExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.IdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.StatementNode;
+import swp_compiler_ss13.common.ast.nodes.binary.ArithmeticBinaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.binary.AssignmentNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;
+import swp_compiler_ss13.common.ast.nodes.leaf.LiteralNode;
 import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
-import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
+import swp_compiler_ss13.common.ast.nodes.unary.ArithmeticUnaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ReturnNode;
 import swp_compiler_ss13.common.parser.ReportLog;
 import swp_compiler_ss13.common.parser.SymbolTable;
@@ -25,12 +28,16 @@ public class SemanticAnalyser {
 		 */
 		TYPE,
 		/**
-		 * <code>"1"</code> - identifier is initialized, <br/>
+		 * <code>"1"</code> - identifier is initialized,<br/>
 		 * <code>"0"</code> - identifier is not initialized
+		 * 
+		 * @see ExpressionNode
 		 */
-		HAS_VALUE,
+		INITIALIZATION_STATUS,
 		/**
 		 * name of identifier
+		 * 
+		 * @see IdentifierNode
 		 */
 		IDENTIFIER
 	}
@@ -54,7 +61,7 @@ public class SemanticAnalyser {
 		return ast;
 	}
 
-	private void traverseAstNode(ASTNode node, SymbolTable table) {
+	protected void traverseAstNode(ASTNode node, SymbolTable table) {
 		switch (node.getNodeType()) {
 		case BasicIdentifierNode:
 			handleNode((BasicIdentifierNode) node, table);
@@ -62,8 +69,10 @@ public class SemanticAnalyser {
 		case BreakNode:
 			break;
 		case LiteralNode:
+			handleNode((LiteralNode) node, table);
 			break;
 		case ArithmeticUnaryExpressionNode:
+			handleNode((ArithmeticUnaryExpressionNode) node, table);
 			break;
 		case ArrayIdentifierNode:
 			break;
@@ -79,6 +88,7 @@ public class SemanticAnalyser {
 		case StructIdentifierNode:
 			break;
 		case ArithmeticBinaryExpressionNode:
+			handleNode((ArithmeticBinaryExpressionNode) node, table);
 			break;
 		case AssignmentNode:
 			handleNode((AssignmentNode) node, table);
@@ -103,35 +113,57 @@ public class SemanticAnalyser {
 		}
 	}
 
-	private void handleNode(BlockNode node) {
+	protected void handleNode(LiteralNode node, SymbolTable table) {
+		setAttribute(node, Attribute.INITIALIZATION_STATUS, IS_INITIALIZED);
+	}
+
+	protected void handleNode(ArithmeticBinaryExpressionNode node, SymbolTable table) {
+		ExpressionNode expression = node.getLeftValue();
+		traverseAstNode(expression, table);
+		checkInitialization(expression);
+		expression = node.getRightValue();
+		traverseAstNode(expression, table);
+		checkInitialization(expression);
+		setAttribute(node, Attribute.INITIALIZATION_STATUS, IS_INITIALIZED);
+	}
+
+	protected void handleNode(ArithmeticUnaryExpressionNode node, SymbolTable table) {
+		ExpressionNode expression = node.getRightValue();
+		traverseAstNode(expression, table);
+		checkInitialization(expression);
+		setAttribute(node, Attribute.INITIALIZATION_STATUS, IS_INITIALIZED);
+	}
+
+	protected void handleNode(BlockNode node) {
 		SymbolTable newTable = node.getSymbolTable();
-		for (DeclarationNode child : node.getDeclarationList()) {
-			traverseAstNode(child, newTable);
-		}
 		for (StatementNode child : node.getStatementList()) {
 			traverseAstNode(child, newTable);
 		}
 	}
 
-	private void handleNode(AssignmentNode node, SymbolTable table) {
+	protected void handleNode(AssignmentNode node, SymbolTable table) {
 		traverseAstNode(node.getLeftValue(), table);
 		traverseAstNode(node.getRightValue(), table);
 		addIdentifier(table, getAttribute(node.getLeftValue(), Attribute.IDENTIFIER));
 	}
 
-	private void handleNode(BasicIdentifierNode node, SymbolTable table) {
+	protected void handleNode(BasicIdentifierNode node, SymbolTable table) {
 		setAttribute(node, Attribute.IDENTIFIER, node.getIdentifier());
 		setAttribute(
 				node,
-				Attribute.HAS_VALUE,
+				Attribute.INITIALIZATION_STATUS,
 				isInitialized(getIdentifierSymboltable(table, node.getIdentifier()), node.getIdentifier()) ? IS_INITIALIZED
 						: IS_NOT_INITIALIZED);
 	}
 
-	private void handleNode(ReturnNode node, SymbolTable table) {
+	protected void handleNode(ReturnNode node, SymbolTable table) {
 		IdentifierNode identifier = node.getRightValue();
 		traverseAstNode(identifier, table);
-		switch (getAttribute(identifier, Attribute.HAS_VALUE)) {
+		checkInitialization(identifier);
+	}
+
+	private void checkInitialization(ExpressionNode identifier) {
+		switch (getAttribute(identifier, Attribute.INITIALIZATION_STATUS)) {
 		case IS_NOT_INITIALIZED:
 			_errorLog.reportError("", -1, -1, "Variable" + getAttribute(identifier, Attribute.IDENTIFIER)
 					+ " is not initialized");
@@ -152,16 +184,15 @@ public class SemanticAnalyser {
 		return identifiers.contains(identifier);
 	}
 
-	private SymbolTable getIdentifierSymboltable(SymbolTable leafTable, String identifier) {
-		SymbolTable result = leafTable;
-		// TODO check if isDeclared is already recursive
-		while (result != null && !result.isDeclared(identifier)) {
-			result = result.getParentSymbolTable();
+	protected SymbolTable getIdentifierSymboltable(SymbolTable childTable, String identifier) {
+		SymbolTable parentTable = childTable;
+		while (!parentTable.isDeclared(identifier)) {
+			parentTable = parentTable.getParentSymbolTable();
 		}
-		return result;
+		return parentTable;
 	}
 
-	private void addIdentifier(SymbolTable table, String identifier) {
+	protected void addIdentifier(SymbolTable table, String identifier) {
 		SymbolTable declarationTable = getIdentifierSymboltable(table, identifier);
 		if (initializations.get(declarationTable) == null) {
 			initializations.put(declarationTable, new HashSet<String>());
@@ -169,7 +200,7 @@ public class SemanticAnalyser {
 		initializations.get(declarationTable).add(identifier);
 	}
 
-	private String getAttribute(ASTNode node, Attribute attribute) {
+	protected String getAttribute(ASTNode node, Attribute attribute) {
 		Map<Attribute, String> nodeMap = attributes.get(node);
 		if (nodeMap == null) {
 			return NO_ATTRIBUTE_VALUE;
@@ -178,7 +209,7 @@ public class SemanticAnalyser {
 		return value == null ? NO_ATTRIBUTE_VALUE : value;
 	}
 
-	private void setAttribute(ASTNode node, Attribute attribute, String value) {
+	protected void setAttribute(ASTNode node, Attribute attribute, String value) {
 		if (attributes.get(node) == null) {
 			attributes.put(node, new HashMap<Attribute, String>());
 		}
