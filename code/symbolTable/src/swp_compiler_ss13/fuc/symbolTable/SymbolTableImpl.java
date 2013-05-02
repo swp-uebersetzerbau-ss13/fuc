@@ -1,4 +1,4 @@
-package symbolTable.impl;
+package swp_compiler_ss13.fuc.symbolTable;
 
 import java.util.HashMap;
 
@@ -24,7 +24,6 @@ public class SymbolTableImpl implements SymbolTable{
 	
 	@Override
 	public SymbolTable getParentSymbolTable() {
-		// TODO Auto-generated method stub
 		return parent;
 	}
 

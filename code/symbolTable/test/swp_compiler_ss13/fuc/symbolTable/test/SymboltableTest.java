@@ -1,4 +1,4 @@
-package symbolTable.testcase;
+package swp_compiler_ss13.fuc.symbolTable.test;
 
 import junit.framework.Assert;
 
@@ -10,7 +10,7 @@ import swp_compiler_ss13.common.parser.SymbolTable;
 import swp_compiler_ss13.common.types.BooleanType;
 import swp_compiler_ss13.common.types.NumType;
 import swp_compiler_ss13.common.types.RealType;
-import symbolTable.impl.SymbolTableImpl;
+import swp_compiler_ss13.fuc.symbolTable.SymbolTableImpl;
 
 public class SymboltableTest {
 
