@@ -1,6 +1,7 @@
 package lexer.token;
 
 import swp_compiler_ss13.common.lexer.NumToken;
+import swp_compiler_ss13.common.lexer.TokenType;
 
 /**
  * @author Ho, Tay Phuong
