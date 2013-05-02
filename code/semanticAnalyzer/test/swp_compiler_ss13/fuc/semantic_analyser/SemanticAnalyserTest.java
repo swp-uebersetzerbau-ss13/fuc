@@ -1,6 +1,7 @@
 package swp_compiler_ss13.fuc.semantic_analyser;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import org.junit.After;
@@ -178,7 +179,7 @@ public class SemanticAnalyserTest {
 		ast.setRootNode(blockNode);
 
 		analyzer.analyse(ast);
-		assertEquals(0, log.errors.size());
+		assertTrue(log.errors.isEmpty());
 	}
 
 	/**
@@ -255,7 +256,7 @@ public class SemanticAnalyserTest {
 		ast.setRootNode(blockNode);
 
 		analyzer.analyse(ast);
-		assertEquals(0, log.errors.size());
+		assertTrue(log.errors.isEmpty());
 	}
 
 	/**
@@ -300,7 +301,7 @@ public class SemanticAnalyserTest {
 		ast.setRootNode(blockNode);
 
 		analyzer.analyse(ast);
-		assertEquals(0, log.errors.size());
+		assertTrue(log.errors.isEmpty());
 	}
 
 	/**
@@ -345,23 +346,7 @@ public class SemanticAnalyserTest {
 		ast.setRootNode(blockNode);
 
 		analyzer.analyse(ast);
-		assertEquals(0, log.errors.size());
+		assertTrue(log.errors.isEmpty());
 	}
 
-	/**
-	 * Test of analyse method, of class SemanticAnalyser.
-	 */
-	@Test
-	public void testAnalyse() {
-		System.out.println("analyse");
-		swp_compiler_ss13.common.ast.AST ast = null;
-		swp_compiler_ss13.common.parser.ReportLog log = null;
-		SemanticAnalyser instance = new SemanticAnalyser(log);
-		swp_compiler_ss13.common.ast.AST expResult = null;
-		swp_compiler_ss13.common.ast.AST result = instance.analyse(ast);
-		assertEquals(expResult, result);
-		// TODO review the generated test code and remove the default call to
-		// fail.
-		fail("The test case is a prototype.");
-	}
 }

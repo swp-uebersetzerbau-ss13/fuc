@@ -5,6 +5,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
+
 import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.ast.ASTNode;
 import swp_compiler_ss13.common.ast.nodes.ExpressionNode;
@@ -21,6 +23,8 @@ import swp_compiler_ss13.common.parser.ReportLog;
 import swp_compiler_ss13.common.parser.SymbolTable;
 
 public class SemanticAnalyser {
+
+	private static Logger logger = Logger.getLogger(SemanticAnalyser.class);
 
 	enum Attribute {
 		/**
@@ -46,14 +50,14 @@ public class SemanticAnalyser {
 	private static final String IS_INITIALIZED = "1";
 	private static final String NO_ATTRIBUTE_VALUE = "no Value";
 
-	private final ReportLog _errorLog;
+	private final ReportLog errorLog;
 	private final Map<ASTNode, Map<Attribute, String>> attributes;
 	private final Map<SymbolTable, Set<String>> initializations;
 
-	public SemanticAnalyser(ReportLog errorLog) {
+	public SemanticAnalyser(ReportLog log) {
 		attributes = new HashMap<>();
 		initializations = new HashMap<>();
-		_errorLog = errorLog;
+		errorLog = log;
 	}
 
 	public AST analyse(AST ast) {
@@ -64,14 +68,17 @@ public class SemanticAnalyser {
 	protected void traverseAstNode(ASTNode node, SymbolTable table) {
 		switch (node.getNodeType()) {
 		case BasicIdentifierNode:
+			logger.trace("handle BasicIdentifierNode");
 			handleNode((BasicIdentifierNode) node, table);
 			break;
 		case BreakNode:
 			break;
 		case LiteralNode:
+			logger.trace("handle LiteralNode");
 			handleNode((LiteralNode) node, table);
 			break;
 		case ArithmeticUnaryExpressionNode:
+			logger.trace("handle ArithmeticUnaryExpressionNode");
 			handleNode((ArithmeticUnaryExpressionNode) node, table);
 			break;
 		case ArrayIdentifierNode:
@@ -83,14 +90,17 @@ public class SemanticAnalyser {
 		case PrintNode:
 			break;
 		case ReturnNode:
+			logger.trace("handle ReturnNode");
 			handleNode((ReturnNode) node, table);
 			break;
 		case StructIdentifierNode:
 			break;
 		case ArithmeticBinaryExpressionNode:
+			logger.trace("handle ArithmeticBinaryExpressionNode");
 			handleNode((ArithmeticBinaryExpressionNode) node, table);
 			break;
 		case AssignmentNode:
+			logger.trace("handle AssignmentNode");
 			handleNode((AssignmentNode) node, table);
 			break;
 		case DoWhileNode:
@@ -104,11 +114,12 @@ public class SemanticAnalyser {
 		case BranchNode:
 			break;
 		case BlockNode:
+			logger.trace("handle BlockNode");
 			handleNode((BlockNode) node);
 			break;
 
 		default:
-			_errorLog.reportError("", -1, -1, "unknown ASTNodeType");
+			errorLog.reportError("", -1, -1, "unknown ASTNodeType");
 			break;
 		}
 	}
@@ -165,13 +176,16 @@ public class SemanticAnalyser {
 	private void checkInitialization(ExpressionNode identifier) {
 		switch (getAttribute(identifier, Attribute.INITIALIZATION_STATUS)) {
 		case IS_NOT_INITIALIZED:
-			_errorLog.reportError("", -1, -1, "Variable" + getAttribute(identifier, Attribute.IDENTIFIER)
+			logger.debug(String.format("Identifier: %s is not initialized", identifier));
+			errorLog.reportError("", -1, -1, "Variable" + getAttribute(identifier, Attribute.IDENTIFIER)
 					+ " is not initialized");
 			break;
 		case IS_INITIALIZED:
 			break;
 		default:
-			throw new IllegalStateException("child node has no initialization information");
+			IllegalStateException e = new IllegalStateException("child node has no initialization information");
+			logger.error("couldn't check initialization of node", e);
+			throw e;
 		}
 	}
 
