@@ -1,7 +1,7 @@
 /**
  * 
  */
-package lexer;
+package swp_compiler_ss13.common.lexer;
 
 import static org.junit.Assert.*;
 
@@ -18,15 +18,12 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import swp_compiler_ss13.common.lexer.LexerClass;
-import swp_compiler_ss13.common.lexer.TokenClass;
-
 /**
  * @author Ho, Tay Phuong
  *
  */
 @RunWith(value = Parameterized.class)
-public class reducedLexerTest {
+public class ReducedLexerTest {
 	private InputStream stream;
 	private LexerClass lexer;
 	 
@@ -46,7 +43,7 @@ public class reducedLexerTest {
 	   return Arrays.asList(data);
 	 }
 
-	 public reducedLexerTest(String fileLocation) throws Exception {
+	 public ReducedLexerTest(String fileLocation) throws Exception {
 	    this.stream = new FileInputStream(fileLocation);
 	 }
 	 
@@ -71,7 +68,11 @@ public class reducedLexerTest {
 	public void testgetNextToken() {
 		TokenClass token = this.lexer.getNextToken();
 		
-		assertTrue(token != null);
+		while (token.getTokenType() != TokenType.EOF) {
+			assertTrue(token != null);
+			
+			token = this.lexer.getNextToken();
+		}
 	}
 	
 }
