@@ -10,6 +10,8 @@ import java.util.Stack;
 
 import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.ast.ASTNode;
+import swp_compiler_ss13.common.ast.nodes.ExpressionNode;
+import swp_compiler_ss13.common.ast.nodes.IdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.StatementNode;
 import swp_compiler_ss13.common.ast.nodes.binary.ArithmeticBinaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.binary.AssignmentNode;
@@ -29,6 +31,7 @@ import swp_compiler_ss13.common.ast.nodes.unary.LogicUnaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.unary.PrintNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ReturnNode;
 import swp_compiler_ss13.common.ast.nodes.unary.StructIdentifierNode;
+import swp_compiler_ss13.common.ast.nodes.unary.UnaryExpressionNode.UnaryOperator;
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.ir.IntermediateCodeGenerator;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
@@ -278,7 +281,39 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 	}
 
 	private void processAssignmentNode(AssignmentNode node) throws IntermediateCodeGeneratorException {
-		// TODO Auto-generated method stub
+		IdentifierNode id = node.getLeftValue();
+
+		switch (id.getNodeType()) {
+		case BasicIdentifierNode:
+			StatementNode value = node.getRightValue();
+
+			this.callProcessing(value);
+
+			String rightValue = this.intermediateResults.pop();
+			Type rightType = this.intermediateTypes.pop();
+
+			String idOrigName = ((BasicIdentifierNode) id).getIdentifier();
+			String idRenamed = this.loadIdentifier(idOrigName);
+			Type typeOfid = this.currentSymbolTable.peek().lookupType(idOrigName);
+
+			String casted = rightValue;
+			if (typeOfid.getKind() == Kind.LONG && rightType.getKind() == Kind.DOUBLE) {
+				casted = this.createAndSaveTemporaryIdentifier(new DoubleType());
+				Quadruple cleft = QuadrupleFactory.castDoubleToLong(rightValue, casted);
+				this.irCode.add(cleft);
+			}
+			if (typeOfid.getKind() == Kind.DOUBLE && rightType.getKind() == Kind.LONG) {
+				casted = this.createAndSaveTemporaryIdentifier(new DoubleType());
+				Quadruple cleft = QuadrupleFactory.castLongToDouble(rightValue, casted);
+				this.irCode.add(cleft);
+			}
+
+			this.irCode.add(QuadrupleFactory.assign(typeOfid, casted, idRenamed));
+
+			break;
+		default:
+			throw new IntermediateCodeGeneratorException("Unsupported identifer type");
+		}
 
 	}
 
@@ -289,8 +324,19 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 
 	private void processArithmeticUnaryExpressionNode(ArithmeticUnaryExpressionNode node)
 			throws IntermediateCodeGeneratorException {
-		// TODO Auto-generated method stub
+		if (node.getOperator() != UnaryOperator.MINUS) {
+			throw new IntermediateCodeGeneratorException("Unsupported arithmetic unary operator");
+		}
+		ExpressionNode rightNode = node.getRightValue();
 
+		this.callProcessing(rightNode);
+
+		String rightResult = this.intermediateResults.pop();
+		Type rightType = this.intermediateTypes.peek();
+
+		String temp = this.createAndSaveTemporaryIdentifier(rightType);
+		this.irCode.add(QuadrupleFactory.unaryMinus(rightType, rightResult, temp));
+		this.intermediateResults.push(temp);
 	}
 
 	/**
