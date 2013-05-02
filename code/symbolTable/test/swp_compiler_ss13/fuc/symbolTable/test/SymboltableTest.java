@@ -7,9 +7,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import swp_compiler_ss13.common.parser.SymbolTable;
-import swp_compiler_ss13.common.types.BooleanType;
-import swp_compiler_ss13.common.types.NumType;
-import swp_compiler_ss13.common.types.RealType;
+import swp_compiler_ss13.common.types.primitive.BooleanType;
+import swp_compiler_ss13.common.types.primitive.DoubleType;
+import swp_compiler_ss13.common.types.primitive.LongType;
 import swp_compiler_ss13.fuc.symbolTable.SymbolTableImpl;
 
 public class SymboltableTest {
@@ -40,11 +40,11 @@ public class SymboltableTest {
 
 	@Test
 	public void testLookupType() {
-		NumType type = new NumType();
+		DoubleType type = new DoubleType();
 		symbolTable.insert("arg1",type);
 		BooleanType type2 = new BooleanType();
 		symbolTable.insert("arg2", type2);
-		RealType type3 = new RealType();
+		LongType type3 = new LongType();
 		symbolTable.insert("arg3", type3);
 		Assert.assertTrue(symbolTable.isDeclared("arg1"));
 		Assert.assertTrue(symbolTable.isDeclared("arg2"));
@@ -58,9 +58,9 @@ public class SymboltableTest {
 
 	@Test
 	public void testInsert() {
-		symbolTable.insert("arg1",new NumType());
+		symbolTable.insert("arg1",new DoubleType());
 		symbolTable.insert("arg2", new BooleanType());
-		symbolTable.insert("arg3", new RealType());
+		symbolTable.insert("arg3", new LongType());
 		Assert.assertTrue(symbolTable.isDeclared("arg1"));
 		Assert.assertTrue(symbolTable.isDeclared("arg2"));
 		Assert.assertTrue(symbolTable.isDeclared("arg3"));
@@ -70,7 +70,7 @@ public class SymboltableTest {
 	
 	@Test
 	public void testRemove() {
-		symbolTable.insert("arg1",new NumType());
+		symbolTable.insert("arg1",new LongType());
 		symbolTable.insert("arg2", new BooleanType());
 		Assert.assertTrue(symbolTable.isDeclared("arg1"));
 		Assert.assertTrue(symbolTable.isDeclared("arg2"));

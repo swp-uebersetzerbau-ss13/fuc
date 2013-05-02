@@ -64,9 +64,22 @@ public class SymbolTableImpl implements SymbolTable{
 
 	@Override
 	public String getNextFreeTemporary() {
-		String temp = "tmp" + ext;
-		ext++;
+		String temp;
+		do{
+			temp = "tmp" + ext;
+			ext++;
+		}while(isDeclared(temp));
 		return temp;
+	}
+
+	@Override
+	public void putTemporary(String identifier, Type type) {
+		if(this.parent != null){
+			parent.putTemporary(identifier, type);
+		}else{
+			insert(identifier, type);
+		}
+		
 	}
 
 }
