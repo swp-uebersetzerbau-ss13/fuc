@@ -257,9 +257,6 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 		String identifierName = node.getIdentifier();
 		Type identifierType = node.getType();
 		String id = this.saveIdentifier(identifierName, identifierType);
-
-		final Quadruple quadruple = QuadrupleFactory.declaration(id, node.getType());
-		this.irCode.add(quadruple);
 	}
 
 	private void processBreakNode(BreakNode node) throws IntermediateCodeGeneratorException {
@@ -363,6 +360,7 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 		if (!this.usedNames.contains(identifier)) {
 			this.usedNames.add(identifier);
 			this.currentScopeRenames.peek().put(identifier, identifier);
+			this.irCode.add(QuadrupleFactory.declaration(identifier, type));
 			return identifier;
 		} else {
 			// rename is required to keep single static assignment
