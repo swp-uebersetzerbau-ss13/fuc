@@ -1,4 +1,4 @@
-package lexer;
+package lexer.milestones;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -9,7 +9,8 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collection;
 
-import lexer.token.TokenImpl;
+import junit.extensions.PA;
+import lexer.LexerImpl;
 
 import org.junit.After;
 import org.junit.Before;
@@ -18,14 +19,17 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
 
 /**
- * @author Ho, Tay Phuong
+ * TODO: to implement
+ * 
+ * @author "Ho, Tay Phuong", "Thomas Benndorf"
  * 
  */
 @RunWith(value = Parameterized.class)
-public class ReducedLexerTest {
+public class MilestoneTest {
 	private final InputStream stream;
 	private LexerImpl lexer;
 
@@ -44,13 +48,13 @@ public class ReducedLexerTest {
 		return Arrays.asList(data);
 	}
 
-	public ReducedLexerTest(String fileLocation) throws Exception {
+	public MilestoneTest(String fileLocation) throws Exception {
 		this.stream = new FileInputStream(fileLocation);
 	}
 
 	@Before
 	public void setUp() throws Exception {
-		this.lexer = new LexerClass();
+		this.lexer = new LexerImpl();
 		this.lexer.setSourceStream(this.stream);
 	}
 
@@ -60,15 +64,16 @@ public class ReducedLexerTest {
 
 	@Test
 	public void testsetSourceStream() throws IOException {
-		assertTrue(this.lexer.inputstream != null);
+		assertTrue((InputStream) PA.getValue(this.lexer, "inputStream") != null);
 
-		assertEquals(this.stream.read() != -1,
-				this.lexer.inputstream.read() != -1);
+		assertEquals(
+				this.stream.read() != -1,
+				((InputStream) PA.getValue(this.lexer, "inputStream")).read() != -1);
 	}
 
 	@Test
 	public void testgetNextToken() {
-		TokenImpl token = this.lexer.getNextToken();
+		Token token = this.lexer.getNextToken();
 
 		while (token.getTokenType() != TokenType.EOF) {
 			assertTrue(token != null);

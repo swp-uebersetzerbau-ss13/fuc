@@ -4,7 +4,9 @@ import swp_compiler_ss13.common.lexer.BoolToken;
 import swp_compiler_ss13.common.lexer.TokenType;
 
 /**
- * @author Ho, Tay Phuong
+ * Implementation of the interface {@link BoolToken}
+ * 
+ * @author "Ho, Tay Phuong", "Thomas Benndorf"
  * 
  */
 public class BoolTokenImpl implements BoolToken {
@@ -15,7 +17,16 @@ public class BoolTokenImpl implements BoolToken {
 	private final Integer column;
 
 	/**
+	 * constructor
 	 * 
+	 * @param value
+	 *            , string read by lexer for this token
+	 * @param type
+	 *            , type of token
+	 * @param line
+	 *            , line of code in source file
+	 * @param column
+	 *            , column of code in source file
 	 */
 	public BoolTokenImpl(String value, TokenType type, Integer line,
 			Integer column) {
@@ -27,7 +38,7 @@ public class BoolTokenImpl implements BoolToken {
 	}
 
 	/**
-	 * @return string readed by lexer for this token
+	 * @return string representation of value read by lexer for this token
 	 */
 	@Override
 	public String getValue() {
@@ -58,13 +69,12 @@ public class BoolTokenImpl implements BoolToken {
 		return this.column;
 	}
 
+	/**
+	 * @return converted {@link Boolean} of value read by lexer for this token
+	 */
 	@Override
 	public Boolean getBooleanValue() {
-		if (this.value == "true") {
-			return true;
-		} else {
-			return false;
-		}
+		return Boolean.parseBoolean(this.value);
 	}
 
 }

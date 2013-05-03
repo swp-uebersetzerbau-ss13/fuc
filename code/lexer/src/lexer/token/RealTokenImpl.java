@@ -4,7 +4,9 @@ import swp_compiler_ss13.common.lexer.RealToken;
 import swp_compiler_ss13.common.lexer.TokenType;
 
 /**
- * @author Ho, Tay Phuong
+ * Implementation of the interface {@link RealToken}
+ * 
+ * @author "Ho, Tay Phuong", "Thomas Benndorf"
  * 
  */
 public class RealTokenImpl implements RealToken {
@@ -15,7 +17,16 @@ public class RealTokenImpl implements RealToken {
 	private final Integer column;
 
 	/**
+	 * constructor
 	 * 
+	 * @param value
+	 *            , string read by lexer for this token
+	 * @param type
+	 *            , type of token
+	 * @param line
+	 *            , line of code in source file
+	 * @param column
+	 *            , column of code in source file
 	 */
 	public RealTokenImpl(String value, TokenType type, Integer line,
 			Integer column) {
@@ -27,7 +38,7 @@ public class RealTokenImpl implements RealToken {
 	}
 
 	/**
-	 * @return string readed by lexer for this token
+	 * @return string representation of value read by lexer for this token
 	 */
 	@Override
 	public String getValue() {
@@ -58,13 +69,12 @@ public class RealTokenImpl implements RealToken {
 		return this.column;
 	}
 
+	/**
+	 * @return converted {@link Double} of value read by lexer for this token
+	 */
 	@Override
 	public Double getDoubleValue() {
-
-		/**
-		 * '[0-9]+\.[0-9]+ ((E|e)-?[0-9+]))?'
-		 */
-		return 0.0;
+		return Double.parseDouble(this.value);
 	}
 
 }

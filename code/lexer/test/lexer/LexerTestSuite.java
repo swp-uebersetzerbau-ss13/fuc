@@ -1,8 +1,7 @@
 package lexer;
 
-import lexer.arithmetic.ArithmeticExpressionsTest;
-import lexer.declaration.DeclarationTest;
 import lexer.input.InputStreamTest;
+import lexer.keywords.KeywordTest;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -18,8 +17,7 @@ import org.junit.runners.Suite.SuiteClasses;
  * 
  */
 @RunWith(Suite.class)
-@SuiteClasses({ InputStreamTest.class, DeclarationTest.class,
-		ArithmeticExpressionsTest.class })
+@SuiteClasses({ InputStreamTest.class, KeywordTest.class })
 public class LexerTestSuite {
 	public static final String fileLocation1 = "~/common/examples/m1/add.prog";
 	public static final String fileLocation2 = "~/common/examples/m1/error_double_decl.prog";

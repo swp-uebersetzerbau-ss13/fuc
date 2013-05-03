@@ -4,7 +4,9 @@ import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
 
 /**
- * @author Ho, Tay Phuong
+ * Implementation of the interface {@link Token}
+ * 
+ * @author "Ho, Tay Phuong", "Thomas Benndorf"
  * 
  */
 public class TokenImpl implements Token {
@@ -15,7 +17,16 @@ public class TokenImpl implements Token {
 	private final Integer column;
 
 	/**
+	 * constructor
 	 * 
+	 * @param value
+	 *            , string read by lexer for this token
+	 * @param type
+	 *            , type of token
+	 * @param line
+	 *            , line of code in source file
+	 * @param column
+	 *            , column of code in source file
 	 */
 	public TokenImpl(String value, TokenType type, Integer line, Integer column) {
 
@@ -26,7 +37,7 @@ public class TokenImpl implements Token {
 	}
 
 	/**
-	 * @return string readed by lexer for this token
+	 * @return string representation of value read by lexer for this token
 	 */
 	@Override
 	public String getValue() {
