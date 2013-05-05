@@ -4,7 +4,9 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-import lexer.token.BoolTokenImpl;
+import lexer.token.NumTokenImpl;
+import lexer.token.RealTokenImpl;
+import lexer.token.TokenImpl;
 import swp_compiler_ss13.common.lexer.Lexer;
 import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
@@ -18,13 +20,13 @@ import swp_compiler_ss13.common.lexer.TokenType;
 public class LexerImpl implements Lexer {
 	private Token actualToken;
 	private ArrayList<String> convertedLines;
-	// private String actualTokenValue;
-	private Integer actualLine = 1;
-	private Integer actualColumn = 1;
-	private Integer actualCountOfTokenInLine = 0;
+	private Integer actualLine;
+	private Integer actualColumn;
+	private Integer actualCountOfTokenInLine;
 
 	@Override
 	public void setSourceStream(InputStream stream) {
+		this.init();
 		this.convertedLines = new ArrayList<>();
 		Scanner scanner = new Scanner(stream, "UTF-8");
 		while (scanner.hasNext()) {
@@ -33,10 +35,33 @@ public class LexerImpl implements Lexer {
 		scanner.close();
 	}
 
+	/**
+	 * Method to initialize class variables when getting a new
+	 * {@link InputStream}
+	 */
+	private void init() {
+		this.actualLine = 1;
+		this.actualColumn = 1;
+		this.actualCountOfTokenInLine = 0;
+		this.actualToken = null;
+	}
+
 	@Override
 	public Token getNextToken() {
-		this.matchToken(this.abstractToken());
-		this.actualToken = new BoolTokenImpl(null, null, null, null);
+		String actualTokenValue = this.abstractToken();
+		TokenType actualTokenType = this.matchToken(actualTokenValue);
+		switch (actualTokenType.name()) {
+		case "NUM":
+			this.actualToken = new NumTokenImpl(null, null, null, null);
+			break;
+		case "REAL":
+			this.actualToken = new RealTokenImpl(null, null, null, null);
+			break;
+		default:
+			this.actualToken = new TokenImpl(null, null, null, null);
+			break;
+		}
+
 		return this.actualToken;
 	}
 
@@ -45,8 +70,8 @@ public class LexerImpl implements Lexer {
 			return TokenType.NUM;
 		} else if (nextToken.matches("[0-9]+\\.[0-9]+((e|E)-?[0-9]+)?")) {
 			return TokenType.REAL;
-			// } else if (nextToken.matches(";")) {
-			// return TokenType.SEMICOLON;
+		} else if (nextToken.matches(";")) {
+			return TokenType.SEMICOLON;
 		} else if (nextToken.matches("\\)")) {
 			return TokenType.LEFT_PARAN;
 		} else if (nextToken.matches("\\(")) {
@@ -60,17 +85,16 @@ public class LexerImpl implements Lexer {
 		} else if (nextToken.matches("\\[")) {
 			return TokenType.RIGHT_BRACKET;
 		} else if (nextToken.matches("#")) {
-			return null; // line comment, ignore the rest of the token in this
-							// line
-			// FIXME: EOF
+			return TokenType.COMMENT;
 		} else {
 			return TokenType.NOT_A_TOKEN;
 		}
 	}
 
 	private String abstractToken() {
-
-		if (this.convertedLines.get(this.actualLine - 1).split("\\s+").length == this.actualCountOfTokenInLine + 1) {
+		if ((this.convertedLines.get(this.actualLine - 1).startsWith(" ") ? (this.convertedLines
+				.get(this.actualLine - 1).split("\\s+").length == this.actualCountOfTokenInLine + 1)
+				: (this.convertedLines.get(this.actualLine - 1).split("\\s+").length == this.actualCountOfTokenInLine))) {
 			System.err.println("Line: " + this.actualLine + ", Read token: "
 					+ this.actualCountOfTokenInLine);
 			this.actualLine++;
@@ -102,7 +126,8 @@ public class LexerImpl implements Lexer {
 
 		this.actualCountOfTokenInLine++;
 		System.err.println("Column: " + this.actualColumn + ", Line: "
-				+ this.actualLine);
+				+ this.actualLine + ", Read token: "
+				+ this.actualCountOfTokenInLine);
 
 		return actualTokenValue;
 	}
