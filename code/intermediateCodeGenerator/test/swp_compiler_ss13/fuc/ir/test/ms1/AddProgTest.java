@@ -11,17 +11,13 @@ import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode.BinaryOper
 import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.LiteralNode;
 import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
-import swp_compiler_ss13.common.ast.nodes.unary.ArithmeticUnaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
-import swp_compiler_ss13.common.ast.nodes.unary.UnaryExpressionNode.UnaryOperator;
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.ir.IntermediateCodeGenerator;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
-import swp_compiler_ss13.common.types.primitive.DoubleType;
 import swp_compiler_ss13.common.types.primitive.LongType;
 import swp_compiler_ss13.fuc.ast.ASTImpl;
 import swp_compiler_ss13.fuc.ast.ArithmeticBinaryExpressionNodeImpl;
-import swp_compiler_ss13.fuc.ast.ArithmeticUnaryExpressionNodeImpl;
 import swp_compiler_ss13.fuc.ast.AssignmentNodeImpl;
 import swp_compiler_ss13.fuc.ast.BasicIdentifierNodeImpl;
 import swp_compiler_ss13.fuc.ast.BlockNodeImpl;
@@ -42,9 +38,11 @@ public class AddProgTest {
 		ast.setRootNode(program);
 		DeclarationNode l = new DeclarationNodeImpl();
 		l.setIdentifier("l");
-		l.setType(new DoubleType());
+		l.setType(new LongType());
 		l.setParentNode(program);
 		program.addDeclaration(l);
+
+		program.getSymbolTable().insert("l", new LongType());
 
 		LiteralNode literal10 = new LiteralNodeImpl();
 		literal10.setLiteral("10");
@@ -120,17 +118,10 @@ public class AddProgTest {
 		literal9.setParentNode(abe6);
 		literal3.setParentNode(abe6);
 
-		/*
-		 * ArithmeticBinaryExpressionNode abe7 = new
-		 * ArithmeticBinaryExpressionNodeImpl(); abe7.setLeftValue(abe5);
-		 * abe7.setRightValue(abe6);
-		 * abe7.setOperator(BinaryOperator.SUBSTRACTION);
-		 * abe5.setParentNode(abe7); abe6.setParentNode(abe7);
-		 */
-
-		ArithmeticUnaryExpressionNode abe7 = new ArithmeticUnaryExpressionNodeImpl();
+		ArithmeticBinaryExpressionNode abe7 = new ArithmeticBinaryExpressionNodeImpl();
+		abe7.setLeftValue(abe5);
 		abe7.setRightValue(abe6);
-		abe7.setOperator(UnaryOperator.MINUS);
+		abe7.setOperator(BinaryOperator.SUBSTRACTION);
 		abe5.setParentNode(abe7);
 		abe6.setParentNode(abe7);
 
@@ -146,7 +137,6 @@ public class AddProgTest {
 		program.addStatement(an1);
 		an1.setParentNode(program);
 
-		program.getSymbolTable().insert("l", new DoubleType());
 	}
 
 	@Test
