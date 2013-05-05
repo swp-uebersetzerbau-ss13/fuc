@@ -1,6 +1,7 @@
 package lexer.bool;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
@@ -51,6 +52,7 @@ public class BoolTokenTest {
 		assertTrue(token.getLine() == 1);
 		assertTrue(token.getColumn() == simpleKeywordString
 				.indexOf(Constants.TRUESTRING));
+		assertTrue(token.getBooleanValue());
 
 		token = (BoolToken) this.lexer.getNextToken();
 		assertEquals(Constants.FALSESTRING, token.getValue());
@@ -58,6 +60,7 @@ public class BoolTokenTest {
 		assertTrue(token.getLine() == 1);
 		assertTrue(token.getColumn() == simpleKeywordString
 				.indexOf(Constants.FALSESTRING));
+		assertFalse(token.getBooleanValue());
 
 	}
 

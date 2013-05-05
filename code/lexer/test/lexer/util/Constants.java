@@ -33,4 +33,18 @@ public class Constants {
 	public static final String DOUBLESTRING3 = "123.123E2";
 	public static final String DOUBLESTRING4 = "123.123e-2";
 	public static final String DOUBLESTRING5 = "123.123E-2";
+
+	/* bracket types */
+	public static final String LEFT_PARAN = ")";
+	public static final String RIGHT_PARAN = "(";
+	public static final String LEFT_BRACE = "}";
+	public static final String RIGHT_BRACE = "{";
+	public static final String LEFT_BRACKET = "]";
+	public static final String RIGHT_BRACKET = "[";
+
+	/* other symbols */
+	public static final String SEMICOLON = ";";
+	public static final String COMMENT = "#";
+	public static final String COMMENT_EXAMPLE = "a simple comment";
+
 }

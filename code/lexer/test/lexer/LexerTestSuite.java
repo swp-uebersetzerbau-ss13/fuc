@@ -1,6 +1,6 @@
 package lexer;
 
-import lexer.input.InputStreamTest;
+import lexer.input.InputTest;
 import lexer.keywords.KeywordTest;
 
 import org.junit.After;
@@ -17,7 +17,7 @@ import org.junit.runners.Suite.SuiteClasses;
  * 
  */
 @RunWith(Suite.class)
-@SuiteClasses({ InputStreamTest.class, KeywordTest.class })
+@SuiteClasses({ InputTest.class, KeywordTest.class })
 public class LexerTestSuite {
 	public static final String fileLocation1 = "~/common/examples/m1/add.prog";
 	public static final String fileLocation2 = "~/common/examples/m1/error_double_decl.prog";
