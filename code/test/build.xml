@@ -40,7 +40,7 @@
 	
 	<!-- === dependencies === -->
 	<target name="dependencies" description="compile the dependencies">
-		<ant antfile="build.xml" dir="${interfaces.dir}" target="build" inheritall="false" />
+		<ant antfile="interfaces.xml" dir=".." target="build" inheritall="false" />
 		<ant antfile="build.xml" dir="${ast.dir}" target="build" inheritall="false" />
 		<ant antfile="build.xml" dir="${backend.dir}" target="build" inheritall="false" />
 		<ant antfile="build.xml" dir="${controller.dir}" target="build" inheritall="false" />
