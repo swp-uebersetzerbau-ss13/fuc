@@ -42,6 +42,22 @@ public class Constants {
 	public static final String LEFT_BRACKET = "]";
 	public static final String RIGHT_BRACKET = "[";
 
+	/* operation symbols */
+	public static final String ASSIGNOPSTRING = "=";
+	public static final String ANDSTRING = "&&";
+	public static final String ORSTRING = "||";
+	public static final String EQUALSSTRING = "==";
+	public static final String NOTEQUALSSTRING = "!=";
+	public static final String LESSSTRING = "<";
+	public static final String LESS_OR_EQUALSTRING = "<=";
+	public static final String GREATERSTRING = ">";
+	public static final String GREATER_EQUALSTRING = ">=";
+	public static final String PLUSSTRING = "+";
+	public static final String MINUSSTRING = "-";
+	public static final String TIMESSTRING = "*";
+	public static final String DIVIDESTRING = "/";
+	public static final String NOTSTRING = "!";
+
 	/* other symbols */
 	public static final String SEMICOLON = ";";
 	public static final String COMMENT = "#";

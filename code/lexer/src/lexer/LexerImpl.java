@@ -52,10 +52,12 @@ public class LexerImpl implements Lexer {
 		TokenType actualTokenType = this.matchToken(actualTokenValue);
 		switch (actualTokenType.name()) {
 		case "NUM":
-			this.actualToken = new NumTokenImpl(null, null, null, null);
+			this.actualToken = new NumTokenImpl(actualTokenValue,
+					actualTokenType, this.actualLine, this.actualColumn);
 			break;
 		case "REAL":
-			this.actualToken = new RealTokenImpl(null, null, null, null);
+			this.actualToken = new RealTokenImpl(actualTokenValue,
+					actualTokenType, this.actualLine, this.actualColumn);
 			break;
 		default:
 			this.actualToken = new TokenImpl(null, null, null, null);
@@ -91,6 +93,11 @@ public class LexerImpl implements Lexer {
 		}
 	}
 
+	/**
+	 * Method to get the value of the next token
+	 * 
+	 * @return abstracted token value of current read token
+	 */
 	private String abstractToken() {
 		if ((this.convertedLines.get(this.actualLine - 1).startsWith(" ") ? (this.convertedLines
 				.get(this.actualLine - 1).split("\\s+").length == this.actualCountOfTokenInLine + 1)

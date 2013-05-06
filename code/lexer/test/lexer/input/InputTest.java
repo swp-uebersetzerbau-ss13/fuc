@@ -10,8 +10,6 @@ import java.util.ArrayList;
 
 import junit.extensions.PA;
 import lexer.LexerImpl;
-import lexer.token.NumTokenImpl;
-import lexer.token.RealTokenImpl;
 import lexer.token.TokenImpl;
 import lexer.util.Constants;
 
@@ -122,33 +120,6 @@ public class InputTest {
 			throws UnsupportedEncodingException {
 
 		Token token;
-		/* test num values */
-
-		String numString = Constants.LONGSTRING1 + " " + Constants.LONGSTRING2
-				+ " " + Constants.LONGSTRING3 + " " + Constants.LONGSTRING4
-				+ " " + Constants.LONGSTRING5;
-		this.lexer.setSourceStream(new ByteArrayInputStream(numString
-				.getBytes("UTF-8")));
-
-		for (int i = 1; i <= 5; i++) {
-			token = this.lexer.getNextToken();
-			assertEquals("Error for the " + i + ". token", NumTokenImpl.class,
-					token.getClass());
-		}
-
-		/* test real values */
-
-		String realString = Constants.DOUBLESTRING1 + " "
-				+ Constants.DOUBLESTRING2 + " " + Constants.DOUBLESTRING3 + " "
-				+ Constants.DOUBLESTRING4 + " " + Constants.DOUBLESTRING5;
-		this.lexer.setSourceStream(new ByteArrayInputStream(realString
-				.getBytes("UTF-8")));
-
-		for (int i = 1; i <= 5; i++) {
-			token = this.lexer.getNextToken();
-			assertEquals("Error for the " + i + ". token", RealTokenImpl.class,
-					token.getClass());
-		}
 
 		/* test keyword values */
 
