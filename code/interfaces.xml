@@ -1,0 +1,51 @@
+<project name="Common-Interfaces" basedir="." default="run">
+	<property name="src.dir" value="common/interfaces/src" />
+	<property name="bin.dir" value="common/interfaces/bin" />
+	<property name="doc.dir" value="common/interfaces/doc" />
+	<property name="lib.dir" value="lib" />
+
+	<!-- Classpath -->
+	<path id="classpath">
+		<pathelement location="${lib.dir}/hamcrest-core-1.3.jar" />
+		<pathelement location="${lib.dir}/junit-4.11.jar" />
+		<pathelement location="${lib.dir}/privilegedaccessor-1.2.1.jar" />
+	</path>
+
+	<!-- Target: clean -->
+	<target name="clean">
+		<delete dir="${bin.dir}" />
+
+		<delete dir="${doc.dir}" />
+	</target>
+
+	<!-- Target: build -->
+	<target name="build" depends="clean">
+		<mkdir dir="${bin.dir}" />
+		<javac srcdir="${src.dir}" destdir="${bin.dir}" classpathref="classpath" includeantruntime="false"/>
+	</target>
+
+	<!-- Target: doc -->
+	<target name="doc">
+		<mkdir dir="${doc.dir}" />
+		<javadoc
+	    	access="package"
+	    	author="true"
+	    	classpathref="classpath"
+	    	destdir="${doc.dir}"
+	    	doctitle="${ant.project.name}"
+	    	nodeprecated="false"
+	    	nodeprecatedlist="false"
+	    	noindex="false"
+	    	nonavbar="false"
+	    	notree="false"
+	    	source="1.7"
+	    	sourcepath="${src.dir}"
+	    	splitindex="true"
+	    	use="true"
+	    	version="true"
+	    	linksource="true" />
+	</target>
+
+	<!-- Target: run -->
+	<target name="run" depends="build, doc" />
+</project>

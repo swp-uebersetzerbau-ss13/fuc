@@ -44,7 +44,7 @@
 	
 	<!-- === compile all === -->
 	<target name="build-all" depends="clean-all" description="compile all projects">
-		<ant antfile="build.xml" dir="${interfaces.dir}" target="build" inheritall="false" />
+		<ant antfile="interfaces.xml" dir="." target="build" inheritall="false" />
 		<ant antfile="build.xml" dir="${ast.dir}" target="build" inheritall="false" />
 		<ant antfile="build.xml" dir="${backend.dir}" target="build" inheritall="false" />
 		<ant antfile="build.xml" dir="${controller.dir}" target="build" inheritall="false" />
@@ -57,7 +57,7 @@
 	
 	<!-- === create all javadoc === -->
 	<target name="doc-all" description="create the javadoc for all projects">
-		<ant antfile="build.xml" dir="${interfaces.dir}" target="doc" inheritall="false" />
+		<ant antfile="interfaces.xml" dir="." target="doc" inheritall="false" />
 		<ant antfile="build.xml" dir="${ast.dir}" target="doc" inheritall="false" />
 		<ant antfile="build.xml" dir="${backend.dir}" target="doc" inheritall="false" />
 		<ant antfile="build.xml" dir="${controller.dir}" target="doc" inheritall="false" />

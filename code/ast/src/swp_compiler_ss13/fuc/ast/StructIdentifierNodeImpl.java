@@ -15,7 +15,8 @@ import swp_compiler_ss13.common.ast.nodes.unary.StructIdentifierNode;
  * @author "Frank Zechert, Danny Maasch"
  * @version 1
  */
-public class StructIdentifierNodeImpl extends ASTNodeImpl implements StructIdentifierNode {
+public class StructIdentifierNodeImpl extends ASTNodeImpl implements
+		StructIdentifierNode {
 
 	/**
 	 * The logger
@@ -34,7 +35,7 @@ public class StructIdentifierNodeImpl extends ASTNodeImpl implements StructIdent
 
 	@Override
 	public ASTNodeType getNodeType() {
-		return ASTNodeType.ArrayIdentifierNode;
+		return ASTNodeType.StructIdentifierNode;
 	}
 
 	@Override
@@ -58,11 +59,13 @@ public class StructIdentifierNodeImpl extends ASTNodeImpl implements StructIdent
 	public void setFieldName(String field) {
 		if (field == null) {
 			logger.error("The given field can not be null");
-			throw new IllegalArgumentException("The given field can not be null");
+			throw new IllegalArgumentException(
+					"The given field can not be null");
 		}
 		if (field.length() == 0) {
 			logger.error("The given field can not be the empty string");
-			throw new IllegalArgumentException("The given field can not be the empty string");
+			throw new IllegalArgumentException(
+					"The given field can not be the empty string");
 		}
 		this.field = field;
 	}
