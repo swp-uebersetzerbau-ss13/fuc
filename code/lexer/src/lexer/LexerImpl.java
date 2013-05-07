@@ -60,7 +60,8 @@ public class LexerImpl implements Lexer {
 					actualTokenType, this.actualLine, this.actualColumn);
 			break;
 		default:
-			this.actualToken = new TokenImpl(null, null, null, null);
+			this.actualToken = new TokenImpl(actualTokenValue, actualTokenType,
+					this.actualLine, this.actualColumn);
 			break;
 		}
 
@@ -86,6 +87,34 @@ public class LexerImpl implements Lexer {
 			return TokenType.LEFT_BRACKET;
 		} else if (nextToken.matches("\\[")) {
 			return TokenType.RIGHT_BRACKET;
+		} else if (nextToken.matches("=")) {
+			return TokenType.ASSIGNOP;
+		} else if (nextToken.matches("&&")) {
+			return TokenType.AND;
+		} else if (nextToken.matches("\\|\\|")) {
+			return TokenType.OR;
+		} else if (nextToken.matches("==")) {
+			return TokenType.EQUALS;
+		} else if (nextToken.matches("!=")) {
+			return TokenType.NOT_EQUALS;
+		} else if (nextToken.matches("<")) {
+			return TokenType.LESS;
+		} else if (nextToken.matches("<=")) {
+			return TokenType.LESS_OR_EQUAL;
+		} else if (nextToken.matches(">")) {
+			return TokenType.GREATER;
+		} else if (nextToken.matches(">=")) {
+			return TokenType.GREATER_EQUAL;
+		} else if (nextToken.matches("\\+")) {
+			return TokenType.PLUS;
+		} else if (nextToken.matches("\\-")) {
+			return TokenType.MINUS;
+		} else if (nextToken.matches("\\*")) {
+			return TokenType.TIMES;
+		} else if (nextToken.matches("\\/")) {
+			return TokenType.DIVIDE;
+		} else if (nextToken.matches("!")) {
+			return TokenType.NOT;
 		} else if (nextToken.matches("#")) {
 			return TokenType.COMMENT;
 		} else {

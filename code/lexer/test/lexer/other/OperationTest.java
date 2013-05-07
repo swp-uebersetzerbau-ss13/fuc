@@ -124,79 +124,79 @@ public class OperationTest {
 		assertEquals(Constants.ANDSTRING, token.getValue());
 		assertEquals(TokenType.AND, token.getTokenType());
 		assertEquals(1, token.getLine().intValue());
-		assertEquals(1, token.getColumn().intValue());
+		assertEquals(3, token.getColumn().intValue());
 
 		token = this.lexer.getNextToken();
 		assertEquals(Constants.ORSTRING, token.getValue());
 		assertEquals(TokenType.OR, token.getTokenType());
 		assertEquals(1, token.getLine().intValue());
-		assertEquals(1, token.getColumn().intValue());
+		assertEquals(6, token.getColumn().intValue());
 
 		token = this.lexer.getNextToken();
 		assertEquals(Constants.EQUALSSTRING, token.getValue());
 		assertEquals(TokenType.EQUALS, token.getTokenType());
 		assertEquals(1, token.getLine().intValue());
-		assertEquals(1, token.getColumn().intValue());
+		assertEquals(9, token.getColumn().intValue());
 
 		token = this.lexer.getNextToken();
 		assertEquals(Constants.NOTEQUALSSTRING, token.getValue());
 		assertEquals(TokenType.NOT_EQUALS, token.getTokenType());
 		assertEquals(1, token.getLine().intValue());
-		assertEquals(1, token.getColumn().intValue());
+		assertEquals(12, token.getColumn().intValue());
 
 		token = this.lexer.getNextToken();
 		assertEquals(Constants.LESSSTRING, token.getValue());
 		assertEquals(TokenType.LESS, token.getTokenType());
 		assertEquals(1, token.getLine().intValue());
-		assertEquals(1, token.getColumn().intValue());
+		assertEquals(15, token.getColumn().intValue());
 
 		token = this.lexer.getNextToken();
 		assertEquals(Constants.LESS_OR_EQUALSTRING, token.getValue());
 		assertEquals(TokenType.LESS_OR_EQUAL, token.getTokenType());
 		assertEquals(1, token.getLine().intValue());
-		assertEquals(1, token.getColumn().intValue());
+		assertEquals(17, token.getColumn().intValue());
 
 		token = this.lexer.getNextToken();
 		assertEquals(Constants.GREATERSTRING, token.getValue());
 		assertEquals(TokenType.GREATER, token.getTokenType());
 		assertEquals(1, token.getLine().intValue());
-		assertEquals(1, token.getColumn().intValue());
+		assertEquals(20, token.getColumn().intValue());
 
 		token = this.lexer.getNextToken();
 		assertEquals(Constants.GREATER_EQUALSTRING, token.getValue());
 		assertEquals(TokenType.GREATER_EQUAL, token.getTokenType());
 		assertEquals(1, token.getLine().intValue());
-		assertEquals(1, token.getColumn().intValue());
+		assertEquals(22, token.getColumn().intValue());
 
 		token = this.lexer.getNextToken();
 		assertEquals(Constants.PLUSSTRING, token.getValue());
 		assertEquals(TokenType.PLUS, token.getTokenType());
 		assertEquals(1, token.getLine().intValue());
-		assertEquals(1, token.getColumn().intValue());
+		assertEquals(25, token.getColumn().intValue());
 
 		token = this.lexer.getNextToken();
 		assertEquals(Constants.MINUSSTRING, token.getValue());
 		assertEquals(TokenType.MINUS, token.getTokenType());
 		assertEquals(1, token.getLine().intValue());
-		assertEquals(1, token.getColumn().intValue());
+		assertEquals(27, token.getColumn().intValue());
 
 		token = this.lexer.getNextToken();
 		assertEquals(Constants.TIMESSTRING, token.getValue());
 		assertEquals(TokenType.TIMES, token.getTokenType());
 		assertEquals(1, token.getLine().intValue());
-		assertEquals(1, token.getColumn().intValue());
+		assertEquals(29, token.getColumn().intValue());
 
 		token = this.lexer.getNextToken();
 		assertEquals(Constants.DIVIDESTRING, token.getValue());
 		assertEquals(TokenType.DIVIDE, token.getTokenType());
 		assertEquals(1, token.getLine().intValue());
-		assertEquals(1, token.getColumn().intValue());
+		assertEquals(31, token.getColumn().intValue());
 
 		token = this.lexer.getNextToken();
 		assertEquals(Constants.NOTSTRING, token.getValue());
 		assertEquals(TokenType.NOT, token.getTokenType());
 		assertEquals(1, token.getLine().intValue());
-		assertEquals(1, token.getColumn().intValue());
+		assertEquals(33, token.getColumn().intValue());
 	}
 
 }
