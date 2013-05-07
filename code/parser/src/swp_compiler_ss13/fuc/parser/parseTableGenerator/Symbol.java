@@ -1,22 +1,31 @@
 package swp_compiler_ss13.fuc.parser.parseTableGenerator;
 
 public abstract class Symbol implements Comparable<Symbol> {
-	public enum Type {
+	
+	private String stringRep;
+	
+	public enum SymbolTable {
 		TERMINAL,
 		VARIABLE
 	}
+	
 	public String getString() {
-		return _stringRep;
+		
+		return this.stringRep;
 	}
-	public abstract Type getType();
-	public Symbol(String stringRep) { _stringRep = stringRep; };
+	
+	public abstract SymbolTable getType();
+
+	public Symbol(String stringRep) { 
+		
+		this.stringRep = stringRep; 
+	}
+	
 	public int compareTo(Symbol other) {
-		if(
-				getType() == other.getType()
-				&& getString() == other.getString()
-		)
+		
+		if(getType() == other.getType() && getString() == other.getString()){
 			return -1;
+		}
 		return 0;
 	}
-	private String _stringRep;
 }

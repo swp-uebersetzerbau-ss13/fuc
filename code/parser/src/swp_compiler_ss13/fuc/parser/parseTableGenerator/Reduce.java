@@ -11,8 +11,8 @@ public class Reduce extends ParseTableEntry {
 	public Integer getNewState() {
 		return newState;
 	}
-	public Type getType() {
-		return Type.REDUCE;
+	public ParseTableEntryType getType() {
+		return ParseTableEntryType.REDUCE;
 	}
 	
 	private Integer count;
