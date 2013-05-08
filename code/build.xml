@@ -111,8 +111,8 @@
 		
 		<!-- create the dir for service files -->
 		<mkdir dir="${service.dir}" />
-		<mkdir dir="META-INF" />
-		<mkdir dir="services" />
+		<mkdir dir="${service.dir}/META-INF" />
+		<mkdir dir="${service.dir}/META-INF/services" />
 
 		<echo 
 			file="${service.dir}/META-INF/services/swp_compiler_ss13.common.lexer.Lexer" 
