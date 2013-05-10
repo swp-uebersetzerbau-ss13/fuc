@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import lexer.token.BoolTokenImpl;
 import lexer.token.NumTokenImpl;
 import lexer.token.RealTokenImpl;
 import lexer.token.TokenImpl;
@@ -59,6 +60,12 @@ public class LexerImpl implements Lexer {
 			this.actualToken = new RealTokenImpl(actualTokenValue,
 					actualTokenType, this.actualLine, this.actualColumn);
 			break;
+		case "TRUE":
+			this.actualToken = new BoolTokenImpl(actualTokenValue,
+					actualTokenType, this.actualLine, this.actualColumn);
+		case "FALSE":
+			this.actualToken = new BoolTokenImpl(actualTokenValue,
+					actualTokenType, this.actualLine, this.actualColumn);
 		default:
 			this.actualToken = new TokenImpl(actualTokenValue, actualTokenType,
 					this.actualLine, this.actualColumn);
@@ -68,6 +75,12 @@ public class LexerImpl implements Lexer {
 		return this.actualToken;
 	}
 
+	/**
+	 * Method to match a a {@link String} into a {@link TokenType}
+	 * 
+	 * @param {@link String} to match
+	 * @return {@link TokenType} of the input {@link String}
+	 */
 	private TokenType matchToken(String nextToken) {
 		if (nextToken.matches("[0-9]+((e|E)-?[0-9]+)?")) {
 			return TokenType.NUM;
@@ -115,6 +128,22 @@ public class LexerImpl implements Lexer {
 			return TokenType.DIVIDE;
 		} else if (nextToken.matches("!")) {
 			return TokenType.NOT;
+		} else if (nextToken.matches("true")) {
+			return TokenType.TRUE;
+		} else if (nextToken.matches("false")) {
+			return TokenType.FALSE;
+		} else if (nextToken.matches("if")) {
+			return TokenType.IF;
+		} else if (nextToken.matches("while")) {
+			return TokenType.WHILE;
+		} else if (nextToken.matches("do")) {
+			return TokenType.DO;
+		} else if (nextToken.matches("break")) {
+			return TokenType.BREAK;
+		} else if (nextToken.matches("return")) {
+			return TokenType.RETURN;
+		} else if (nextToken.matches("print")) {
+			return TokenType.PRINT;
 		} else if (nextToken.matches("#")) {
 			return TokenType.COMMENT;
 		} else {
@@ -123,7 +152,8 @@ public class LexerImpl implements Lexer {
 	}
 
 	/**
-	 * Method to get the value of the next token
+	 * Method to get the value, the actual line and the actual column of the
+	 * next token
 	 * 
 	 * @return abstracted token value of current read token
 	 */

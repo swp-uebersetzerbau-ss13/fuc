@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.ByteArrayInputStream;
 import java.io.UnsupportedEncodingException;
 
+import junit.extensions.PA;
 import lexer.LexerImpl;
 import lexer.util.Constants;
 
@@ -32,6 +33,20 @@ public class BoolTokenTest {
 	}
 
 	/**
+	 * Test for matching of bool types
+	 */
+	@Test
+	public void matchingBoolTypesTest() {
+		TokenType tokenType = (TokenType) PA.invokeMethod(this.lexer,
+				"matchToken(java.lang.String)", Constants.TRUESTRING);
+		assertEquals(TokenType.TRUE, tokenType);
+
+		tokenType = (TokenType) PA.invokeMethod(this.lexer,
+				"matchToken(java.lang.String)", Constants.FALSESTRING);
+		assertEquals(TokenType.FALSE, tokenType);
+	}
+
+	/**
 	 * Test for tokenizing of boolean types
 	 * 
 	 * @throws UnsupportedEncodingException
@@ -49,19 +64,15 @@ public class BoolTokenTest {
 		BoolToken token = (BoolToken) this.lexer.getNextToken();
 		assertEquals(Constants.TRUESTRING, token.getValue());
 		assertEquals(TokenType.TRUE, token.getTokenType());
-		assertTrue(token.getLine() == 1);
-		assertTrue(token.getColumn() == simpleKeywordString
-				.indexOf(Constants.TRUESTRING));
+		assertEquals(1, token.getLine().intValue());
+		assertEquals(1, token.getColumn().intValue());
 		assertTrue(token.getBooleanValue());
 
 		token = (BoolToken) this.lexer.getNextToken();
 		assertEquals(Constants.FALSESTRING, token.getValue());
 		assertEquals(TokenType.FALSE, token.getTokenType());
-		assertTrue(token.getLine() == 1);
-		assertTrue(token.getColumn() == simpleKeywordString
-				.indexOf(Constants.FALSESTRING));
+		assertEquals(1, token.getLine().intValue());
+		assertEquals(6, token.getColumn().intValue());
 		assertFalse(token.getBooleanValue());
-
 	}
-
 }

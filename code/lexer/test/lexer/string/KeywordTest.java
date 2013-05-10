@@ -1,16 +1,15 @@
-package lexer.keywords;
+package lexer.string;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
+import junit.extensions.PA;
 import lexer.LexerImpl;
 import lexer.util.Constants;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -33,8 +32,34 @@ public class KeywordTest {
 		this.lexer = new LexerImpl();
 	}
 
-	@After
-	public void tearDown() throws Exception {
+	/**
+	 * Test for matching of keywords
+	 */
+	@Test
+	public void matchingKeywordsTest() {
+		TokenType tokenType = (TokenType) PA.invokeMethod(this.lexer,
+				"matchToken(java.lang.String)", Constants.IFSTRING);
+		assertEquals(TokenType.IF, tokenType);
+
+		tokenType = (TokenType) PA.invokeMethod(this.lexer,
+				"matchToken(java.lang.String)", Constants.WHILESTRING);
+		assertEquals(TokenType.WHILE, tokenType);
+
+		tokenType = (TokenType) PA.invokeMethod(this.lexer,
+				"matchToken(java.lang.String)", Constants.DOSTRING);
+		assertEquals(TokenType.DO, tokenType);
+
+		tokenType = (TokenType) PA.invokeMethod(this.lexer,
+				"matchToken(java.lang.String)", Constants.BREAKSTRING);
+		assertEquals(TokenType.BREAK, tokenType);
+
+		tokenType = (TokenType) PA.invokeMethod(this.lexer,
+				"matchToken(java.lang.String)", Constants.RETURNSTRING);
+		assertEquals(TokenType.RETURN, tokenType);
+
+		tokenType = (TokenType) PA.invokeMethod(this.lexer,
+				"matchToken(java.lang.String)", Constants.PRINTSTRING);
+		assertEquals(TokenType.PRINT, tokenType);
 	}
 
 	/**
@@ -58,44 +83,38 @@ public class KeywordTest {
 		Token token = this.lexer.getNextToken();
 		assertEquals(Constants.IFSTRING, token.getValue());
 		assertEquals(TokenType.IF, token.getTokenType());
-		assertTrue(token.getLine() == 1);
-		assertTrue(token.getColumn() == simpleKeywordString
-				.indexOf(Constants.IFSTRING));
+		assertEquals(1, token.getLine().intValue());
+		assertEquals(1, token.getColumn().intValue());
 
 		token = this.lexer.getNextToken();
 		assertEquals(Constants.WHILESTRING, token.getValue());
 		assertEquals(TokenType.WHILE, token.getTokenType());
-		assertTrue(token.getLine() == 1);
-		assertTrue(token.getColumn() == simpleKeywordString
-				.indexOf(Constants.WHILESTRING));
+		assertEquals(1, token.getLine().intValue());
+		assertEquals(4, token.getColumn().intValue());
 
 		token = this.lexer.getNextToken();
 		assertEquals(Constants.DOSTRING, token.getValue());
 		assertEquals(TokenType.DO, token.getTokenType());
-		assertTrue(token.getLine() == 1);
-		assertTrue(token.getColumn() == simpleKeywordString
-				.indexOf(Constants.DOSTRING));
+		assertEquals(1, token.getLine().intValue());
+		assertEquals(10, token.getColumn().intValue());
 
 		token = this.lexer.getNextToken();
 		assertEquals(Constants.BREAKSTRING, token.getValue());
 		assertEquals(TokenType.BREAK, token.getTokenType());
-		assertTrue(token.getLine() == 1);
-		assertTrue(token.getColumn() == simpleKeywordString
-				.indexOf(Constants.BREAKSTRING));
+		assertEquals(1, token.getLine().intValue());
+		assertEquals(13, token.getColumn().intValue());
 
 		token = this.lexer.getNextToken();
 		assertEquals(Constants.RETURNSTRING, token.getValue());
 		assertEquals(TokenType.RETURN, token.getTokenType());
-		assertTrue(token.getLine() == 1);
-		assertTrue(token.getColumn() == simpleKeywordString
-				.indexOf(Constants.RETURNSTRING));
+		assertEquals(1, token.getLine().intValue());
+		assertEquals(19, token.getColumn().intValue());
 
 		token = this.lexer.getNextToken();
 		assertEquals(Constants.PRINTSTRING, token.getValue());
 		assertEquals(TokenType.PRINT, token.getTokenType());
-		assertTrue(token.getLine() == 1);
-		assertTrue(token.getColumn() == simpleKeywordString
-				.indexOf(Constants.PRINTSTRING));
+		assertEquals(1, token.getLine().intValue());
+		assertEquals(26, token.getColumn().intValue());
 
 	}
 

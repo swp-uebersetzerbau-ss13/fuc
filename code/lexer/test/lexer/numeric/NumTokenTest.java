@@ -110,31 +110,40 @@ public class NumTokenTest {
 		assertEquals(TokenType.NUM, token.getTokenType());
 		assertEquals(1, token.getLine().intValue());
 		assertEquals(5, token.getColumn().intValue());
-		assertTrue(token.getLongValue() == Long.valueOf(Constants.LONGSTRING2)
-				.longValue());
+		assertTrue(token.getLongValue() == Long.valueOf("12300").longValue());
 
 		token = (NumToken) this.lexer.getNextToken();
 		assertEquals(Constants.LONGSTRING3, token.getValue());
 		assertEquals(TokenType.NUM, token.getTokenType());
 		assertEquals(1, token.getLine().intValue());
 		assertEquals(11, token.getColumn().intValue());
-		assertTrue(token.getLongValue() == Long.valueOf(Constants.LONGSTRING3)
-				.longValue());
+		assertTrue(token.getLongValue() == Long.valueOf("12300").longValue());
 
 		token = (NumToken) this.lexer.getNextToken();
 		assertEquals(Constants.LONGSTRING4, token.getValue());
 		assertEquals(TokenType.NUM, token.getTokenType());
 		assertEquals(1, token.getLine().intValue());
 		assertEquals(17, token.getColumn().intValue());
-		assertTrue(token.getLongValue() == Long.valueOf(Constants.LONGSTRING4)
-				.longValue());
+		// result is 1 because rounding of double values
+		assertTrue(token.getLongValue() == Long.valueOf("1").longValue());
 
 		token = (NumToken) this.lexer.getNextToken();
 		assertEquals(Constants.LONGSTRING5, token.getValue());
 		assertEquals(TokenType.NUM, token.getTokenType());
 		assertEquals(1, token.getLine().intValue());
 		assertEquals(24, token.getColumn().intValue());
-		assertTrue(token.getLongValue() == Long.valueOf(Constants.LONGSTRING5)
-				.longValue());
+		// result is 1 because rounding of double values
+		assertTrue(token.getLongValue() == Long.valueOf("1").longValue());
+	}
+
+	/**
+	 * Test for getting a long value for input which is out of range of type
+	 * {@link Long}
+	 */
+	@Test
+	public void formatNumValuesOutOfRangeTest() {
+		NumToken token = new NumTokenImpl(Constants.LONGSTRINGOUTOFRANGE1,
+				null, null, null);
+		assertTrue(token.getLongValue() == Long.MAX_VALUE);
 	}
 }

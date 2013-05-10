@@ -42,7 +42,7 @@ public class AdditionalSymbolTest {
 	}
 
 	/**
-	 * Test for matching of comments
+	 * Test for matching of comments FIXME: value of comment
 	 */
 	@Test
 	public void matchingCommentsTest() {

@@ -138,6 +138,16 @@ public class RealTokenTest {
 		assertEquals(40, token.getColumn().intValue());
 		assertTrue(token.getDoubleValue() == Double.valueOf(
 				Constants.DOUBLESTRING5).doubleValue());
+	}
 
+	/**
+	 * Test for getting a double value for input which is out of range of type
+	 * {@link Double}
+	 */
+	@Test
+	public void formatRealValuesOutOfRangeTest() {
+		RealToken token = new RealTokenImpl(Constants.DOUBLESTRINGOUTOFRANGE1,
+				null, null, null);
+		assertTrue(token.getDoubleValue() == Double.MAX_VALUE);
 	}
 }
