@@ -53,13 +53,12 @@ public class ParserImpl implements Parser {
 
 		while(true){
 			s = parserStack.peek();
-			tokenType = token.getTokenType();
 
 			if(tokenType == TokenType.NOT_A_TOKEN){
 				//TODO Errorhandling
 			}
 
-			entry = table.getEntry(s, tokenType);
+			entry = table.getEntry(s, token);
 
 			entryType = entry.getType();
 
