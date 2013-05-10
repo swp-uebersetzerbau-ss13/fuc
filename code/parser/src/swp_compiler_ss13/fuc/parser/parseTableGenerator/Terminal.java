@@ -1,8 +1,8 @@
 package swp_compiler_ss13.fuc.parser.parseTableGenerator;
 
 public class Terminal extends Symbol {
-	public SymbolTable getType() {
-		return SymbolTable.TERMINAL;
+	public SymbolType getType() {
+		return SymbolType.TERMINAL;
 	}
 	public Terminal(String stringRep) {
 		super(stringRep);

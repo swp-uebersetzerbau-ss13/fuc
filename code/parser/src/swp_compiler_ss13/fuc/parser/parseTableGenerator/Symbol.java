@@ -4,7 +4,7 @@ public abstract class Symbol implements Comparable<Symbol> {
 	
 	private String stringRep;
 	
-	public enum SymbolTable {
+	public enum SymbolType {
 		TERMINAL,
 		VARIABLE
 	}
@@ -14,18 +14,26 @@ public abstract class Symbol implements Comparable<Symbol> {
 		return this.stringRep;
 	}
 	
-	public abstract SymbolTable getType();
+	public abstract SymbolType getType();
 
 	public Symbol(String stringRep) { 
 		
 		this.stringRep = stringRep; 
 	}
 	
+	/**
+	 * compare two Symbols
+	 * 
+	 * Two symbols are equal, if their types and their string representation are equal.
+	 * Terminals are considered smaller than Variables.
+	 */
 	public int compareTo(Symbol other) {
-		
-		if(getType() == other.getType() && getString() == other.getString()){
-			return -1;
-		}
-		return 0;
+		if(getType() != other.getType())
+			if(getType() == SymbolType.TERMINAL)
+				return -1;
+			else
+				return 1;
+		else
+			return getString().compareTo(other.getString());
 	}
 }

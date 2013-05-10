@@ -5,8 +5,8 @@ import java.util.Set;
 
 
 public class Variable extends Symbol {
-	public SymbolTable getType() {
-		return SymbolTable.VARIABLE;
+	public SymbolType getType() {
+		return SymbolType.VARIABLE;
 	}
 	public Variable(String stringRep) {
 		super(stringRep);
