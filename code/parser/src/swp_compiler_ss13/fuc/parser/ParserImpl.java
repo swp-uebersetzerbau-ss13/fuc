@@ -8,10 +8,10 @@ import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.common.parser.Parser;
 import swp_compiler_ss13.common.parser.ReportLog;
-import swp_compiler_ss13.fuc.parser.parseTableGenerator.ParseTable;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.ParseTableEntry;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.ParseTableEntry.ParseTableEntryType;
-import swp_compiler_ss13.fuc.parser.parseTableGenerator.ParseTableGenerator;
+import swp_compiler_ss13.fuc.parser.parseTableGenerator.interfaces.ParseTable;
+import swp_compiler_ss13.fuc.parser.parseTableGenerator.interfaces.ParseTableGenerator;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.Reduce;
 
 public class ParserImpl implements Parser {
