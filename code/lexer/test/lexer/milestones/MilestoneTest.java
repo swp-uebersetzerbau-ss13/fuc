@@ -1,29 +1,19 @@
 package lexer.milestones;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collection;
 
-import junit.extensions.PA;
 import lexer.LexerImpl;
 
-import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
-import swp_compiler_ss13.common.lexer.Token;
-import swp_compiler_ss13.common.lexer.TokenType;
-
 /**
- * TODO: to implement
+ * TODO: implement
  * 
  * @author "Ho, Tay Phuong", "Thomas Benndorf"
  * 
@@ -57,29 +47,4 @@ public class MilestoneTest {
 		this.lexer = new LexerImpl();
 		this.lexer.setSourceStream(this.stream);
 	}
-
-	@After
-	public void tearDown() throws Exception {
-	}
-
-	@Test
-	public void testsetSourceStream() throws IOException {
-		assertTrue((InputStream) PA.getValue(this.lexer, "inputStream") != null);
-
-		assertEquals(
-				this.stream.read() != -1,
-				((InputStream) PA.getValue(this.lexer, "inputStream")).read() != -1);
-	}
-
-	@Test
-	public void testgetNextToken() {
-		Token token = this.lexer.getNextToken();
-
-		while (token.getTokenType() != TokenType.EOF) {
-			assertTrue(token != null);
-
-			token = this.lexer.getNextToken();
-		}
-	}
-
 }

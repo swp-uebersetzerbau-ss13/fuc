@@ -1,7 +1,7 @@
 package lexer.util;
 
 /**
- * Class for constants used in lexer
+ * Class for constants used in lexer tests
  * 
  * @author "Thomas Benndorf"
  * 
@@ -67,9 +67,20 @@ public class Constants {
 	public static final String COMMENT = "#";
 	public static final String COMMENT_EXAMPLE = "a simple comment";
 
-	/* IDs */
+	/* type symbols */
 	public static final String LONGSYMBOL = "long";
 	public static final String DOUBLESYMBOL = "double";
 	public static final String BOOLSYMBOL = "bool";
 	public static final String STRINGSYMBOL = "string";
+
+	/* IDs */
+	public static final String ID1 = "id";
+	public static final String ID2 = "id2id2id2id2";
+	public static final String NOID1 = "1id";
+	public static final String NOID2 = "id&";
+
+	/* strings */
+	public static final String STRING1 = "\"Hallo Welt!\"";
+	public static final String STRING2 = "\"\"";
+
 }

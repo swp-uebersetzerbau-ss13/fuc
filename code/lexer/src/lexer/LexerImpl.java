@@ -51,6 +51,7 @@ public class LexerImpl implements Lexer {
 	public Token getNextToken() {
 		String actualTokenValue = this.abstractToken();
 		TokenType actualTokenType = this.matchToken(actualTokenValue);
+
 		switch (actualTokenType.name()) {
 		case "NUM":
 			this.actualToken = new NumTokenImpl(actualTokenValue,
@@ -78,7 +79,8 @@ public class LexerImpl implements Lexer {
 	/**
 	 * Method to match a a {@link String} into a {@link TokenType}
 	 * 
-	 * @param {@link String} to match
+	 * @param nextToken
+	 *            {@link String} to match
 	 * @return {@link TokenType} of the input {@link String}
 	 */
 	private TokenType matchToken(String nextToken) {
@@ -144,8 +146,20 @@ public class LexerImpl implements Lexer {
 			return TokenType.RETURN;
 		} else if (nextToken.matches("print")) {
 			return TokenType.PRINT;
-		} else if (nextToken.matches("#")) {
+		} else if (nextToken.matches("long")) {
+			return TokenType.LONG_SYMBOL;
+		} else if (nextToken.matches("double")) {
+			return TokenType.DOUBLE_SYMBOL;
+		} else if (nextToken.matches("bool")) {
+			return TokenType.BOOL_SYMBOL;
+		} else if (nextToken.matches("string")) {
+			return TokenType.STRING_SYMBOL;
+		} else if (nextToken.matches("[a-zA-Z]\\w*")) {
+			return TokenType.ID;
+		} else if (nextToken.matches("#.*")) {
 			return TokenType.COMMENT;
+		} else if (nextToken.matches("")) {
+			return TokenType.EOF;
 		} else {
 			return TokenType.NOT_A_TOKEN;
 		}
@@ -159,8 +173,8 @@ public class LexerImpl implements Lexer {
 	 */
 	private String abstractToken() {
 		if ((this.convertedLines.get(this.actualLine - 1).startsWith(" ") ? (this.convertedLines
-				.get(this.actualLine - 1).split("\\s+").length == this.actualCountOfTokenInLine + 1)
-				: (this.convertedLines.get(this.actualLine - 1).split("\\s+").length == this.actualCountOfTokenInLine))) {
+				.get(this.actualLine - 1).split("\\s+").length <= this.actualCountOfTokenInLine + 1)
+				: (this.convertedLines.get(this.actualLine - 1).split("\\s+").length <= this.actualCountOfTokenInLine))) {
 			System.err.println("Line: " + this.actualLine + ", Read token: "
 					+ this.actualCountOfTokenInLine);
 			this.actualLine++;
@@ -169,32 +183,48 @@ public class LexerImpl implements Lexer {
 		}
 
 		String actualTokenValue;
-		System.err.println("Actual tokenline: "
-				+ this.convertedLines.get(this.actualLine - 1));
+		if (!(this.convertedLines.size() < this.actualLine)) {
+			System.err.println("Actual tokenline: "
+					+ this.convertedLines.get(this.actualLine - 1));
 
-		if (!this.convertedLines.get(this.actualLine - 1).startsWith(" ")) {
-			actualTokenValue = this.convertedLines.get(this.actualLine - 1)
-					.split("\\s+")[this.actualCountOfTokenInLine];
-			this.actualColumn = this.convertedLines
-					.get(this.actualLine - 1)
-					.indexOf(
-							actualTokenValue,
-							(this.actualColumn == 1 ? 0 : this.actualColumn + 1)) + 1;
+			if (!this.convertedLines.get(this.actualLine - 1).startsWith(" ")) {
+				actualTokenValue = this.convertedLines.get(this.actualLine - 1)
+						.split("\\s+")[this.actualCountOfTokenInLine];
+				this.actualColumn = this.convertedLines
+						.get(this.actualLine - 1).indexOf(
+								actualTokenValue,
+								(this.actualColumn == 1 ? 0
+										: this.actualColumn + 1)) + 1;
+			} else {
+				actualTokenValue = this.convertedLines.get(this.actualLine - 1)
+						.split("\\s+")[this.actualCountOfTokenInLine + 1];
+				this.actualColumn = this.convertedLines
+						.get(this.actualLine - 1).indexOf(
+								actualTokenValue,
+								(this.actualColumn == 1 ? 0
+										: this.actualColumn + 1)) + 1;
+			}
+
+			// abstract comment
+			if (actualTokenValue.startsWith("#")) {
+				actualTokenValue = this.convertedLines.get(this.actualLine - 1)
+						.substring(
+								this.convertedLines.get(this.actualLine - 1)
+										.indexOf("#"));
+				this.actualCountOfTokenInLine = this.convertedLines.get(
+						this.actualLine - 1).split("\\s+").length;
+			} else {
+				this.actualCountOfTokenInLine++;
+			}
+
+			System.err.println("Column: " + this.actualColumn + ", Line: "
+					+ this.actualLine + ", Read token: "
+					+ this.actualCountOfTokenInLine);
+
+			return actualTokenValue;
 		} else {
-			actualTokenValue = this.convertedLines.get(this.actualLine - 1)
-					.split("\\s+")[this.actualCountOfTokenInLine + 1];
-			this.actualColumn = this.convertedLines
-					.get(this.actualLine - 1)
-					.indexOf(
-							actualTokenValue,
-							(this.actualColumn == 1 ? 0 : this.actualColumn + 1)) + 1;
+			// EOF
+			return "";
 		}
-
-		this.actualCountOfTokenInLine++;
-		System.err.println("Column: " + this.actualColumn + ", Line: "
-				+ this.actualLine + ", Read token: "
-				+ this.actualCountOfTokenInLine);
-
-		return actualTokenValue;
 	}
 }

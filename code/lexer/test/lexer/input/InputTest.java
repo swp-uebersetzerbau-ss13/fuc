@@ -5,13 +5,10 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
 import junit.extensions.PA;
 import lexer.LexerImpl;
-import lexer.token.TokenImpl;
-import lexer.util.Constants;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -107,32 +104,5 @@ public class InputTest {
 
 		PA.invokeMethod(this.lexer, "abstractToken()");
 		assertEquals(2, PA.getValue(this.lexer, "actualLine"));
-	}
-
-	/**
-	 * Test for getting the correct kind of class for a token TODO: add
-	 * additional kind of tokens
-	 * 
-	 * @throws UnsupportedEncodingException
-	 */
-	@Test
-	public void getCorrectClassForTokenTest()
-			throws UnsupportedEncodingException {
-
-		Token token;
-
-		/* test keyword values */
-
-		String keywordString = Constants.IFSTRING + " " + Constants.WHILESTRING
-				+ " " + Constants.DOSTRING + " " + Constants.BREAKSTRING + " "
-				+ Constants.RETURNSTRING + " " + Constants.PRINTSTRING;
-		this.lexer.setSourceStream(new ByteArrayInputStream(keywordString
-				.getBytes("UTF-8")));
-
-		for (int i = 1; i <= 6; i++) {
-			token = this.lexer.getNextToken();
-			assertEquals("Error for the " + i + ". token", TokenImpl.class,
-					token.getClass());
-		}
 	}
 }

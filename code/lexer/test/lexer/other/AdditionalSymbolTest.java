@@ -1,7 +1,6 @@
 package lexer.other;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.UnsupportedEncodingException;
@@ -32,13 +31,16 @@ public class AdditionalSymbolTest {
 	}
 
 	/**
-	 * Test for matching of semicolons
+	 * Test for matching of semicolons and EOF
 	 */
 	@Test
-	public void matchingSemicolonTest() {
+	public void matchingSemicolonAndEOFTest() {
 		TokenType tokenType = (TokenType) PA.invokeMethod(this.lexer,
 				"matchToken(java.lang.String)", Constants.SEMICOLON);
 		assertEquals(TokenType.SEMICOLON, tokenType);
+		tokenType = (TokenType) PA.invokeMethod(this.lexer,
+				"matchToken(java.lang.String)", "");
+		assertEquals(TokenType.EOF, tokenType);
 	}
 
 	/**
@@ -69,22 +71,20 @@ public class AdditionalSymbolTest {
 		Token token = this.lexer.getNextToken();
 		assertEquals(Constants.SEMICOLON, token.getValue());
 		assertEquals(TokenType.SEMICOLON, token.getTokenType());
-		assertTrue(token.getLine() == 1);
-		assertTrue(token.getColumn() == simpleSymbolString
-				.indexOf(Constants.SEMICOLON));
+		assertEquals(1, token.getLine().intValue());
+		assertEquals(1, token.getColumn().intValue());
 
 		token = this.lexer.getNextToken();
-		assertEquals(Constants.COMMENT_EXAMPLE, token.getValue());
+		assertEquals(Constants.COMMENT + " " + Constants.COMMENT_EXAMPLE,
+				token.getValue());
 		assertEquals(TokenType.COMMENT, token.getTokenType());
-		assertTrue(token.getLine() == 1);
-		assertTrue(token.getColumn() == simpleSymbolString
-				.indexOf(Constants.COMMENT));
+		assertEquals(1, token.getLine().intValue());
+		assertEquals(3, token.getColumn().intValue());
 
 		token = this.lexer.getNextToken();
-		assertTrue(token.getValue() == null);
+		assertEquals("", token.getValue());
 		assertEquals(TokenType.EOF, token.getTokenType());
-		assertTrue(token.getLine() == 1);
-		assertTrue(token.getColumn() == simpleSymbolString
-				.indexOf(Constants.SEMICOLON));
+		assertEquals(2, token.getLine().intValue());
+		assertEquals(1, token.getColumn().intValue());
 	}
 }
