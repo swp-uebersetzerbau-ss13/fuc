@@ -171,4 +171,16 @@ public class QuadrupleFactory {
 			throw new IntermediateCodeGeneratorException("Unsupport assignment type");
 		}
 	}
+
+	/**
+	 * create a new return Node Quadruple
+	 * 
+	 * @param identifier
+	 *            The identifier to return
+	 * @return The quadruple representing the return node
+	 */
+	public static Quadruple returnNode(String identifier) {
+		return new QuadrupleImpl(Quadruple.Operator.RETURN, identifier, Quadruple.EmptyArgument,
+				Quadruple.EmptyArgument);
+	}
 }
