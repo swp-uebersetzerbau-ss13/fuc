@@ -14,11 +14,20 @@ public class Grammar {
 	public List<Production> getProductions() {
 		return productions;
 	}
-	public Grammar(List<Production> productions) {
-		this.productions = productions;
+	public List<Terminal> getTerminals() {
+		return terminals;
+	}	
+	public List<Variable> getVariables() {
+		return variables;
 	}
+	// too dangerous, ...
+	/*public Grammar(List<Production> productions) {
+		this.productions = productions;
+	}*/
 	public Grammar() {
 		this.productions = new ArrayList<Production>();
+		this.terminals = new ArrayList<Terminal>();
+		this.variables = new ArrayList<Variable>();
 	}
 	/**
 	 * read grammar from stream
@@ -28,8 +37,8 @@ public class Grammar {
 	public void readFromFile(Reader inputStream) throws WrongGrammarFormatException, IOException {
 		// to do: enable escaping for ":", " ", ",", ...?
 		BufferedReader in = new BufferedReader(inputStream);
-		List<Terminal> terminals;
-		List<Variable> variables;
+		/*List<Terminal> terminals;
+		List<Variable> variables;*/
 		try {
 			String line;
 			// read symbols:
@@ -213,5 +222,7 @@ public class Grammar {
 			ret = ret.trim();
 		return ret;
 	}
+	private List<Terminal> terminals;
+	private List<Variable> variables;
 	private List<Production> productions;
 }

@@ -88,6 +88,12 @@ public class GrammarTest {
 				grammar.getProductions().get(0).getFIRST().equals(FIRSTshouldbe)
 		);
 		// check if FOLLOW-Sets have been calculated correctly:
+		Variable Expr = grammar.getProductions().get(0).getLeft();
+		Variable Expr = grammar.getProductions().get(0).getRight();
+		Set<Terminal> FOLLOWExprshouldBe = new HashSet<Terminal>();
+		FOLLOWExprshouldBe.add(new Terminal("$"));
+		FOLLOWExprshouldBe.add(new Terminal("+"));
+		FOLLOWExprshouldBe.add(new Terminal("-"));
 		
 	}
 	private static String testGrammar = 
