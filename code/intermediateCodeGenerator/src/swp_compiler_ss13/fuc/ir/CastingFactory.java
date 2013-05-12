@@ -70,38 +70,6 @@ public class CastingFactory {
 	}
 
 	/**
-	 * Check if a cast is needed between type 1 and the type of result2
-	 * 
-	 * @param type1
-	 *            Type 1 to check
-	 * @param result2
-	 *            Result 2 to check
-	 * @return true if a cast is needed between type1 and the type of result2
-	 * @throws IntermediateCodeGeneratorException
-	 *             An error occurred
-	 */
-	public static boolean isCastNeeded(Type type1, IntermediateResult result2)
-			throws IntermediateCodeGeneratorException {
-		return isCastNeeded(type1, result2.getType());
-	}
-
-	/**
-	 * Check if a cast is needed between type 1 and the type of result2
-	 * 
-	 * @param result1
-	 *            Result 2 to check
-	 * @param type2
-	 *            Type 1 to check
-	 * @return true if a cast is needed between the type of result1 and type2
-	 * @throws IntermediateCodeGeneratorException
-	 *             An error occurred
-	 */
-	public static boolean isCastNeeded(IntermediateResult result1, Type type2)
-			throws IntermediateCodeGeneratorException {
-		return isCastNeeded(result1.getType(), type2);
-	}
-
-	/**
 	 * Checks whether the given type is a primitive type.
 	 * 
 	 * @param type

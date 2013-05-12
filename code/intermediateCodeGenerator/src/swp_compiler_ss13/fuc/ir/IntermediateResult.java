@@ -8,7 +8,7 @@ import swp_compiler_ss13.common.types.Type;
  * @author "Frank Zechert"
  * @version 1
  */
-class IntermediateResult {
+public class IntermediateResult {
 	/**
 	 * The value of this intermediate result
 	 */
@@ -27,7 +27,7 @@ class IntermediateResult {
 	 * @param type
 	 *            The type of the intermediate result
 	 */
-	IntermediateResult(String value, Type type) {
+	public IntermediateResult(String value, Type type) {
 		this.value = value;
 		this.type = type;
 	}
@@ -37,7 +37,7 @@ class IntermediateResult {
 	 * 
 	 * @return the value.
 	 */
-	String getValue() {
+	public String getValue() {
 		return this.value;
 	}
 
@@ -46,7 +46,7 @@ class IntermediateResult {
 	 * 
 	 * @return the type.
 	 */
-	Type getType() {
+	public Type getType() {
 		return this.type;
 	}
 }
