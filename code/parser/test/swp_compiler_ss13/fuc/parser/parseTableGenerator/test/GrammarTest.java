@@ -88,13 +88,29 @@ public class GrammarTest {
 				grammar.getProductions().get(0).getFIRST().equals(FIRSTshouldbe)
 		);
 		// check if FOLLOW-Sets have been calculated correctly:
-		Variable Expr = grammar.getProductions().get(0).getLeft();
-		Variable Expr = grammar.getProductions().get(0).getRight();
-		Set<Terminal> FOLLOWExprshouldBe = new HashSet<Terminal>();
-		FOLLOWExprshouldBe.add(new Terminal("$"));
-		FOLLOWExprshouldBe.add(new Terminal("+"));
-		FOLLOWExprshouldBe.add(new Terminal("-"));
-		
+		Variable Expr = grammar.getVariable("Expr");
+		Variable Term = grammar.getVariable("Term");
+		Variable Fac = grammar.getVariable("Fac");
+		Set<Terminal> ExprExpectedFOLLOW = new HashSet<Terminal>();
+			ExprExpectedFOLLOW.add(new Terminal("$"));
+			ExprExpectedFOLLOW.add(new Terminal("+"));
+			ExprExpectedFOLLOW.add(new Terminal("-"));
+		Set<Terminal> TermExpectedFOLLOW = new HashSet<Terminal>(ExprExpectedFOLLOW);
+			TermExpectedFOLLOW.add(new Terminal("*"));
+			TermExpectedFOLLOW.add(new Terminal("/"));
+		Set<Terminal> FacExpectedFOLLOW = new HashSet<Terminal>(TermExpectedFOLLOW);
+		assertTrue(
+				"FOLLOW ( Expr ) should be equal to { $, +, - }",
+				Expr.getFOLLOW().equals(ExprExpectedFOLLOW)
+		);
+		assertTrue(
+				"FOLLOW ( Term ) should be equal to { $, +, -, *, / }",
+				Term.getFOLLOW().equals(TermExpectedFOLLOW)
+		);
+		assertTrue(
+				"FOLLOW ( Fac ) should be equal to { $, +, -, *, / }",
+				Fac.getFOLLOW().equals(FacExpectedFOLLOW)
+		);
 	}
 	private static String testGrammar = 
 			"symbols:\n" +

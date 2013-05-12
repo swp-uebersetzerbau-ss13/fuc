@@ -7,12 +7,26 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 
 public class Grammar {
 	public List<Production> getProductions() {
 		return productions;
+	}
+	public Terminal getTerminal(String term) throws NoSuchElementException {
+		int index = terminals.indexOf(new Terminal(term));
+		if (index == -1)
+			throw new NoSuchElementException();
+		return terminals.get(index);
+	}
+	public Variable getVariable(String term) throws NoSuchElementException {
+		int index = variables.indexOf(new Variable(term));
+		if (index == -1)
+			throw new NoSuchElementException();
+		return variables.get(index);
 	}
 	public List<Terminal> getTerminals() {
 		return terminals;
@@ -179,7 +193,48 @@ public class Grammar {
 		while ( iCard > iCardOld);
 	}
 	private void calcFOLLOW() {
-		
+		Terminal eps = new Terminal("");
+		Terminal eof = new Terminal("$");
+		int iCard = 0;
+		int iCardOld = 0;
+		getProductions().get(0).getFOLLOW().add(eof);
+		do {
+			iCardOld = iCard;
+			Iterator<Production> i = productions.iterator();
+			while (i.hasNext()) { // prod
+				Production prod = i.next();
+				System.out.println( prod.getString() );
+				Variable left = prod.getLeft();
+				// now iterate through the right side from right to left:
+				ListIterator<Symbol> iRight = prod.getRight().listIterator(prod.getRight().size());
+				Set<Terminal> FOLLOWToAdd = new HashSet<Terminal>(left.getFOLLOW());
+				/*if( ! iRight.hasPrevious())
+					break;*/
+				while ( iRight.hasPrevious()) {  // right (step through right side of the production)
+					Symbol right = iRight.previous();
+					if ( right.getType() == Symbol.SymbolType.TERMINAL )
+					{
+						FOLLOWToAdd.clear(); FOLLOWToAdd.add((Terminal )right);
+					}
+					else {
+						// if right is a VARIABLE
+						Variable varRight = (Variable )right;
+						// 1. add FOLLOWToAdd to varRight.getFOLLOW():
+							int oldSize = varRight.getFOLLOW().size();
+						varRight.getFOLLOW().addAll(FOLLOWToAdd);
+							iCard += (varRight.getFOLLOW().size()-oldSize);
+						// 2. prepare new FOLLOWToAdd:
+						FOLLOWToAdd.clear();
+						Set<Terminal> currentFIRST = new HashSet<Terminal>(varRight.getFIRST()); currentFIRST.remove(eps);
+						FOLLOWToAdd.addAll(currentFIRST);
+						if( varRight.getFIRST().contains(eps) ){
+							FOLLOWToAdd.addAll( varRight.getFOLLOW() );
+						}
+					}
+				}
+			}
+		}
+		while( iCard > iCardOld );
 	}
 	private List<Terminal> parseTerminals(BufferedReader in) throws WrongGrammarFormatException, IOException{
 		//format: "symbols:\nsym1,sym2,sym3,...\n"
