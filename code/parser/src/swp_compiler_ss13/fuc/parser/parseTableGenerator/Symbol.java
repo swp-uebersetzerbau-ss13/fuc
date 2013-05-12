@@ -18,7 +18,7 @@ public abstract class Symbol implements Comparable<Symbol> {
 
 	public Symbol(String stringRep) { 
 		
-		this.stringRep = stringRep; 
+		this.stringRep = stringRep;
 	}
 	
 	/**
@@ -35,5 +35,24 @@ public abstract class Symbol implements Comparable<Symbol> {
 				return 1;
 		else
 			return getString().compareTo(other.getString());
+	}
+	
+	/**
+	 * this is important! if this method is not be overwritten, it would not work as expected!
+	 * @param other Symbol
+	 * @return calls {@link compareTo} to check for equality
+	 */
+	@Override
+	public boolean equals(Object other) {
+		//System.out.println("Symbol.equals called!");
+		if( other instanceof Symbol)
+			return (compareTo((Symbol )other) == 0);
+		return false;
+	}
+	
+	@Override
+	public int hashCode() {
+		//System.out.println(getString() + ".hashCode() == " + stringRep.hashCode());
+		return stringRep.hashCode();
 	}
 }

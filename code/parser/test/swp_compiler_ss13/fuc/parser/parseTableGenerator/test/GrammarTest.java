@@ -7,7 +7,9 @@ import static org.junit.Assert.*;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -77,6 +79,16 @@ public class GrammarTest {
 				"Production \"Expr -> Expr - Term\" should have been added",
 				grammar.getProductions().get(1).getLeft().compareTo(prod1.getLeft()) == 0
 		);
+		// check if FIRST-Sets have been calculated correctly:
+		Set<Terminal> FIRSTshouldbe = new HashSet<Terminal>();
+		FIRSTshouldbe.add(new Terminal("num"));
+		FIRSTshouldbe.add(new Terminal("real"));
+		assertTrue(
+				"FIRST ( first production ) should equal { num, real }",
+				grammar.getProductions().get(0).getFIRST().equals(FIRSTshouldbe)
+		);
+		// check if FOLLOW-Sets have been calculated correctly:
+		
 	}
 	private static String testGrammar = 
 			"symbols:\n" +

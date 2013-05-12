@@ -48,7 +48,6 @@ public class ProductionTest {
 		assertTrue( B.compareTo(C) < 0);
 		assertTrue( C.compareTo(D) < 0);
 		assertTrue( D.compareTo(E) > 0);
-		
 	}
 	private Production prodFromStrings(String leftStr,String rightStr[])
 	{

@@ -20,5 +20,5 @@ public class ParseTableBuilder {
 	public ParseTable getTable(Grammar grammar) {
 		return null;
 	}
-
+	
 }

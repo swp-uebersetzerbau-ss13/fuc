@@ -64,4 +64,23 @@ public class Production implements Comparable<Production> {
 			return -1;
 		return 0;
 	}
+	
+	/**
+	 * this is important! if this method is not be overwritten, it would not work as expected!
+	 * @param other Symbol
+	 * @return calls {@link compareTo} to check for equality
+	 */
+	public boolean equals(Production other) {
+		return (compareTo(other) == 0);
+	}
+	
+	public String getString() {
+		String ret = getLeft().getString();
+		ret += " ->";
+		for ( Symbol s : getRight())
+		{
+			ret += (" " + s.getString());
+		}
+		return ret;
+	}
 }
