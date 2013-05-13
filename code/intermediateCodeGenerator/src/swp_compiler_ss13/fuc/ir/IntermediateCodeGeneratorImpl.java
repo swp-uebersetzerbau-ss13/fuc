@@ -253,16 +253,9 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 	 */
 	private void processReturnNode(ReturnNode node) throws IntermediateCodeGeneratorException {
 		IdentifierNode right = node.getRightValue();
-		switch (right.getNodeType()) {
-		case BasicIdentifierNode:
-			this.irCode.add(QuadrupleFactory.returnNode(((BasicIdentifierNode) right).getIdentifier()));
-			break;
-		default:
-			String err = "ReturnNode with an identifier of type %s is not implemented.";
-			String errf = String.format(err, node.getNodeType());
-			logger.fatal(errf);
-			throw new IntermediateCodeGeneratorException(new NotImplementedException());
-		}
+		this.callProcessing(right);
+		IntermediateResult intermediateResult = this.intermediateResults.pop();
+		this.irCode.add(QuadrupleFactory.returnNode(intermediateResult.getValue()));
 	}
 
 	/**
@@ -425,50 +418,43 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 		// the id to assign the value to
 		IdentifierNode id = node.getLeftValue();
 
-		switch (id.getNodeType()) {
-		case BasicIdentifierNode:
-			// the id to assign the value to is a basic identifier.
-			// no need to resolve an array or struct etc.
-			StatementNode value = node.getRightValue();
+		this.callProcessing(id);
 
-			// process the right hand expression
-			this.callProcessing(value);
+		IntermediateResult intermediateResult = this.intermediateResults.pop();
 
-			// the result of the right hand expression
-			IntermediateResult rightIntermediate = this.intermediateResults.pop();
+		// the id to assign the value to is a basic identifier.
+		// no need to resolve an array or struct etc.
+		StatementNode value = node.getRightValue();
 
-			// get the name of the id and resolve it from our saved structures
-			String idOrigName = ((BasicIdentifierNode) id).getIdentifier();
-			String idRenamed = this.loadIdentifier(idOrigName);
+		// process the right hand expression
+		this.callProcessing(value);
 
-			// the type of the id. If necessary the value of the right hand
-			// expression
-			// needs to be casted to this type.
-			Type typeOfId = this.currentSymbolTable.peek().lookupType(idOrigName);
+		// the result of the right hand expression
+		IntermediateResult rightIntermediate = this.intermediateResults.pop();
 
-			// check if the cast is needed
-			boolean castNeeded = CastingFactory.isCastNeeded(typeOfId, rightIntermediate.getType());
+		// get the name of the id and resolve it from our saved structures
+		String idRenamed = intermediateResult.getValue();
 
-			if (castNeeded) {
-				// if a cast is needed cast the right hand expression to the
-				// type of the id
-				String temporary = this.createAndSaveTemporaryIdentifier(typeOfId);
-				Quadruple cast = CastingFactory.createCast(rightIntermediate.getType(), rightIntermediate.getValue(),
-						typeOfId, temporary);
-				this.irCode.add(cast);
-				this.irCode.add(QuadrupleFactory.assign(typeOfId, temporary, idRenamed));
-			}
-			else {
-				// no cast is needed,
-				this.irCode.add(QuadrupleFactory.assign(typeOfId, rightIntermediate.getValue(), idRenamed));
-			}
+		// the type of the id. If necessary the value of the right hand
+		// expression
+		// needs to be casted to this type.
+		Type typeOfId = intermediateResult.getType();
 
-			break;
-		default:
-			String err = "Assignment for id of type %s is not supported";
-			String errf = String.format(err, id.getNodeType());
-			logger.fatal(errf);
-			throw new IntermediateCodeGeneratorException(errf, new NotImplementedException());
+		// check if the cast is needed
+		boolean castNeeded = CastingFactory.isCastNeeded(typeOfId, rightIntermediate.getType());
+
+		if (castNeeded) {
+			// if a cast is needed cast the right hand expression to the
+			// type of the id
+			String temporary = this.createAndSaveTemporaryIdentifier(typeOfId);
+			Quadruple cast = CastingFactory.createCast(rightIntermediate.getType(), rightIntermediate.getValue(),
+					typeOfId, temporary);
+			this.irCode.add(cast);
+			this.irCode.add(QuadrupleFactory.assign(typeOfId, temporary, idRenamed));
+		}
+		else {
+			// no cast is needed,
+			this.irCode.add(QuadrupleFactory.assign(typeOfId, rightIntermediate.getValue(), idRenamed));
 		}
 
 	}

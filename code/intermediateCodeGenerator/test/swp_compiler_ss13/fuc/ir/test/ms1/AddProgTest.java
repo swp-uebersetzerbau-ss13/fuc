@@ -1,8 +1,12 @@
 package swp_compiler_ss13.fuc.ir.test.ms1;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.List;
 
-import org.junit.BeforeClass;
+import junit.extensions.PA;
+
+import org.junit.Before;
 import org.junit.Test;
 
 import swp_compiler_ss13.common.ast.nodes.binary.ArithmeticBinaryExpressionNode;
@@ -31,9 +35,11 @@ import swp_compiler_ss13.fuc.symbolTable.SymbolTableImpl;
 public class AddProgTest {
 
 	private static ASTImpl ast;
+	private static final String temporaryName = "tmp";
 
-	@BeforeClass
-	public static void setUpBeforeClass() throws Exception {
+	@Before
+	public void setUp() throws Exception {
+		PA.setValue(SymbolTableImpl.class, "ext", 0);
 		ast = new ASTImpl();
 		BlockNode program = new BlockNodeImpl();
 		program.setSymbolTable(new SymbolTableImpl());
@@ -151,10 +157,32 @@ public class AddProgTest {
 	public void test() throws IntermediateCodeGeneratorException {
 		IntermediateCodeGenerator gen = new IntermediateCodeGeneratorImpl();
 		List<Quadruple> tac = gen.generateIntermediateCode(ast);
+
+		String result = "" +
+				"(DECLARE_LONG|!|!|l)" + "\n" +
+				"(DECLARE_LONG|!|!|" + temporaryName + "0)" + "\n" +
+				"(ADD_LONG|#10|#23|" + temporaryName + "0)" + "\n" +
+				"(DECLARE_LONG|!|!|" + temporaryName + "1)" + "\n" +
+				"(SUB_LONG|tmp0|#23|" + temporaryName + "1)" + "\n" +
+				"(DECLARE_LONG|!|!|" + temporaryName + "2)" + "\n" +
+				"(DIV_LONG|#100|#2|" + temporaryName + "2)" + "\n" +
+				"(DECLARE_LONG|!|!|" + temporaryName + "3)" + "\n" +
+				"(ADD_LONG|" + temporaryName + "1|" + temporaryName + "2|" + temporaryName + "3)" + "\n" +
+				"(DECLARE_LONG|!|!|" + temporaryName + "4)" + "\n" +
+				"(SUB_LONG|" + temporaryName + "3|#30|" + temporaryName + "4)" + "\n" +
+				"(DECLARE_LONG|!|!|" + temporaryName + "5)" + "\n" +
+				"(DIV_LONG|#9|#3|" + temporaryName + "5)" + "\n" +
+				"(DECLARE_LONG|!|!|" + temporaryName + "6)" + "\n" +
+				"(SUB_LONG|" + temporaryName + "4|" + temporaryName + "5|" + temporaryName + "6)" + "\n" +
+				"(ASSIGN_LONG|" + temporaryName + "6|!|l)" + "\n" +
+				"(RETURN|l|!|!)" + "\n";
+
+		StringBuilder actual = new StringBuilder();
 		for (Quadruple q : tac) {
-			System.out.println(String.format("(%s|%s|%s|%s)", q.getOperator(), q.getArgument1(), q.getArgument2(),
+			actual.append(String.format("(%s|%s|%s|%s)\n", q.getOperator(), q.getArgument1(), q.getArgument2(),
 					q.getResult()));
 		}
-	}
 
+		assertEquals(result, actual.toString());
+	}
 }
