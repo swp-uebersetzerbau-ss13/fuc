@@ -2,7 +2,6 @@ package swp_compiler_ss13.fuc.semantic_analyser;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -29,11 +28,12 @@ import swp_compiler_ss13.fuc.ast.BlockNodeImpl;
 import swp_compiler_ss13.fuc.ast.DeclarationNodeImpl;
 import swp_compiler_ss13.fuc.ast.LiteralNodeImpl;
 import swp_compiler_ss13.fuc.ast.ReturnNodeImpl;
+import swp_compiler_ss13.fuc.parser.errorHandling.ReportLogImpl;
 
 public class SemanticAnalyserTest {
 
 	private SemanticAnalyser analyzer;
-	private TestReportLog log;
+	private ReportLogImpl log;
 
 	public SemanticAnalyserTest() {
 	}
@@ -48,7 +48,7 @@ public class SemanticAnalyserTest {
 
 	@Before
 	public void setUp() {
-		log = new TestReportLog();
+		log = new ReportLogImpl();
 		analyzer = new SemanticAnalyser(log);
 	}
 
@@ -80,7 +80,7 @@ public class SemanticAnalyserTest {
 		AST ast = new ASTImpl();
 		ast.setRootNode(blockNode);
 		analyzer.analyse(ast);
-		assertEquals(1, log.errors.size());
+		assertTrue(log.hasErrors());
 		// TODO report log contains error
 	}
 
@@ -179,7 +179,7 @@ public class SemanticAnalyserTest {
 		ast.setRootNode(blockNode);
 
 		analyzer.analyse(ast);
-		assertTrue(log.errors.isEmpty());
+		assertTrue(!log.hasErrors());
 	}
 
 	/**
@@ -256,7 +256,7 @@ public class SemanticAnalyserTest {
 		ast.setRootNode(blockNode);
 
 		analyzer.analyse(ast);
-		assertTrue(log.errors.isEmpty());
+		assertTrue(!log.hasErrors());
 	}
 
 	/**
@@ -301,7 +301,7 @@ public class SemanticAnalyserTest {
 		ast.setRootNode(blockNode);
 
 		analyzer.analyse(ast);
-		assertTrue(log.errors.isEmpty());
+		assertTrue(!log.hasErrors());
 	}
 
 	/**
@@ -346,7 +346,7 @@ public class SemanticAnalyserTest {
 		ast.setRootNode(blockNode);
 
 		analyzer.analyse(ast);
-		assertTrue(log.errors.isEmpty());
+		assertTrue(!log.hasErrors());
 	}
 
 }
