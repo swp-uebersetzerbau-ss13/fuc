@@ -60,6 +60,10 @@ public class BasicIdentifierNodeImplTest {
 
 		}
 
+		try {
+			iterator.remove();
+		} catch (UnsupportedOperationException e) {
+		}
 	}
 
 	/**
