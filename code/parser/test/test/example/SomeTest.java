@@ -1,4 +1,4 @@
-package parser.example;
+package test.example;
 
 import static org.junit.Assert.*;
 
@@ -28,7 +28,7 @@ public class SomeTest {
 
 	@Test
 	public void test() {
-		fail("Not yet implemented");
+		// fail("Not yet implemented");
 	}
 
 }

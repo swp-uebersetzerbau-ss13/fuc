@@ -1,4 +1,4 @@
-package swp_compiler_ss13.fuc.ir;
+package swp_compiler_ss13.fuc.semantic_analyser;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -7,46 +7,43 @@ import swp_compiler_ss13.common.optimization.Liveliness;
 import swp_compiler_ss13.common.parser.SymbolTable;
 import swp_compiler_ss13.common.types.Type;
 
-public class SymbolTableImpl implements SymbolTable {
+public class TestSymbolTable implements SymbolTable {
 
-	private SymbolTable parent = null;
-	private Map<String, Type> symbols = new HashMap<>();
+	private final Map<String, Type> table;
+
+	public TestSymbolTable() {
+		table = new HashMap<String, Type>();
+	}
 
 	@Override
 	public SymbolTable getParentSymbolTable() {
-		return this.parent;
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override
 	public Boolean isDeclared(String identifier) {
-		if (this.symbols.containsKey(identifier)) {
-			return true;
-		}
-		if (this.parent == null) {
-			return false;
-		}
-		return this.parent.isDeclared(identifier);
+		// TODO Auto-generated method stub
+		return table.get(identifier) != null;
 	}
 
 	@Override
 	public Type lookupType(String identifier) {
-		if (this.symbols.containsKey(identifier)) {
-			return this.symbols.get(identifier);
-		}
-		if (this.parent == null) {
-			return null;
-		}
-		return this.parent.lookupType(identifier);
+		Type type = table.get(identifier);
+		if (type != null)
+			return type;
+		return null;
 	}
 
 	@Override
 	public void insert(String identifier, Type type) {
-		this.symbols.put(identifier, type);
+		table.put(identifier, type);
 	}
 
 	@Override
 	public Boolean remove(String identifier) {
-		return null != this.symbols.remove(identifier);
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override
@@ -63,21 +60,14 @@ public class SymbolTableImpl implements SymbolTable {
 
 	@Override
 	public String getNextFreeTemporary() {
-		int i = 0;
-		while (this.isDeclared("t" + i)) {
-			i++;
-		}
-		return "t" + i;
-
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override
 	public void putTemporary(String identifier, Type type) {
-		if (this.parent == null) {
-			this.symbols.put(identifier, type);
-		} else {
-			this.parent.putTemporary(identifier, type);
-		}
+		// TODO Auto-generated method stub
+
 	}
 
 }

@@ -34,7 +34,7 @@
 	
 	<!-- === interface === -->
 	<target name="interface" description="compile the interface classes">
-		<ant antfile="build.xml" dir="${interfaces.dir}" target="build" inheritall="false" />
+		<ant antfile="interfaces.xml" dir=".." target="build" inheritall="false" />
 	</target>
 	
 	<!-- === compile source === -->
@@ -58,7 +58,7 @@
 	    	nonavbar="false"
 	    	notree="false"
 	    	source="1.7"
-	    	sourcepath="src"
+	    	sourcepath="${src.dir}"
 	    	splitindex="true"
 	    	use="true"
 	    	version="true"
