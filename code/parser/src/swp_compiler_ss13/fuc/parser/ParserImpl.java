@@ -6,7 +6,6 @@ import java.util.Stack;
 
 import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.ast.nodes.StatementNode;
-import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
 import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
 import swp_compiler_ss13.common.lexer.Lexer;
 import swp_compiler_ss13.common.lexer.Token;
@@ -35,7 +34,6 @@ public class ParserImpl implements Parser {
 	private ParseTable table;
 	private ReportLog reportLog;
 	private AST ast = new ASTImpl();
-	private Stack<BlockNode> nestedBlocks = new Stack<BlockNode>();
 	private Stack<Token> tokenStack;
 	private List<DeclarationNode> decls = new LinkedList<DeclarationNode>();
 	private List<StatementNode> stmts = new LinkedList<StatementNode>();
@@ -91,7 +89,6 @@ public class ParserImpl implements Parser {
 			}
 
 			entryType = entry.getType();
-			
 			
 			
 			switch(entryType){
