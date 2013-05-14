@@ -1,8 +1,11 @@
 package swp_compiler_ss13.fuc.parser;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Stack;
 
 import swp_compiler_ss13.common.ast.AST;
+import swp_compiler_ss13.common.ast.nodes.StatementNode;
 import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
 import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
 import swp_compiler_ss13.common.lexer.Lexer;
@@ -14,7 +17,6 @@ import swp_compiler_ss13.common.types.primitive.DoubleType;
 import swp_compiler_ss13.common.types.primitive.LongType;
 import swp_compiler_ss13.common.types.primitive.StringType;
 import swp_compiler_ss13.fuc.ast.ASTImpl;
-import swp_compiler_ss13.fuc.ast.BlockNodeImpl;
 import swp_compiler_ss13.fuc.ast.DeclarationNodeImpl;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.ParseTableEntry;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.ParseTableEntry.ParseTableEntryType;
@@ -22,8 +24,9 @@ import swp_compiler_ss13.fuc.parser.parseTableGenerator.ParseTableGeneratorImpl;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.Production;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.Reduce;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.interfaces.ParseTable;
+import swp_compiler_ss13.fuc.parser.parseTableGenerator.interfaces.ParseTable.StateOutOfBoundsException;
+import swp_compiler_ss13.fuc.parser.parseTableGenerator.interfaces.ParseTable.TokenNotFoundException;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.interfaces.ParseTableGenerator;
-import swp_compiler_ss13.fuc.symbolTable.SymbolTableImpl;
 
 public class ParserImpl implements Parser {
 
@@ -34,6 +37,9 @@ public class ParserImpl implements Parser {
 	private AST ast = new ASTImpl();
 	private Stack<BlockNode> nestedBlocks = new Stack<BlockNode>();
 	private Stack<Token> tokenStack;
+	private List<DeclarationNode> decls = new LinkedList<DeclarationNode>();
+	private List<StatementNode> stmts = new LinkedList<StatementNode>();
+	private Stack<StatementNode> stmtStack = new Stack<StatementNode>();
 
 	@Override
 	public void setLexer(Lexer lexer) {
@@ -49,10 +55,6 @@ public class ParserImpl implements Parser {
 	public AST getParsedAST() {
 		// TODO
 		ParseTableGenerator generator = new ParseTableGeneratorImpl();
-		BlockNode rootBlock = new BlockNodeImpl();
-		rootBlock.setSymbolTable(new SymbolTableImpl());
-		nestedBlocks.add(rootBlock);
-		ast.setRootNode(rootBlock);
 		table = generator.getTable();
 		return parse();
 	}
@@ -78,7 +80,15 @@ public class ParserImpl implements Parser {
 				//TODO Errorhandling
 			}
 			
-			entry = table.getEntry(s, token);
+			try {
+				entry = table.getEntry(s, token);
+			} catch (StateOutOfBoundsException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (TokenNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 
 			entryType = entry.getType();
 			
@@ -125,7 +135,7 @@ public class ParserImpl implements Parser {
 		
 		switch(prod.getString()){
 		
-		case "program -> decls stmts":
+		case "program -> decls stmts": 
 		case "decls -> decls decl":
 		case "decl -> type id ;": createDeclarationNode(); break;
 		case "stmts -> stmts stmt":
@@ -189,7 +199,6 @@ public class ParserImpl implements Parser {
 	 */
 	private void createDeclarationNode() {
 		DeclarationNode decl = new DeclarationNodeImpl();
-		BlockNode block = nestedBlocks.peek();
 		Token tmp = null;
 		while(!tokenStack.isEmpty()){
 			tmp = tokenStack.pop();
@@ -202,8 +211,7 @@ public class ParserImpl implements Parser {
 				break;
 			}
 		}
-		block.getSymbolTable().insert(decl.getIdentifier(), decl.getType());
-		block.addDeclaration(decl);
+		decls.add(decl);
 	}
 	
 	
