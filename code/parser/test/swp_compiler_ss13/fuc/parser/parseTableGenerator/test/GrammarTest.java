@@ -112,6 +112,29 @@ public class GrammarTest {
 				Fac.getFOLLOW().equals(FacExpectedFOLLOW)
 		);
 	}
+	/*
+	 * Expr -> Expr + Term | Expr - Term | Term
+	 * Term -> Term * Fac | Term / Fac | Fac
+	 * Fac -> num | real
+	 * 
+	 * FIRST:
+	 * FIRST( Expr ) = FIRST( Term ) = FIRST( Fac ) = { num, real }
+	 * 
+	 * FOLLOW:
+	 * FOLLOW( Expr ) = { $, +, - }
+	 * FOLLOW( Term ) = FOLLOW( Fac ) = { $, +, -, *, / }
+	 *//*
+	 * Expr -> Expr + Term | Expr - Term | Term
+	 * Term -> Term * Fac | Term / Fac | Fac
+	 * Fac -> num | real
+	 * 
+	 * FIRST:
+	 * FIRST( Expr ) = FIRST( Term ) = FIRST( Fac ) = { num, real }
+	 * 
+	 * FOLLOW:
+	 * FOLLOW( Expr ) = { $, +, - }
+	 * FOLLOW( Term ) = FOLLOW( Fac ) = { $, +, -, *, / }
+	 */
 	private static String testGrammar = 
 			"symbols:\n" +
 			"num,real,+,-,*,/\n" +

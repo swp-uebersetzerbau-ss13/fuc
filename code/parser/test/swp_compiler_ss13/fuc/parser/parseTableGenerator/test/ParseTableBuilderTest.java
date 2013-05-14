@@ -58,6 +58,31 @@ public class ParseTableBuilderTest {
 		//fail("Not yet implemented");
 	}
 	
+	/*
+	 * Expr -> Expr + Term | Expr - Term | Term
+	 * Term -> Term * Fac | Term / Fac | Fac
+	 * Fac -> num | real
+	 * 
+	 * FIRST:
+	 * FIRST( Expr ) = FIRST( Term ) = FIRST( Fac ) = { num, real }
+	 * 
+	 * FOLLOW:
+	 * FOLLOW( Expr ) = { $, +, - }
+	 * FOLLOW( Term ) = FOLLOW( Fac ) = { $, +, -, *, / }
+	 */
+	
+	/*
+	 * This should result in the following Parse-Table:
+	 *
+	 *		| +		| -		| *		| /		| num	| real	| $
+	 *	0	
+	 *	1
+	 *	2
+	 *	3
+	 *	4
+	 *	5
+	 *	6
+	 */
 	private static String testGrammar = 
 			"symbols:\n" +
 			"num,real,+,-,*,/\n" +

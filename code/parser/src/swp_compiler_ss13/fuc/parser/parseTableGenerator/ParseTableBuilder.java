@@ -1,7 +1,6 @@
-/**
- * 
- */
 package swp_compiler_ss13.fuc.parser.parseTableGenerator;
+
+import java.util.Set;
 
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.interfaces.ParseTable;
 
@@ -18,7 +17,11 @@ public class ParseTableBuilder {
 	 * @return The LR(1) parsetable for "grammar"
 	 */
 	public ParseTable getTable(Grammar grammar) {
-		return null;
+		ParseTable table = new ParseTableImpl(0, grammar.getTerminals());
+		//return null;
 	}
 	
+	private Set<Item> CLOSURE(Set<Item> item) {
+		return null;
+	}
 }
