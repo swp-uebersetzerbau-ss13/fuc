@@ -3,8 +3,9 @@ package swp_compiler_ss13.fuc.parser.parseTableGenerator;
 public class Reduce extends ParseTableEntry {
 	
 	private Integer count;
+	private Production production;
 	
-	Reduce(Integer count, Integer newState) {
+	Reduce(Integer count, Integer newState, Production production) {
 		this.count = count;
 		super.newState = newState;
 	}
@@ -15,6 +16,11 @@ public class Reduce extends ParseTableEntry {
 	
 	public ParseTableEntryType getType() {
 		return ParseTableEntryType.REDUCE;
+	}
+	
+	
+	public Production getProduction(){
+		return production;
 	}
 	
 
