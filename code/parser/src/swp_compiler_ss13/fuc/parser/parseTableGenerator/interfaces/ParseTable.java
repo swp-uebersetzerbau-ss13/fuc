@@ -5,7 +5,7 @@ import swp_compiler_ss13.fuc.parser.parseTableGenerator.ParseTableEntry;
 
 public interface ParseTable {
 	
-	public ParseTableEntry getEntry(int state, String symbol) throws StateOutOfBoundsException, TokenNotFoundException;
+	public ParseTableEntry getEntry(int state, Token symbol) throws StateOutOfBoundsException, TokenNotFoundException;
 	public class StateOutOfBoundsException extends Exception {
 		public StateOutOfBoundsException() { super(); };
 		public StateOutOfBoundsException(String message) { super(message); };
