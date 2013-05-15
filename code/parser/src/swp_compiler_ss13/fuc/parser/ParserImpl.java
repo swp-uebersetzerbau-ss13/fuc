@@ -19,7 +19,6 @@ import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.common.parser.Parser;
 import swp_compiler_ss13.common.parser.ReportLog;
-import swp_compiler_ss13.common.types.Type;
 import swp_compiler_ss13.common.types.primitive.BooleanType;
 import swp_compiler_ss13.common.types.primitive.DoubleType;
 import swp_compiler_ss13.common.types.primitive.LongType;
@@ -205,6 +204,34 @@ public class ParserImpl implements Parser {
       switch (prod.getString()) {
 
          case "program -> decls stmts":
+        	 return new ReduceAction() {
+                 @Override
+                 public Object create(Object... objs) {
+                    Object left = objs[0];  // Should be NO_VALUE or BlockNode
+                    Object right = objs[1]; // Should be NO_VALUE or BlockNode
+                    
+                    BlockNode newBlock = new BlockNodeImpl();
+                    // Handle left
+                    if (!left.equals(NO_VALUE)) {
+                       BlockNode declsBlock = (BlockNode) left;
+                       for (DeclarationNode decl : declsBlock.getDeclarationList()) {
+                          newBlock.addDeclaration(decl);
+                          decl.setParentNode(newBlock);
+                       }
+                    }
+
+                    // Handle right
+                    if (!right.equals(NO_VALUE)) {
+                       BlockNode stmtsBlock = (BlockNode) right;
+                       for (StatementNode decl : stmtsBlock.getStatementList()) {
+                          newBlock.addStatement(decl);
+                          decl.setParentNode(newBlock);
+                       }
+                    }
+                    ast.setRootNode(newBlock);
+                    return newBlock;
+                 }
+              };
          case "block -> { decls stmts }":
             return new ReduceAction() {
                @Override
@@ -405,7 +432,9 @@ public class ParserImpl implements Parser {
         		 public Object create(Object... objs) {  	   
         			 AssignmentNodeImpl assignNode = new AssignmentNodeImpl();
         			 assignNode.setLeftValue((IdentifierNode) objs[0]);
+        			 assignNode.getLeftValue().setParentNode(assignNode);
         			 assignNode.setRightValue((StatementNode) objs[1]);
+        			 assignNode.getRightValue().setParentNode(assignNode);
         			 return assignNode;
                }
             };
