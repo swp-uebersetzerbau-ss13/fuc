@@ -1,0 +1,242 @@
+\documentclass[ucs,10pt]{beamer}
+
+% Copyright 2004 by Till Tantau <tantau@users.sourceforge.net>.
+%
+% In principle, this file can be redistributed and/or modified under
+% the terms of the GNU Public License, version 2.
+%
+% However, this file is supposed to be a template to be modified
+% for your own needs. For this reason, if you use this file as a
+% template and not specifically distribute it as part of a another
+% package/program, I grant the extra permission to freely copy and
+% modify this file as you see fit and even to delete this copyright
+% notice.
+%
+% Modified by Tobias G. Pfeiffer <tobias.pfeiffer@math.fu-berlin.de>
+% to show usage of some features specific to the FU Berlin template.
+
+% remove this line and the "ucs" option to the documentclass when your editor is not utf8-capable
+\usepackage[utf8x]{inputenc}    % to make utf-8 input possible
+\usepackage[ngerman]{babel}     % hyphenation etc., alternatively use 'german' as parameter
+
+\include{fu-beamer-template}  % THIS is the line that includes the FU template!
+
+\usepackage{arev,t1enc} % looks nicer than the standard sans-serif font
+% if you experience problems, comment out the line above and change
+% the documentclass option "9pt" to "10pt"
+
+% image to be shown on the title page (without file extension, should be pdf or png)
+\titleimage{fu_500}
+
+\title[Milestone 1] % (optional, use only with long paper titles)
+{Milestone 1}
+
+\subtitle
+{Vorstellung der Gruppe \emph{fuc} und des aktuellen Standes}
+
+\author[Pilz] % (optional, use only with lots of authors)
+{Sven-Kristofer Pilz}
+% - Give the names in the same order as the appear in the paper.
+
+\institute[FU Berlin] % (optional, but mostly needed)
+{Freie Universität Berlin}
+% - Keep it simple, no one is interested in your street address.
+
+\date[SWPCOM 2012] % (optional, should be abbreviation of conference name)
+{Softwareprojekt Übersetzerbau}
+% - Either use conference name or its abbreviation.
+% - Not really informative to the audience, more for people (including
+%   yourself) who are reading the slides online
+
+\subject{Milestone 1}
+% This is only inserted into the PDF information catalog. Can be left
+% out.
+
+% you can redefine the text shown in the footline. use a combination of
+% \insertshortauthor, \insertshortinstitute, \insertshorttitle, \insertshortdate, ...
+\renewcommand{\footlinetext}{\insertshortinstitute, \insertshorttitle, \insertshortdate}
+
+% Delete this, if you do not want the table of contents to pop up at
+% the beginning of each subsection:
+\AtBeginSection[]
+{
+  \begin{frame}<beamer>{Outline}
+    \tableofcontents[currentsection]
+  \end{frame}
+}
+
+\newlength{\wideitemsep}
+\setlength{\wideitemsep}{\itemsep}
+\addtolength{\wideitemsep}{5pt}
+\let\olditem\item
+\renewcommand{\item}{\setlength{\itemsep}{\wideitemsep}\olditem}
+
+\setbeamertemplate{itemize item}[circle]
+\setbeamertemplate{itemize subitem}[triangle]
+
+\begin{document}
+
+\begin{frame}[plain]
+  \titlepage
+\end{frame}
+
+\begin{frame}{Inhalt}
+  \tableofcontents
+  % You might wish to add the option [pausesections]
+\end{frame}
+
+\section{Organisation}
+
+\subsection{Arbeitsgruppen}
+\begin{frame}{Arbeitsgruppen mit Ansprechpartner}
+  \begin{itemize}
+  \item Lexer
+  \begin{itemize}
+  	\item Thomas.
+  \end{itemize}
+  
+  \item Parser
+  \begin{itemize}
+	\item Björn und Samuel.
+  \end{itemize}
+  
+  \item Semantische Analyse
+  \begin{itemize}
+  	\item Christoph, Eduard und Sven.
+  \end{itemize}    
+  
+  \item Drei-Adress-Code
+  \begin{itemize}
+  	\item Frank, Danny und Manuel.
+  \end{itemize}    
+  
+  \item LLVM-Backend
+  \begin{itemize}
+  	\item Roman, Moritz, Jens
+  \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\subsection{Kommunikation}
+\begin{frame}{Kommunikation}
+  \begin{itemize}
+  	\item Arbeitsgruppen organisieren interne Kommunikation eigenständig.
+  	\begin{itemize}
+  		\item Detailfragen entscheidet die Arbeitsgruppe.
+  	\end{itemize}
+  	\item Jeder spricht mit jedem.
+  	\item Eigene Mailingliste.
+  	\item Jeden Donnerstag Treffen der gesamten Gruppe.
+  	\begin{itemize}
+  		\item Jede Arbeitsgruppe berichtet Status.
+  		\item Größere Entscheidungen per Abstimmung.
+  	\end{itemize}
+  	\item \dots für alles andere gibt es den Projektleiter.
+  \end{itemize}
+\end{frame}
+
+\subsection{Entwicklung}
+\begin{frame}{Entwicklung}
+  \begin{itemize}
+  	\item Einzige Regel: Master Branch muss immer lauffähig sein.
+  	\item Jeder darf in Master \emph{pushen}.
+  	\item Arbeitsgruppen arbeiten in eigenen Branches.
+  	\item Test Driven
+  	\begin{itemize}
+  		\item Tests werden per ANT ausgeführt, nutzen CI von GitHub.
+  	\end{itemize}
+  \end{itemize}
+\end{frame}
+
+\section{Milestone 1}
+\subsection{Lexer}
+\begin{frame}{Lexer}
+	\begin{itemize}
+		\item Sprachumfang für Milestone 1 implementiert.
+		\item Quelltext wird aus InputStream als Liste von Zeilen eingelesen.
+		\item Token als reguläre Ausdrücke spezifiziert.
+		\begin{itemize}
+			\item Bereits gesamter Sprachumfang spezifiziert.
+		\end{itemize}
+	\end{itemize}
+\end{frame}
+
+\subsection{Parser}
+\begin{frame}{Parser}
+	work in progress
+	
+	\pause
+	
+	\begin{center}
+	\includegraphics[width=0.7\textwidth]{parser}
+	\end{center}
+\end{frame}
+
+\subsection{Semantische Analyse}
+\begin{frame}[fragile]{Semantische Analyse}
+	\begin{itemize}
+		\item Fehler aus Sprachumfang für Milestone 1 implementiert.
+		\item Findet folgenden Fehler:
+		\begin{itemize}
+			\item Verwendung von Variablen ohne Initialisierung.
+				\begin{lstlisting}[language=C]
+long i
+return i
+				\end{lstlisting}
+		\end{itemize}
+	\end{itemize}
+	
+
+\end{frame}
+
+\subsection{Drei-Adress-Code}
+\begin{frame}{Drei-Adress-Code}
+	\begin{itemize}
+		\item Sprachumfang für Milestone 1 implementiert.
+		\item Weiterer Sprachumfang bereits als Stubs vorhanden.
+		\item Hat auch den AST implementiert.
+		\begin{itemize}
+			\item Testabdeckung von etwa 100\%.
+		\end{itemize}
+		\item \dots wohl bereits sehr beliebt.
+	\end{itemize}
+\end{frame}
+
+\subsection{LLVM-Backend}
+\begin{frame}{LLVM-Backend}
+	\begin{itemize}
+		\item Drei-Adress-Code für Milestone 1 ist implementiert.
+		\item Kann den Drei-Adress-Code auch aus Textdatei lesen.
+		\item Erzeugter LLVM-Code ließ sich erfolgreich testen.
+		\item Kann Drei-Adress-Code auch direkt ausführen und Rückgabewert prüfen.
+		\begin{itemize}
+			\item Dazu ist LLVM auf dem System erforderlich.
+		\end{itemize}
+	\end{itemize}
+\end{frame}
+
+\subsection{Zusammenfassung}
+\begin{frame}{Zusammenfassung (Milestone 1)}
+	\begin{itemize}
+	\item Fertig (samt Tests):
+	\begin{itemize}
+		\item Lexer
+		\item Semantische Analyse
+		\item Drei-Adress-Code
+		\item LLVM-Backend
+	\end{itemize}
+	
+	\item In Arbeit:
+	\begin{itemize}
+		\item Parser
+		\item Visualisierung des Drei-Adress-Codes
+		\item Visualisierung des Token-Stream
+		\item Integration und Controller
+	\end{itemize}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Auf Wiedersehen}
+	Fragen?	
+\end{frame}
+\end{document}
