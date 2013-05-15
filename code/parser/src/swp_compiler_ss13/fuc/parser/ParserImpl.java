@@ -126,6 +126,7 @@ public class ParserImpl implements Parser {
             case SHIFT: {
                parserStack.push(entry.getNewState());
                // Token shiftedToken = token;
+               valueStack.push(token);
                token = lexer.getNextToken();
                
                // Push value corresponding to the token here.
@@ -135,7 +136,7 @@ public class ParserImpl implements Parser {
                // Is there a Token without a Value??
                // valueStack.push(value);
                // Isn't it better to push a token, otherwise there are only null and NOVALUE onto stack?
-               valueStack.push(token);
+               
                
                break;
             }
