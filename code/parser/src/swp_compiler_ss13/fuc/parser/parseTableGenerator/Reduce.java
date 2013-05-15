@@ -8,6 +8,7 @@ public class Reduce extends ParseTableEntry {
 	public Reduce(Integer count, Integer newState, Production production) {
 		this.count = count;
 		super.newState = newState;
+		this.production = production;
 	}
 	
 	public Integer getCount() {
