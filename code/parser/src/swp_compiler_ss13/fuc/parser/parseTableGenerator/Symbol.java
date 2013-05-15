@@ -6,7 +6,7 @@ public abstract class Symbol implements Comparable<Symbol> {
 	
 	public enum SymbolType {
 		TERMINAL,
-		VARIABLE
+		VARIABLE  // TODO rename to NonTerminal!
 	}
 	
 	public String getString() {
