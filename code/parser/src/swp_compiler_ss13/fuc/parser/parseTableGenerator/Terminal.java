@@ -3,6 +3,10 @@ package swp_compiler_ss13.fuc.parser.parseTableGenerator;
 import swp_compiler_ss13.common.lexer.Token;
 
 public class Terminal extends Symbol {
+   
+   public static final Terminal EPSILON = new Terminal("");
+   
+   
 	public SymbolType getType() {
 		return SymbolType.TERMINAL;
 	}
