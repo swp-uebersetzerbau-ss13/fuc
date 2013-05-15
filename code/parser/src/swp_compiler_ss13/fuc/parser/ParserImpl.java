@@ -392,9 +392,11 @@ public class ParserImpl implements Parser {
             return new ReduceAction() {
                @Override
                public Object create(Object... objs) {
-                  ReturnNode returnNode = new ReturnNodeImpl();
-                  returnNode.setRightValue((IdentifierNode) objs[0]);
-                  return returnNode;
+            	   ReturnNode returnNode = new ReturnNodeImpl();
+            	   IdentifierNode identifier = (IdentifierNode) objs[0];
+            	   returnNode.setRightValue(identifier);
+            	   identifier.setParentNode(returnNode);
+            	   return returnNode;
                }
             };
          case "stmt -> print loc ;":
