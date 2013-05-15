@@ -14,8 +14,8 @@ import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.parser.Parser;
 import swp_compiler_ss13.fuc.parser.ParserImpl;
-import swp_compiler_ss13.fuc.parser.parseTableGenerator.ParseTableEntry;
-import swp_compiler_ss13.fuc.parser.parseTableGenerator.interfaces.ParseTable;
+import swp_compiler_ss13.fuc.parser.table.ActionEntry;
+import swp_compiler_ss13.fuc.parser.table.ParseTable;
 
 /**
  * @author kensan
@@ -34,7 +34,7 @@ public class ParserImplTest {
 			this.table = new ParseTable() {
 
 				@Override
-				public ParseTableEntry getEntry(int state, Token symbol)
+				public ActionEntry getEntry(int state, Token symbol)
 						throws StateOutOfBoundsException, TokenNotFoundException {
 					return null;
 				}

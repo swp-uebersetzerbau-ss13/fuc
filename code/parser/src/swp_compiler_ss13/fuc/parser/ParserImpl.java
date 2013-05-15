@@ -41,15 +41,15 @@ import swp_compiler_ss13.fuc.ast.DeclarationNodeImpl;
 import swp_compiler_ss13.fuc.ast.LiteralNodeImpl;
 import swp_compiler_ss13.fuc.ast.LogicUnaryExpressionNodeImpl;
 import swp_compiler_ss13.fuc.ast.ReturnNodeImpl;
-import swp_compiler_ss13.fuc.parser.parseTableGenerator.ParseTableEntry;
-import swp_compiler_ss13.fuc.parser.parseTableGenerator.ParseTableEntry.ParseTableEntryType;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.ParseTableGeneratorImpl;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.Production;
-import swp_compiler_ss13.fuc.parser.parseTableGenerator.Reduce;
-import swp_compiler_ss13.fuc.parser.parseTableGenerator.interfaces.ParseTable;
-import swp_compiler_ss13.fuc.parser.parseTableGenerator.interfaces.ParseTable.StateOutOfBoundsException;
-import swp_compiler_ss13.fuc.parser.parseTableGenerator.interfaces.ParseTable.TokenNotFoundException;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.interfaces.ParseTableGenerator;
+import swp_compiler_ss13.fuc.parser.table.ActionEntry;
+import swp_compiler_ss13.fuc.parser.table.ActionEntry.ActionEntryType;
+import swp_compiler_ss13.fuc.parser.table.GotoEntry;
+import swp_compiler_ss13.fuc.parser.table.ParseTable;
+import swp_compiler_ss13.fuc.parser.table.actions.Reduce;
+import swp_compiler_ss13.fuc.parser.table.actions.Shift;
 
 
 public class ParserImpl implements Parser {
@@ -95,9 +95,9 @@ public class ParserImpl implements Parser {
       
       int s = 0;
       TokenType tokenType = null;
-      ParseTableEntryType entryType;
+      ActionEntryType entryType;
       Token token = lexer.getNextToken();
-      ParseTableEntry entry = null;
+      ActionEntry entry = null;
       
       while (true) {
          s = parserStack.peek();
@@ -109,22 +109,15 @@ public class ParserImpl implements Parser {
             return null;
          }
          
-         try {
-            entry = table.getEntry(s, token);
-         } catch (StateOutOfBoundsException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-         } catch (TokenNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-         }
+         entry = table.getActionEntry(s, token);
          
          entryType = entry.getType();
          
          
          switch (entryType) {
             case SHIFT: {
-               parserStack.push(entry.getNewState());
+               Shift shift = (Shift) entry;
+               parserStack.push(shift.getNewState());
                // Token shiftedToken = token;
                token = lexer.getNextToken();
                
@@ -144,11 +137,13 @@ public class ParserImpl implements Parser {
                
                // pop states from stack
                Reduce reduce = (Reduce) entry;
-               for (int i = 1; i <= reduce.getCount(); i++) {
+               for (int i = 1; i <= reduce.getPopCount(); i++) {
                   parserStack.pop();
                }
-               // push next state on stack
-               parserStack.push(reduce.getNewState());
+               
+               // check where to go-to... and push next state on stack
+               GotoEntry gotoEntry = table.getGotoEntry(s, token);
+               parserStack.push(gotoEntry.getNewState());
                
                // +++++++++++++++++++++++++++++++++++
                // get action for reduced production
@@ -172,7 +167,6 @@ public class ParserImpl implements Parser {
                      return null;
                   }
                   valueStack.push(newValue);
-                  // TODO Anything to do here for shortcuts?
                }
             }
             

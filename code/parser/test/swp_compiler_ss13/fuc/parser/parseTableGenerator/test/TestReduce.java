@@ -5,28 +5,28 @@ import static org.junit.Assert.assertEquals;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import swp_compiler_ss13.fuc.parser.parseTableGenerator.ParseTableEntry;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.Production;
-import swp_compiler_ss13.fuc.parser.parseTableGenerator.Reduce;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.Variable;
+import swp_compiler_ss13.fuc.parser.table.ActionEntry;
+import swp_compiler_ss13.fuc.parser.table.actions.Reduce;
 
 public class TestReduce {
 	// Some data needed for the entries 
 	private static Reduce reduce;
 	private static Production production;
 	private static Variable variable;
-	private static ParseTableEntry parserTabEntry;
+	private static ActionEntry parserTabEntry;
 	@BeforeClass
 	public static void setUpTest(){
 	variable = new Variable("Test");
 	production= new Production(variable, null);
 	reduce = new Reduce(10, 1, production);
-	parserTabEntry = new ParseTableEntry() {
+	parserTabEntry = new ActionEntry() {
 		
 		@Override
-		public ParseTableEntryType getType() {
+		public ActionEntryType getType() {
 			// TODO Auto-generated method stub
-			return ParseTableEntryType.REDUCE;
+			return ActionEntryType.REDUCE;
 		}
 	};
 	}

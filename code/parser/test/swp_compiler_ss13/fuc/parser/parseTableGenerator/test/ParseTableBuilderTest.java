@@ -15,7 +15,7 @@ import swp_compiler_ss13.fuc.parser.parseTableGenerator.Grammar;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.ParseTableBuilder;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.ParseTableBuilder.ParseTableBuildException;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.WrongGrammarFormatException;
-import swp_compiler_ss13.fuc.parser.parseTableGenerator.interfaces.ParseTable;
+import swp_compiler_ss13.fuc.parser.table.ParseTable;
 
 public class ParseTableBuilderTest {
 

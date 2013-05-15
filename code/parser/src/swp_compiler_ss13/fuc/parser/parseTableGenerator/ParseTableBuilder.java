@@ -6,10 +6,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import swp_compiler_ss13.fuc.parser.parseTableGenerator.ParseTableImpl.AlreadySetException;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.Symbol.SymbolType;
-import swp_compiler_ss13.fuc.parser.parseTableGenerator.interfaces.ParseTable;
-import swp_compiler_ss13.fuc.parser.parseTableGenerator.interfaces.ParseTable.TokenNotFoundException;
+import swp_compiler_ss13.fuc.parser.table.ParseTable;
+import swp_compiler_ss13.fuc.parser.table.ParseTableImpl;
+import swp_compiler_ss13.fuc.parser.table.ParseTable.TokenNotFoundException;
+import swp_compiler_ss13.fuc.parser.table.ParseTableImpl.AlreadySetException;
+import swp_compiler_ss13.fuc.parser.table.actions.Shift;
 
 /**
  * @author EsGeh

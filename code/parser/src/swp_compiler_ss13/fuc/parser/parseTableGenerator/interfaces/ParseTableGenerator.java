@@ -1,5 +1,7 @@
 package swp_compiler_ss13.fuc.parser.parseTableGenerator.interfaces;
 
+import swp_compiler_ss13.fuc.parser.table.ParseTable;
+
 
 
 public interface ParseTableGenerator {
