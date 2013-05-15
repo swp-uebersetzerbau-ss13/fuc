@@ -40,7 +40,7 @@ public class ParserImpl implements Parser {
    
    private Lexer lexer;
    private Stack<Integer> parserStack = new Stack<Integer>();
-   private ParseTable table;
+   protected ParseTable table;
    private ReportLog reportLog;
    private AST ast = new ASTImpl();
    // private Stack<Token> tokenStack;
