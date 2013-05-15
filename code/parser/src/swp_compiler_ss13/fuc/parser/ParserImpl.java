@@ -10,6 +10,7 @@ import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.ast.nodes.IdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.StatementNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;
+import swp_compiler_ss13.common.ast.nodes.leaf.LiteralNode;
 import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
 import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ReturnNode;
@@ -18,6 +19,8 @@ import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.common.parser.Parser;
 import swp_compiler_ss13.common.parser.ReportLog;
+import swp_compiler_ss13.common.types.Type;
+import swp_compiler_ss13.common.types.primitive.BooleanType;
 import swp_compiler_ss13.common.types.primitive.DoubleType;
 import swp_compiler_ss13.common.types.primitive.LongType;
 import swp_compiler_ss13.common.types.primitive.StringType;
@@ -25,7 +28,9 @@ import swp_compiler_ss13.fuc.ast.ASTImpl;
 import swp_compiler_ss13.fuc.ast.AssignmentNodeImpl;
 import swp_compiler_ss13.fuc.ast.BasicIdentifierNodeImpl;
 import swp_compiler_ss13.fuc.ast.BlockNodeImpl;
+import swp_compiler_ss13.fuc.ast.BreakNodeImpl;
 import swp_compiler_ss13.fuc.ast.DeclarationNodeImpl;
+import swp_compiler_ss13.fuc.ast.LiteralNodeImpl;
 import swp_compiler_ss13.fuc.ast.ReturnNodeImpl;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.ParseTableEntry;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.ParseTableEntry.ParseTableEntryType;
@@ -332,9 +337,9 @@ public class ParserImpl implements Parser {
                     
                     // Create new BlockNode
                     BlockNode block = new BlockNodeImpl();
-                    for (StatementNode decl : stmtList) {
-                       block.addStatement(decl);
-                       decl.setParentNode(block);
+                    for (StatementNode stmt : stmtList) {
+                       block.addStatement(stmt);
+                       stmt.setParentNode(block);
                     }
                     return block;
                  }
@@ -351,8 +356,15 @@ public class ParserImpl implements Parser {
          case "stmt -> if ( assign ) stmt":
          case "stmt -> if ( assign ) stmt else stmt":
          case "stmt -> while ( assign ) stmt":
-         case "stmt -> do stmt while ( assign )":
-         case "stmt -> break ;": break;
+         case "stmt -> do stmt while ( assign )": break;
+         case "stmt -> break ;": 
+        	 return new ReduceAction(){
+  				@Override
+  				public Object create(Object... objs) {
+  					return new BreakNodeImpl();
+  				}
+          		 
+          	 };
          case "stmt -> return ;":
         	 return new ReduceAction() {
         		 @Override
@@ -420,12 +432,72 @@ public class ParserImpl implements Parser {
          case "unary -> - unary":
          case "unary -> factor":
          case "factor -> ( assign )":
-         case "factor -> loc":
+         case "factor -> loc": break;
          case "factor -> num":
+        	 return new ReduceAction(){
+
+  				@Override
+  				public Object create(Object... objs) {
+  					LiteralNode literal = new LiteralNodeImpl();
+  					Token token = (Token)objs[0];
+  					literal.setLiteral(token.getValue());
+  					literal.setLiteralType(new LongType());
+  					return literal;
+  				}
+          		 
+          	 };
          case "factor -> real":
+        	 return new ReduceAction(){
+
+  				@Override
+  				public Object create(Object... objs) {
+  					LiteralNode literal = new LiteralNodeImpl();
+  					Token token = (Token)objs[0];
+  					literal.setLiteral(token.getValue());
+  					literal.setLiteralType(new DoubleType());
+  					return literal;
+  				}
+          		 
+          	 };
          case "factor -> true":
+        	 return new ReduceAction(){
+
+  				@Override
+  				public Object create(Object... objs) {
+  					LiteralNode literal = new LiteralNodeImpl();
+  					Token token = (Token)objs[0];
+  					literal.setLiteral(token.getValue());
+  					literal.setLiteralType(new BooleanType());
+  					return literal;
+  				}
+          		 
+          	 };
          case "factor -> false":
+        	 return new ReduceAction(){
+
+ 				@Override
+ 				public Object create(Object... objs) {
+ 					LiteralNode literal = new LiteralNodeImpl();
+ 					Token token = (Token)objs[0];
+ 					literal.setLiteral(token.getValue());
+ 					literal.setLiteralType(new BooleanType());
+ 					return literal;
+ 				}
+         		 
+         	 };
          case "factor -> string":
+        	 return new ReduceAction(){
+
+				@Override
+				public Object create(Object... objs) {
+					LiteralNode literal = new LiteralNodeImpl();
+					Token token = (Token)objs[0];
+					literal.setLiteral(token.getValue());
+					literal.setLiteralType(new StringType((long) token.getValue().length()));
+					return literal;
+				}
+        		 
+        	 };
          case "type -> type [ num ]":
          case "type -> bool":
          case "type -> string":
@@ -435,6 +507,7 @@ public class ParserImpl implements Parser {
          default:
             return null;
       }
+	return null;
    }
 
    
