@@ -175,8 +175,6 @@ public class LexerImpl implements Lexer {
 		if ((this.convertedLines.get(this.actualLine - 1).startsWith(" ") ? (this.convertedLines
 				.get(this.actualLine - 1).split("\\s+").length <= this.actualCountOfTokenInLine + 1)
 				: (this.convertedLines.get(this.actualLine - 1).split("\\s+").length <= this.actualCountOfTokenInLine))) {
-			System.err.println("Line: " + this.actualLine + ", Read token: "
-					+ this.actualCountOfTokenInLine);
 			this.actualLine++;
 			this.actualColumn = 1;
 			this.actualCountOfTokenInLine = 0;
@@ -184,9 +182,6 @@ public class LexerImpl implements Lexer {
 
 		String actualTokenValue;
 		if (!(this.convertedLines.size() < this.actualLine)) {
-			System.err.println("Actual tokenline: "
-					+ this.convertedLines.get(this.actualLine - 1));
-
 			if (!this.convertedLines.get(this.actualLine - 1).startsWith(" ")) {
 				actualTokenValue = this.convertedLines.get(this.actualLine - 1)
 						.split("\\s+")[this.actualCountOfTokenInLine];
@@ -216,10 +211,6 @@ public class LexerImpl implements Lexer {
 			} else {
 				this.actualCountOfTokenInLine++;
 			}
-
-			System.err.println("Column: " + this.actualColumn + ", Line: "
-					+ this.actualLine + ", Read token: "
-					+ this.actualCountOfTokenInLine);
 
 			return actualTokenValue;
 		} else {

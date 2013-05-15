@@ -87,30 +87,30 @@ public class BracketTest {
 		assertEquals(Constants.RIGHT_PARAN, token.getValue());
 		assertEquals(TokenType.RIGHT_PARAN, token.getTokenType());
 		assertEquals(1, token.getLine().intValue());
-		assertEquals(1, token.getColumn().intValue());
+		assertEquals(3, token.getColumn().intValue());
 
 		token = this.lexer.getNextToken();
 		assertEquals(Constants.LEFT_BRACE, token.getValue());
 		assertEquals(TokenType.LEFT_BRACE, token.getTokenType());
 		assertEquals(1, token.getLine().intValue());
-		assertEquals(1, token.getColumn().intValue());
+		assertEquals(5, token.getColumn().intValue());
 
 		token = this.lexer.getNextToken();
 		assertEquals(Constants.RIGHT_BRACE, token.getValue());
 		assertEquals(TokenType.RIGHT_BRACE, token.getTokenType());
 		assertEquals(1, token.getLine().intValue());
-		assertEquals(1, token.getColumn().intValue());
+		assertEquals(7, token.getColumn().intValue());
 
 		token = this.lexer.getNextToken();
 		assertEquals(Constants.LEFT_BRACKET, token.getValue());
 		assertEquals(TokenType.LEFT_BRACKET, token.getTokenType());
 		assertEquals(1, token.getLine().intValue());
-		assertEquals(1, token.getColumn().intValue());
+		assertEquals(9, token.getColumn().intValue());
 
 		token = this.lexer.getNextToken();
 		assertEquals(Constants.RIGHT_BRACKET, token.getValue());
 		assertEquals(TokenType.RIGHT_BRACKET, token.getTokenType());
 		assertEquals(1, token.getLine().intValue());
-		assertEquals(1, token.getColumn().intValue());
+		assertEquals(11, token.getColumn().intValue());
 	}
 }
