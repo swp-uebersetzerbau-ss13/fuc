@@ -17,6 +17,7 @@ import swp_compiler_ss13.common.ast.nodes.leaf.LiteralNode;
 import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ArithmeticUnaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
+import swp_compiler_ss13.common.ast.nodes.unary.LogicUnaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ReturnNode;
 import swp_compiler_ss13.common.ast.nodes.unary.UnaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.unary.UnaryExpressionNode.UnaryOperator;
@@ -38,6 +39,7 @@ import swp_compiler_ss13.fuc.ast.BlockNodeImpl;
 import swp_compiler_ss13.fuc.ast.BreakNodeImpl;
 import swp_compiler_ss13.fuc.ast.DeclarationNodeImpl;
 import swp_compiler_ss13.fuc.ast.LiteralNodeImpl;
+import swp_compiler_ss13.fuc.ast.LogicUnaryExpressionNodeImpl;
 import swp_compiler_ss13.fuc.ast.ReturnNodeImpl;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.ParseTableEntry;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.ParseTableEntry.ParseTableEntryType;
@@ -215,34 +217,27 @@ public class ParserImpl implements Parser {
       switch (prod.getString()) {
       
          case "program -> decls stmts":
-         case "block -> { decls stmts }":
             return new ReduceAction() {
                @Override
                public Object create(Object... objs) {
                   Object left = objs[0]; // Should be NO_VALUE or BlockNode
                   Object right = objs[1]; // Should be NO_VALUE or BlockNode
                   
-                  BlockNode newBlock = new BlockNodeImpl();
-                  // Handle left
-                  if (!left.equals(NO_VALUE)) {
-                     BlockNode declsBlock = (BlockNode) left;
-                     for (DeclarationNode decl : declsBlock.getDeclarationList()) {
-                        newBlock.addDeclaration(decl);
-                        decl.setParentNode(newBlock);
-                     }
-                  }
-                  
-                  // Handle right
-                  if (!right.equals(NO_VALUE)) {
-                     BlockNode stmtsBlock = (BlockNode) right;
-                     for (StatementNode decl : stmtsBlock.getStatementList()) {
-                        newBlock.addStatement(decl);
-                        decl.setParentNode(newBlock);
-                     }
-                  }
-                  return newBlock;
+                  return joinBlocks(left, right);
                }
             };
+            
+         case "block -> { decls stmts }":
+            return new ReduceAction() {
+               @Override
+               public Object create(Object... objs) {
+                  Object left = objs[1]; // Should be NO_VALUE or BlockNode
+                  Object right = objs[2]; // Should be NO_VALUE or BlockNode
+                  
+                  return joinBlocks(left, right);
+               }
+            };
+            
          case "decls -> decls decl":
             return new ReduceAction() {
                @Override
@@ -282,6 +277,7 @@ public class ParserImpl implements Parser {
                   return block;
                }
             };
+            
          case "decls -> ":
             return new ReduceAction() {
                @Override
@@ -289,13 +285,15 @@ public class ParserImpl implements Parser {
                   return NO_VALUE; // Symbolizes epsilon
                }
             };
+            
          case "decl -> type id ;":
             return new ReduceAction() {
                @Override
                public Object create(Object... objs) {
-                  DeclarationNode decl = new DeclarationNodeImpl();
                   Token typeToken = (Token) objs[0];
-                  
+                  Token idToken = (Token) objs[1];
+
+                  DeclarationNode decl = new DeclarationNodeImpl();
                   // Set type
                   switch (typeToken.getTokenType()) {
                      case REAL:
@@ -310,11 +308,11 @@ public class ParserImpl implements Parser {
                   }
                   
                   // Set ID
-                  Token idToken = (Token) objs[1];
                   decl.setIdentifier(idToken.getValue());
                   return decl;
                }
             };
+            
          case "stmts -> stmts stmt":
             return new ReduceAction() {
                @Override
@@ -354,6 +352,7 @@ public class ParserImpl implements Parser {
                   return block;
                }
             };
+            
          case "stmts -> ":
             return new ReduceAction() {
                @Override
@@ -361,6 +360,7 @@ public class ParserImpl implements Parser {
                   return NO_VALUE; // Symbolizes epsilon
                }
             };
+            
          case "stmt -> assign":
             break; // Nothing to reduce here
          case "stmt -> block":
@@ -393,7 +393,7 @@ public class ParserImpl implements Parser {
                @Override
                public Object create(Object... objs) {
             	   ReturnNode returnNode = new ReturnNodeImpl();
-            	   IdentifierNode identifier = (IdentifierNode) objs[0];
+            	   IdentifierNode identifier = (IdentifierNode) objs[1];
             	   returnNode.setRightValue(identifier);
             	   identifier.setParentNode(returnNode);
             	   return returnNode;
@@ -489,18 +489,20 @@ public class ParserImpl implements Parser {
          case "term -> unary":
             break;   // Nothing to do here
          case "unary -> ! unary":
-            log.warn("Detected a production not needed for Milestone 1!");
-            break;
-            // return new ReduceAction() {
-            // @Override
-            // public Object create(Object... objs) {
-            // Token token = (Token) objs[0]; // minus
-            // UnaryExpressionNode unary = (UnaryExpressionNode) objs[1];
-            //
-            // LogicUnaryExpressionNode logicalUnary = new LogicUnaryExpressionNodeImpl();
-            // return arithUnary;
-            // }
-            // };
+             return new ReduceAction() {
+                @Override
+                public Object create(Object... objs) {
+//                   Token token = (Token) objs[0]; // not
+                   UnaryExpressionNode unary = (UnaryExpressionNode) objs[1];
+                  
+                   LogicUnaryExpressionNode logicalUnary = new LogicUnaryExpressionNodeImpl();
+                   logicalUnary.setOperator(UnaryOperator.LOGICAL_NEGATE);
+                   logicalUnary.setRightValue(unary);
+                   unary.setParentNode(logicalUnary);
+                   
+                   return logicalUnary;
+                }
+             };
          case "unary -> - unary":
             return new ReduceAction() {
                @Override
@@ -595,6 +597,30 @@ public class ParserImpl implements Parser {
       }
       return null;
    }
+   
+
+   private static Object joinBlocks(Object left, Object right) {
+      BlockNode newBlock = new BlockNodeImpl();
+      // Handle left
+      if (!left.equals(NO_VALUE)) {
+         BlockNode declsBlock = (BlockNode) left;
+         for (DeclarationNode decl : declsBlock.getDeclarationList()) {
+            newBlock.addDeclaration(decl);
+            decl.setParentNode(newBlock);
+         }
+      }
+      
+      // Handle right
+      if (!right.equals(NO_VALUE)) {
+         BlockNode stmtsBlock = (BlockNode) right;
+         for (StatementNode decl : stmtsBlock.getStatementList()) {
+            newBlock.addStatement(decl);
+            decl.setParentNode(newBlock);
+         }
+      }
+      return newBlock;
+   }
+   
    
    private static ArithmeticBinaryExpressionNode binop(Object leftExpr, Object rightExpr, final BinaryOperator op) {
       ExpressionNode left = (ExpressionNode) leftExpr;
