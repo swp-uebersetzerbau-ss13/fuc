@@ -47,6 +47,9 @@ public class ReturnNodeImpl extends ASTNodeImpl implements ReturnNode {
 
 	@Override
 	public void setRightValue(IdentifierNode identifier) {
+		if (identifier == null) {
+			throw new IllegalArgumentException("identifier can not be null");
+		}
 		this.rightNode = identifier;
 	}
 

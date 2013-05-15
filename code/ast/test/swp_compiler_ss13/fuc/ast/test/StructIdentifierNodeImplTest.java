@@ -115,9 +115,29 @@ public class StructIdentifierNodeImplTest {
 	/**
 	 * Test setFieldName method
 	 */
-	// @Test
-	// public void setFieldName() {
-	// this.node.setFieldName(null);
-	// assertEquals(null, PA.getValue(this.node "field"));
-	// }
+	@Test
+	public void testSetFieldName() {
+		try {
+			this.node.setFieldName(null);
+			fail("IllegalArgumentException not thrown");
+		} catch (IllegalArgumentException e) {
+		}
+		try {
+			this.node.setFieldName("");
+			fail("IllegalArgumentException not thrown");
+		} catch (IllegalArgumentException e) {
+		}
+		this.node.setFieldName("test");
+		assertEquals("test", PA.getValue(this.node, "field"));
+	}
+
+	/**
+	 * Test getFieldName method
+	 */
+	@Test
+	public void testGetFieldName() {
+		assertEquals(null, this.node.getFieldName());
+		PA.setValue(this.node, "field", "test");
+		assertEquals("test", this.node.getFieldName());
+	}
 }

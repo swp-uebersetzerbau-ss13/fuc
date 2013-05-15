@@ -11,10 +11,10 @@ import swp_compiler_ss13.common.ast.ASTNode;
  * @author "Frank Zechert, Danny Maasch"
  * @version 1
  */
-class EmptyIterator implements Iterator<ASTNode> {
+public class EmptyIterator implements Iterator<ASTNode> {
 	@Override
 	public void remove() {
-
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
