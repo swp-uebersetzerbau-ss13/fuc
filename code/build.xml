@@ -4,10 +4,259 @@
 	<property name="test.dir" value="test" />
 	<property name="bin.dir" value="bin" />
 	<property name="doc.dir" value="doc" />
-	<property name="lib.dir" value="../lib" />
-	<property name="interfaces.dir" value="../common/interfaces" />
+	<property name="lib.dir" value="lib" />
+	<property name="dist.dir" value="dist" />
+	<property name="interfaces.dir" value="common/interfaces" />
+	<property name="etc.dir" value="etc" />
+	<property name="ast.dir" value="ast" />
+	<property name="backend.dir" value="backend" />
+	<property name="controller.dir" value="controller" />
+	<property name="intermediateCodeGenerator.dir" value="intermediateCodeGenerator" />
+	<property name="lexer.dir" value="lexer" />
+	<property name="parser.dir" value="parser" />
+	<property name="semanticAnalyzer.dir" value="semanticAnalyzer" />
+	<property name="symbolTable.dir" value="symbolTable" />
+	<property name="test.dir" value="test" />
+	<property name="service.dir" value="${dist.dir}/serviceloader" />
 	
-	<target name="run">
-		<echo message="This build.xml is not yet implemented, please give me some more time ;)" />
+	<!-- === clean all === -->
+	<target name="clean-all" description="cleans all projects">
+		<delete dir="${dist.dir}" />
+		<delete dir="${interfaces.dir}/${bin.dir}" />
+		<delete dir="${interfaces.dir}/${doc.dir}" />
+		<delete dir="${ast.dir}/${bin.dir}" />
+		<delete dir="${ast.dir}/${doc.dir}" />
+		<delete dir="${backend.dir}/${bin.dir}" />
+		<delete dir="${backend.dir}/${doc.dir}" />
+		<delete dir="${controller.dir}/${bin.dir}" />
+		<delete dir="${controller.dir}/${doc.dir}" />
+		<delete dir="${intermediateCodeGenerator.dir}/${bin.dir}" />
+		<delete dir="${intermediateCodeGenerator.dir}/${doc.dir}" />
+		<delete dir="${lexer.dir}/${bin.dir}" />
+		<delete dir="${lexer.dir}/${doc.dir}" />
+		<delete dir="${parser.dir}/${bin.dir}" />
+		<delete dir="${parser.dir}/${doc.dir}" />
+		<delete dir="${semanticAnalyzer.dir}/${bin.dir}" />
+		<delete dir="${semanticAnalyzer.dir}/${doc.dir}" />
+		<delete dir="${symbolTable.dir}/${bin.dir}" />
+		<delete dir="${symbolTable.dir}/${doc.dir}" />
+		<delete dir="${test.dir}/${bin.dir}" />
+	</target>
+	
+	<!-- === compile all === -->
+	<target name="build-all" depends="clean-all" description="compile all projects">
+		<ant antfile="interfaces.xml" dir="." target="build" inheritall="false" />
+		<ant antfile="build.xml" dir="${ast.dir}" target="build" inheritall="false" />
+		<ant antfile="build.xml" dir="${backend.dir}" target="build" inheritall="false" />
+		<ant antfile="build.xml" dir="${controller.dir}" target="build" inheritall="false" />
+		<ant antfile="build.xml" dir="${intermediateCodeGenerator.dir}" target="build" inheritall="false" />
+		<ant antfile="build.xml" dir="${lexer.dir}" target="build" inheritall="false" />
+		<ant antfile="build.xml" dir="${parser.dir}" target="build" inheritall="false" />
+		<ant antfile="build.xml" dir="${semanticAnalyzer.dir}" target="build" inheritall="false" />
+		<ant antfile="build.xml" dir="${symbolTable.dir}" target="build" inheritall="false" />
+	</target>
+	
+	<!-- === create all javadoc === -->
+	<target name="doc-all" description="create the javadoc for all projects">
+		<ant antfile="interfaces.xml" dir="." target="doc" inheritall="false" />
+		<ant antfile="build.xml" dir="${ast.dir}" target="doc" inheritall="false" />
+		<ant antfile="build.xml" dir="${backend.dir}" target="doc" inheritall="false" />
+		<ant antfile="build.xml" dir="${controller.dir}" target="doc" inheritall="false" />
+		<ant antfile="build.xml" dir="${intermediateCodeGenerator.dir}" target="doc" inheritall="false" />
+		<ant antfile="build.xml" dir="${lexer.dir}" target="doc" inheritall="false" />
+		<ant antfile="build.xml" dir="${parser.dir}" target="doc" inheritall="false" />
+		<ant antfile="build.xml" dir="${semanticAnalyzer.dir}" target="doc" inheritall="false" />
+		<ant antfile="build.xml" dir="${symbolTable.dir}" target="doc" inheritall="false" />
+	</target>
+	
+	<!-- === compile all test === -->
+	<target name="build-all-tests" description="compile all junit tests">
+		<ant antfile="build.xml" dir="${ast.dir}" target="build-test" inheritall="false" />
+		<ant antfile="build.xml" dir="${backend.dir}" target="build-test" inheritall="false" />
+		<ant antfile="build.xml" dir="${controller.dir}" target="build-test" inheritall="false" />
+		<ant antfile="build.xml" dir="${intermediateCodeGenerator.dir}" target="build-test" inheritall="false" />
+		<ant antfile="build.xml" dir="${lexer.dir}" target="build-test" inheritall="false" />
+		<ant antfile="build.xml" dir="${parser.dir}" target="build-test" inheritall="false" />
+		<ant antfile="build.xml" dir="${semanticAnalyzer.dir}" target="build-test" inheritall="false" />
+		<ant antfile="build.xml" dir="${symbolTable.dir}" target="build-test" inheritall="false" />
+		<ant antfile="build.xml" dir="${test.dir}" target="build-test" inheritall="false" />
+	</target>
+	
+	<!-- === run all tests === -->
+	<target name="run-all-tests" description="run all tests">
+		<ant antfile="build.xml" dir="${ast.dir}" target="run-test" inheritall="false" />
+		<ant antfile="build.xml" dir="${backend.dir}" target="run-test" inheritall="false" />
+		<ant antfile="build.xml" dir="${controller.dir}" target="run-test" inheritall="false" />
+		<ant antfile="build.xml" dir="${intermediateCodeGenerator.dir}" target="run-test" inheritall="false" />
+		<ant antfile="build.xml" dir="${lexer.dir}" target="run-test" inheritall="false" />
+		<ant antfile="build.xml" dir="${parser.dir}" target="run-test" inheritall="false" />
+		<ant antfile="build.xml" dir="${semanticAnalyzer.dir}" target="run-test" inheritall="false" />
+		<ant antfile="build.xml" dir="${symbolTable.dir}" target="run-test" inheritall="false" />
+		<ant antfile="build.xml" dir="${test.dir}" target="run-test" inheritall="false" />
+	</target>
+	
+	<!-- === distribute === -->
+	<target name="dist" description="distribute the packages">
+		<!-- check junit tests -->
+		<ant antfile="build.xml" dir="." target="run-all-tests" inheritall="false" />
+		<!-- clean everything -->
+		<ant antfile="build.xml" dir="." target="clean-all" inheritall="false" />
+		<!-- build everything -->
+		<ant antfile="build.xml" dir="." target="build-all" inheritall="false" />
+		<!-- create documentation -->
+		<ant antfile="build.xml" dir="." target="doc-all" inheritall="false" />
+		
+		<!-- create the dist dir -->
+		<mkdir dir="${dist.dir}" />
+		
+		<!-- create the dir for service files -->
+		<mkdir dir="${service.dir}" />
+		<mkdir dir="${service.dir}/META-INF" />
+		<mkdir dir="${service.dir}/META-INF/services" />
+
+		<echo 
+			file="${service.dir}/META-INF/services/swp_compiler_ss13.common.lexer.Lexer" 
+			message="lexer.LexerImpl" />
+		<echo 
+			file="${service.dir}/META-INF/services/swp_compiler_ss13.common.parser.Parser" 
+			message="swp_compiler_ss13.fuc.parser.ParserImpl" />
+		<echo 
+			file="${service.dir}/META-INF/services/swp_compiler_ss13.common.ir.IntermediateCodeGenerator" 
+			message="swp_compiler_ss13.fuc.ir.IntermediateCodeGeneratorImpl" />
+		<echo 
+			file="${service.dir}/META-INF/services/swp_compiler_ss13.common.backend.Backend" 
+			message="swp_compiler_ss13.fuc.backend.LLVMBackend" />
+		
+		<!-- create the service files -->
+		
+		<!-- === export log4j properties === -->
+		<jar destfile="${dist.dir}/log4jprops.jar">
+			<fileset file="${etc.dir}/log4j.properties" />
+		</jar>
+		
+		<!-- === export the ast === -->
+		<jar destfile="${dist.dir}/ast.jar" basedir="${ast.dir}/${bin.dir}">
+			<fileset dir="${ast.dir}">
+				<include name="${doc.dir}/**" />
+				<include name="${src.dir}/**" />
+			</fileset>
+		</jar>
+		
+		<!-- === export the backend === -->
+		<jar destfile="${dist.dir}/backend.jar" basedir="${backend.dir}/${bin.dir}">
+			<fileset dir="${backend.dir}">
+				<include name="${doc.dir}/**" />
+				<include name="${src.dir}/**" />
+			</fileset>
+			<fileset dir="${service.dir}">
+				<include name="META-INF/services/swp_compiler_ss13.common.backend.Backend" />
+			</fileset>
+		</jar>
+		
+		<!-- === export the controller === -->
+		<jar destfile="${dist.dir}/controller.jar" basedir="${controller.dir}/${bin.dir}">
+			<fileset dir="${controller.dir}">
+				<include name="${doc.dir}/**" />
+				<include name="${src.dir}/**" />
+			</fileset>
+		</jar>
+		
+		<!-- === export the interfaces === -->
+		<jar destfile="${dist.dir}/interfaces.jar" basedir="${interfaces.dir}/${bin.dir}">
+			<fileset dir="${interfaces.dir}">
+				<include name="${doc.dir}/**" />
+				<include name="${src.dir}/**" />
+			</fileset>
+		</jar>
+	
+		<!-- === export the intermediateCodeGenerator === -->
+		<jar destfile="${dist.dir}/intermediateCodeGenerator.jar" basedir="${intermediateCodeGenerator.dir}/${bin.dir}">
+			<fileset dir="${intermediateCodeGenerator.dir}">
+				<include name="${doc.dir}/**" />
+				<include name="${src.dir}/**" />
+			</fileset>
+			<fileset dir="${service.dir}">
+				<include name="META-INF/services/swp_compiler_ss13.common.ir.IntermediateCodeGenerator" />
+			</fileset>
+		</jar>
+		
+		<!-- === export the lexer === -->
+		<jar destfile="${dist.dir}/lexer.jar" basedir="${lexer.dir}/${bin.dir}">
+			<fileset dir="${lexer.dir}">
+				<include name="${doc.dir}/**" />
+				<include name="${src.dir}/**" />
+			</fileset>
+			<fileset dir="${service.dir}">
+				<include name="META-INF/services/swp_compiler_ss13.common.lexer.Lexer" />
+			</fileset>
+		</jar>
+		
+		<!-- === export the parser and semantic analyzer === -->
+		<mkdir dir="${dist.dir}/combinedParserSemanticAnalyzer" />
+		<copy todir="${dist.dir}/combinedParserSemanticAnalyzer">
+			<fileset dir="${parser.dir}/${bin.dir}" />
+		</copy>
+		<copy todir="${dist.dir}/combinedParserSemanticAnalyzer">
+			<fileset dir="${semanticAnalyzer.dir}/${bin.dir}" />
+		</copy>
+		<mkdir dir="${dist.dir}/${doc.dir}" />
+		<javadoc
+	    	access="private"
+	    	author="true"
+	    	destdir="${dist.dir}/${doc.dir}"
+	    	doctitle="Parser"
+	    	nodeprecated="false"
+	    	nodeprecatedlist="false"
+	    	noindex="false"
+	    	nonavbar="false"
+	    	notree="false"
+	    	source="1.7"
+	    	splitindex="true"
+	    	use="true"
+	    	version="true"
+	    	linksource="true">
+			<classpath>
+				<pathelement location="${interfaces.dir}/${bin.dir}" />
+				<pathelement location="${parser.dir}/${bin.dir}" />
+				<pathelement location="${semanticAnalyzer.dir}/${bin.dir}" />
+				<pathelement location="${etc.dir}" />
+				<pathelement location="${lib.dir}/log4j-1.2.17.jar" />
+			</classpath>
+			<sourcepath>
+				<pathelement location="${semanticAnalyzer.dir}/${src.dir}" />
+				<pathelement location="${parser.dir}/${src.dir}" />
+			</sourcepath>
+		</javadoc>
+		<jar destfile="${dist.dir}/parser.jar" basedir="${dist.dir}/combinedParserSemanticAnalyzer">
+			<fileset dir="${parser.dir}">
+				<include name="${src.dir}/**" />
+			</fileset>
+			<fileset dir="${semanticAnalyzer.dir}">
+				<include name="${src.dir}/**" />
+			</fileset>
+			<fileset dir="${dist.dir}">
+				<include name="${doc.dir}/**" />
+			</fileset>
+			<fileset dir="${service.dir}">
+				<include name="META-INF/services/swp_compiler_ss13.common.parser.Parser" />
+			</fileset>
+		</jar>
+		<delete dir="${dist.dir}/combinedParserSemanticAnalyzer" />
+		<delete dir="${dist.dir}/${doc.dir}" />
+		
+		<!-- === export the symbolTable === -->
+		<jar destfile="${dist.dir}/symbolTable.jar" basedir="${symbolTable.dir}/${bin.dir}">
+			<fileset dir="${symbolTable.dir}">
+				<include name="${doc.dir}/**" />
+				<include name="${src.dir}/**" />
+			</fileset>
+		</jar>
+		
+		<!-- remove the service dir -->
+		<delete dir="${service.dir}" />
+	</target>
+	
+	<!-- === run === -->
+	<target name="run" depends="build-all" description="default run, equals build-all target">
 	</target>
 </project>
