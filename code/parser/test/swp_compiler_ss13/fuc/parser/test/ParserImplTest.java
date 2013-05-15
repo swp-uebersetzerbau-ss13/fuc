@@ -3,12 +3,19 @@
  */
 package swp_compiler_ss13.fuc.parser.test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
+
+import swp_compiler_ss13.common.ast.AST;
+import swp_compiler_ss13.common.lexer.Token;
+import swp_compiler_ss13.common.parser.Parser;
+import swp_compiler_ss13.fuc.parser.ParserImpl;
+import swp_compiler_ss13.fuc.parser.parseTableGenerator.ParseTableEntry;
+import swp_compiler_ss13.fuc.parser.parseTableGenerator.interfaces.ParseTable;
 
 /**
  * @author kensan
@@ -16,9 +23,28 @@ import org.junit.Test;
  */
 public class ParserImplTest {
 
+	
 	/**
 	 * @throws java.lang.Exception
 	 */
+	Parser parser = new ParserImpl(){
+
+		@Override
+		public AST getParsedAST() {
+			this.table = new ParseTable() {
+
+				@Override
+				public ParseTableEntry getEntry(int state, Token symbol)
+						throws StateOutOfBoundsException, TokenNotFoundException {
+					return null;
+				}
+				
+			};
+			return null;
+		}
+		
+	};
+	
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
 	}
@@ -28,6 +54,7 @@ public class ParserImplTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
+		
 	}
 
 	/**
