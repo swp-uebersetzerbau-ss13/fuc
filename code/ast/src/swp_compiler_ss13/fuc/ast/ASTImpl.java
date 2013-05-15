@@ -73,7 +73,35 @@ public class ASTImpl implements AST {
 
 	@Override
 	public Iterator<ASTNode> getDFSLTRIterator() {
-		return this.rootNode.getDFSLTRNodeIterator();
+		return new Iterator<ASTNode>() {
+			private boolean outputRoot = false;
+			private Iterator<ASTNode> innerIt;
+
+			@Override
+			public boolean hasNext() {
+				if (!this.outputRoot) {
+					return true;
+				}
+				if (this.innerIt == null) {
+					this.innerIt = ASTImpl.this.getRootNode().getDFSLTRNodeIterator();
+				}
+				return this.innerIt.hasNext();
+			}
+
+			@Override
+			public ASTNode next() {
+				if (!this.outputRoot) {
+					this.outputRoot = true;
+					return ASTImpl.this.rootNode;
+				}
+				return this.innerIt.next();
+			}
+
+			@Override
+			public void remove() {
+				throw new UnsupportedOperationException();
+			}
+		};
 	}
 
 	@Override
