@@ -1,15 +1,14 @@
-package parser.test;
+package swp_compiler_ss13.fuc.parser.parseTableGenerator.test;
 
-import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-import swp_compiler_ss13.fuc.parser.parseTableGenerator.Reduce;
-import swp_compiler_ss13.fuc.parser.parseTableGenerator.Production;
-import swp_compiler_ss13.fuc.parser.parseTableGenerator.Variable;
+
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.ParseTableEntry;
-import swp_compiler_ss13.fuc.parser.parseTableGenerator.ParseTableEntry.ParseTableEntryType;
+import swp_compiler_ss13.fuc.parser.parseTableGenerator.Production;
+import swp_compiler_ss13.fuc.parser.parseTableGenerator.Reduce;
+import swp_compiler_ss13.fuc.parser.parseTableGenerator.Variable;
 
 public class TestReduce {
 	// Some data needed for the entries 
