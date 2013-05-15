@@ -57,14 +57,13 @@ public class Production implements Comparable<Production> {
    }
    
    public int getNrOFSymbolsWOEpsilon() {
-//      int result = 0;
-//      for (Symbol s : right) {
-//         // TODO Really no epsilon???
-//         s.
-//         result++;
-//      }
-//      return result;
-      return right.size();
+      int result = 0;
+      for (Symbol s : right) {
+         if (!s.equals(Terminal.EPSILON)) {
+            result++;
+         }
+      }
+      return result;
    }
    
    

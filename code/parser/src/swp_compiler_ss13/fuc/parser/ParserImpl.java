@@ -4,10 +4,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
 
+import org.apache.log4j.Logger;
+
 import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.ast.nodes.IdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.StatementNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;
+import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
 import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ReturnNode;
 import swp_compiler_ss13.common.lexer.Lexer;
@@ -21,6 +24,7 @@ import swp_compiler_ss13.common.types.primitive.StringType;
 import swp_compiler_ss13.fuc.ast.ASTImpl;
 import swp_compiler_ss13.fuc.ast.AssignmentNodeImpl;
 import swp_compiler_ss13.fuc.ast.BasicIdentifierNodeImpl;
+import swp_compiler_ss13.fuc.ast.BlockNodeImpl;
 import swp_compiler_ss13.fuc.ast.DeclarationNodeImpl;
 import swp_compiler_ss13.fuc.ast.ReturnNodeImpl;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.ParseTableEntry;
@@ -37,6 +41,8 @@ import swp_compiler_ss13.fuc.parser.parseTableGenerator.interfaces.ParseTableGen
 public class ParserImpl implements Parser {
    
    private static final Object NO_VALUE = new Object();
+   
+   private final Logger log = Logger.getLogger(getClass());
    
    private Lexer lexer;
    private Stack<Integer> parserStack = new Stack<Integer>();
@@ -105,7 +111,7 @@ public class ParserImpl implements Parser {
          switch (entryType) {
             case SHIFT: {
                parserStack.push(entry.getNewState());
-               Token shiftedToken = token;
+//               Token shiftedToken = token;
                token = lexer.getNextToken();
                
                // Push value corresponding to the token here.
@@ -177,24 +183,97 @@ public class ParserImpl implements Parser {
    }
    
    
-   private Object getSymbolShiftValue(Token t) {
-      switch (t.getTokenType()) {
-         case TRUE:
-            return null; // TODO WTF, which node to use for TRUE???
-            
-         case FALSE:
-            return null; // TODO WTF, which node to use for TRUE???
-            
-         default:
-            return NO_VALUE;
-      }
-   }
+//   private Object getSymbolShiftValue(Token t) {
+//      switch (t.getTokenType()) {
+//         case TRUE:
+//            return null; // TODO WTF, which node to use for TRUE???
+//            
+//         case FALSE:
+//            return null; // TODO WTF, which node to use for TRUE???
+//            
+//         default:
+//            return NO_VALUE;
+//      }
+//   }
    
    private ReduceAction getReduceAction(Production prod) {
       switch (prod.getString()) {
-      
+
          case "program -> decls stmts":
+         case "block -> { decls stmts }":
+            return new ReduceAction() {
+               @Override
+               public Object create(Object... objs) {
+                  Object left = objs[0];  // Should be NO_VALUE or BlockNode
+                  Object right = objs[1]; // Should be NO_VALUE or BlockNode
+                  
+                  BlockNode newBlock = new BlockNodeImpl();
+                  // Handle left
+                  if (!left.equals(NO_VALUE)) {
+                     BlockNode declsBlock = (BlockNode) left;
+                     for (DeclarationNode decl : declsBlock.getDeclarationList()) {
+                        newBlock.addDeclaration(decl);
+                        decl.setParentNode(newBlock);
+                     }
+                  }
+
+                  // Handle right
+                  if (!right.equals(NO_VALUE)) {
+                     BlockNode stmtsBlock = (BlockNode) right;
+                     for (StatementNode decl : stmtsBlock.getStatementList()) {
+                        newBlock.addStatement(decl);
+                        decl.setParentNode(newBlock);
+                     }
+                  }
+                  return newBlock;
+               }
+            };
          case "decls -> decls decl":
+            return new ReduceAction() {
+               @Override
+               public Object create(Object... objs) {
+                  Object left = objs[0];  // Should be NO_VALUE or DeclarationNode
+                  Object right = objs[1]; // Should be DeclarationNode or BlockNode
+                  
+                  LinkedList<DeclarationNode> declList = new LinkedList<>();
+                  // Handle left
+                  if (!left.equals(NO_VALUE)) {
+                     // We have exactlly ONE decl
+                     if (!(left instanceof DeclarationNode)) {
+                        log.error("Error in decls -> decls decl: Left must be a DeclarationNode!");
+                     } else {
+                        declList.add((DeclarationNode) left);
+                     }
+                  }
+
+                  // Handle right
+                  if (right instanceof BlockNode) {
+                     BlockNode oldBlock = (BlockNode) right;
+                     declList.addAll(oldBlock.getDeclarationList());
+                  } else {
+                     if (!(right instanceof DeclarationNode)) {
+                        log.error("Error in decls -> decls decl: Right must be a DeclarationNode!");
+                     } else {
+                        declList.add((DeclarationNode) right);
+                     }
+                  }
+                  
+                  // Create new BlockNode
+                  BlockNode block = new BlockNodeImpl();
+                  for (DeclarationNode decl : declList) {
+                     block.addDeclaration(decl);
+                     decl.setParentNode(block);
+                  }
+                  return block;
+               }
+            };
+         case "decls -> ":
+            return new ReduceAction() {
+               @Override
+               public Object create(Object... objs) {
+                  return NO_VALUE;  // Symbolizes epsilon
+               }
+            };
          case "decl -> type id ;":
             return new ReduceAction() {
                @Override
