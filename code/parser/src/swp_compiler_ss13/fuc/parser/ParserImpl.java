@@ -7,13 +7,19 @@ import java.util.Stack;
 import org.apache.log4j.Logger;
 
 import swp_compiler_ss13.common.ast.AST;
+import swp_compiler_ss13.common.ast.nodes.ExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.IdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.StatementNode;
+import swp_compiler_ss13.common.ast.nodes.binary.ArithmeticBinaryExpressionNode;
+import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode.BinaryOperator;
 import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.LiteralNode;
 import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
+import swp_compiler_ss13.common.ast.nodes.unary.ArithmeticUnaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ReturnNode;
+import swp_compiler_ss13.common.ast.nodes.unary.UnaryExpressionNode;
+import swp_compiler_ss13.common.ast.nodes.unary.UnaryExpressionNode.UnaryOperator;
 import swp_compiler_ss13.common.lexer.Lexer;
 import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
@@ -24,6 +30,8 @@ import swp_compiler_ss13.common.types.primitive.DoubleType;
 import swp_compiler_ss13.common.types.primitive.LongType;
 import swp_compiler_ss13.common.types.primitive.StringType;
 import swp_compiler_ss13.fuc.ast.ASTImpl;
+import swp_compiler_ss13.fuc.ast.ArithmeticBinaryExpressionNodeImpl;
+import swp_compiler_ss13.fuc.ast.ArithmeticUnaryExpressionNodeImpl;
 import swp_compiler_ss13.fuc.ast.AssignmentNodeImpl;
 import swp_compiler_ss13.fuc.ast.BasicIdentifierNodeImpl;
 import swp_compiler_ss13.fuc.ast.BlockNodeImpl;
@@ -115,16 +123,16 @@ public class ParserImpl implements Parser {
          switch (entryType) {
             case SHIFT: {
                parserStack.push(entry.getNewState());
-//               Token shiftedToken = token;
+               // Token shiftedToken = token;
                token = lexer.getNextToken();
                
                // Push value corresponding to the token here.
                // Need relation Token -> Value here! If !Token.hasValue(), put NoValue on stack.
-               //what's the matter whit getSymbolShiftValue??
-               //Object value = getSymbolShiftValue(shiftedToken);
-               //Is there a Token without a Value??
-               //valueStack.push(value);
-               //Isn't it better to push a token, otherwise there are only null and NOVALUE onto stack?
+               // what's the matter whit getSymbolShiftValue??
+               // Object value = getSymbolShiftValue(shiftedToken);
+               // Is there a Token without a Value??
+               // valueStack.push(value);
+               // Isn't it better to push a token, otherwise there are only null and NOVALUE onto stack?
                valueStack.push(token);
                
                break;
@@ -157,9 +165,9 @@ public class ParserImpl implements Parser {
                   
                   // Execute reduceAction and push onto the stack
                   Object newValue = reduceAction.create(arr(valueHandle));
-                  if(newValue == null){
-                	  log.error("Error occurred! newValue is null");
-                	  return null;
+                  if (newValue == null) {
+                     log.error("Error occurred! newValue is null");
+                     return null;
                   }
                   valueStack.push(newValue);
                   // TODO Anything to do here for shortcuts?
@@ -187,18 +195,18 @@ public class ParserImpl implements Parser {
    }
    
    
-//   private Object getSymbolShiftValue(Token t) {
-//      switch (t.getTokenType()) {
-//         case TRUE:
-//            return null; // TODO WTF, which node to use for TRUE???
-//            
-//         case FALSE:
-//            return null; // TODO WTF, which node to use for TRUE???
-//            
-//         default:
-//            return NO_VALUE;
-//      }
-//   }
+   // private Object getSymbolShiftValue(Token t) {
+   // switch (t.getTokenType()) {
+   // case TRUE:
+   // return null; // TODO WTF, which node to use for TRUE???
+   //
+   // case FALSE:
+   // return null; // TODO WTF, which node to use for TRUE???
+   //
+   // default:
+   // return NO_VALUE;
+   // }
+   // }
    
    private ReduceAction getReduceAction(Production prod) {
       switch (prod.getString()) {
@@ -379,7 +387,10 @@ public class ParserImpl implements Parser {
                  }
               };
          case "stmt -> assign":
+            return null;   // Nothing to reduce here
          case "stmt -> block":
+            return null;   // Nothing to reduce here. Block is a Stmt
+            
          case "stmt -> if ( assign ) stmt":
          case "stmt -> if ( assign ) stmt else stmt":
          case "stmt -> while ( assign ) stmt":
@@ -433,7 +444,7 @@ public class ParserImpl implements Parser {
         			 AssignmentNodeImpl assignNode = new AssignmentNodeImpl();
         			 assignNode.setLeftValue((IdentifierNode) objs[0]);
         			 assignNode.getLeftValue().setParentNode(assignNode);
-        			 assignNode.setRightValue((StatementNode) objs[1]);
+        			 assignNode.setRightValue((StatementNode) objs[2]); // [1] is the "=" token
         			 assignNode.getRightValue().setParentNode(assignNode);
         			 return assignNode;
                }
@@ -451,14 +462,53 @@ public class ParserImpl implements Parser {
          case "rel -> expr >= expr":
          case "rel -> expr <= expr":
          case "rel -> expr":
+            return null;
          case "expr -> expr + term":
+            return new ReduceAction() {
+               @Override
+               public Object create(Object... objs) {
+                  return binop(objs[0], objs[2], BinaryOperator.ADDITION);
+               }
+            };
          case "expr -> expr - term":
+            return new ReduceAction() {
+               @Override
+               public Object create(Object... objs) {
+                  return binop(objs[0], objs[2], BinaryOperator.SUBSTRACTION);
+               }
+            };
          case "expr -> term":
+            return null;   // Nothing to do here
          case "term -> term * unary":
          case "term -> term / unary":
          case "term -> unary":
          case "unary -> ! unary":
+            log.warn("Detected a production not needed for Milestone 1!");
+            return null;
+//            return new ReduceAction() {
+//               @Override
+//               public Object create(Object... objs) {
+//                  Token token = (Token) objs[0];   // minus
+//                  UnaryExpressionNode unary = (UnaryExpressionNode) objs[1];
+//                  
+//                  LogicUnaryExpressionNode logicalUnary = new LogicUnaryExpressionNodeImpl();
+//                  return arithUnary;
+//               }
+//            };
          case "unary -> - unary":
+            return new ReduceAction() {
+               @Override
+               public Object create(Object... objs) {
+//                  Token token = (Token) objs[0];   // minus
+                  UnaryExpressionNode unary = (UnaryExpressionNode) objs[1];
+                  
+                  ArithmeticUnaryExpressionNode arithUnary = new ArithmeticUnaryExpressionNodeImpl();
+                  arithUnary.setOperator(UnaryOperator.MINUS);
+                  arithUnary.setRightValue(unary);
+                  unary.setParentNode(arithUnary);
+                  return arithUnary;
+               }
+            };
          case "unary -> factor":
          case "factor -> ( assign )":
          case "factor -> loc": break;
@@ -534,11 +584,25 @@ public class ParserImpl implements Parser {
          case "type -> real":
          case "type -> record { decls }":
          default:
-            return null;
+            return null;   // Means "no ReduceAction to perform"
       }
 	return null;
    }
-
+   
+   private static ArithmeticBinaryExpressionNode binop(Object leftExpr, Object rightExpr, final BinaryOperator op) {
+      ExpressionNode left = (ExpressionNode) leftExpr;
+      ExpressionNode right = (ExpressionNode) rightExpr;
+      
+      ArithmeticBinaryExpressionNode binop = new ArithmeticBinaryExpressionNodeImpl();
+      binop.setLeftValue(left);
+      binop.setRightValue(right);
+      binop.setOperator(op);
+      left.setParentNode(binop);
+      right.setParentNode(binop);
+      
+      return binop;
+   }
+   
    
    private interface ReduceAction {
       Object create(Object... objs);
