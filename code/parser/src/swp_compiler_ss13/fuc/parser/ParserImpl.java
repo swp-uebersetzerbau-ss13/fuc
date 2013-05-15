@@ -178,6 +178,9 @@ public class ParserImpl implements Parser {
                if (tokenType != TokenType.EOF) {
                   // TODO Errorhandling
                } else {
+                  BlockNode programBlock = (BlockNode) valueStack.pop();
+                  ast.setRootNode(programBlock);
+                  programBlock.setParentNode(ast.getRootNode());
                   return ast;
                }
             }
@@ -210,41 +213,13 @@ public class ParserImpl implements Parser {
    
    private ReduceAction getReduceAction(Production prod) {
       switch (prod.getString()) {
-
+      
          case "program -> decls stmts":
-        	 return new ReduceAction() {
-                 @Override
-                 public Object create(Object... objs) {
-                    Object left = objs[0];  // Should be NO_VALUE or BlockNode
-                    Object right = objs[1]; // Should be NO_VALUE or BlockNode
-                    
-                    BlockNode newBlock = new BlockNodeImpl();
-                    // Handle left
-                    if (!left.equals(NO_VALUE)) {
-                       BlockNode declsBlock = (BlockNode) left;
-                       for (DeclarationNode decl : declsBlock.getDeclarationList()) {
-                          newBlock.addDeclaration(decl);
-                          decl.setParentNode(newBlock);
-                       }
-                    }
-
-                    // Handle right
-                    if (!right.equals(NO_VALUE)) {
-                       BlockNode stmtsBlock = (BlockNode) right;
-                       for (StatementNode decl : stmtsBlock.getStatementList()) {
-                          newBlock.addStatement(decl);
-                          decl.setParentNode(newBlock);
-                       }
-                    }
-                    ast.setRootNode(newBlock);
-                    return newBlock;
-                 }
-              };
          case "block -> { decls stmts }":
             return new ReduceAction() {
                @Override
                public Object create(Object... objs) {
-                  Object left = objs[0];  // Should be NO_VALUE or BlockNode
+                  Object left = objs[0]; // Should be NO_VALUE or BlockNode
                   Object right = objs[1]; // Should be NO_VALUE or BlockNode
                   
                   BlockNode newBlock = new BlockNodeImpl();
@@ -256,7 +231,7 @@ public class ParserImpl implements Parser {
                         decl.setParentNode(newBlock);
                      }
                   }
-
+                  
                   // Handle right
                   if (!right.equals(NO_VALUE)) {
                      BlockNode stmtsBlock = (BlockNode) right;
@@ -272,7 +247,7 @@ public class ParserImpl implements Parser {
             return new ReduceAction() {
                @Override
                public Object create(Object... objs) {
-                  Object left = objs[0];  // Should be NO_VALUE or DeclarationNode
+                  Object left = objs[0]; // Should be NO_VALUE or DeclarationNode
                   Object right = objs[1]; // Should be DeclarationNode or BlockNode
                   
                   LinkedList<DeclarationNode> declList = new LinkedList<>();
@@ -285,7 +260,7 @@ public class ParserImpl implements Parser {
                         declList.add((DeclarationNode) left);
                      }
                   }
-
+                  
                   // Handle right
                   if (right instanceof BlockNode) {
                      BlockNode oldBlock = (BlockNode) right;
@@ -311,7 +286,7 @@ public class ParserImpl implements Parser {
             return new ReduceAction() {
                @Override
                public Object create(Object... objs) {
-                  return NO_VALUE;  // Symbolizes epsilon
+                  return NO_VALUE; // Symbolizes epsilon
                }
             };
          case "decl -> type id ;":
@@ -341,128 +316,144 @@ public class ParserImpl implements Parser {
                }
             };
          case "stmts -> stmts stmt":
-        	 return new ReduceAction() {
-                 @Override
-                 public Object create(Object... objs) {
-                    Object left = objs[0];  // Should be NO_VALUE or StatementNode
-                    Object right = objs[1]; // Should be StatementNode or BlockNode
-                    
-                    LinkedList<StatementNode> stmtList = new LinkedList<>();
-                    // Handle left
-                    if (!left.equals(NO_VALUE)) {
-                       // there are just 0ne statement
-                       if (!(left instanceof StatementNode)) {
-                          log.error("Error in decls -> decls decl: Left must be a DeclarationNode!");
-                       } else {
-                          stmtList.add((StatementNode) left);
-                       }
-                    }
-
-                    // Handle right
-                    if (right instanceof BlockNode) {
-                       BlockNode oldBlock = (BlockNode) right;
-                       stmtList.addAll(oldBlock.getStatementList());
-                    } else {
-                       if (!(right instanceof StatementNode)) {
-                          log.error("Error in decls -> decls decl: Right must be a DeclarationNode!");
-                       } else {
-                          stmtList.add((StatementNode) right);
-                       }
-                    }
-                    
-                    // Create new BlockNode
-                    BlockNode block = new BlockNodeImpl();
-                    for (StatementNode stmt : stmtList) {
-                       block.addStatement(stmt);
-                       stmt.setParentNode(block);
-                    }
-                    return block;
-                 }
-              };
-         case "stmts -> ": 
-        	 return new ReduceAction() {
-                 @Override
-                 public Object create(Object... objs) {
-                    return NO_VALUE;  // Symbolizes epsilon
-                 }
-              };
+            return new ReduceAction() {
+               @Override
+               public Object create(Object... objs) {
+                  Object left = objs[0]; // Should be NO_VALUE or StatementNode
+                  Object right = objs[1]; // Should be StatementNode or BlockNode
+                  
+                  LinkedList<StatementNode> stmtList = new LinkedList<>();
+                  // Handle left
+                  if (!left.equals(NO_VALUE)) {
+                     // there are just 0ne statement
+                     if (!(left instanceof StatementNode)) {
+                        log.error("Error in decls -> decls decl: Left must be a DeclarationNode!");
+                     } else {
+                        stmtList.add((StatementNode) left);
+                     }
+                  }
+                  
+                  // Handle right
+                  if (right instanceof BlockNode) {
+                     BlockNode oldBlock = (BlockNode) right;
+                     stmtList.addAll(oldBlock.getStatementList());
+                  } else {
+                     if (!(right instanceof StatementNode)) {
+                        log.error("Error in decls -> decls decl: Right must be a DeclarationNode!");
+                     } else {
+                        stmtList.add((StatementNode) right);
+                     }
+                  }
+                  
+                  // Create new BlockNode
+                  BlockNode block = new BlockNodeImpl();
+                  for (StatementNode stmt : stmtList) {
+                     block.addStatement(stmt);
+                     stmt.setParentNode(block);
+                  }
+                  return block;
+               }
+            };
+         case "stmts -> ":
+            return new ReduceAction() {
+               @Override
+               public Object create(Object... objs) {
+                  return NO_VALUE; // Symbolizes epsilon
+               }
+            };
          case "stmt -> assign":
-            return null;   // Nothing to reduce here
+            break; // Nothing to reduce here
          case "stmt -> block":
-            return null;   // Nothing to reduce here. Block is a Stmt
+            break; // Nothing to reduce here. Block is a Stmt
             
          case "stmt -> if ( assign ) stmt":
          case "stmt -> if ( assign ) stmt else stmt":
          case "stmt -> while ( assign ) stmt":
-         case "stmt -> do stmt while ( assign )": break;
-         case "stmt -> break ;": 
-        	 return new ReduceAction(){
-  				@Override
-  				public Object create(Object... objs) {
-  					return new BreakNodeImpl();
-  				}
-          		 
-          	 };
+         case "stmt -> do stmt while ( assign )":
+            // TODO M2
+            break;
+            
+         case "stmt -> break ;":
+            return new ReduceAction() {
+               @Override
+               public Object create(Object... objs) {
+                  return new BreakNodeImpl();
+               }
+               
+            };
          case "stmt -> return ;":
-        	 return new ReduceAction() {
-        		 @Override
-        		 public Object create(Object... objs) {  	   
-        			 return new ReturnNodeImpl();
-        		 }
-        	 };
+            return new ReduceAction() {
+               @Override
+               public Object create(Object... objs) {
+                  return new ReturnNodeImpl();
+               }
+            };
          case "stmt -> return loc ;":
-        	 return new ReduceAction() {
-        		 @Override
-        		 public Object create(Object... objs) {  	   
-        			 ReturnNode returnNode = new ReturnNodeImpl();
-        			 returnNode.setRightValue((IdentifierNode) objs[0]);
-        			 return returnNode;
-        		 }
-        	 };
+            return new ReduceAction() {
+               @Override
+               public Object create(Object... objs) {
+                  ReturnNode returnNode = new ReturnNodeImpl();
+                  returnNode.setRightValue((IdentifierNode) objs[0]);
+                  return returnNode;
+               }
+            };
          case "stmt -> print loc ;":
-         case "loc -> loc [ assign ]": break;
+         case "loc -> loc [ assign ]":
+            // TODO m2
+            break;
+            
          case "loc -> id":
-        	 return new ReduceAction() {
-        		 @Override
-        		 public Object create(Object... objs) {  	   
-        			 BasicIdentifierNode identifierNode = new BasicIdentifierNodeImpl();
-        			 Token token = (Token)objs[0];
-        			 if(token.getTokenType() == TokenType.ID){
-        				 identifierNode.setIdentifier(token.getValue());
-        			 }else{
-        				 log.error("Wrong TokenType in ReduceAction \"loc -> id\"");
-        				 return null;
-        			 }
-        			 return identifierNode;
-        		 }
-        	 };
+            return new ReduceAction() {
+               @Override
+               public Object create(Object... objs) {
+                  BasicIdentifierNode identifierNode = new BasicIdentifierNodeImpl();
+                  Token token = (Token) objs[0];
+                  if (token.getTokenType() == TokenType.ID) {
+                     identifierNode.setIdentifier(token.getValue());
+                  } else {
+                     log.error("Wrong TokenType in ReduceAction \"loc -> id\"");
+                     return null;
+                  }
+                  return identifierNode;
+               }
+            };
          case "loc -> loc.id":
          case "assign -> loc = assign":
-        	 return new ReduceAction() {
-        		 @Override
-        		 public Object create(Object... objs) {  	   
-        			 AssignmentNodeImpl assignNode = new AssignmentNodeImpl();
-        			 assignNode.setLeftValue((IdentifierNode) objs[0]);
-        			 assignNode.getLeftValue().setParentNode(assignNode);
-        			 assignNode.setRightValue((StatementNode) objs[2]); // [1] is the "=" token
-        			 assignNode.getRightValue().setParentNode(assignNode);
-        			 return assignNode;
+            return new ReduceAction() {
+               @Override
+               public Object create(Object... objs) {
+                  AssignmentNodeImpl assignNode = new AssignmentNodeImpl();
+                  assignNode.setLeftValue((IdentifierNode) objs[0]);
+                  assignNode.getLeftValue().setParentNode(assignNode);
+                  assignNode.setRightValue((StatementNode) objs[2]); // [1] is the "=" token
+                  assignNode.getRightValue().setParentNode(assignNode);
+                  return assignNode;
                }
             };
          case "assign -> bool":
          case "bool -> bool || join":
          case "bool -> join":
          case "join -> join && equality":
+            // TODO M2
+            break;
+            
          case "join -> equality":
+            break;   // Nothing to do here
+            
          case "equality -> equality == rel":
          case "equality -> equality != rel":
+            // TODO M2
+            break;
          case "equality -> rel":
+            return null;   // Nothing to do here
          case "rel -> expr < expr":
          case "rel -> expr > expr":
          case "rel -> expr >= expr":
          case "rel -> expr <= expr":
+            // TODO M2
+            break;
          case "rel -> expr":
-            return null;
+            break;   // Nothing to do here
          case "expr -> expr + term":
             return new ReduceAction() {
                @Override
@@ -478,28 +469,41 @@ public class ParserImpl implements Parser {
                }
             };
          case "expr -> term":
-            return null;   // Nothing to do here
+            break;   // Nothing to do here
          case "term -> term * unary":
+            return new ReduceAction() {
+               @Override
+               public Object create(Object... objs) {
+                  return binop(objs[0], objs[2], BinaryOperator.MULTIPLICATION);
+               }
+            };
          case "term -> term / unary":
+            return new ReduceAction() {
+               @Override
+               public Object create(Object... objs) {
+                  return binop(objs[0], objs[2], BinaryOperator.DIVISION);
+               }
+            };
          case "term -> unary":
+            break;   // Nothing to do here
          case "unary -> ! unary":
             log.warn("Detected a production not needed for Milestone 1!");
-            return null;
-//            return new ReduceAction() {
-//               @Override
-//               public Object create(Object... objs) {
-//                  Token token = (Token) objs[0];   // minus
-//                  UnaryExpressionNode unary = (UnaryExpressionNode) objs[1];
-//                  
-//                  LogicUnaryExpressionNode logicalUnary = new LogicUnaryExpressionNodeImpl();
-//                  return arithUnary;
-//               }
-//            };
+            break;
+            // return new ReduceAction() {
+            // @Override
+            // public Object create(Object... objs) {
+            // Token token = (Token) objs[0]; // minus
+            // UnaryExpressionNode unary = (UnaryExpressionNode) objs[1];
+            //
+            // LogicUnaryExpressionNode logicalUnary = new LogicUnaryExpressionNodeImpl();
+            // return arithUnary;
+            // }
+            // };
          case "unary -> - unary":
             return new ReduceAction() {
                @Override
                public Object create(Object... objs) {
-//                  Token token = (Token) objs[0];   // minus
+                  // Token token = (Token) objs[0]; // minus
                   UnaryExpressionNode unary = (UnaryExpressionNode) objs[1];
                   
                   ArithmeticUnaryExpressionNode arithUnary = new ArithmeticUnaryExpressionNodeImpl();
@@ -511,72 +515,73 @@ public class ParserImpl implements Parser {
             };
          case "unary -> factor":
          case "factor -> ( assign )":
-         case "factor -> loc": break;
+         case "factor -> loc":
+            break;
          case "factor -> num":
-        	 return new ReduceAction(){
-
-  				@Override
-  				public Object create(Object... objs) {
-  					LiteralNode literal = new LiteralNodeImpl();
-  					Token token = (Token)objs[0];
-  					literal.setLiteral(token.getValue());
-  					literal.setLiteralType(new LongType());
-  					return literal;
-  				}
-          		 
-          	 };
+            return new ReduceAction() {
+               
+               @Override
+               public Object create(Object... objs) {
+                  LiteralNode literal = new LiteralNodeImpl();
+                  Token token = (Token) objs[0];
+                  literal.setLiteral(token.getValue());
+                  literal.setLiteralType(new LongType());
+                  return literal;
+               }
+               
+            };
          case "factor -> real":
-        	 return new ReduceAction(){
-
-  				@Override
-  				public Object create(Object... objs) {
-  					LiteralNode literal = new LiteralNodeImpl();
-  					Token token = (Token)objs[0];
-  					literal.setLiteral(token.getValue());
-  					literal.setLiteralType(new DoubleType());
-  					return literal;
-  				}
-          		 
-          	 };
+            return new ReduceAction() {
+               
+               @Override
+               public Object create(Object... objs) {
+                  LiteralNode literal = new LiteralNodeImpl();
+                  Token token = (Token) objs[0];
+                  literal.setLiteral(token.getValue());
+                  literal.setLiteralType(new DoubleType());
+                  return literal;
+               }
+               
+            };
          case "factor -> true":
-        	 return new ReduceAction(){
-
-  				@Override
-  				public Object create(Object... objs) {
-  					LiteralNode literal = new LiteralNodeImpl();
-  					Token token = (Token)objs[0];
-  					literal.setLiteral(token.getValue());
-  					literal.setLiteralType(new BooleanType());
-  					return literal;
-  				}
-          		 
-          	 };
+            return new ReduceAction() {
+               
+               @Override
+               public Object create(Object... objs) {
+                  LiteralNode literal = new LiteralNodeImpl();
+                  Token token = (Token) objs[0];
+                  literal.setLiteral(token.getValue());
+                  literal.setLiteralType(new BooleanType());
+                  return literal;
+               }
+               
+            };
          case "factor -> false":
-        	 return new ReduceAction(){
-
- 				@Override
- 				public Object create(Object... objs) {
- 					LiteralNode literal = new LiteralNodeImpl();
- 					Token token = (Token)objs[0];
- 					literal.setLiteral(token.getValue());
- 					literal.setLiteralType(new BooleanType());
- 					return literal;
- 				}
-         		 
-         	 };
+            return new ReduceAction() {
+               
+               @Override
+               public Object create(Object... objs) {
+                  LiteralNode literal = new LiteralNodeImpl();
+                  Token token = (Token) objs[0];
+                  literal.setLiteral(token.getValue());
+                  literal.setLiteralType(new BooleanType());
+                  return literal;
+               }
+               
+            };
          case "factor -> string":
-        	 return new ReduceAction(){
-
-				@Override
-				public Object create(Object... objs) {
-					LiteralNode literal = new LiteralNodeImpl();
-					Token token = (Token)objs[0];
-					literal.setLiteral(token.getValue());
-					literal.setLiteralType(new StringType((long) token.getValue().length()));
-					return literal;
-				}
-        		 
-        	 };
+            return new ReduceAction() {
+               
+               @Override
+               public Object create(Object... objs) {
+                  LiteralNode literal = new LiteralNodeImpl();
+                  Token token = (Token) objs[0];
+                  literal.setLiteral(token.getValue());
+                  literal.setLiteralType(new StringType((long) token.getValue().length()));
+                  return literal;
+               }
+               
+            };
          case "type -> type [ num ]":
          case "type -> bool":
          case "type -> string":
@@ -584,9 +589,9 @@ public class ParserImpl implements Parser {
          case "type -> real":
          case "type -> record { decls }":
          default:
-            return null;   // Means "no ReduceAction to perform"
+            return null; // Means "no ReduceAction to perform"
       }
-	return null;
+      return null;
    }
    
    private static ArithmeticBinaryExpressionNode binop(Object leftExpr, Object rightExpr, final BinaryOperator op) {
