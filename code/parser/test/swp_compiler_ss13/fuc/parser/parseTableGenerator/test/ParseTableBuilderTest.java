@@ -13,6 +13,7 @@ import org.junit.Test;
 
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.Grammar;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.ParseTableBuilder;
+import swp_compiler_ss13.fuc.parser.parseTableGenerator.ParseTableBuilder.ParseTableBuildException;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.WrongGrammarFormatException;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.interfaces.ParseTable;
 
@@ -54,7 +55,12 @@ public class ParseTableBuilderTest {
 			);
 		}
 		ParseTableBuilder tableBuilder = new ParseTableBuilder();
-		ParseTable table = tableBuilder.getTable(grammar);
+		try {
+			ParseTable table = tableBuilder.getTable(grammar);
+		}
+		catch( ParseTableBuildException e) {
+			fail("ParseTableBuildException caught: " + e.getMessage());
+		}
 		//fail("Not yet implemented");
 	}
 	
@@ -71,18 +77,6 @@ public class ParseTableBuilderTest {
 	 * FOLLOW( Term ) = FOLLOW( Fac ) = { $, +, -, *, / }
 	 */
 	
-	/*
-	 * This should result in the following Parse-Table:
-	 *
-	 *		| +		| -		| *		| /		| num	| real	| $
-	 *	0	
-	 *	1
-	 *	2
-	 *	3
-	 *	4
-	 *	5
-	 *	6
-	 */
 	private static String testGrammar = 
 			"symbols:\n" +
 			"num,real,+,-,*,/\n" +
