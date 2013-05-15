@@ -154,7 +154,7 @@ public class ParserImpl implements Parser {
                   // Execute reduceAction and push onto the stack
                   Object newValue = reduceAction.create(arr(valueHandle));
                   if(newValue == null){
-                	  System.err.println("Error occurred! newValue is null");
+                	  log.error("Error occurred! newValue is null");
                 	  return null;
                   }
                   valueStack.push(newValue);
@@ -301,13 +301,58 @@ public class ParserImpl implements Parser {
                }
             };
          case "stmts -> stmts stmt":
+        	 return new ReduceAction() {
+                 @Override
+                 public Object create(Object... objs) {
+                    Object left = objs[0];  // Should be NO_VALUE or StatementNode
+                    Object right = objs[1]; // Should be StatementNode or BlockNode
+                    
+                    LinkedList<StatementNode> stmtList = new LinkedList<>();
+                    // Handle left
+                    if (!left.equals(NO_VALUE)) {
+                       // there are just 0ne statement
+                       if (!(left instanceof StatementNode)) {
+                          log.error("Error in decls -> decls decl: Left must be a DeclarationNode!");
+                       } else {
+                          stmtList.add((StatementNode) left);
+                       }
+                    }
+
+                    // Handle right
+                    if (right instanceof BlockNode) {
+                       BlockNode oldBlock = (BlockNode) right;
+                       stmtList.addAll(oldBlock.getStatementList());
+                    } else {
+                       if (!(right instanceof StatementNode)) {
+                          log.error("Error in decls -> decls decl: Right must be a DeclarationNode!");
+                       } else {
+                          stmtList.add((StatementNode) right);
+                       }
+                    }
+                    
+                    // Create new BlockNode
+                    BlockNode block = new BlockNodeImpl();
+                    for (StatementNode decl : stmtList) {
+                       block.addStatement(decl);
+                       decl.setParentNode(block);
+                    }
+                    return block;
+                 }
+              };
+         case "stmts -> ": 
+        	 return new ReduceAction() {
+                 @Override
+                 public Object create(Object... objs) {
+                    return NO_VALUE;  // Symbolizes epsilon
+                 }
+              };
          case "stmt -> assign":
          case "stmt -> block":
          case "stmt -> if ( assign ) stmt":
          case "stmt -> if ( assign ) stmt else stmt":
          case "stmt -> while ( assign ) stmt":
          case "stmt -> do stmt while ( assign )":
-         case "stmt -> break ;":
+         case "stmt -> break ;": break;
          case "stmt -> return ;":
         	 return new ReduceAction() {
         		 @Override
@@ -325,7 +370,7 @@ public class ParserImpl implements Parser {
         		 }
         	 };
          case "stmt -> print loc ;":
-         case "loc -> loc [ assign ]":
+         case "loc -> loc [ assign ]": break;
          case "loc -> id":
         	 return new ReduceAction() {
         		 @Override
@@ -335,7 +380,7 @@ public class ParserImpl implements Parser {
         			 if(token.getTokenType() == TokenType.ID){
         				 identifierNode.setIdentifier(token.getValue());
         			 }else{
-        				 System.err.println("Wrong TokenType in ReduceAction \"loc -> id\"");
+        				 log.error("Wrong TokenType in ReduceAction \"loc -> id\"");
         				 return null;
         			 }
         			 return identifierNode;
