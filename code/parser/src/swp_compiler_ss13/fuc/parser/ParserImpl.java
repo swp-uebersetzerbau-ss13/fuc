@@ -58,7 +58,7 @@ public class ParserImpl implements Parser {
    
    private final Logger log = Logger.getLogger(getClass());
    
-   private Lexer lexer;
+   protected Lexer lexer;
    private Stack<Integer> parserStack = new Stack<Integer>();
    protected ParseTable table;
    private ReportLog reportLog;
@@ -88,7 +88,7 @@ public class ParserImpl implements Parser {
    }
    
    
-   private AST parse() {
+   protected AST parse() {
       
       // add initial state
       parserStack.add(0);
