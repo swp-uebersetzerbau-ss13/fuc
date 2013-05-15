@@ -58,7 +58,7 @@ public class ParserImpl implements Parser {
    
    private final Logger log = Logger.getLogger(getClass());
    
-   private Lexer lexer;
+   protected Lexer lexer;
    private Stack<Integer> parserStack = new Stack<Integer>();
    protected ParseTable table;
    private ReportLog reportLog;
@@ -88,7 +88,7 @@ public class ParserImpl implements Parser {
    }
    
    
-   private AST parse() {
+   protected AST parse() {
       
       // add initial state
       parserStack.add(0);
@@ -119,6 +119,7 @@ public class ParserImpl implements Parser {
                Shift shift = (Shift) entry;
                parserStack.push(shift.getNewState());
                // Token shiftedToken = token;
+               valueStack.push(token);
                token = lexer.getNextToken();
                
                // Push value corresponding to the token here.
@@ -128,7 +129,7 @@ public class ParserImpl implements Parser {
                // Is there a Token without a Value??
                // valueStack.push(value);
                // Isn't it better to push a token, otherwise there are only null and NOVALUE onto stack?
-               valueStack.push(token);
+               
                
                break;
             }
