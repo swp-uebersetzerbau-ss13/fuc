@@ -8,7 +8,7 @@ import swp_compiler_ss13.common.ast.nodes.unary.ArithmeticUnaryExpressionNode;
  * @author "Frank Zechert, Danny Maasch"
  * @version 1
  */
-public class LogicUnaryExpressionNodeImpl extends UnaryExpressionNodeImpl implements ArithmeticUnaryExpressionNode {
+public class LogicUnaryExpressionNodeImpl extends UnaryExpressionNodeImpl implements LogicUnaryExpressionNode {
 
 	@Override
 	public ASTNodeType getNodeType() {
