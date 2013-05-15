@@ -1,6 +1,6 @@
 package swp_compiler_ss13.fuc.ast;
 
-import swp_compiler_ss13.common.ast.nodes.unary.ArithmeticUnaryExpressionNode;
+import swp_compiler_ss13.common.ast.nodes.unary.LogicUnaryExpressionNode;
 
 /**
  * LogicUnaryExpressionNode implementation
