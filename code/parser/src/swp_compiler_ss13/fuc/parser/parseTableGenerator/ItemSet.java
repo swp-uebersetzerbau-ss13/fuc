@@ -28,15 +28,31 @@ public class ItemSet extends HashSet<Item> {
 	
 
 	public void CLOSURE(Grammar grammar) {
-		for( Item item : this ) {
-			Symbol symAfterDot = item.getSymbolAfterDot();
-			if( symAfterDot != null ) {
-				if( symAfterDot.getType() == SymbolType.VARIABLE ) {
-					this.add( new Item( item, item.getDotPos()+1 ) );
+		int cardOld;
+		do {
+			cardOld = this.size();
+			ItemSet newSet = new ItemSet(this);
+			for( Item item : this ) {
+				Symbol symAfterDot = item.getSymbolAfterDot();
+				System.out.println( "current Item: " + item.getString());
+				if( symAfterDot != null ) {
+					if( symAfterDot.getType() == SymbolType.VARIABLE ) {
+						Variable varAfterDot = (Variable )symAfterDot;
+						for( Production prod : grammar.getProductions()) {
+							if( prod.getLeft().equals(varAfterDot) ) {
+								System.out.println("adding: " + prod.getString() );
+								newSet.add( new Item( prod, 0 ));
+							}
+						}
+					}
 				}
 			}
-		}
+			this.clear();
+			this.addAll(newSet);
+			System.out.println("difference: " + (this.size() - cardOld));
+		} while ( this.size() > cardOld );
 	}
+	
 	Map<Symbol,ItemSet> getGOTO() {
 		return GOTO;
 	}
@@ -47,6 +63,9 @@ public class ItemSet extends HashSet<Item> {
 		for( Item i : items) {
 			add(i);
 		}
+	}
+	public ItemSet(ItemSet other) {
+		super(other);
 	}
 	private Map<Symbol,ItemSet> GOTO;
 	private static final long serialVersionUID = 1L;

@@ -7,11 +7,10 @@ import java.util.Map;
 import java.util.Set;
 
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.Symbol.SymbolType;
+import swp_compiler_ss13.fuc.parser.table.GotoEntry;
 import swp_compiler_ss13.fuc.parser.table.ParseTable;
 import swp_compiler_ss13.fuc.parser.table.ParseTable.DoubleEntryException;
 import swp_compiler_ss13.fuc.parser.table.ParseTableImpl;
-import swp_compiler_ss13.fuc.parser.table.ParseTable.TokenNotFoundException;
-import swp_compiler_ss13.fuc.parser.table.ParseTableImpl.AlreadySetException;
 import swp_compiler_ss13.fuc.parser.table.actions.Reduce;
 import swp_compiler_ss13.fuc.parser.table.actions.Shift;
 
@@ -55,6 +54,7 @@ public class ParseTableBuilder {
 				Map<Symbol,ItemSet> GOTO = GOTO(currentState, itemSetToState.keySet());
 				// possibly add a reduce:
 				{
+					// check, wheather there are reducable items ( ones ending with a dot ):
 					Item itemToReduce = currentState.getReducableItem();
 					if( itemToReduce != null) {
 						Reduce reduce = new Reduce( itemToReduce );
@@ -63,10 +63,7 @@ public class ParseTableBuilder {
 								table.setActionEntry(indexStateCurrent, t, reduce);
 							}
 						}
-						catch (AlreadySetException e) {
-							throw new ParseTableBuildException("Something went horribly wrong: " + e.getMessage());
-						}
-						catch (TokenNotFoundException e) {
+						catch (DoubleEntryException e) {
 							throw new ParseTableBuildException("Something went horribly wrong: " + e.getMessage());
 						}
 					}
@@ -75,7 +72,7 @@ public class ParseTableBuilder {
 				for( Map.Entry<Symbol,ItemSet> arrow : GOTO.entrySet()) {
 					Symbol sym = arrow.getKey();
 					ItemSet stateDest = arrow.getValue();
-					// 0. add the state (if it has not yet been discovered!):
+					// 1. add the state (if it has not yet been discovered!):
 					int indexStateDest = -1 ;
 					if( itemSetToState.containsKey( stateDest) ) {
 						indexStateDest = itemSetToState.get( stateDest );
@@ -88,12 +85,22 @@ public class ParseTableBuilder {
 						nextToBeDiscovered.add( stateDest );
 					}
 					
+					// 2. add the arrow to the parseTable:
 					if( sym.getType() == SymbolType.TERMINAL ) {
 						Terminal t = (Terminal )sym;
-						// 1. add the arrow to the parseTable:
 						Shift shift = new Shift( indexStateDest );
 						try {
-							table.addEntry( indexStateCurrent, t, shift);
+							table.setActionEntry( indexStateCurrent, t, shift);
+						}
+						catch (DoubleEntryException e) {
+							throw new ParseTableBuildException("Something went horribly wrong: " + e.getMessage());
+						}
+					}
+					else { //( sym.getType() == SymbolType.TERMINAL )
+						Variable v = (Variable )sym;
+						GotoEntry goto_ = new GotoEntry( indexStateDest );
+						try {
+							table.setGotoEntry( indexStateCurrent, v, goto_);
 						}
 						catch (DoubleEntryException e) {
 							throw new ParseTableBuildException("Something went horribly wrong: " + e.getMessage());
