@@ -3,8 +3,6 @@
  */
 package swp_compiler_ss13.fuc.parser.test;
 
-import static org.junit.Assert.fail;
-
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -26,15 +24,16 @@ import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.common.parser.Parser;
 import swp_compiler_ss13.common.parser.ReportLog;
 import swp_compiler_ss13.fuc.parser.ParserImpl;
-import swp_compiler_ss13.fuc.parser.parseTableGenerator.Accept;
-import swp_compiler_ss13.fuc.parser.parseTableGenerator.ParseTableEntry;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.Production;
-import swp_compiler_ss13.fuc.parser.parseTableGenerator.Reduce;
-import swp_compiler_ss13.fuc.parser.parseTableGenerator.Shift;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.Symbol;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.Terminal;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.Variable;
-import swp_compiler_ss13.fuc.parser.parseTableGenerator.interfaces.ParseTable;
+import swp_compiler_ss13.fuc.parser.table.ActionEntry;
+import swp_compiler_ss13.fuc.parser.table.GotoEntry;
+import swp_compiler_ss13.fuc.parser.table.ParseTable;
+import swp_compiler_ss13.fuc.parser.table.actions.Accept;
+import swp_compiler_ss13.fuc.parser.table.actions.Reduce;
+import swp_compiler_ss13.fuc.parser.table.actions.Shift;
 
 /**
  * @author kensan
@@ -100,47 +99,70 @@ public class ParserImplTest {
 	
 	private class MyParsetable implements ParseTable{
 
-		ArrayList<Map<TokenType,ParseTableEntry>> table = new ArrayList<Map<TokenType,ParseTableEntry>>();
-		
+		ArrayList<Map<TokenType,ActionEntry>> actionTable = new ArrayList<Map<TokenType,ActionEntry>>();
+		ArrayList<Map<TokenType,GotoEntry>> gotoTable = new ArrayList<Map<TokenType,GotoEntry>>();
+ 		
 		
 		public MyParsetable() {
 			
-			Map<TokenType,ParseTableEntry> entry = new HashMap<TokenType,ParseTableEntry>();
+			Map<TokenType,ActionEntry> actionEntry = new HashMap<TokenType,ActionEntry>();
 			
-			entry.put(TokenType.NUM, new Shift(1));
-			entry.put(TokenType.REAL,new Shift(1));
-			entry.put(TokenType.EOF, new Accept());
-			table.add(0, entry);
+			actionEntry.put(TokenType.NUM, new Shift(1));
+			actionEntry.put(TokenType.REAL,new Shift(1));
+			actionEntry.put(TokenType.EOF, new Accept());
+			actionTable.add(0, actionEntry);
 			
-			entry = new HashMap<TokenType,ParseTableEntry>();
+			actionEntry = new HashMap<TokenType,ActionEntry>();
 			List<Symbol> list = new LinkedList<Symbol>();
 			list.add(new Terminal("num"));
-			entry.put(TokenType.ID, new Reduce(1,2,new Production(new Variable("type"),list)));
+			actionEntry.put(TokenType.ID, new Reduce(new Production(new Variable("type"),list)));
 			list = new LinkedList<Symbol>();
 			list.add(new Variable("type"));
 			list.add(new Terminal("id"));
 			list.add(new Terminal(";"));
-			entry.put(TokenType.EOF, new Reduce(3,0, new Production(new Variable("decls"), list )));
+			actionEntry.put(TokenType.EOF, new Reduce(new Production(new Variable("decls"), list )));
 			
-			table.add(1, entry);
+			actionTable.add(1, actionEntry);
 			
-			entry = new HashMap<TokenType,ParseTableEntry>();
-			entry.put(TokenType.ID, new Shift(3));
-			table.add(2,entry);
+			actionEntry = new HashMap<TokenType,ActionEntry>();
+			actionEntry.put(TokenType.ID, new Shift(3));
+			actionTable.add(2,actionEntry);
 			
-			entry = new HashMap<TokenType,ParseTableEntry>();
-			entry.put(TokenType.SEMICOLON, new Shift(1));
-			table.add(3,entry);
+			actionEntry = new HashMap<TokenType,ActionEntry>();
+			actionEntry.put(TokenType.SEMICOLON, new Shift(1));
+			actionTable.add(3,actionEntry);
 			
 		}
 		
+
 		@Override
-		public ParseTableEntry getEntry(int state, Token symbol){
-			
-			return table.get(state).get(symbol.getTokenType());
+		public ActionEntry getActionEntry(int state, Terminal symbol) {
+			return actionTable.get(state).get(symbol.getString());
+		}
+
+		@Override
+		public GotoEntry getGotoEntry(int state, Variable symbol) {
+			// TODO Auto-generated method stub
+			return gotoTable.get(state).get(symbol.getString());
+		}
+
+
+		@Override
+		public void setActionEntry(int state, Terminal terminal,
+				ActionEntry action) throws DoubleEntryException {
+			// TODO Auto-generated method stub
 			
 		}
-		
+
+
+		@Override
+		public void setGotoEntry(int state, Variable variable, GotoEntry action)
+				throws DoubleEntryException {
+			// TODO Auto-generated method stub
+			
+		}
+
+
 	}
 	
 	private class MyLexer implements Lexer{

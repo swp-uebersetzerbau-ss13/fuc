@@ -187,8 +187,10 @@ public class ParserImpl implements Parser {
             }
             
             case ERROR: {
+
                Error error = (Error) entry;
                reportLog.reportError(token.getValue(), token.getLine(), token.getColumn(), "An error occurred: " + error.getMsg());
+
             }
          }
       }
