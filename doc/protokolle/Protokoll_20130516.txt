@@ -1,0 +1,128 @@
+Protokoll Sitzung 16.05.2013
+Protokoland: Roman (hastig geschrieben...)
+
+0. Gesprächspunkte ermitteln
+1. Check alte TODOs
+2. Punkte
+ 2.1   Status Parser
+ 2.2   Controller 
+  2.2.1 Reporst
+  2.2.2 Jars
+ 2.3   Visualisierung
+  2.3.1 Tokenstream
+  2.3.2 Codegen
+  2.3.3 LR-0
+ 2.4   Integrationstests
+ 2.5   Zeitplan bis Montag (Milestone 1 Deadline)
+3. Neue TODOs
+
+
+1) Alte TODOs
+
+ -> Commit-Hook: Sven arbeitet weiter dran und schickt uns eine Anleitung
+
+2.1) Status Parser
+
+ -> Zeitliche Schwierigkeiten gehabt
+ -> Schlimmste soweit Probleme Gelöst
+ -> Es kompiliert und läuft soweit, muss aber noch getestet und erweitert werden
+ -> TODO @ParserGruppe: Samstag Abend Milestone 1 Version
+ -> TODO @ParserGruppe: Donnerstag (heute) aktuelle Version in Master pushen
+
+2.2) Controller
+ 2.2.1) Reports
+  -> Es gibt eine Fehlerlog-Klasse (Reports)
+  -> Muss in Controller integriert werden.
+  -> TODO @Roman, Reports integrieren in Controller
+  -> Vorschlag: Logging zentraler geregelt, damit nicht gewusel
+  ->  Frank: Nehmt alle Log4J
+  -> Konsens: - Error über reports/exceptions
+  ->          - Debug msgs über Log4J
+
+ 2.2.2) JARs
+  -> Läuft
+  -> Target "ant dist"
+  -> Servicefiles sind drin
+  -> run.sh läuft
+  -> TODO @Frank: Parser in Controller integrieren/prüfen
+
+2.3) Visualisierung
+ 2.3.1) Tokenstream
+  -> Vorschlag: Ausgame Tokenstream und Farbige Markierungen
+  -> Problem: Unterschiedliche Colorcodes
+  -> Frage: GUI oder CMD
+  -> Frage: Interfaces für Visualisierung?
+  -> A: Frank hat schon Vorschlag für Visualisierung als Issue gemeldet
+  ->  TODO @Frank: kümmert sich drum Interfaces für Visualisierung zu committen
+  ->> TODO @Tay: Token Visualisierung
+
+ 2.3.2) Visualisierung AST
+  -> Es gibt bereits AST Visualisierung
+  -> Sieht aus wie XML
+   -> Jede Klasse ein Tag, Operatoren Attribute
+  -> Gibt zweiten AST Visualisierer "infix"
+   -> Klammernotation des AST
+  -> Sven: AST Visualisierung in der Form ausreichend bis M1
+  -> Roman: Einwand: Wie in Controller integriert bis M1
+  -> Gespräch über Graphische Oberfläche
+   -> Vorschlag "von Oben" von Tutoren Infos einholen,
+      was denn eine gewünschte Visualisierung ist.
+  -> Für M1:
+  ->  TODO @Frank: JAR Files für Visualisierung erzeugen mit Vis.-Interfaces
+  -> 
+  ->  TODO @Roman: Controller lädt JAR Files für Visualisierung und führt diese
+                    per Default aus.
+
+2.3.3) Visualisierung LR-0
+ -> Wird verschoben da nicht M1 Relevant.
+ -> TODO @All: Nächstes mal besprechen
+
+2.4) Integration Tests
+ -> Es gibt einen ordner Tests der verwendet werden kann für Modulübergr. Tests
+ -> Für gute Integration Tests brauchen wir lauffähige Versionen, füher als nach Abgabe
+ -> Sven: Häufiger in master pushen!!!
+ -> Meinungsbild: Überwiegend bejahend
+ -> Consens: Lauffähig (auch 3/5 Features die laufen!), Kompilierfähig
+ ->          Im Zweifel Tests deaktivieren wenn nur teilweise Featureset erfüllt
+ -> TODO @All: Zeitplan erarbeiten; bis wann muss was fertig sein?
+
+2.5) Zeitplan M1
+
+ -> Samstag 23:59: Alle Komponenten fertig
+ -> Sonntag 20:00: Controller-Integration fertig
+
+2.6) Sontiges
+
+ -> Frank: Änderungen in Common
+  -> Interfaces Interfaces (siehe todo frank) eingechecked
+  -> Info: Änderungen im AST
+  -> Bitte von Gruppe 1 um Erweiterung der Symbol-Interfaces
+  -> Git Fragen von Sven ("New Commits")
+  -> Code-Coverage?
+   -> 0% für Controller (was Testen?) <- Sven: Integrationstests NACH M1
+   -> Backend ~90%
+   -> ... abgewürgt
+
+3.) TODOs
+
+ [[ @Next heißt verschoben für nächsten Do. ]]
+ [[ Für Details siehe oben ]]
+
+ -> TODO @Next: Visualisierung LR-0
+ -> TODO @Next: (Deadlines/Zeitplan/Integration) Nächstes mal besprechen
+
+ -> TODO @ParserGruppe: Samstag Abend Milestone 1 Version
+ -> TODO @ParserGruppe: Donnerstag (heute) aktuelle Version in Master pushen
+
+ -> TODO @Roman, Reports integrieren in Controller
+ -> TODO @Roman: Controller lädt JAR Files für Visualisierung und führt diese
+                  per Default aus.
+
+ -> TODO @Tay: Token Visualisierung
+
+ -> TODO @Frank: JAR Files für Visualisierung erzeugen mit Vis.-Interfaces
+ -> TODO @Frank: Parser in Controller integrieren/prüfen
+ -> TODO @Frank: kümmert sich drum Interfaces für Visualisierung zu committen
+
+ -> TODO @All: Bis Samstag 23:59 Module Commiten
+
