@@ -59,20 +59,20 @@ public class ItemTest {
 	public void testGetSymbolAfterDot() {
 		// A -> . B ( C )
 		Item A = new Item( new Production(new Variable("A"), new Variable("B"), new Terminal("("), new Variable("C"), new Terminal(")")), 0);
-		assertTrue( "\"B\" is after the dot!", A.getSymbolAfterDot().equals(new Variable("B")));
+		assertTrue( "\"B\" is after the dot!", A.getNextSymbol().equals(new Variable("B")));
 		// A -> B . ( C )
 		Item B = new Item( new Production(new Variable("A"), new Variable("B"), new Terminal("("), new Variable("C"), new Terminal(")")), 1);
-		assertTrue( "\"(\" is after the dot!", B.getSymbolAfterDot().equals(new Terminal("(")));
+		assertTrue( "\"(\" is after the dot!", B.getNextSymbol().equals(new Terminal("(")));
 		// A -> B ( C ) .
 		Item C = new Item( new Production(new Variable("A"), new Variable("B"), new Terminal("("), new Variable("C"), new Terminal(")")), 4);
-		assertTrue( "nothing follows the dot!", C.getSymbolAfterDot() == null);
+		assertTrue( "nothing follows the dot!", C.getNextSymbol() == null);
 	}
 
 	@Test
 	public void testEqualsObject() {
 		// A -> . B ( C )
 		Item A = new Item( new Production(new Variable("A"), new Variable("B"), new Terminal("("), new Variable("C"), new Terminal(")")), 0);
-		assertTrue( "\"B\" is after the dot!", A.getSymbolAfterDot().equals(new Variable("B")));
+		assertTrue( "\"B\" is after the dot!", A.getNextSymbol().equals(new Variable("B")));
 		// A -> . B ( C )
 		Item B = new Item( new Production(new Variable("A"), new Variable("B"), new Terminal("("), new Variable("C"), new Terminal(")")), 0);
 		assertTrue( "Item A should be equal Item B", A.equals(B));

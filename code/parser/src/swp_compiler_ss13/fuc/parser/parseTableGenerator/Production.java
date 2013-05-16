@@ -125,4 +125,9 @@ public class Production implements Comparable<Production> {
    	public int hashCode() {
    		return getString().hashCode();
    }
+   	
+   	@Override
+   	public String toString() {
+   		return getString();
+   	}
 }

@@ -55,4 +55,9 @@ public abstract class Symbol implements Comparable<Symbol> {
 		//System.out.println(getString() + ".hashCode() == " + stringRep.hashCode());
 		return stringRep.hashCode();
 	}
+	
+	@Override
+	public String toString() {
+		return stringRep;
+	}
 }

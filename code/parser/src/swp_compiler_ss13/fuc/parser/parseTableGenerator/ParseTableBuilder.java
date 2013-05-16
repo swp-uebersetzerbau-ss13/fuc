@@ -1,9 +1,9 @@
 package swp_compiler_ss13.fuc.parser.parseTableGenerator;
 
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.Symbol.SymbolType;
@@ -29,91 +29,90 @@ public class ParseTableBuilder {
 	public ParseTable getTable(Grammar grammar) throws ParseTableBuildException {
 		ParseTableImpl table = new ParseTableImpl();
 		// these two objects are a collection of the already discovered states:
-		Map<Integer, ItemSet> stateToItemSet = new HashMap<Integer, ItemSet>();
 		Map<ItemSet, Integer> itemSetToState = new HashMap<ItemSet, Integer>();
 		if(grammar.getProductions().size() == 0)
 			return table;
 		
 		// calculate state0 (theoritically: CLOSURE ( { S' -> .S } )      ):
-		ItemSet state0 = new ItemSet(new Item(grammar.getProductions().get(0),0)); 
-		state0.CLOSURE(grammar);
+		ItemSet state0 = new ItemSet(new Item(grammar.getProductions().get(0),0));
 		
 		/* the following algorithm searches for all ItemSets (/States) and fills the parseTable
 		 * with the transition function between them.
 		 */
-		Set<ItemSet> lastDiscovered = new HashSet<ItemSet>();
-		Set<ItemSet> nextToBeDiscovered = new HashSet<ItemSet>();
+		LinkedList<ItemSet> todo = new LinkedList<ItemSet>();
 		// algorithm starts with state0:
-		stateToItemSet.put( 0, state0 );
 		itemSetToState.put( state0, 0 );
-		lastDiscovered.add( state0 );
+		todo.add( state0 );
 		
-		do {
-			for( ItemSet currentState : lastDiscovered ) {
-				int indexStateCurrent = itemSetToState.get( currentState );
-				Map<Symbol,ItemSet> GOTO = GOTO(currentState, itemSetToState.keySet());
-				// possibly add a reduce:
-				{
-					// check, wheather there are reducable items ( ones ending with a dot ):
-					Item itemToReduce = currentState.getReducableItem();
-					if( itemToReduce != null) {
-						Reduce reduce = new Reduce( itemToReduce );
-						try {
-							for(Terminal t : itemToReduce.getFOLLOW()) {
-								table.setActionEntry(indexStateCurrent, t, reduce);
-							}
-						}
-						catch (DoubleEntryException e) {
-							throw new ParseTableBuildException("Something went horribly wrong: " + e.getMessage());
+		while ( !todo.isEmpty() ) { // as long as new states are discovered
+			ItemSet kernel = todo.pop();
+			ItemSet currentState = kernel.CLOSURE(grammar);
+			
+			int indexStateCurrent = itemSetToState.get( kernel );
+			Map<Symbol,ItemSet> GOTO = GOTO(currentState, itemSetToState.keySet());
+			// possibly add a reduce:
+			{
+				// check, wheather there are reducable items ( ones ending with a dot ):
+				Item itemToReduce = currentState.getReducableItem();
+				if( itemToReduce != null) {
+					Reduce reduce = new Reduce( itemToReduce );
+					try {
+						for(Terminal t : itemToReduce.getFOLLOW()) {
+							table.setActionEntry(indexStateCurrent, t, reduce);
 						}
 					}
-				}
-				// discover new states via GOTO( currentState ):
-				for( Map.Entry<Symbol,ItemSet> arrow : GOTO.entrySet()) {
-					Symbol sym = arrow.getKey();
-					ItemSet stateDest = arrow.getValue();
-					// 1. add the state (if it has not yet been discovered!):
-					int indexStateDest = -1 ;
-					if( itemSetToState.containsKey( stateDest) ) {
-						indexStateDest = itemSetToState.get( stateDest );
-					}
-					else {
-						indexStateDest = stateToItemSet.size();
-						stateToItemSet.put( indexStateDest, stateDest );
-						itemSetToState.put( stateDest, indexStateDest ); 
-						
-						nextToBeDiscovered.add( stateDest );
-					}
-					
-					// 2. add the arrow to the parseTable:
-					if( sym.getType() == SymbolType.TERMINAL ) {
-						Terminal t = (Terminal )sym;
-						Shift shift = new Shift( indexStateDest );
-						try {
-							table.setActionEntry( indexStateCurrent, t, shift);
-						}
-						catch (DoubleEntryException e) {
-							throw new ParseTableBuildException("Something went horribly wrong: " + e.getMessage());
-						}
-					}
-					else { //( sym.getType() == SymbolType.TERMINAL )
-						Variable v = (Variable )sym;
-						GotoEntry goto_ = new GotoEntry( indexStateDest );
-						try {
-							table.setGotoEntry( indexStateCurrent, v, goto_);
-						}
-						catch (DoubleEntryException e) {
-							throw new ParseTableBuildException("Something went horribly wrong: " + e.getMessage());
-						}
+					catch (DoubleEntryException e) {
+						throw new ParseTableBuildException("Something went horribly wrong: " + e.getMessage());
 					}
 				}
 			}
-			lastDiscovered = nextToBeDiscovered;
+			// discover new states via GOTO( currentState ):
+			for( Map.Entry<Symbol,ItemSet> arrow : GOTO.entrySet()) {
+				Symbol sym = arrow.getKey();
+				ItemSet stateDest = arrow.getValue();
+				// 1. add the state (if it has not yet been discovered!):
+				int indexStateDest = -1 ;
+				if( itemSetToState.containsKey( stateDest) ) {
+					indexStateDest = itemSetToState.get( stateDest );
+				}
+				else {
+					indexStateDest = itemSetToState.size();
+					itemSetToState.put( stateDest, indexStateDest ); 
+					
+					todo.add( stateDest );
+				}
+				
+				// 2. add the arrow to the parseTable:
+				if( sym.getType() == SymbolType.TERMINAL ) {
+					Terminal t = (Terminal )sym;
+					Shift shift = new Shift( indexStateDest );
+					try {
+						table.setActionEntry( indexStateCurrent, t, shift);
+					}
+					catch (DoubleEntryException e) {
+						throw new ParseTableBuildException("Something went horribly wrong: " + e.getMessage());
+					}
+				}
+				else { //( sym.getType() == SymbolType.TERMINAL )
+					Variable v = (Variable )sym;
+					GotoEntry goto_ = new GotoEntry( indexStateDest );
+					try {
+						table.setGotoEntry( indexStateCurrent, v, goto_);
+					}
+					catch (DoubleEntryException e) {
+						throw new ParseTableBuildException("Something went horribly wrong: " + e.getMessage());
+					}
+				}
+			}
+			
+			// Done!
+//			todo.rem
 		}
-		while ( ! nextToBeDiscovered.isEmpty() ); // as long as new states are discovered
 		
 		table.getStateToItemSet().clear();
-		table.getStateToItemSet().entrySet().addAll( stateToItemSet.entrySet() );
+		for (Entry<ItemSet, Integer> entry : itemSetToState.entrySet()) {
+			table.getStateToItemSet().put(entry.getValue(), entry.getKey());
+		}
 		
 		return table;
 	}
@@ -148,17 +147,17 @@ public class ParseTableBuilder {
 		// go through every item:
 		for( Item item : origin ) {
 			// <Var> -> x1 ... xi . symAfterDot ...
-			Symbol symAfterDot = item.getSymbolAfterDot();
-			if( symAfterDot != null ) {
+			Symbol nextSymbol = item.getNextSymbol();
+			if( nextSymbol != null ) {
 				ItemSet itemSetDest = null;
-				if( ! GOTO.containsKey(symAfterDot)) {
+				if( ! GOTO.containsKey(nextSymbol)) {
 					itemSetDest = new ItemSet();
-					GOTO.put(symAfterDot, itemSetDest);
+					GOTO.put(nextSymbol, itemSetDest);
 				}
 				else {
-					itemSetDest = GOTO.get( symAfterDot );
+					itemSetDest = GOTO.get( nextSymbol );
 				}
-				itemSetDest.add(new Item( item, item.getDotPos()+1 ));
+				itemSetDest.add(item.shift());
 			}
 		}
 		// replace states in the GOTO-Set by references to existing ones, if possible:
@@ -176,10 +175,6 @@ public class ParseTableBuilder {
 			}
 		}
 		return GOTO;
-	}
-	
-	private Set<Item> CLOSURE(Set<Item> item) {
-		return null;
 	}
 	
 	public class StateTuple implements Comparable<StateTuple> {
