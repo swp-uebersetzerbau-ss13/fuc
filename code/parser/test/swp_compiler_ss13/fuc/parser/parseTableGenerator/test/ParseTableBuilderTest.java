@@ -12,6 +12,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.Grammar;
+import swp_compiler_ss13.fuc.parser.parseTableGenerator.ItemSet;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.ParseTableBuilder;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.ParseTableBuilder.ParseTableBuildException;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.WrongGrammarFormatException;
@@ -57,6 +58,8 @@ public class ParseTableBuilderTest {
 		ParseTableBuilder tableBuilder = new ParseTableBuilder();
 		try {
 			ParseTable table = tableBuilder.getTable(grammar);
+			for( ItemSet i : table.getStateToItemSet().values() )
+				System.out.println( "ItemSet:\n" + i.getString() );
 		}
 		catch( ParseTableBuildException e) {
 			fail("ParseTableBuildException caught: " + e.getMessage());

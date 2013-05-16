@@ -104,11 +104,8 @@ public class ItemSetTest {
 		right.add(new Variable("Fac"));
 		Item i1 = new Item(new Variable("Term"),right,0);
 		itemSet.add(i1);
-		//itemSet.CLOSURE(grammar);
-		fail("CLOSURE not yet working!");
-		/*System.out.println(itemSet.size());
-		for( Item i : itemSet)
-			System.out.println(i.getString());*/
+		itemSet.CLOSURE(grammar);
+		//fail("CLOSURE not yet working!");
 		assertTrue( "right number of Items in CLOSURE", itemSet.size() == 5);
 		
 		
@@ -137,7 +134,8 @@ public class ItemSetTest {
 		List<Symbol> rightShouldBe4 = new ArrayList<Symbol>();
 		rightShouldBe4.add(new Terminal("real"));
 		CLOSUREShouldBe.add( new Item( new Variable("Fac"), rightShouldBe4, 0));
-		assertTrue( "itemSet.getReducableItem() should return ", itemSet.equals(CLOSUREShouldBe));
+		assertTrue( "itemSet.getReducableItem() should return " + CLOSUREShouldBe.getString(), itemSet.equals(CLOSUREShouldBe));
+		System.out.println( "CLOSURE( Term -> . Term * Fac ) =\n" + itemSet.getString() );
 	}
 	/*
 	 * Expr -> Expr + Term | Expr - Term | Term

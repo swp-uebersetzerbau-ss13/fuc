@@ -111,7 +111,9 @@ public class Grammar {
 									throw new WrongGrammarFormatException("neither a variable or a symbol in right side");
 							}
 						}
-						getProductions().add(new Production(left,right));
+						Production newProd = new Production(left,right);
+						getProductions().add( newProd );
+						System.out.println("Grammar.readFromFile: added Production \"" + newProd.getString() + "\"");
 						right.clear();
 						//right = new ArrayList<Symbol>();
 						//System.out.println("production added!");
@@ -203,7 +205,7 @@ public class Grammar {
 			Iterator<Production> i = productions.iterator();
 			while (i.hasNext()) { // prod
 				Production prod = i.next();
-				System.out.println( prod.getString() );
+				//System.out.println( prod.getString() );
 				Variable left = prod.getLeft();
 				// now iterate through the right side from right to left:
 				ListIterator<Symbol> iRight = prod.getRight().listIterator(prod.getRight().size());

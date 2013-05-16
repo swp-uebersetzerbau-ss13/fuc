@@ -21,6 +21,20 @@ public class Item extends Production {
 		}
 		return null;
 	}
+	public String getStringItem() {
+		String ret = getLeft().getString();
+		ret += " ->";
+		int pos = 0;
+		for (Symbol s : getRight()) {
+			if( pos == getDotPos())
+				ret += " .";
+			ret += (" " + s.getString());
+			pos ++;
+		}
+		if( getDotPos() == getRight().size())
+			ret += " .";
+		return ret;
+	}
 	@Override
 	public int compareTo(Production other) {
 		if(other instanceof Item)

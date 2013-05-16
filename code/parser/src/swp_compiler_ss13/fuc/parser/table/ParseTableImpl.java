@@ -3,6 +3,7 @@ package swp_compiler_ss13.fuc.parser.table;
 import java.util.HashMap;
 import java.util.Map;
 
+import swp_compiler_ss13.fuc.parser.parseTableGenerator.ItemSet;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.Symbol;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.Terminal;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.Variable;
@@ -13,9 +14,13 @@ public class ParseTableImpl implements ParseTable {
    
    private final Map<Key, ActionEntry> actions = new HashMap<>();
    private final Map<Key, GotoEntry> gotos = new HashMap<>();
+   /**
+    * mainly for debugging purposes
+    */
+   private Map<Integer,ItemSet> stateToItemSet;
    
    public ParseTableImpl() {
-      
+	   stateToItemSet = new HashMap<Integer,ItemSet>();
    }
    
    @Override
@@ -56,6 +61,14 @@ public class ParseTableImpl implements ParseTable {
          return GotoEntry.ERROR_ENTRY;
       }
       return targetEntry;
+   }
+   
+   /**
+    * mainly for debugging purposes
+    */
+   @Override
+   public Map<Integer,ItemSet> getStateToItemSet() {
+	   return stateToItemSet;
    }
    
    
