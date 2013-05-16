@@ -8,9 +8,9 @@ import lexer.token.BoolTokenImpl;
 import lexer.token.NumTokenImpl;
 import lexer.token.RealTokenImpl;
 import lexer.token.TokenImpl;
-import lexer.Lexer;
-import lexer.token.Token;
-import lexer.token.TokenType;
+import swp_compiler_ss13.common.lexer.Lexer;
+import swp_compiler_ss13.common.lexer.Token;
+import swp_compiler_ss13.common.lexer.TokenType;
 
 /**
  * Implementation of the interface {@link Lexer}
@@ -146,18 +146,18 @@ public class LexerImpl implements Lexer {
 			return TokenType.RETURN;
 		} else if (nextToken.matches("print")) {
 			return TokenType.PRINT;
-/*		} else if (nextToken.matches("long")) {
+		} else if (nextToken.matches("long")) {
 			return TokenType.LONG_SYMBOL;
 		} else if (nextToken.matches("double")) {
 			return TokenType.DOUBLE_SYMBOL;
 		} else if (nextToken.matches("bool")) {
 			return TokenType.BOOL_SYMBOL;
 		} else if (nextToken.matches("string")) {
-			return TokenType.STRING_SYMBOL;	*/
+			return TokenType.STRING_SYMBOL;
 		} else if (nextToken.matches("[a-zA-Z]\\w*")) {
 			return TokenType.ID;
 		} else if (nextToken.matches("#.*")) {
-			return TokenType.NOT_A_TOKEN;
+			return TokenType.COMMENT;
 		} else if (nextToken.matches("")) {
 			return TokenType.EOF;
 		} else {
