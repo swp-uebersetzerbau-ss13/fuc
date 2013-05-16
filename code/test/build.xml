@@ -1,0 +1,53 @@
+<project basedir="." name="FUC Tests" default="help">
+	<!-- === load the properties === -->
+	<loadproperties srcFile="../build.properties" />
+
+	<!-- === import paths === -->
+	<import file="path.xml" />
+
+	<!-- === print a help message when called === -->
+	<target name="help" description="print this help message">
+		<java classname="org.apache.tools.ant.Main">
+			<arg value="-p" />
+			<arg value="-f" />
+			<arg value="${ant.file}" />
+		</java>
+	</target>
+
+	<!-- === clean === -->
+	<target name="clean" description="clean this project">
+		<delete dir="${bin.dir}" />
+	</target>
+
+	<!-- === build tests === -->
+	<target name="build-tests" depends="clean" description="build the junit tests">
+		<mkdir dir="${bin.dir}" />
+		<javac
+			srcdir="${test.dir}"
+			destdir="${bin.dir}"
+			target="1.7"
+			classpathref="classpath-test"
+			includeantruntime="false" />
+	</target>
+
+	<!-- === run tests === -->
+	<target name="run-tests" depends="build-tests" description="run the junit tests">
+		<junit
+			printsummary="on"
+			fork="true"
+			haltonerror="true"
+			haltonfailure="true" >
+			<classpath>
+				<path refid="classpath-test" />
+			</classpath>
+			<batchtest>
+				<fileset dir="${test.dir}">
+					<include name="**/*Test.java" />
+				</fileset>
+			</batchtest>
+			<formatter type="plain" usefile="no" />
+		</junit>
+	
+	</target>
+
+</project>

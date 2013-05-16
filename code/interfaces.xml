@@ -1,0 +1,61 @@
+<project basedir="." name="Common Interfaces" default="help">
+	<!-- === load the properties === -->
+	<loadproperties srcFile="build.properties" />
+
+	<!-- === paths === -->
+	<path id="sourcepath">
+		<pathelement location="${interfaces.dir}/${src.dir}" />
+	</path>
+	<path id="classpath">
+		<pathelement location="${interfaces.dir}/${bin.dir}" />
+	</path>
+
+	<!-- === print a help message when called === -->
+	<target name="help" description="print this help message">
+		<java classname="org.apache.tools.ant.Main">
+			<arg value="-p" />
+			<arg value="-f" />
+			<arg value="${ant.file}" />
+		</java>
+	</target>
+
+	<!-- === clean === -->
+	<target name="clean" description="clean this project">
+		<delete dir="${interfaces.dir}/${bin.dir}" />
+		<delete dir="${interfaces.dir}/${doc.dir}" />
+	</target>
+
+	<!-- === build === -->
+	<target name="build" depends="clean" description="build the source files">
+		<mkdir dir="${interfaces.dir}/${bin.dir}" />
+		<javac 
+			srcdir="${interfaces.dir}/${src.dir}"
+			destdir="${interfaces.dir}/${bin.dir}"
+			target="1.7"
+			classpathref="classpath"
+			includeantruntime="false" />
+	</target>
+	
+	<!-- === doc === -->
+	<target name="doc" description="create the javadoc">
+		<mkdir dir="${interfaces.dir}/${doc.dir}" />
+		<javadoc
+	    	access="private"
+	    	author="true"
+	    	destdir="${interfaces.dir}/${doc.dir}"
+	    	doctitle="${ant.project.name}"
+	    	nodeprecated="false"
+	    	nodeprecatedlist="false"
+	    	noindex="false"
+	    	nonavbar="false"
+	    	notree="false"
+	    	source="1.7"
+	    	sourcepathref="sourcepath"
+			classpathref="classpath"
+	    	splitindex="true"
+	    	use="true"
+	    	version="true"
+	    	linksource="true" />
+	</target>
+
+</project>

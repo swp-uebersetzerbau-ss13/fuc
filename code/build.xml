@@ -1,0 +1,220 @@
+<project basedir="." name="FUC Compiler" default="help">
+	<!-- === load properties === -->
+	<loadproperties srcFile="build.properties" />
+
+	<!-- === print a help message when called === -->
+	<target name="help" description="print this help message">
+		<java classname="org.apache.tools.ant.Main">
+			<arg value="-p" />
+			<arg value="buildfile" />
+			<arg value="${ant.file}" />
+		</java>
+	</target>
+	
+	<!-- === clean all projects === -->
+	<target name="clean" description="clean all projects">
+		<delete dir="${dist.dir}" />
+		<ant antfile="interfaces.xml" dir="." target="clean" inheritall="false" />
+		<ant antfile="build.xml" dir="${ast.dir}" target="clean" inheritall="false" />
+		<ant antfile="build.xml" dir="${backend.dir}" target="clean" inheritall="false" />
+		<ant antfile="build.xml" dir="${controller.dir}" target="clean" inheritall="false" />
+		<ant antfile="build.xml" dir="${intermediateCodeGenerator.dir}" target="clean" inheritall="false" />
+		<ant antfile="build.xml" dir="${lexer.dir}" target="clean" inheritall="false" />
+		<ant antfile="build.xml" dir="${parser.dir}" target="clean" inheritall="false" />
+		<ant antfile="build.xml" dir="${semanticAnalyzer.dir}" target="clean" inheritall="false" />
+		<ant antfile="build.xml" dir="${symbolTable.dir}" target="clean" inheritall="false" />
+		<ant antfile="build.xml" dir="${test.dir}" target="clean" inheritall="false" />
+	</target>
+	
+	<!-- === build all projects === -->
+	<target name="build" description="build all projects">
+		<ant antfile="interfaces.xml" dir="." target="build" inheritall="false" />
+		<ant antfile="build.xml" dir="${ast.dir}" target="build" inheritall="false" />
+		<ant antfile="build.xml" dir="${backend.dir}" target="build" inheritall="false" />
+		<ant antfile="build.xml" dir="${controller.dir}" target="build" inheritall="false" />
+		<ant antfile="build.xml" dir="${intermediateCodeGenerator.dir}" target="build" inheritall="false" />
+		<ant antfile="build.xml" dir="${lexer.dir}" target="build" inheritall="false" />
+		<ant antfile="build.xml" dir="${parser.dir}" target="build" inheritall="false" />
+		<ant antfile="build.xml" dir="${semanticAnalyzer.dir}" target="build" inheritall="false" />
+		<ant antfile="build.xml" dir="${symbolTable.dir}" target="build" inheritall="false" />
+	</target>
+	
+	<!-- === doc all projects === -->
+	<target name="doc" description="generate javadoc for all projects">
+		<ant antfile="interfaces.xml" dir="." target="doc" inheritall="false" />
+		<ant antfile="build.xml" dir="${ast.dir}" target="doc" inheritall="false" />
+		<ant antfile="build.xml" dir="${backend.dir}" target="doc" inheritall="false" />
+		<ant antfile="build.xml" dir="${controller.dir}" target="doc" inheritall="false" />
+		<ant antfile="build.xml" dir="${intermediateCodeGenerator.dir}" target="doc" inheritall="false" />
+		<ant antfile="build.xml" dir="${lexer.dir}" target="doc" inheritall="false" />
+		<ant antfile="build.xml" dir="${parser.dir}" target="doc" inheritall="false" />
+		<ant antfile="build.xml" dir="${semanticAnalyzer.dir}" target="doc" inheritall="false" />
+		<ant antfile="build.xml" dir="${symbolTable.dir}" target="doc" inheritall="false" />
+	</target>
+	
+	<!-- === build all tests === -->
+	<target name="build-tests" description="build all projects">
+		<ant antfile="build.xml" dir="${ast.dir}" target="build-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${backend.dir}" target="build-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${controller.dir}" target="build-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${intermediateCodeGenerator.dir}" target="build-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${lexer.dir}" target="build-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${parser.dir}" target="build-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${semanticAnalyzer.dir}" target="build-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${symbolTable.dir}" target="build-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${test.dir}" target="build-tests" inheritall="false" />
+	</target>
+	
+	<!-- === run all tests === -->
+	<target name="run-tests" description="run all tests">
+		<ant antfile="build.xml" dir="${ast.dir}" target="run-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${backend.dir}" target="run-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${controller.dir}" target="run-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${intermediateCodeGenerator.dir}" target="run-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${lexer.dir}" target="run-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${parser.dir}" target="run-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${semanticAnalyzer.dir}" target="run-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${symbolTable.dir}" target="run-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${test.dir}" target="run-tests" inheritall="false" />
+	</target>
+	
+	<!-- === dist === -->
+	<target name="dist" description="distribute the FUC Compiler (minimal)">
+		<!-- Clean everything, we dont want to have the compiled tests in our jars -->
+		<ant antfile="build.xml" dir="." target="clean" inheritall="false" />
+		<!-- Now build everything, so we have the binary files -->
+		<ant antfile="build.xml" dir="." target="build" inheritall="false" />
+		
+		<mkdir dir="${dist.dir}" />
+		<mkdir dir="${dist.dir}/temp" />
+		<!-- create the jars -->
+		
+		<!-- create the AST package -->
+		<echo message="swp_compiler_ss13.fuc.ast.ASTImpl" file="${dist.dir}/temp/swp_compiler_ss13.common.ast.AST" />
+		<jar destfile="${dist.dir}/FUC-AST.jar" basedir="${ast.dir}/${bin.dir}">
+			<zipfileset dir="${dist.dir}/temp" includes="swp_compiler_ss13.common.ast.AST" fullpath="META-INF/services/swp_compiler_ss13.common.ast.AST" />
+		</jar>
+		
+		<!-- create the Backend package -->
+		<echo message="swp_compiler_ss13.fuc.backend.LLVMBackend" file="${dist.dir}/temp/swp_compiler_ss13.common.backend.Backend" />
+		<jar destfile="${dist.dir}/FUC-Backend.jar" basedir="${backend.dir}/${bin.dir}">
+			<zipfileset dir="${dist.dir}/temp" includes="swp_compiler_ss13.common.backend.Backend" fullpath="META-INF/services/swp_compiler_ss13.common.backend.Backend" />
+		</jar>
+		
+		<!-- create the IntermediateCodeGenerator package -->
+		<echo message="swp_compiler_ss13.fuc.ir.IntermediateCodeGeneratorImpl" file="${dist.dir}/temp/swp_compiler_ss13.common.ir.IntermediateCodeGenerator" />
+		<jar destfile="${dist.dir}/FUC-IRGen.jar" basedir="${intermediateCodeGenerator.dir}/${bin.dir}">
+			<zipfileset dir="${dist.dir}/temp" includes="swp_compiler_ss13.common.ir.IntermediateCodeGenerator" fullpath="META-INF/services/swp_compiler_ss13.common.ir.IntermediateCodeGenerator" />
+		</jar>
+		
+		<!-- create the Lexer package -->
+		<echo message="lexer.LexerImpl" file="${dist.dir}/temp/swp_compiler_ss13.common.lexer.Lexer" />
+		<jar destfile="${dist.dir}/FUC-Lexer.jar" basedir="${lexer.dir}/${bin.dir}">
+			<zipfileset dir="${dist.dir}/temp" includes="swp_compiler_ss13.common.lexer.Lexer" fullpath="META-INF/services/swp_compiler_ss13.common.lexer.Lexer" />
+		</jar>
+		
+		<!-- create the Parser package -->
+		<echo message="swp_compiler_ss13.fuc.parser.ParserImpl" file="${dist.dir}/temp/swp_compiler_ss13.common.parser.Parser" />
+		<jar destfile="${dist.dir}/FUC-Parser.jar" basedir="${parser.dir}/${bin.dir}">
+			<zipfileset dir="${dist.dir}/temp" includes="swp_compiler_ss13.common.parser.Parser" fullpath="META-INF/services/swp_compiler_ss13.common.parser.Parser" />
+			<zipfileset dir="${semanticAnalyzer.dir}/${bin.dir}" />
+		</jar>
+		
+		<!-- create the Controller package -->
+		<jar destfile="${dist.dir}/FUC-Controller.jar" basedir="${controller.dir}/${bin.dir}" />
+		
+		<!-- create the interface package -->
+		<jar destfile="${dist.dir}/Common-Interfaces.jar" basedir="${interfaces.dir}/${bin.dir}" />
+		
+		<delete dir="${dist.dir}/temp" />
+		
+		<copy todir="${dist.dir}/${lib.dir}" >  
+			<fileset dir="${lib.dir}" includes="**/*.jar"/>  
+		</copy>
+	</target>
+	
+	
+	<!-- === dist full === -->
+	<target name="dist-full" depends="dist" description="distribute the FUC Compiler with source code and javadoc">
+		
+		<!-- Create the javadoc for all projects -->
+		<ant antfile="build.xml" dir="." target="doc" inheritall="false" />
+		
+		<!-- create the AST package -->
+		<jar destfile="${dist.dir}/FUC-AST.jar" update="true">
+			<zipfileset dir="${ast.dir}/${src.dir}" prefix="src" />
+			<zipfileset dir="${ast.dir}/${test.dir}" prefix="test" />
+			<zipfileset dir="${ast.dir}/${doc.dir}" prefix="doc" />
+		</jar>
+		
+		<!-- create the Backend package -->
+		<jar destfile="${dist.dir}/FUC-Backend.jar" update="true">
+			<zipfileset dir="${backend.dir}/${src.dir}" prefix="src" />
+			<zipfileset dir="${backend.dir}/${test.dir}" prefix="test" />
+			<zipfileset dir="${backend.dir}/${doc.dir}" prefix="doc" />
+		</jar>
+		
+		<!-- create the IntermediateCodeGenerator package -->
+		<jar destfile="${dist.dir}/FUC-IRGen.jar" update="true">
+			<zipfileset dir="${intermediateCodeGenerator.dir}/${src.dir}" prefix="src" />
+			<zipfileset dir="${intermediateCodeGenerator.dir}/${test.dir}" prefix="test" />
+			<zipfileset dir="${intermediateCodeGenerator.dir}/${doc.dir}" prefix="doc" />
+		</jar>
+		
+		<!-- create the Lexer package -->
+		<jar destfile="${dist.dir}/FUC-Lexer.jar" update="true">
+			<zipfileset dir="${lexer.dir}/${src.dir}" prefix="src" />
+			<zipfileset dir="${lexer.dir}/${test.dir}" prefix="test" />
+			<zipfileset dir="${lexer.dir}/${doc.dir}" prefix="doc" />
+		</jar>
+		
+		<!-- create the Parser package -->
+		<jar destfile="${dist.dir}/FUC-Parser.jar" update="true">
+			<zipfileset dir="${parser.dir}/${src.dir}" prefix="src" />
+			<zipfileset dir="${parser.dir}/${test.dir}" prefix="test" />
+			<zipfileset dir="${parser.dir}/${doc.dir}" prefix="doc-parser" />
+			<zipfileset dir="${semanticAnalyzer.dir}/${src.dir}" prefix="src" />
+			<zipfileset dir="${semanticAnalyzer.dir}/${test.dir}" prefix="test" />
+			<zipfileset dir="${semanticAnalyzer.dir}/${doc.dir}" prefix="doc-semanticAnalyzer" />
+		</jar>
+		
+		<!-- create the Controller package -->
+		<jar destfile="${dist.dir}/FUC-Controller.jar" update="true">
+			<zipfileset dir="${controller.dir}/${src.dir}" prefix="src" />
+			<zipfileset dir="${controller.dir}/${test.dir}" prefix="test" />
+			<zipfileset dir="${controller.dir}/${doc.dir}" prefix="doc" />
+		</jar>
+		
+		<!-- create the interface package -->
+		<jar destfile="${dist.dir}/Common-Interfaces.jar" update="true">
+			<zipfileset dir="${interfaces.dir}/${src.dir}" prefix="src" />
+			<zipfileset dir="${interfaces.dir}/${test.dir}" prefix="test" />
+			<zipfileset dir="${interfaces.dir}/${doc.dir}" prefix="doc" />
+		</jar>
+	</target>
+	
+	<!-- === run without build === -->
+	<target name="run-without-build"  description="execute the FUC Controller without distributing the code (faster but only works if dist directory already exists)">
+		<java classname="controller.Controller" fork="yes">
+			<classpath>
+				<fileset dir="${dist.dir}">
+					<include name="**/*.jar" />
+				</fileset>			
+			</classpath>
+		</java>
+	</target>
+	
+	<!-- === run === -->
+	<target name="run" depends="dist, run-without-build"  description="build everything and execute the FUC Controller" />
+	
+	<!-- === update log4j props === -->
+	<target name="update-log4j-props" description="update the log4jsettings. Call this when you change /etc/log4j.properties">
+		<zip destfile="${lib.dir}/log4jprops.jar">
+			<fileset dir="${etc.dir}">
+				<include name="log4j.properties" />
+			</fileset>
+		</zip>
+		<echo message="New log4j settings have been written to /lib" />
+		<echo message="Please call dist or dist-full to update the log4j settings inside of the ${dist.dir} directory" />
+	</target>
+</project>
