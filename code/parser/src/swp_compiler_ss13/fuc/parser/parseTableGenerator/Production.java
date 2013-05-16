@@ -17,6 +17,13 @@ public class Production implements Comparable<Production> {
       this.left = left;
       this.right = new ArrayList<Symbol>(right);
    }
+   public Production(Variable left, Symbol... right) {
+      this.left = left;
+      this.right = new ArrayList<Symbol>();
+      for( Symbol rightSym : right) {
+    	  this.right.add(rightSym);
+      }
+   }
    
    /*
     * public Production(String leftStr,String rightStr[])

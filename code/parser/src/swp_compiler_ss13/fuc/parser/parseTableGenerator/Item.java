@@ -27,7 +27,7 @@ public class Item extends Production {
 		{
 			Item otherItem = (Item )other;
 			if(super.compareTo(otherItem) == 0)
-				return otherItem.getDotPos() - this.getDotPos();
+				return this.getDotPos() - otherItem.getDotPos();
 		}
 		return super.compareTo(other);
 	}

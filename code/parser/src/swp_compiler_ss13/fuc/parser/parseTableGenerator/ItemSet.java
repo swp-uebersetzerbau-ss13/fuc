@@ -47,7 +47,7 @@ public class ItemSet extends HashSet<Item> {
 					}
 				}
 			}
-			this.clear();
+			//this.clear();
 			this.addAll(newSet);
 			System.out.println("difference: " + (this.size() - cardOld));
 		} while ( this.size() > cardOld );

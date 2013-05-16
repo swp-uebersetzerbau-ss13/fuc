@@ -14,6 +14,7 @@ import org.junit.Test;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.Item;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.Production;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.Symbol;
+import swp_compiler_ss13.fuc.parser.parseTableGenerator.Terminal;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.Variable;
 
 public class ItemTest {
@@ -47,21 +48,39 @@ public class ItemTest {
 		Item C = new Item(prodFromStrings("A", CStr),0);
 		Item D = new Item(prodFromStrings("A", DStr),0);
 		Item E = new Item(prodFromStrings("A", EStr),0);
-		assertTrue( A.compareTo(B) == 0);  assertTrue( A.equals(B) );
-		assertTrue( B.compareTo(C) < 0);	assertTrue( ! B.equals(C));
-		assertTrue( C.compareTo(D) < 0);
-		assertTrue( D.compareTo(E) > 0);
-		assertTrue( A_.compareTo(A) < 0);	assertTrue( ! A_.equals(A));
+		assertTrue( "A.compareTo(B) == 0", A.compareTo(B) == 0);  assertTrue( "A.equals(B)", A.equals(B) );
+		assertTrue( "B.compareTo(C) < 0", B.compareTo(C) < 0);	assertTrue( "! B.equals(C)", ! B.equals(C));
+		assertTrue( "C.compareTo(D) < 0", C.compareTo(D) < 0);
+		assertTrue( "D.compareTo(E) > 0", D.compareTo(E) > 0);
+		assertTrue( "A.compareTo(A_) < 0", A.compareTo(A_) < 0);	assertTrue( "! A_.equals(A)", ! A_.equals(A));
 	}
 
 	@Test
 	public void testGetSymbolAfterDot() {
-		fail("Not yet implemented");
+		// A -> . B ( C )
+		Item A = new Item( new Production(new Variable("A"), new Variable("B"), new Terminal("("), new Variable("C"), new Terminal(")")), 0);
+		assertTrue( "\"B\" is after the dot!", A.getSymbolAfterDot().equals(new Variable("B")));
+		// A -> B . ( C )
+		Item B = new Item( new Production(new Variable("A"), new Variable("B"), new Terminal("("), new Variable("C"), new Terminal(")")), 1);
+		assertTrue( "\"(\" is after the dot!", B.getSymbolAfterDot().equals(new Terminal("(")));
+		// A -> B ( C ) .
+		Item C = new Item( new Production(new Variable("A"), new Variable("B"), new Terminal("("), new Variable("C"), new Terminal(")")), 4);
+		assertTrue( "nothing follows the dot!", C.getSymbolAfterDot() == null);
 	}
 
 	@Test
 	public void testEqualsObject() {
-		fail("Not yet implemented");
+		// A -> . B ( C )
+		Item A = new Item( new Production(new Variable("A"), new Variable("B"), new Terminal("("), new Variable("C"), new Terminal(")")), 0);
+		assertTrue( "\"B\" is after the dot!", A.getSymbolAfterDot().equals(new Variable("B")));
+		// A -> . B ( C )
+		Item B = new Item( new Production(new Variable("A"), new Variable("B"), new Terminal("("), new Variable("C"), new Terminal(")")), 0);
+		assertTrue( "Item A should be equal Item B", A.equals(B));
+		assertTrue( "A.compareTo(B) == 0", A.compareTo(B) == 0);
+		// A -> B ( . C )
+		Item C = new Item( new Production(new Variable("A"), new Variable("B"), new Terminal("("), new Variable("C"), new Terminal(")")), 2);
+		assertFalse( "A.equals(C) == false", A.equals(C) );
+		assertTrue( "A.compareTo(C) < 0", A.compareTo(C) < 0);
 	}
 	private Production prodFromStrings(String leftStr,String rightStr[])
 	{
