@@ -10,8 +10,8 @@ import swp_compiler_ss13.fuc.parser.parseTableGenerator.Symbol.SymbolType;
 
 public class Production implements Comparable<Production> {
    
-   private final Variable left;
-   private final List<Symbol> right;
+	private final Variable left;
+	private final List<Symbol> right;
    
    public Production(Variable left, List<Symbol> right) {
       this.left = left;
@@ -119,5 +119,10 @@ public class Production implements Comparable<Production> {
          ret += (" " + s.getString());
       }
       return ret;
+   }
+
+   	@Override
+   	public int hashCode() {
+   		return getString().hashCode();
    }
 }

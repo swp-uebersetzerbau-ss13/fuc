@@ -104,11 +104,8 @@ public class ItemSetTest {
 		right.add(new Variable("Fac"));
 		Item i1 = new Item(new Variable("Term"),right,0);
 		itemSet.add(i1);
-		//itemSet.CLOSURE(grammar);
-		fail("CLOSURE not yet working!");
-		/*System.out.println(itemSet.size());
-		for( Item i : itemSet)
-			System.out.println(i.getString());*/
+		itemSet.CLOSURE(grammar);
+		//fail("CLOSURE not yet working!");
 		assertTrue( "right number of Items in CLOSURE", itemSet.size() == 5);
 		
 		
