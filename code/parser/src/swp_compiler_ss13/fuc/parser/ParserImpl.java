@@ -186,6 +186,7 @@ public class ParserImpl implements Parser {
             
             case ERROR: {
                reportLog.reportError(token.getValue() , token.getLine() , token.getColumn() , "Can't find given token in parsetable.");
+               return null;
             }
          }
       }
