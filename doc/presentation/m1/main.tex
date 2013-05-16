@@ -198,7 +198,30 @@ return i
 		\begin{itemize}
 			\item Testabdeckung von etwa 100\%.
 		\end{itemize}
+		\item Visualisierung: Quadruple, Triple und Code.
 		\item \dots wohl bereits sehr beliebt.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Drei-Adress-Code}
+	\begin{itemize}
+		\item Quadruple \emph{(! = leer)}
+			\begin{lstlisting}[language=Lisp]
+000: (DECLARE_LONG | ! | ! | l)
+001: (DECLARE_LONG | ! | ! | tmp0)
+002: (ADD_LONG | #3 | #3 | tmp0)
+003: (ASSIGN_LONG | tmp0 | ! | l)
+004: (RETURN | l | ! | !)
+     		\end{lstlisting}
+     
+     	\item Code
+     		\begin{lstlisting}[language=C]
+000: long l
+001: long tmp0
+002: tmp0 = #3 + #3
+003: l = tmp0
+004: return l
+     	\end{lstlisting}
 	\end{itemize}
 \end{frame}
 
@@ -211,6 +234,19 @@ return i
 		\item Kann Drei-Adress-Code auch direkt ausführen und Rückgabewert prüfen.
 		\begin{itemize}
 			\item Dazu ist LLVM auf dem System erforderlich.
+		\end{itemize}
+	\end{itemize}
+\end{frame}
+
+\subsection{Controller}
+\begin{frame}{Controller}
+	\begin{itemize}
+		\item Ruft die einzelnen Module auf.
+		\item Spricht die Interfaces an.
+		\item Öffnet Quelltextdatei und schreibt Ausgabe.
+		\item Module werden dynamisch als Plug-In geladen.
+		\begin{itemize}
+			\item ServiceLoader lädt Implementierungen anhand Interfaces. 
 		\end{itemize}
 	\end{itemize}
 \end{frame}
@@ -229,9 +265,8 @@ return i
 	\item In Arbeit:
 	\begin{itemize}
 		\item Parser
-		\item Visualisierung des Drei-Adress-Codes
 		\item Visualisierung des Token-Stream
-		\item Integration und Controller
+		\item Integration in Controller
 	\end{itemize}
 	\end{itemize}
 \end{frame}
