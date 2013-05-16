@@ -3,13 +3,14 @@ package swp_compiler_ss13.fuc.parser.parseTableGenerator.test;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.Production;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.Variable;
 import swp_compiler_ss13.fuc.parser.table.ActionEntry;
 import swp_compiler_ss13.fuc.parser.table.actions.Reduce;
-
+@Ignore
 public class ReduceTest {
 	// Some data needed for the entries 
 	private static Reduce reduce;

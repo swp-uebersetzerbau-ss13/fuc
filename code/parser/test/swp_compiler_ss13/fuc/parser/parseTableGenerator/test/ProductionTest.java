@@ -9,11 +9,12 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.*;
 //import swp_compiler_ss13.fuc.parser.parseTableGenerator.Variable;
-
+@Ignore
 public class ProductionTest {
 
 	@BeforeClass

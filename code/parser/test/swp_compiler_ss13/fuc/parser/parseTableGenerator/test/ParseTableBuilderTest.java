@@ -9,6 +9,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.Grammar;
@@ -17,7 +18,7 @@ import swp_compiler_ss13.fuc.parser.parseTableGenerator.ParseTableBuilder;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.ParseTableBuilder.ParseTableBuildException;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.WrongGrammarFormatException;
 import swp_compiler_ss13.fuc.parser.table.ParseTable;
-
+@Ignore
 public class ParseTableBuilderTest {
 
 	@BeforeClass

@@ -15,6 +15,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import swp_compiler_ss13.common.ast.AST;
@@ -40,6 +41,7 @@ import swp_compiler_ss13.fuc.parser.table.actions.Shift;
  * @author kensan
  *
  */
+@Ignore
 public class ParserImplTest {
 
 	
