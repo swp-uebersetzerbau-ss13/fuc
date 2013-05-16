@@ -254,6 +254,10 @@
 		
 		<!-- remove the service dir -->
 		<delete dir="${service.dir}" />
+
+		<!-- add a run file -->
+		<echo message="java -cp ast.jar:backend.jar:controller.jar:interfaces.jar:intermediateCodeGenerator.jar:lexer.jar:parser.jar:symbolTable.jar:log4jprops.jar controller.Controller" file="${dist.dir}/run.sh" />
+		<chmod file="${dist.dir}/run.sh" perm="+x" />
 	</target>
 	
 	<!-- === run === -->
