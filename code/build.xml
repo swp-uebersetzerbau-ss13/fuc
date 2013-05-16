@@ -53,7 +53,7 @@
 	</target>
 	
 	<!-- === build all tests === -->
-	<target name="build-tests" description="build all projects">
+	<target name="build-tests" description="build all project tests">
 		<ant antfile="build.xml" dir="${ast.dir}" target="build-tests" inheritall="false" />
 		<ant antfile="build.xml" dir="${backend.dir}" target="build-tests" inheritall="false" />
 		<ant antfile="build.xml" dir="${controller.dir}" target="build-tests" inheritall="false" />
