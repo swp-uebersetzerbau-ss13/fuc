@@ -1,7 +1,7 @@
 package lexer.token;
 
-import swp_compiler_ss13.common.lexer.NumToken;
-import swp_compiler_ss13.common.lexer.TokenType;
+import lexer.token.NumToken;
+import lexer.token.TokenType;
 
 /**
  * Implementation of the interface {@link NumToken}

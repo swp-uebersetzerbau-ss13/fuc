@@ -1,7 +1,7 @@
 package lexer.token;
 
-import swp_compiler_ss13.common.lexer.RealToken;
-import swp_compiler_ss13.common.lexer.TokenType;
+import lexer.token.RealToken;
+import lexer.token.TokenType;
 
 /**
  * Implementation of the interface {@link RealToken}
