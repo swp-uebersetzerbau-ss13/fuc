@@ -20,21 +20,13 @@ public class TestReduce {
 	public static void setUpTest(){
 	variable = new Variable("Test");
 	production= new Production(variable, null);
-	reduce = new Reduce(10, 1, production);
-	parserTabEntry = new ActionEntry() {
-		
-		@Override
-		public ActionEntryType getType() {
-			// TODO Auto-generated method stub
-			return ActionEntryType.REDUCE;
-		}
-	};
+	reduce = new Reduce(production);
 	}
 	
 	/* Begin test cases*/
 	@Test
 	public void testGetCount() {		
-		assertEquals((Integer)10, reduce.getCount());
+		assertEquals((Integer)10, reduce);
 		
 	}
 	@Test
