@@ -7,12 +7,14 @@
 	<property name="lib.dir" value="../lib" />
 	<property name="interfaces.dir" value="../common/interfaces" />
 	<property name="etc.dir" value="../etc" />
+	<property name="ast.dir" value="../ast" />
 	
 	<!-- === class path === -->
 	<path id="classpath">
 		<pathelement location="${interfaces.dir}/${bin.dir}" />
 		<pathelement location="${bin.dir}" />
 		<pathelement location="${etc.dir}" />
+		<pathelement location="${ast.dir}/${bin.dir}" />
 		<pathelement location="${lib.dir}/log4j-1.2.17.jar" />
 	</path>
 	<path id="classpath-test">
@@ -32,9 +34,14 @@
 	<target name="interface" description="compile the interface classes">
 		<ant antfile="interfaces.xml" dir=".." target="build" inheritall="false" />
 	</target>
+
+	<!-- === AST === -->
+	<target name="ast" description="copmpile the ast classes">
+		<ant antfile="build.xml" dir="${ast.dir}" target="build" inheritall="false" />
+	</target>
 	
 	<!-- === compile source === -->
-	<target name="build" depends="clean, interface" description="compile source code">
+	<target name="build" depends="clean, interface, ast" description="compile source code">
 		<mkdir dir="${bin.dir}" />
 		<javac srcdir="${src.dir}" destdir="${bin.dir}" classpathref="classpath" includeantruntime="false"/>
 	</target>
