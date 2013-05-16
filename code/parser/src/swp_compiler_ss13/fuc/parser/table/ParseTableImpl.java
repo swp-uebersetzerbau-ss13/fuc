@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import swp_compiler_ss13.common.lexer.Token;
+import swp_compiler_ss13.fuc.parser.parseTableGenerator.Terminal;
+import swp_compiler_ss13.fuc.parser.parseTableGenerator.Variable;
 import swp_compiler_ss13.fuc.parser.table.actions.Error;
 
 
@@ -17,7 +19,7 @@ public class ParseTableImpl implements ParseTable {
    }
    
    @Override
-   public void setActionEntry(int state, Token symbol, ActionEntry newEntry) throws DoubleEntryException {
+   public void setActionEntry(int state, Terminal terminal, ActionEntry newEntry) throws DoubleEntryException {
       Key key = new Key(state, symbol);
       if (actions.containsKey(key)) {
          ActionEntry oldEntry = actions.get(key);
@@ -37,7 +39,7 @@ public class ParseTableImpl implements ParseTable {
    }
    
    @Override
-   public void setGotoEntry(int state, Token symbol, GotoEntry newEntry) throws DoubleEntryException {
+   public void setGotoEntry(int state, Variable variable, GotoEntry newEntry) throws DoubleEntryException {
       Key key = new Key(state, symbol);
       if (gotos.containsKey(key)) {
          GotoEntry oldEntry = gotos.get(key);

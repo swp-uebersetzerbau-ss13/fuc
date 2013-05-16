@@ -16,7 +16,7 @@ public class ItemSet extends HashSet<Item> {
 		return GOTO;
 	}*/
 	
-	Item getReducableItem() {		
+	public Item getReducableItem() {		
 		// search for an item of the form:
 		// A -> x1 x2 ... xn .
 		for( Item item : this) {
@@ -40,19 +40,14 @@ public class ItemSet extends HashSet<Item> {
 	Map<Symbol,ItemSet> getGOTO() {
 		return GOTO;
 	}
-	Map<Symbol,ItemSet> getPrev() {
-		return previous;
-	}
 	
-	ItemSet(Item ...items) {
+	public ItemSet(Item ...items) {
 		super();
-		previous = new HashMap<Symbol, ItemSet>();
 		GOTO = new HashMap<Symbol, ItemSet>();
 		for( Item i : items) {
 			add(i);
 		}
 	}
-	private Map<Symbol,ItemSet> previous;
 	private Map<Symbol,ItemSet> GOTO;
 	private static final long serialVersionUID = 1L;
 
