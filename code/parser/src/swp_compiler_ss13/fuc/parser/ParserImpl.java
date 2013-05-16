@@ -142,14 +142,16 @@ public class ParserImpl implements Parser {
                   parserStack.pop();
                }
                
-               // check where to go-to... and push next state on stack
-               GotoEntry gotoEntry = table.getGotoEntry(s, token);
-               parserStack.push(gotoEntry.getNewState());
-               
-               // +++++++++++++++++++++++++++++++++++
+            // +++++++++++++++++++++++++++++++++++
                // get action for reduced production
                Production prod = reduce.getProduction();
                ReduceAction reduceAction = getReduceAction(prod);
+               
+               // check where to go-to... and push next state on stack
+               GotoEntry gotoEntry = table.getGotoEntry(s, prod.getLeft());
+               parserStack.push(gotoEntry.getNewState());
+               
+               
                
                // If there is anything to do on the value stack
                // (There might be no reduce-action for Productions like unary -> factor, e.g.)
@@ -183,7 +185,7 @@ public class ParserImpl implements Parser {
             }
             
             case ERROR: {
-               // TODO Errorhandling
+               reportLog.reportError(token.getValue() , token.getLine() , token.getColumn() , "Can't find given token in parsetable.");
             }
          }
       }
@@ -300,6 +302,8 @@ public class ParserImpl implements Parser {
                      case STRING:
                         decl.setType(new StringType((long) typeToken.getValue().length()));
                         break;
+				default:
+					break;
                   }
                   
                   // Set ID
