@@ -2,7 +2,7 @@ package swp_compiler_ss13.fuc.parser.parseTableGenerator;
 
 public abstract class Symbol implements Comparable<Symbol> {
 	
-	private String stringRep;
+	protected String stringRep;
 	
 	public enum SymbolType {
 		TERMINAL,
