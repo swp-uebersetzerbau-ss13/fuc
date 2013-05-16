@@ -24,6 +24,7 @@ import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.common.parser.Parser;
 import swp_compiler_ss13.common.parser.ReportLog;
 import swp_compiler_ss13.fuc.parser.ParserImpl;
+import swp_compiler_ss13.fuc.parser.parseTableGenerator.ItemSet;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.Production;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.Symbol;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.Terminal;
@@ -160,6 +161,13 @@ public class ParserImplTest {
 				throws DoubleEntryException {
 			// TODO Auto-generated method stub
 			
+		}
+
+
+		@Override
+		public Map<Integer, ItemSet> getStateToItemSet() {
+			// TODO Auto-generated method stub
+			return null;
 		}
 
 
