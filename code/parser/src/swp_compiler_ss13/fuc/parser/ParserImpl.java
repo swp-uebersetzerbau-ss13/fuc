@@ -43,6 +43,7 @@ import swp_compiler_ss13.fuc.ast.LogicUnaryExpressionNodeImpl;
 import swp_compiler_ss13.fuc.ast.ReturnNodeImpl;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.ParseTableGeneratorImpl;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.Production;
+import swp_compiler_ss13.fuc.parser.parseTableGenerator.Terminal;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.interfaces.ParseTableGenerator;
 import swp_compiler_ss13.fuc.parser.table.ActionEntry;
 import swp_compiler_ss13.fuc.parser.table.ActionEntry.ActionEntryType;
@@ -110,7 +111,7 @@ public class ParserImpl implements Parser {
             return null;
          }
          
-         entry = table.getActionEntry(s, token);
+         entry = table.getActionEntry(s, new Terminal(token));
          
          entryType = entry.getType();
          
@@ -143,14 +144,16 @@ public class ParserImpl implements Parser {
                   parserStack.pop();
                }
                
-               // check where to go-to... and push next state on stack
-               GotoEntry gotoEntry = table.getGotoEntry(s, token);
-               parserStack.push(gotoEntry.getNewState());
-               
-               // +++++++++++++++++++++++++++++++++++
+            // +++++++++++++++++++++++++++++++++++
                // get action for reduced production
                Production prod = reduce.getProduction();
                ReduceAction reduceAction = getReduceAction(prod);
+               
+               // check where to go-to... and push next state on stack
+               GotoEntry gotoEntry = table.getGotoEntry(s, prod.getLeft());
+               parserStack.push(gotoEntry.getNewState());
+               
+               
                
                // If there is anything to do on the value stack
                // (There might be no reduce-action for Productions like unary -> factor, e.g.)
@@ -302,6 +305,8 @@ public class ParserImpl implements Parser {
                      case STRING:
                         decl.setType(new StringType((long) typeToken.getValue().length()));
                         break;
+				default:
+					break;
                   }
                   
                   // Set ID

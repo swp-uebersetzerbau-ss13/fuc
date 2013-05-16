@@ -3,7 +3,7 @@ package swp_compiler_ss13.fuc.parser.table;
 import java.util.HashMap;
 import java.util.Map;
 
-import swp_compiler_ss13.common.lexer.Token;
+import swp_compiler_ss13.fuc.parser.parseTableGenerator.Symbol;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.Terminal;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.Variable;
 import swp_compiler_ss13.fuc.parser.table.actions.Error;
@@ -20,7 +20,7 @@ public class ParseTableImpl implements ParseTable {
    
    @Override
    public void setActionEntry(int state, Terminal terminal, ActionEntry newEntry) throws DoubleEntryException {
-      Key key = new Key(state, symbol);
+      Key key = new Key(state, terminal);
       if (actions.containsKey(key)) {
          ActionEntry oldEntry = actions.get(key);
          throw new DoubleEntryException("There already is an ActionEntry for key " + key + ": " + oldEntry + " (old) | " + newEntry + " (new)");
@@ -29,7 +29,7 @@ public class ParseTableImpl implements ParseTable {
    }
    
    @Override
-   public ActionEntry getActionEntry(int state, Token symbol) {
+   public ActionEntry getActionEntry(int state, Terminal symbol) {
       Key key = new Key(state, symbol);
       ActionEntry action = actions.get(key);
       if (action == null) {
@@ -39,8 +39,8 @@ public class ParseTableImpl implements ParseTable {
    }
    
    @Override
-   public void setGotoEntry(int state, Variable variable, GotoEntry newEntry) throws DoubleEntryException {
-      Key key = new Key(state, symbol);
+   public void setGotoEntry(int state, Variable nonTerminal, GotoEntry newEntry) throws DoubleEntryException {
+      Key key = new Key(state, nonTerminal);
       if (gotos.containsKey(key)) {
          GotoEntry oldEntry = gotos.get(key);
          throw new DoubleEntryException("There already is an GotoEntry for key " + key + ": " + oldEntry + " (old) | " + newEntry + " (new)");
@@ -49,8 +49,8 @@ public class ParseTableImpl implements ParseTable {
    }
    
    @Override
-   public GotoEntry getGotoEntry(int state, Token symbol) {
-      Key key = new Key(state, symbol);
+   public GotoEntry getGotoEntry(int state, Variable nonTerminal) {
+      Key key = new Key(state, nonTerminal);
       GotoEntry targetEntry = gotos.get(key);
       if (targetEntry == null) {
          return GotoEntry.ERROR_ENTRY;
@@ -61,9 +61,9 @@ public class ParseTableImpl implements ParseTable {
    
    private static class Key {
       private final Integer state;
-      private final Token symbol;
+      private final Symbol symbol;
       
-      private Key(Integer state, Token symbol) {
+      private Key(Integer state, Symbol symbol) {
          this.state = state;
          this.symbol = symbol;
       }
@@ -73,7 +73,7 @@ public class ParseTableImpl implements ParseTable {
          final int prime = 31;
          int result = 1;
          result = prime * result + ((state == null) ? 0 : state.hashCode());
-         result = prime * result + ((symbol == null) ? 0 : symbol.getValue().hashCode()); // Use tokens value instead of
+         result = prime * result + ((symbol == null) ? 0 : symbol.getString().hashCode()); // Use tokens value instead of
                                                                                           // tokenImpl, as equals is
                                                                                           // implementation
          return result;
@@ -96,14 +96,14 @@ public class ParseTableImpl implements ParseTable {
          if (symbol == null) {
             if (other.symbol != null)
                return false;
-         } else if (!symbol.getValue().equals(other.symbol.getValue()))
+         } else if (!symbol.getString().equals(other.symbol.getString()))
             return false;
          return true;
       }
       
       @Override
       public String toString() {
-         return state + "|" + symbol.getValue();
+         return state + "|" + symbol.getString();
       }
    }
 }
