@@ -113,6 +113,10 @@ public class ParserImpl implements Parser {
          
          entry = table.getActionEntry(s, new Terminal(token));
          
+         if(entry == null){
+        	 log.error("Error in Parsetable occured!");
+        	 return null;
+         }
          entryType = entry.getType();
          
          
