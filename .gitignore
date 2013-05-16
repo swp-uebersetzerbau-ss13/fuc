@@ -13,3 +13,13 @@
 
 # allow the lib directory #
 !code/lib/*.jar
+
+# LaTex
+*.aux
+*.log
+*.nav
+*.out
+*.snm
+*.toc
+*.vrb
+*.synctex.gz
