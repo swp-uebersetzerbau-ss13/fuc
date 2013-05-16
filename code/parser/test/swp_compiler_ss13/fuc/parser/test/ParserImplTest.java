@@ -107,8 +107,8 @@ public class ParserImplTest {
 			
 			Map<Terminal,ActionEntry> actionEntry = new HashMap<Terminal,ActionEntry>();
 			
-			actionEntry.put(new Terminal("longsymbol"), new Shift(1));
-			actionEntry.put(new Terminal("realsymbol"),new Shift(1));
+			actionEntry.put(new Terminal("num"), new Shift(1));
+			actionEntry.put(new Terminal("real"),new Shift(1));
 			actionEntry.put(new Terminal("eof"), new Accept());
 			actionTable.add(0, actionEntry);
 			
