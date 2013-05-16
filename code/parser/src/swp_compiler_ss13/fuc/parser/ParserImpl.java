@@ -48,6 +48,7 @@ import swp_compiler_ss13.fuc.parser.table.ActionEntry;
 import swp_compiler_ss13.fuc.parser.table.ActionEntry.ActionEntryType;
 import swp_compiler_ss13.fuc.parser.table.GotoEntry;
 import swp_compiler_ss13.fuc.parser.table.ParseTable;
+import swp_compiler_ss13.fuc.parser.table.actions.Error;
 import swp_compiler_ss13.fuc.parser.table.actions.Reduce;
 import swp_compiler_ss13.fuc.parser.table.actions.Shift;
 
@@ -173,7 +174,7 @@ public class ParserImpl implements Parser {
             
             case ACCEPT: {
                if (tokenType != TokenType.EOF) {
-                  // TODO Errorhandling
+                  reportLog.reportError(token.getValue(), token.getLine(), token.getColumn(), "");
                } else {
                   BlockNode programBlock = (BlockNode) valueStack.pop();
                   ast.setRootNode(programBlock);
@@ -183,7 +184,8 @@ public class ParserImpl implements Parser {
             }
             
             case ERROR: {
-               // TODO Errorhandling
+               Error error = (Error) entry;
+               reportLog.reportError(token.getValue(), token.getLine(), token.getColumn(), "An error occurred: " + error.getMsg());
             }
          }
       }

@@ -31,7 +31,7 @@ public class ParseTableImpl implements ParseTable {
       Key key = new Key(state, symbol);
       ActionEntry action = actions.get(key);
       if (action == null) {
-         return new Error("There is no entry for key " + key + "!!!");
+         return new Error("There is no entry for key " + key + " in the ACTION table!!!");
       }
       return action;
    }
