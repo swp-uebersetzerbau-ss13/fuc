@@ -99,37 +99,37 @@ public class ParserImplTest {
 	
 	private class MyParsetable implements ParseTable{
 
-		ArrayList<Map<TokenType,ActionEntry>> actionTable = new ArrayList<Map<TokenType,ActionEntry>>();
-		ArrayList<Map<TokenType,GotoEntry>> gotoTable = new ArrayList<Map<TokenType,GotoEntry>>();
+		ArrayList<Map<Terminal,ActionEntry>> actionTable = new ArrayList<Map<Terminal,ActionEntry>>();
+		ArrayList<Map<Variable,GotoEntry>> gotoTable = new ArrayList<Map<Variable,GotoEntry>>();
  		
 		
 		public MyParsetable() {
 			
-			Map<TokenType,ActionEntry> actionEntry = new HashMap<TokenType,ActionEntry>();
+			Map<Terminal,ActionEntry> actionEntry = new HashMap<Terminal,ActionEntry>();
 			
-			actionEntry.put(TokenType.NUM, new Shift(1));
-			actionEntry.put(TokenType.REAL,new Shift(1));
-			actionEntry.put(TokenType.EOF, new Accept());
+			actionEntry.put(new Terminal("longsymbol"), new Shift(1));
+			actionEntry.put(new Terminal("realsymbol"),new Shift(1));
+			actionEntry.put(new Terminal("eof"), new Accept());
 			actionTable.add(0, actionEntry);
 			
-			actionEntry = new HashMap<TokenType,ActionEntry>();
+			actionEntry = new HashMap<Terminal,ActionEntry>();
 			List<Symbol> list = new LinkedList<Symbol>();
-			list.add(new Terminal("num"));
-			actionEntry.put(TokenType.ID, new Reduce(new Production(new Variable("type"),list)));
+			list.add(new Terminal("longsymbol"));
+			actionEntry.put(new Terminal("id"), new Reduce(new Production(new Variable("type"),list)));
 			list = new LinkedList<Symbol>();
 			list.add(new Variable("type"));
 			list.add(new Terminal("id"));
 			list.add(new Terminal(";"));
-			actionEntry.put(TokenType.EOF, new Reduce(new Production(new Variable("decls"), list )));
+			actionEntry.put(new Terminal("eof"), new Reduce(new Production(new Variable("decls"), list )));
 			
 			actionTable.add(1, actionEntry);
 			
-			actionEntry = new HashMap<TokenType,ActionEntry>();
-			actionEntry.put(TokenType.ID, new Shift(3));
+			actionEntry = new HashMap<Terminal,ActionEntry>();
+			actionEntry.put(new Terminal("id"), new Shift(3));
 			actionTable.add(2,actionEntry);
 			
-			actionEntry = new HashMap<TokenType,ActionEntry>();
-			actionEntry.put(TokenType.SEMICOLON, new Shift(1));
+			actionEntry = new HashMap<Terminal,ActionEntry>();
+			actionEntry.put(new Terminal(";"), new Shift(1));
 			actionTable.add(3,actionEntry);
 			
 		}
@@ -137,7 +137,7 @@ public class ParserImplTest {
 
 		@Override
 		public ActionEntry getActionEntry(int state, Terminal symbol) {
-			return actionTable.get(state).get(symbol.getString());
+			return actionTable.get(state).get(symbol);
 		}
 
 		@Override
