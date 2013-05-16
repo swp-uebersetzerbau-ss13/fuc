@@ -43,11 +43,13 @@ import swp_compiler_ss13.fuc.ast.LogicUnaryExpressionNodeImpl;
 import swp_compiler_ss13.fuc.ast.ReturnNodeImpl;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.ParseTableGeneratorImpl;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.Production;
+import swp_compiler_ss13.fuc.parser.parseTableGenerator.Terminal;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.interfaces.ParseTableGenerator;
 import swp_compiler_ss13.fuc.parser.table.ActionEntry;
 import swp_compiler_ss13.fuc.parser.table.ActionEntry.ActionEntryType;
 import swp_compiler_ss13.fuc.parser.table.GotoEntry;
 import swp_compiler_ss13.fuc.parser.table.ParseTable;
+import swp_compiler_ss13.fuc.parser.table.actions.Error;
 import swp_compiler_ss13.fuc.parser.table.actions.Reduce;
 import swp_compiler_ss13.fuc.parser.table.actions.Shift;
 
@@ -109,7 +111,7 @@ public class ParserImpl implements Parser {
             return null;
          }
          
-         entry = table.getActionEntry(s, token);
+         entry = table.getActionEntry(s, new Terminal(token));
          
          entryType = entry.getType();
          
@@ -175,7 +177,7 @@ public class ParserImpl implements Parser {
             
             case ACCEPT: {
                if (tokenType != TokenType.EOF) {
-                  // TODO Errorhandling
+                  reportLog.reportError(token.getValue(), token.getLine(), token.getColumn(), "");
                } else {
                   BlockNode programBlock = (BlockNode) valueStack.pop();
                   ast.setRootNode(programBlock);
@@ -185,8 +187,10 @@ public class ParserImpl implements Parser {
             }
             
             case ERROR: {
-               reportLog.reportError(token.getValue() , token.getLine() , token.getColumn() , "Can't find given token in parsetable.");
-               return null;
+
+               Error error = (Error) entry;
+               reportLog.reportError(token.getValue(), token.getLine(), token.getColumn(), "An error occurred: " + error.getMsg());
+
             }
          }
       }

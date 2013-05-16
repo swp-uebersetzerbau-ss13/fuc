@@ -16,6 +16,6 @@ public class Reduce extends ActionEntry {
 	}
 
    public int getPopCount() {
-      return production.getNrOFSymbolsWOEpsilon();
+      return production.getNrOFSymbolsWOEpsilon(); // TODO Correct???
    }
 }
