@@ -19,7 +19,7 @@ public class ReduceTest {
 	@BeforeClass
 	public static void setUpTest(){
 	variable = new Variable("Test");
-	production= new Production(variable, null);
+	//production= new Production(variable, null);
 	reduce = new Reduce(production);
 	}
 	
