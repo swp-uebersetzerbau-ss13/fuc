@@ -80,7 +80,7 @@ public class ParseTableBuilder {
 					else {
 						indexStateDest = stateToItemSet.size();
 						stateToItemSet.put( indexStateDest, stateDest );
-						itemSetToState.put(stateDest, indexStateDest ); 
+						itemSetToState.put( stateDest, indexStateDest ); 
 						
 						nextToBeDiscovered.add( stateDest );
 					}
@@ -111,6 +111,9 @@ public class ParseTableBuilder {
 			lastDiscovered = nextToBeDiscovered;
 		}
 		while ( ! nextToBeDiscovered.isEmpty() ); // as long as new states are discovered
+		
+		table.getStateToItemSet().clear();
+		table.getStateToItemSet().entrySet().addAll( stateToItemSet.entrySet() );
 		
 		return table;
 	}

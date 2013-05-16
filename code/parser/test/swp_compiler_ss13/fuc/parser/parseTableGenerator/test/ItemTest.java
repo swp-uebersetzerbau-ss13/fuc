@@ -82,6 +82,31 @@ public class ItemTest {
 		assertFalse( "A.equals(C) == false", A.equals(C) );
 		assertTrue( "A.compareTo(C) < 0", A.compareTo(C) < 0);
 	}
+	
+	@Test
+	public void testGetStringItem() {
+		Item A = new Item( new Production(new Variable("A"), new Variable("B"), new Terminal("("), new Variable("C"), new Terminal(")")), 0);
+		assertTrue(
+			"testing string serialisation of \"A -> . B ( C )\"",
+			A.getStringItem().equals(
+				"A -> . B ( C )"
+			)
+		);
+		Item B = new Item( new Production(new Variable("A"), new Variable("B"), new Terminal("("), new Variable("C"), new Terminal(")")), 2);
+		assertTrue(
+			"testing string serialisation of \"A -> B ( . C )\"",
+			B.getStringItem().equals(
+				"A -> B ( . C )"
+			)
+		);
+		Item C = new Item( new Production(new Variable("A"), new Variable("B"), new Terminal("("), new Variable("C"), new Terminal(")")), 4);
+		assertTrue(
+			"testing string serialisation of \"A -> B ( C ) .\"",
+			C.getStringItem().equals(
+				"A -> B ( C ) ."
+			)
+		);
+	}
 	private Production prodFromStrings(String leftStr,String rightStr[])
 	{
 		Variable left = new Variable(leftStr);

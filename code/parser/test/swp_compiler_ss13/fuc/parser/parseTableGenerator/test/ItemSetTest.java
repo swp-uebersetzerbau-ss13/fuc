@@ -134,7 +134,8 @@ public class ItemSetTest {
 		List<Symbol> rightShouldBe4 = new ArrayList<Symbol>();
 		rightShouldBe4.add(new Terminal("real"));
 		CLOSUREShouldBe.add( new Item( new Variable("Fac"), rightShouldBe4, 0));
-		assertTrue( "itemSet.getReducableItem() should return ", itemSet.equals(CLOSUREShouldBe));
+		assertTrue( "itemSet.getReducableItem() should return " + CLOSUREShouldBe.getString(), itemSet.equals(CLOSUREShouldBe));
+		System.out.println( "CLOSURE( Term -> . Term * Fac ) =\n" + itemSet.getString() );
 	}
 	/*
 	 * Expr -> Expr + Term | Expr - Term | Term

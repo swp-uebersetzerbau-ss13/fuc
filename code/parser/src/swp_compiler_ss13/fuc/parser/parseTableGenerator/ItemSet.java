@@ -32,13 +32,13 @@ public class ItemSet extends HashSet<Item> {
 			ItemSet newSet = new ItemSet(this);
 			for( Item item : this ) {
 				Symbol symAfterDot = item.getSymbolAfterDot();
-				System.out.println( "current Item: " + item.getString());
+				//System.out.println( "current Item: " + item.getString());
 				if( symAfterDot != null ) {
 					if( symAfterDot.getType() == SymbolType.VARIABLE ) {
 						Variable varAfterDot = (Variable )symAfterDot;
 						for( Production prod : grammar.getProductions()) {
 							if( prod.getLeft().equals(varAfterDot) ) {
-								System.out.println("adding: " + prod.getString() );
+								//System.out.println("adding: " + prod.getString() );
 								newSet.add( new Item( prod, 0 ));
 							}
 						}
@@ -47,8 +47,22 @@ public class ItemSet extends HashSet<Item> {
 			}
 			//this.clear();
 			this.addAll(newSet);
-			System.out.println("difference: " + (this.size() - cardOld));
+			//System.out.println("difference: " + (this.size() - cardOld));
 		} while ( this.size() > cardOld );
+	}
+	
+	public String getString() {
+		String ret = "{";
+		boolean isFirst = true;
+		for ( Item item : this) {
+			if( isFirst)
+				ret += ( " " + item.getStringItem());
+			else
+				ret += ( "\n  " + item.getStringItem());
+			isFirst = false;
+		}
+		ret += " }";
+		return ret;
 	}
 	
 	Map<Symbol,ItemSet> getGOTO() {
