@@ -117,10 +117,8 @@ public class SemanticAnalyser {
 			logger.trace("handle BlockNode");
 			handleNode((BlockNode) node);
 			break;
-
 		default:
-			errorLog.reportError("", -1, -1, "unknown ASTNodeType");
-			break;
+			throw new IllegalArgumentException("unknown ASTNodeType");
 		}
 	}
 
@@ -156,15 +154,14 @@ public class SemanticAnalyser {
 		traverseAstNode(node.getLeftValue(), table);
 		traverseAstNode(node.getRightValue(), table);
 		addIdentifier(table, getAttribute(node.getLeftValue(), Attribute.IDENTIFIER));
+		setAttribute(node, Attribute.INITIALIZATION_STATUS, IS_INITIALIZED);
 	}
 
 	protected void handleNode(BasicIdentifierNode node, SymbolTable table) {
 		setAttribute(node, Attribute.IDENTIFIER, node.getIdentifier());
-		setAttribute(
-				node,
-				Attribute.INITIALIZATION_STATUS,
-				isInitialized(getIdentifierSymboltable(table, node.getIdentifier()), node.getIdentifier()) ? IS_INITIALIZED
-						: IS_NOT_INITIALIZED);
+		setAttribute(node, Attribute.INITIALIZATION_STATUS, isInitialized(getIdentifierSymboltable(
+				table, node.getIdentifier()), node.getIdentifier()) ? IS_INITIALIZED
+				: IS_NOT_INITIALIZED);
 	}
 
 	protected void handleNode(ReturnNode node, SymbolTable table) {
@@ -176,14 +173,14 @@ public class SemanticAnalyser {
 	private void checkInitialization(ExpressionNode identifier) {
 		switch (getAttribute(identifier, Attribute.INITIALIZATION_STATUS)) {
 		case IS_NOT_INITIALIZED:
-			logger.debug(String.format("Identifier: %s is not initialized", identifier));
-			errorLog.reportError("", -1, -1, "Variable" + getAttribute(identifier, Attribute.IDENTIFIER)
-					+ " is not initialized");
+			errorLog.reportError("Variable" + getAttribute(identifier, Attribute.IDENTIFIER)
+					+ " is not initialized", -1, -1, "NotInitializedException");
 			break;
 		case IS_INITIALIZED:
 			break;
 		default:
-			IllegalStateException e = new IllegalStateException("child node has no initialization information");
+			IllegalStateException e = new IllegalStateException(
+					"child node has no initialization information");
 			logger.error("couldn't check initialization of node", e);
 			throw e;
 		}

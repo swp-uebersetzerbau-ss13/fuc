@@ -1,6 +1,6 @@
 package swp_compiler_ss13.fuc.semantic_analyser;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.After;
@@ -81,7 +81,6 @@ public class SemanticAnalyserTest {
 		ast.setRootNode(blockNode);
 		analyzer.analyse(ast);
 		assertTrue(log.hasErrors());
-		// TODO report log contains error
 	}
 
 	/**
@@ -179,7 +178,7 @@ public class SemanticAnalyserTest {
 		ast.setRootNode(blockNode);
 
 		analyzer.analyse(ast);
-		assertTrue(!log.hasErrors());
+		assertFalse(log.hasErrors());
 	}
 
 	/**
@@ -256,7 +255,7 @@ public class SemanticAnalyserTest {
 		ast.setRootNode(blockNode);
 
 		analyzer.analyse(ast);
-		assertTrue(!log.hasErrors());
+		assertFalse(log.hasErrors());
 	}
 
 	/**
@@ -301,7 +300,7 @@ public class SemanticAnalyserTest {
 		ast.setRootNode(blockNode);
 
 		analyzer.analyse(ast);
-		assertTrue(!log.hasErrors());
+		assertFalse(log.hasErrors());
 	}
 
 	/**
@@ -346,7 +345,7 @@ public class SemanticAnalyserTest {
 		ast.setRootNode(blockNode);
 
 		analyzer.analyse(ast);
-		assertTrue(!log.hasErrors());
+		assertFalse(log.hasErrors());
 	}
 
 }
