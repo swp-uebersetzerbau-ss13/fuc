@@ -16,6 +16,7 @@ import org.junit.Test;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.Grammar;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.Item;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.ItemSet;
+import swp_compiler_ss13.fuc.parser.parseTableGenerator.Production;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.Symbol;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.Terminal;
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.Variable;
@@ -57,6 +58,25 @@ public class ItemSetTest {
 		itemSet.add(i3);
 		assertTrue( "itemSet.getReducableItem() should return " + i3.getString(), itemSet.getReducableItem() == i3 );
 	}
+	
+	@Test
+	public void testAdd() {
+		ItemSet itemSet = new ItemSet();
+		Item item0 = new Item(new Production(new Variable("A"), new Variable("B")),0);
+		itemSet.add( item0 );
+		assertTrue("set contains one element", itemSet.size() == 1);
+		assertFalse( "itemSet.add should be false, because an equal element is already present", itemSet.add( new Item(new Production(new Variable("A"), new Variable("B")),0) ));
+		assertTrue("set still contains one element", itemSet.size() == 1);
+		
+		Item item1 = new Item(new Production(new Variable("A"), new Variable("B")),1);
+		itemSet.add( item1 );
+		assertTrue("set contains two elements", itemSet.size() == 2);
+		
+		// even this reference is not yet existent in the set, it should not be added, because it equals item1!:
+		assertTrue( "Set.equals works: ", item1.equals( new Item(new Production(new Variable("A"), new Variable("B")),1) ));
+		assertFalse( "itemSet.add should be false, because an equal element is already present", itemSet.add( new Item(new Production(new Variable("A"), new Variable("B")),1)));
+		assertTrue("set still contains two elements", itemSet.size() == 2);
+	}
 
 	@Test
 	public void testCLOSURE() {
@@ -84,7 +104,8 @@ public class ItemSetTest {
 		right.add(new Variable("Fac"));
 		Item i1 = new Item(new Variable("Term"),right,0);
 		itemSet.add(i1);
-		itemSet.CLOSURE(grammar);
+		//itemSet.CLOSURE(grammar);
+		fail("CLOSURE not yet working!");
 		/*System.out.println(itemSet.size());
 		for( Item i : itemSet)
 			System.out.println(i.getString());*/

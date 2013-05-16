@@ -2,9 +2,7 @@ package swp_compiler_ss13.fuc.parser.parseTableGenerator;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.Symbol.SymbolType;
 

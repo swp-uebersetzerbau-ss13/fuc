@@ -33,6 +33,7 @@ public class Item extends Production {
 	}
 	@Override
 	public boolean equals(Object other) {
+		//System.out.println("item.equals called");
 		if( other instanceof Item)
 		{
 			Item otherItem = (Item )other;

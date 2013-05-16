@@ -44,7 +44,7 @@ public abstract class Symbol implements Comparable<Symbol> {
 	 */
 	@Override
 	public boolean equals(Object other) {
-		System.out.println("Symbol.equals called!");
+		//System.out.println("Symbol.equals called!");
 		if( other instanceof Symbol)
 			return (compareTo((Symbol )other) == 0);
 		return false;
