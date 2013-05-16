@@ -8,9 +8,11 @@ import java.util.Set;
 
 import swp_compiler_ss13.fuc.parser.parseTableGenerator.Symbol.SymbolType;
 import swp_compiler_ss13.fuc.parser.table.ParseTable;
+import swp_compiler_ss13.fuc.parser.table.ParseTable.DoubleEntryException;
 import swp_compiler_ss13.fuc.parser.table.ParseTableImpl;
 import swp_compiler_ss13.fuc.parser.table.ParseTable.TokenNotFoundException;
 import swp_compiler_ss13.fuc.parser.table.ParseTableImpl.AlreadySetException;
+import swp_compiler_ss13.fuc.parser.table.actions.Reduce;
 import swp_compiler_ss13.fuc.parser.table.actions.Shift;
 
 /**
@@ -26,7 +28,7 @@ public class ParseTableBuilder {
 	 * @return The LR(1) parsetable for "grammar"
 	 */
 	public ParseTable getTable(Grammar grammar) throws ParseTableBuildException {
-		ParseTableImpl table = new ParseTableImpl(0, grammar.getTerminals());
+		ParseTableImpl table = new ParseTableImpl();
 		// these two objects are a collection of the already discovered states:
 		Map<Integer, ItemSet> stateToItemSet = new HashMap<Integer, ItemSet>();
 		Map<ItemSet, Integer> itemSetToState = new HashMap<ItemSet, Integer>();
@@ -52,18 +54,13 @@ public class ParseTableBuilder {
 				int indexStateCurrent = itemSetToState.get( currentState );
 				Map<Symbol,ItemSet> GOTO = GOTO(currentState, itemSetToState.keySet());
 				// possibly add a reduce:
-				/*{
+				{
 					Item itemToReduce = currentState.getReducableItem();
-					ItemSet reduceDest = getReduceDest(currentState);
-					if( reduceDest != null) {
-						Reduce reduce = new Reduce(
-							itemToReduce.getRight().size(),
-							itemSetToState.get(reduceDest),
-							itemToReduce
-						);
+					if( itemToReduce != null) {
+						Reduce reduce = new Reduce( itemToReduce );
 						try {
 							for(Terminal t : itemToReduce.getFOLLOW()) {
-								table.addEntry(indexStateCurrent, t, reduce);
+								table.setActionEntry(indexStateCurrent, t, reduce);
 							}
 						}
 						catch (AlreadySetException e) {
@@ -73,7 +70,7 @@ public class ParseTableBuilder {
 							throw new ParseTableBuildException("Something went horribly wrong: " + e.getMessage());
 						}
 					}
-				}*/
+				}
 				// discover new states via GOTO( currentState ):
 				for( Map.Entry<Symbol,ItemSet> arrow : GOTO.entrySet()) {
 					Symbol sym = arrow.getKey();
@@ -98,10 +95,7 @@ public class ParseTableBuilder {
 						try {
 							table.addEntry( indexStateCurrent, t, shift);
 						}
-						catch (AlreadySetException e) {
-							throw new ParseTableBuildException("Something went horribly wrong: " + e.getMessage());
-						}
-						catch (TokenNotFoundException e) {
+						catch (DoubleEntryException e) {
 							throw new ParseTableBuildException("Something went horribly wrong: " + e.getMessage());
 						}
 					}
@@ -114,7 +108,7 @@ public class ParseTableBuilder {
 		return table;
 	}
 	
-	ItemSet getReduceDest(ItemSet state) {
+	/*ItemSet getReduceDest(ItemSet state) {
 		Item i = state.getReducableItem();
 		if( i != null ) {
 			Variable left = i.getLeft();
@@ -131,7 +125,7 @@ public class ParseTableBuilder {
 			return currentSet;
 		}
 		return null;
-	}
+	}*/
 	
 	/**
 	 * this method calculates all possible transitions to a following state.
