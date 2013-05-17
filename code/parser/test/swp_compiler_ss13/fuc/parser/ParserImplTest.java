@@ -1,12 +1,12 @@
 package swp_compiler_ss13.fuc.parser;
 
 import static org.junit.Assert.fail;
-import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.assign;
-import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.factor;
-import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.id;
-import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.loc;
-import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.sem;
-import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.type;
+import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.assign;
+import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.factor;
+import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.id;
+import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.loc;
+import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.sem;
+import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.type;
 
 import org.junit.Test;
 
@@ -29,9 +29,10 @@ public class ParserImplTest {
 		AST ast = parser.getParsedAST();
 	}
 
+	@Test
 	public void testLR0ShiftReduceOnWholeGrammar() {
 		// Generate parsing table
-		Grammar grammar = ProjectGrammar.getGrammar();
+		Grammar grammar = new ProjectGrammar.Complete().getGrammar();
 		ALRGenerator<LR0Item, LR0State> generator = new LR0Generator(grammar);
 		try {
 			LRParsingTable table = generator.getParsingTable();

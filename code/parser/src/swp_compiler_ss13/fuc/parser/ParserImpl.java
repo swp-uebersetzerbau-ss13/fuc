@@ -35,7 +35,7 @@ public class ParserImpl implements Parser {
    @Override
    public AST getParsedAST() {
       // Generate parsing table
-      Grammar grammar = ProjectGrammar.getGrammar();
+      Grammar grammar = new ProjectGrammar.M1().getGrammar();
       ALRGenerator<LR0Item, LR0State> generator = new LR0Generator(grammar);
       LRParsingTable table = generator.getParsingTable();
       
