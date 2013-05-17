@@ -29,6 +29,11 @@
 		<ant antfile="build.xml" dir="../${parser.dir}" target="build" inheritall="false" />
 	</target>
 
+	<!-- === depends on the symbolTable === -->
+	<target name="symbolTable" description="Build the symbolTable">
+		<ant antfile="build.xml" dir="../${symbolTable.dir}" target="build" inheritall="false" />
+	</target>
+
 	<!-- === clean === -->
 	<target name="clean" description="clean this project">
 		<delete dir="${bin.dir}" />
@@ -69,7 +74,7 @@
 	</target>
 
 	<!-- === build tests === -->
-	<target name="build-tests" depends="build, ast, parser" description="build the junit tests">
+	<target name="build-tests" depends="build, ast, parser, symbolTable" description="build the junit tests">
 		<javac
 			srcdir="${test.dir}"
 			destdir="${bin.dir}"
