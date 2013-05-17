@@ -20,8 +20,13 @@
 	</target>
 
 	<!-- === depends on the ast === -->
-	<target name="ast" description="Build the interfaces">
+	<target name="ast" description="Build the ast">
 		<ant antfile="build.xml" dir="../${ast.dir}" target="build" inheritall="false" />
+	</target>
+	
+	<!-- === depends on the semantic analysis === -->
+	<target name="semanticanalyzer" description="Build the semantic Analyser">
+		<ant antfile="build.xml" dir="../${semanticAnalyzer.dir}" target="build" inheritall="false" />
 	</target>
 
 	<!-- === clean === -->
@@ -31,7 +36,7 @@
 	</target>
 
 	<!-- === build === -->
-	<target name="build" depends="clean, interfaces, ast" description="build the source files">
+	<target name="build" depends="clean, interfaces, ast, semanticanalyzer" description="build the source files">
 		<mkdir dir="${bin.dir}" />
 		<javac 
 			srcdir="${src.dir}"
