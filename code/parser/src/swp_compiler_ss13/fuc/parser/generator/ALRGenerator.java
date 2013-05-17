@@ -51,7 +51,9 @@ public abstract class ALRGenerator<I extends Item, S extends ALRState<I>> {
 		Map<S, LRParserState> statesMap = new HashMap<>();
 		// Gets stored for debug/testing in the table!
 		LinkedHashMap<LRParserState, AState<?>> parserStatesMap = new LinkedHashMap<>();
-		statesMap.put(startState, new LRParserState(0));
+		LRParserState parserStartState = new LRParserState(0);
+		statesMap.put(startState, parserStartState);
+		parserStatesMap.put(parserStartState, startState);
 		int i = 1;
 		for (S dfaState : dfa.getStates()) {
 			if (!dfaState.equals(startState)) {

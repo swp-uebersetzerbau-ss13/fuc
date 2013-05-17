@@ -1,6 +1,7 @@
 package swp_compiler_ss13.fuc.parser;
 
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 
@@ -19,6 +20,10 @@ public class TestLexer implements Lexer {
 	// --------------------------------------------------------------------------
 	// --- constructors ---------------------------------------------------------
 	// --------------------------------------------------------------------------
+	public TestLexer(Token... tokens) {
+		this.tokens = new LinkedList<>(Arrays.asList(tokens));
+	}
+	
 	public TestLexer(Collection<Symbol> symbols) {
 		this.tokens = new LinkedList<>();
 		

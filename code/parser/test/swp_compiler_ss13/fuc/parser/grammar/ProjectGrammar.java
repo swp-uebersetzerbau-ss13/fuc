@@ -57,6 +57,7 @@ public class ProjectGrammar {
 //		public static final Terminal not = new Terminal("!", TokenType.NOT);
 		public static final Terminal num = new Terminal("num", TokenType.NUM);
 		public static final Terminal real = new Terminal("real", TokenType.REAL);
+		public static final Terminal longg = new Terminal("long", TokenType.LONG_SYMBOL);
 //		public static final Terminal truee = new Terminal("true",
 //				TokenType.TRUE);
 //		public static final Terminal falsee = new Terminal("false",
