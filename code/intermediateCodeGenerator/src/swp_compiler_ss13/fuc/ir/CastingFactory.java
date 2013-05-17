@@ -2,7 +2,6 @@ package swp_compiler_ss13.fuc.ir;
 
 import org.apache.log4j.Logger;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 import swp_compiler_ss13.common.types.Type;
@@ -50,7 +49,7 @@ public class CastingFactory {
 		String err = "CastingFactory.isCastNeeded is not implemented for non-primitive types. Types given: %s and %s";
 		String errf = String.format(err, type1.toString(), type2.toString());
 		logger.fatal(errf);
-		throw new IntermediateCodeGeneratorException(errf, new NotImplementedException());
+		throw new IntermediateCodeGeneratorException(errf, new UnsupportedOperationException());
 	}
 
 	/**
@@ -120,6 +119,6 @@ public class CastingFactory {
 
 		String err = "Can not create a cast from %s of type %s to %s of type %s.";
 		String errf = String.format(err, fromId, fromType, toId, toType);
-		throw new IntermediateCodeGeneratorException(errf, new NotImplementedException());
+		throw new IntermediateCodeGeneratorException(errf, new UnsupportedOperationException());
 	}
 }
