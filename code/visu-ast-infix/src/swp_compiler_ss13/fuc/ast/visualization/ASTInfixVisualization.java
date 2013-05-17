@@ -12,19 +12,18 @@ import swp_compiler_ss13.common.ast.nodes.leaf.LiteralNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ArithmeticUnaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
 import swp_compiler_ss13.common.ast.nodes.unary.UnaryExpressionNode.UnaryOperator;
+import swp_compiler_ss13.common.visualization.ASTVisualization;
 
 /**
  * @author Manuel
  * 
  */
-public class ASTInfixVisualization {
+public class ASTInfixVisualization implements ASTVisualization {
 
 	/**
-	 * Prints the Infix representation of an AST to System.out
-	 * 
-	 * @param ast
-	 *            The AST which should be visualized
+	 * {@inheritDoc}
 	 */
+	@Override
 	public void visualizeAST(AST ast) {
 		PrintStream out = System.out;
 

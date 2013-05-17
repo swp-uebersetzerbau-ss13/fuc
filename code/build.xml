@@ -24,6 +24,11 @@
 		<ant antfile="build.xml" dir="${semanticAnalyzer.dir}" target="clean" inheritall="false" />
 		<ant antfile="build.xml" dir="${symbolTable.dir}" target="clean" inheritall="false" />
 		<ant antfile="build.xml" dir="${test.dir}" target="clean" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.ast.xml.dir}" target="clean" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.ast.infix.dir}" target="clean" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.tac.quadruple.dir}" target="clean" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.tac.triple.dir}" target="clean" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.tac.code.dir}" target="clean" inheritall="false" />
 	</target>
 	
 	<!-- === build all projects === -->
@@ -37,6 +42,11 @@
 		<ant antfile="build.xml" dir="${parser.dir}" target="build" inheritall="false" />
 		<ant antfile="build.xml" dir="${semanticAnalyzer.dir}" target="build" inheritall="false" />
 		<ant antfile="build.xml" dir="${symbolTable.dir}" target="build" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.ast.xml.dir}" target="build" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.ast.infix.dir}" target="build" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.tac.quadruple.dir}" target="build" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.tac.triple.dir}" target="build" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.tac.code.dir}" target="build" inheritall="false" />
 	</target>
 	
 	<!-- === doc all projects === -->
@@ -50,6 +60,11 @@
 		<ant antfile="build.xml" dir="${parser.dir}" target="doc" inheritall="false" />
 		<ant antfile="build.xml" dir="${semanticAnalyzer.dir}" target="doc" inheritall="false" />
 		<ant antfile="build.xml" dir="${symbolTable.dir}" target="doc" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.ast.xml.dir}" target="doc" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.ast.infix.dir}" target="doc" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.tac.quadruple.dir}" target="doc" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.tac.triple.dir}" target="doc" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.tac.code.dir}" target="doc" inheritall="false" />
 	</target>
 	
 	<!-- === build all tests === -->
@@ -63,6 +78,11 @@
 		<ant antfile="build.xml" dir="${semanticAnalyzer.dir}" target="build-tests" inheritall="false" />
 		<ant antfile="build.xml" dir="${symbolTable.dir}" target="build-tests" inheritall="false" />
 		<ant antfile="build.xml" dir="${test.dir}" target="build-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.ast.infix.dir}" target="build-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.ast.xml.dir}" target="build-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.tac.quadruple.dir}" target="build.tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.tac.triple.dir}" target="build-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.tac.code.dir}" target="build-tests" inheritall="false" />
 	</target>
 	
 	<!-- === run all tests === -->
@@ -76,6 +96,11 @@
 		<ant antfile="build.xml" dir="${semanticAnalyzer.dir}" target="run-tests" inheritall="false" />
 		<ant antfile="build.xml" dir="${symbolTable.dir}" target="run-tests" inheritall="false" />
 		<ant antfile="build.xml" dir="${test.dir}" target="run-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.ast.infix.dir}" target="run-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.ast.xml.dir}" target="run-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.tac.quadruple.dir}" target="run-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.tac.triple.dir}" target="run-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.tac.code.dir}" target="run-tests" inheritall="false" />
 	</target>
 	
 	<!-- === dist === -->
@@ -118,6 +143,36 @@
 		<jar destfile="${dist.dir}/FUC-Parser.jar" basedir="${parser.dir}/${bin.dir}">
 			<zipfileset dir="${dist.dir}/temp" includes="swp_compiler_ss13.common.parser.Parser" fullpath="META-INF/services/swp_compiler_ss13.common.parser.Parser" />
 			<zipfileset dir="${semanticAnalyzer.dir}/${bin.dir}" />
+		</jar>
+		
+		<!-- create the AST Infix Visu -->
+		<echo message="swp_compiler_ss13.fuc.ast.visualization.ASTInfixVisualization" file="${dist.dir}/temp/swp_compiler_ss13.common.visualization.ASTVisualization" />
+		<jar destfile="${dist.dir}/FUC-VISU-AST-Infix.jar" basedir="${visu.ast.infix.dir}/${bin.dir}">
+			<zipfileset dir="${dist.dir}/temp" includes="swp_compiler_ss13.common.visualization.ASTVisualization" fullpath="META-INF/services/swp_compiler_ss13.common.visualization.ASTVisualization" />
+		</jar>
+		
+		<!-- create the AST XML Visu -->
+		<echo message="swp_compiler_ss13.fuc.ast.visualization.ASTXMLVisualization" file="${dist.dir}/temp/swp_compiler_ss13.common.visualization.ASTVisualization" />
+		<jar destfile="${dist.dir}/FUC-VISU-AST-XML.jar" basedir="${visu.ast.xml.dir}/${bin.dir}">
+			<zipfileset dir="${dist.dir}/temp" includes="swp_compiler_ss13.common.visualization.ASTVisualization" fullpath="META-INF/services/swp_compiler_ss13.common.visualization.ASTVisualization" />
+		</jar>
+		
+		<!-- create the TAC Quadruple Visu -->
+		<echo message="swp_compiler_ss13.fuc.ir.visualization.TACConsoleVisualizationQuadruple" file="${dist.dir}/temp/swp_compiler_ss13.common.visualization.TACVisualization" />
+		<jar destfile="${dist.dir}/FUC-VISU-TAC-Quadruple.jar" basedir="${visu.tac.quadruple.dir}/${bin.dir}">
+			<zipfileset dir="${dist.dir}/temp" includes="swp_compiler_ss13.common.visualization.TACVisualization" fullpath="META-INF/services/swp_compiler_ss13.common.visualization.TACVisualization" />
+		</jar>
+		
+		<!-- create the TAC Triple Visu -->
+		<echo message="swp_compiler_ss13.fuc.ir.visualization.TACConsoleVisualizationTriple" file="${dist.dir}/temp/swp_compiler_ss13.common.visualization.TACVisualization" />
+		<jar destfile="${dist.dir}/FUC-VISU-TAC-Triple.jar" basedir="${visu.tac.triple.dir}/${bin.dir}">
+			<zipfileset dir="${dist.dir}/temp" includes="swp_compiler_ss13.common.visualization.TACVisualization" fullpath="META-INF/services/swp_compiler_ss13.common.visualization.TACVisualization" />
+		</jar>
+		
+		<!-- create the TAC Code Visu -->
+		<echo message="swp_compiler_ss13.fuc.ir.visualization.TACConsoleVisualizationCode" file="${dist.dir}/temp/swp_compiler_ss13.common.visualization.TACVisualization" />
+		<jar destfile="${dist.dir}/FUC-VISU-TAC-Code.jar" basedir="${visu.tac.code.dir}/${bin.dir}">
+			<zipfileset dir="${dist.dir}/temp" includes="swp_compiler_ss13.common.visualization.TACVisualization" fullpath="META-INF/services/swp_compiler_ss13.common.visualization.TACVisualization" />
 		</jar>
 		
 		<!-- create the Controller package -->
@@ -190,6 +245,42 @@
 			<zipfileset dir="${interfaces.dir}/${src.dir}" prefix="src" />
 			<zipfileset dir="${interfaces.dir}/${test.dir}" prefix="test" />
 			<zipfileset dir="${interfaces.dir}/${doc.dir}" prefix="doc" />
+		</jar>
+		
+		<!-- create the ast infix visu package -->
+		<jar destfile="${dist.dir}/FUC-VISU-AST-Infix.jar" update="true">
+			<zipfileset dir="${visu.ast.infix.dir}/${src.dir}" prefix="src" />
+			<zipfileset dir="${visu.ast.infix.dir}/${test.dir}" prefix="test" />
+			<zipfileset dir="${visu.ast.infix.dir}/${doc.dir}" prefix="doc" />
+		</jar>
+		
+		<!-- create the ast xml visu package -->
+		<jar destfile="${dist.dir}/FUC-VISU-AST-XML.jar" update="true">
+			<zipfileset dir="${visu.ast.xml.dir}/${src.dir}" prefix="src" />
+			<zipfileset dir="${visu.ast.xml.dir}/${test.dir}" prefix="test" />
+			<zipfileset dir="${visu.ast.xml.dir}/${doc.dir}" prefix="doc" />
+		</jar>
+		
+		
+		<!-- create the TAC Quadruple Visu -->
+		<jar destfile="${dist.dir}/FUC-VISU-TAC-Quadruple.jar" update="true">
+			<zipfileset dir="${visu.tac.quadruple.dir}/${src.dir}" prefix="src" />
+			<zipfileset dir="${visu.tac.quadruple.dir}/${test.dir}" prefix="test" />
+			<zipfileset dir="${visu.tac.quadruple.dir}/${doc.dir}" prefix="doc" />
+		</jar>
+		
+		<!-- create the TAC Triple Visu -->
+		<jar destfile="${dist.dir}/FUC-VISU-TAC-Triple.jar" update="true">
+			<zipfileset dir="${visu.tac.triple.dir}/${src.dir}" prefix="src" />
+			<zipfileset dir="${visu.tac.triple.dir}/${test.dir}" prefix="test" />
+			<zipfileset dir="${visu.tac.triple.dir}/${doc.dir}" prefix="doc" />
+		</jar>
+		
+		<!-- create the TAC Code Visu -->
+		<jar destfile="${dist.dir}/FUC-VISU-TAC-Code.jar" update="true">
+			<zipfileset dir="${visu.tac.code.dir}/${src.dir}" prefix="src" />
+			<zipfileset dir="${visu.tac.code.dir}/${test.dir}" prefix="test" />
+			<zipfileset dir="${visu.tac.code.dir}/${doc.dir}" prefix="doc" />
 		</jar>
 	</target>
 	

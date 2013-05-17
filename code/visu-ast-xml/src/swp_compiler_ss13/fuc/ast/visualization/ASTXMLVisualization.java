@@ -11,19 +11,18 @@ import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.LiteralNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ArithmeticUnaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
+import swp_compiler_ss13.common.visualization.ASTVisualization;
 
 /**
  * @author Manuel
  * 
  */
-public class ASTXMLVisualization {
+public class ASTXMLVisualization implements ASTVisualization {
 
 	/**
-	 * Prints the XML representation of an AST to System.out
-	 * 
-	 * @param ast
-	 *            The AST which should be visualized
+	 * {@inheritDoc}
 	 */
+	@Override
 	public void visualizeAST(AST ast) {
 		PrintStream out = System.out;
 

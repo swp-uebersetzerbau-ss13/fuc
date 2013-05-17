@@ -26,7 +26,6 @@ import swp_compiler_ss13.fuc.ast.DeclarationNodeImpl;
 import swp_compiler_ss13.fuc.ast.LiteralNodeImpl;
 import swp_compiler_ss13.fuc.ast.ReturnNodeImpl;
 import swp_compiler_ss13.fuc.ast.visualization.ASTInfixVisualization;
-import swp_compiler_ss13.fuc.ast.visualization.ASTXMLVisualization;
 import swp_compiler_ss13.fuc.symbolTable.SymbolTableImpl;
 
 public class ASTVisualizationTest {
@@ -207,12 +206,6 @@ public class ASTVisualizationTest {
 
 		ret.setParentNode(program);
 		program.addStatement(ret);
-	}
-
-	@Test
-	public void XML() {
-		(new ASTXMLVisualization()).visualizeAST(ast1);
-		(new ASTXMLVisualization()).visualizeAST(ast2);
 	}
 
 	@Test

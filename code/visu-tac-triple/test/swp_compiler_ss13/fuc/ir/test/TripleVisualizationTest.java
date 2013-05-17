@@ -28,10 +28,10 @@ import swp_compiler_ss13.fuc.ast.DeclarationNodeImpl;
 import swp_compiler_ss13.fuc.ast.LiteralNodeImpl;
 import swp_compiler_ss13.fuc.ast.ReturnNodeImpl;
 import swp_compiler_ss13.fuc.ir.IntermediateCodeGeneratorImpl;
-import swp_compiler_ss13.fuc.ir.visualization.TACConsoleVisualization;
+import swp_compiler_ss13.fuc.ir.visualization.TACConsoleVisualizationTriple;
 import swp_compiler_ss13.fuc.symbolTable.SymbolTableImpl;
 
-public class VisualizationTest {
+public class TripleVisualizationTest {
 
 	private static ASTImpl ast;
 	private static final String temporaryName = "tmp";
@@ -95,11 +95,6 @@ public class VisualizationTest {
 		IntermediateCodeGenerator gen = new IntermediateCodeGeneratorImpl();
 		List<Quadruple> tac = gen.generateIntermediateCode(ast);
 
-		TACConsoleVisualization viz = new TACConsoleVisualization(tac);
-		viz.printQuadruples();
-		System.out.println("\n");
-		viz.printTriples();
-		System.out.println("\n");
-		viz.printCode();
+		new TACConsoleVisualizationTriple().visualizeTAC(tac);
 	}
 }
