@@ -80,4 +80,9 @@ public class NullableSet implements Iterable<NonTerminal> {
          return false;
       return contains((NonTerminal) symbol);
    }
+   
+   @Override
+	public String toString() {
+		return "NullableSet: " + set.toString();
+	}
 }

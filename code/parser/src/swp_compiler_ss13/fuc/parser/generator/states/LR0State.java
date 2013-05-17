@@ -65,7 +65,7 @@ public class LR0State extends ALRState<LR0Item> {
       while (!queue.isEmpty()) {
          LR0Item it = queue.removeFirst();
          Symbol nextSymbol = it.getNextSymbol();
-         if (nextSymbol.isNonTerminal()) {
+         if (it.isShiftable() && nextSymbol.isNonTerminal()) {
             for (Production p : grammarInfo.getProductionsFrom((NonTerminal) nextSymbol)) {
                LR0Item newItem = new LR0Item(p, 0);
                if (!result.contains(newItem)) {
@@ -81,8 +81,4 @@ public class LR0State extends ALRState<LR0Item> {
    // --------------------------------------------------------------------------
    // --- getter/setter --------------------------------------------------------
    // --------------------------------------------------------------------------
-   @Override
-   public String toString() {
-      return "LR0State...";
-   }
 }

@@ -1,11 +1,11 @@
 package swp_compiler_ss13.fuc.parser.parser.states;
 
+
 public class LRParserState {
    // --------------------------------------------------------------------------
    // --- variables and constants ----------------------------------------------
    // --------------------------------------------------------------------------
    private final int id;
-   // TODO Add LR-states here!
    
    // --------------------------------------------------------------------------
    // --- constructors ---------------------------------------------------------
@@ -57,6 +57,6 @@ public class LRParserState {
    
    @Override
    public String toString() {
-      return "[LRParserState (" + id + ")]";
+      return "LRParserState (" + id + ")";
    }
 }

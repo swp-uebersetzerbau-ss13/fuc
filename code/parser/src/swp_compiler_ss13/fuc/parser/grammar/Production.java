@@ -147,7 +147,7 @@ public final class Production {
       StringBuilder rhsString = new StringBuilder();
       for (Symbol s : rhs)
          rhsString.append(s + " ");
-      return "Production " + id + ": " + lhs + " → " + rhsString;
+      return lhs + " → " + rhsString;
    }
    
    
@@ -156,11 +156,11 @@ public final class Production {
       It<Symbol> rhsSymbols = new It<Symbol>(rhs);
       for (Symbol s : rhsSymbols) {
          if (dotPosition == rhsSymbols.getIndex())
-            rhsString.append(". ");
-         rhsString.append(s + " ");
+            rhsString.append(" .");
+         rhsString.append(" " + s);
       }
       if (dotPosition == rhs.size())
-         rhsString.append(". ");
-      return "Production " + id + ": " + lhs + " → " + rhsString;
+         rhsString.append(" .");
+      return lhs + " →" + rhsString;
    }
 }
