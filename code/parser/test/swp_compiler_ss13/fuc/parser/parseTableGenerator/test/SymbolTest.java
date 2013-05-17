@@ -11,9 +11,9 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import swp_compiler_ss13.fuc.parser.parseTableGenerator.Symbol;
-import swp_compiler_ss13.fuc.parser.parseTableGenerator.Terminal;
-import swp_compiler_ss13.fuc.parser.parseTableGenerator.Variable;
+import swp_compiler_ss13.fuc.fuc.parser.parseTableGenerator.Symbol;
+import swp_compiler_ss13.fuc.fuc.parser.parseTableGenerator.Terminal;
+import swp_compiler_ss13.fuc.fuc.parser.parseTableGenerator.Variable;
 @Ignore
 public class SymbolTest {
 

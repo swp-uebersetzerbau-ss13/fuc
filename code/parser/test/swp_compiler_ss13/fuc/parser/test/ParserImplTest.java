@@ -24,18 +24,18 @@ import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.common.parser.Parser;
 import swp_compiler_ss13.common.parser.ReportLog;
-import swp_compiler_ss13.fuc.parser.ParserImpl;
-import swp_compiler_ss13.fuc.parser.parseTableGenerator.ItemSet;
-import swp_compiler_ss13.fuc.parser.parseTableGenerator.Production;
-import swp_compiler_ss13.fuc.parser.parseTableGenerator.Symbol;
-import swp_compiler_ss13.fuc.parser.parseTableGenerator.Terminal;
-import swp_compiler_ss13.fuc.parser.parseTableGenerator.Variable;
-import swp_compiler_ss13.fuc.parser.table.ActionEntry;
-import swp_compiler_ss13.fuc.parser.table.GotoEntry;
-import swp_compiler_ss13.fuc.parser.table.ParseTable;
-import swp_compiler_ss13.fuc.parser.table.actions.Accept;
-import swp_compiler_ss13.fuc.parser.table.actions.Reduce;
-import swp_compiler_ss13.fuc.parser.table.actions.Shift;
+import swp_compiler_ss13.fuc.fuc.parser.ParserImpl;
+import swp_compiler_ss13.fuc.fuc.parser.parseTableGenerator.ItemSet;
+import swp_compiler_ss13.fuc.fuc.parser.parseTableGenerator.Production;
+import swp_compiler_ss13.fuc.fuc.parser.parseTableGenerator.Symbol;
+import swp_compiler_ss13.fuc.fuc.parser.parseTableGenerator.Terminal;
+import swp_compiler_ss13.fuc.fuc.parser.parseTableGenerator.Variable;
+import swp_compiler_ss13.fuc.fuc.parser.table.ActionEntry;
+import swp_compiler_ss13.fuc.fuc.parser.table.GotoEntry;
+import swp_compiler_ss13.fuc.fuc.parser.table.ParseTable;
+import swp_compiler_ss13.fuc.fuc.parser.table.actions.Accept;
+import swp_compiler_ss13.fuc.fuc.parser.table.actions.Reduce;
+import swp_compiler_ss13.fuc.fuc.parser.table.actions.Shift;
 
 /**
  * @author kensan
