@@ -23,7 +23,7 @@ import swp_compiler_ss13.fuc.parser.parser.LexerWrapper;
 import swp_compiler_ss13.fuc.parser.parser.ParserException;
 import swp_compiler_ss13.fuc.parser.parser.tables.LRParsingTable;
 
-public class M1MultipleMinusENotationTest {
+public class M1MultiplePlusesInExpTest {
 	static {
 		BasicConfigurator.configure();
 	}
@@ -63,10 +63,12 @@ public class M1MultipleMinusENotationTest {
 //	}
 
 	@Test
-	public void testErrorMultipleMinusENotationIdOrgLexer() {
-		String input = "# error: id foo has multiple minus in expontent notation\n"
+	public void testErrorMultiplePlusesInExpOrgLexer() {
+		String input = "# error: too many pluses in an expression\n"
 				+ "long foo;\n"
-				+ "foo = 10e----1;";
+				+ "long bar;\n"
+				+ "foo = 3;\n"
+				+ "bar = foo ++ 1;";
 		// Generate parsing table
 		Grammar grammar = new ProjectGrammar.M1().getGrammar();
 		ALRGenerator<LR0Item, LR0State> generator = new LR0Generator(grammar);
