@@ -27,7 +27,7 @@ public class LRGotoTable {
    public LRParserState get(LRParserState curState, NonTerminal curNonTerminal) {
       LRParserState result = table.get(new LRTableKey(curState, curNonTerminal));
       if (result == null) {
-         return new LRErrorState();
+         return new LRErrorState("An Error occurred: No transition from " + curState + " with NonTerminal " + curNonTerminal);
       } else {
          return result;
       }

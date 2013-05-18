@@ -130,6 +130,10 @@ public class LRParser {
 				// check where to go-to... and push next state on stack
 				LRParserState newState = table.getGotoTable().get(state,
 						prod.getLHS());
+				if (newState.isErrorState()) {
+					reportLog.reportError(token.getValue(), token.getLine(), token.getColumn(), "");
+					return null;
+				}
 				parserStack.push(newState);
 
 				// If there is anything to do on the value stack
