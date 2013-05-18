@@ -5,6 +5,7 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 import swp_compiler_ss13.fuc.ir.test.ms1.AddProgTest;
+import swp_compiler_ss13.fuc.ir.test.ms1.ParanthesesTest;
 import swp_compiler_ss13.fuc.ir.test.ms1.SimpleAddTest;
 import swp_compiler_ss13.fuc.ir.test.ms1.SimpleMulTest;
 
@@ -19,6 +20,7 @@ import swp_compiler_ss13.fuc.ir.test.ms1.SimpleMulTest;
 		AddProgTest.class,
 		SimpleAddTest.class,
 		SimpleMulTest.class,
+		ParanthesesTest.class,
 		CastingFactoryTest.class })
 public class TestSuite {
 }

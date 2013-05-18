@@ -450,10 +450,12 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 					typeOfId, temporary);
 			this.irCode.add(cast);
 			this.irCode.add(QuadrupleFactory.assign(typeOfId, temporary, idRenamed));
+			this.intermediateResults.push(new IntermediateResult(idRenamed, typeOfId));
 		}
 		else {
 			// no cast is needed,
 			this.irCode.add(QuadrupleFactory.assign(typeOfId, rightIntermediate.getValue(), idRenamed));
+			this.intermediateResults.push(new IntermediateResult(idRenamed, typeOfId));
 		}
 
 	}
