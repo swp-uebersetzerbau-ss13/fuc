@@ -525,13 +525,21 @@ public class LRParser {
 					return arithUnary;
 				}
 			};
-		case "unary -> factor":
 		case "factor -> ( assign )":
+			return new ReduceAction() {
+				@Override
+				public Object create(Object... objs) {
+					// Drop left parathesis
+					ExpressionNode assign = (ExpressionNode) objs[1];
+					// Drop right parathesis
+					return  assign;
+				}
+			};
+		case "unary -> factor":
 		case "factor -> loc":
 			break;
 		case "factor -> num":
 			return new ReduceAction() {
-
 				@Override
 				public Object create(Object... objs) {
 					LiteralNode literal = new LiteralNodeImpl();
