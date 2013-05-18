@@ -35,7 +35,7 @@ import swp_compiler_ss13.fuc.parser.parser.LexerWrapper;
 import swp_compiler_ss13.fuc.parser.parser.ParserException;
 import swp_compiler_ss13.fuc.parser.parser.tables.LRParsingTable;
 
-public class M1ErrorDoubleDeclTest {
+public class M1ErrorInvalidIds {
 	static {
 		BasicConfigurator.configure();
 	}
@@ -75,10 +75,15 @@ public class M1ErrorDoubleDeclTest {
 //	}
 
 	@Test
-	public void testErrorDoubleDeclOrgLexer() {
-		String input = "# error: two decls for same id i\n"
-				+ "long i;\n"
-				+ "long i;";
+	public void testErrorInvalidIdOrgLexer() {
+		String input = "# error: invalid ids\n"
+				+ "long foo$bar;\n"
+				+ "long spam_ham;\n"
+				+ "long 2fooly;\n"
+				+ "long return;\n"
+				+ "long string;\n"
+				+ "long bool;\n"
+				+ "long fü_berlin;";
 		// Generate parsing table
 		Grammar grammar = new ProjectGrammar.M1().getGrammar();
 		ALRGenerator<LR0Item, LR0State> generator = new LR0Generator(grammar);
@@ -93,8 +98,10 @@ public class M1ErrorDoubleDeclTest {
 		LexerWrapper lexWrapper = new LexerWrapper(lexer, grammar);
 		ReportLog reportLog = new ReportLogImpl();
 		try {
-			lrParser.parse(lexWrapper, reportLog, table);
-			fail("Expected double decl error!");
+			if (lrParser.parse(lexWrapper, reportLog, table) == null) {
+				throw new ParserException("A parse exception!");
+			}
+			fail("Expected invalid ids error!");
 		} catch (ParserException err) {
 			// Success
 		}

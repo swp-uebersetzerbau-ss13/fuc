@@ -12,6 +12,7 @@ import swp_compiler_ss13.fuc.parser.grammar.Grammar;
 import swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar;
 import swp_compiler_ss13.fuc.parser.parser.LRParser;
 import swp_compiler_ss13.fuc.parser.parser.LexerWrapper;
+import swp_compiler_ss13.fuc.parser.parser.ParserException;
 import swp_compiler_ss13.fuc.parser.parser.tables.LRParsingTable;
 import swp_compiler_ss13.fuc.semantic_analyser.SemanticAnalyser;
 
@@ -46,7 +47,10 @@ public class ParserImpl implements Parser {
 		LRParser lrParser = new LRParser();
 		LexerWrapper lexWrapper = new LexerWrapper(this.lexer, grammar);
 		AST ast = lrParser.parse(lexWrapper, this.reportLog, table);
-
+		if (ast == null) {
+			throw new ParserException("A parse exception occurred!");
+		}
+		
 		// Call semantic analysis
 		// TODO Fix dependency cycle caused by ReportLogImpl + Error!!!
 		SemanticAnalyser analyzer = new SemanticAnalyser(this.reportLog);

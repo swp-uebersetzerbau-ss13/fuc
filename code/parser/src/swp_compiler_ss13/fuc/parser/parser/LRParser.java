@@ -91,7 +91,7 @@ public class LRParser {
 			switch (tokenType) {
 			case NOT_A_TOKEN:
 				reportLog.reportError(token.getValue(), token.getLine(),
-						token.getColumn(), "Undefined Symbol found!");
+						token.getColumn(), "Found undefined token '" + token.getValue() + "'!");
 				return null;
 
 			case COMMENT:
