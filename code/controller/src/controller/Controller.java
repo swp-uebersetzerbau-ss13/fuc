@@ -16,6 +16,9 @@ import swp_compiler_ss13.common.ir.IntermediateCodeGenerator;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 import swp_compiler_ss13.common.lexer.Lexer;
 import swp_compiler_ss13.common.parser.Parser;
+import swp_compiler_ss13.common.visualization.ASTVisualization;
+import swp_compiler_ss13.common.visualization.TACVisualization;
+import swp_compiler_ss13.common.visualization.TokenStreamVisualization;
 
 public class Controller {
 	// the input file, stdin by default
@@ -29,6 +32,14 @@ public class Controller {
 	static IntermediateCodeGenerator irgen = null;
 	static Backend backend = null;
 
+	private static ServiceLoader<TokenStreamVisualization> tokenVisuService;
+
+	private static ServiceLoader<ASTVisualization> ASTVisuService;
+
+	private static ServiceLoader<TACVisualization> TACVisuService;
+
+	private static String inputfilename;
+
 	// load component plugins
 	static void loadPlugins() {
 
@@ -38,6 +49,10 @@ public class Controller {
 		ServiceLoader<IntermediateCodeGenerator> irgenService = ServiceLoader.load(
 				IntermediateCodeGenerator.class);
 		ServiceLoader<Backend> backendService = ServiceLoader.load(Backend.class);
+
+		tokenVisuService = ServiceLoader.load(TokenStreamVisualization.class);
+		ASTVisuService = ServiceLoader.load(ASTVisualization.class);
+		TACVisuService = ServiceLoader.load(TACVisualization.class);
 
 		// lexer:
 		for (Lexer l : lexerService) {
@@ -113,6 +128,21 @@ public class Controller {
 				backend == null) {
 			System.exit(1);
 		}
+
+		System.out.println("Token Stream Visualization found:");
+		for (TokenStreamVisualization tokenvisu : tokenVisuService) {
+			System.out.println("\t" + tokenvisu.getClass().getName());
+		}
+
+		System.out.println("AST Visualization found:");
+		for (ASTVisualization astvisu : ASTVisuService) {
+			System.out.println("\t" + astvisu.getClass().getName());
+		}
+
+		System.out.println("TAC Visualization found:");
+		for (TACVisualization tacvisu : TACVisuService) {
+			System.out.println("\t" + tacvisu.getClass().getName());
+		}
 	}
 
 	public static void main(String[] args)
@@ -134,7 +164,7 @@ public class Controller {
 					if (arg.equals("-")) {
 						; // already set to stdin
 					} else {
-						input = new FileInputStream(arg);
+						inputfilename = arg;
 					}
 				}
 				continue; // it's no option, so we should continue with next arg
@@ -169,12 +199,30 @@ public class Controller {
 
 		// use the components now to compile our file
 		// lexer...
+		input = new FileInputStream(inputfilename);
 		lexer.setSourceStream(input);
+
+		for (TokenStreamVisualization tokenvisu : tokenVisuService) {
+			tokenvisu.visualizeTokenStream(lexer);
+			input = new FileInputStream(inputfilename);
+			lexer.setSourceStream(input);
+		}
+
 		// parser...
 		parser.setLexer(lexer);
 		AST ast = parser.getParsedAST();
+
+		for (ASTVisualization astvisu : ASTVisuService) {
+			astvisu.visualizeAST(ast);
+		}
+
 		// IR gen...
 		List<Quadruple> tac = irgen.generateIntermediateCode(ast);
+
+		for (TACVisualization astvisu : TACVisuService) {
+			astvisu.visualizeTAC(tac);
+		}
+
 		// backend...
 		Map<String, InputStream> targets = backend.generateTargetCode("", tac);
 
