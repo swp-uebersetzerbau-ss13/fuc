@@ -68,7 +68,12 @@ public class TestLexer implements Lexer {
 
 		@Override
 		public TokenType getTokenType() {
-			return symbol.isTerminal() ? ((Terminal)symbol).getTokenType() : null;
+			if (!symbol.isTerminal()) {
+				return null;
+			} else {
+				Terminal t = (Terminal) symbol;
+				return t.getTokenTypes().next();	// TODO This is arbitrary!
+			}
 		}
 
 		@Override

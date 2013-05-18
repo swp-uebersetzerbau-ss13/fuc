@@ -2,9 +2,7 @@ package swp_compiler_ss13.fuc.parser.parser;
 
 import swp_compiler_ss13.common.lexer.Lexer;
 import swp_compiler_ss13.common.lexer.Token;
-import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.fuc.parser.grammar.Grammar;
-import swp_compiler_ss13.fuc.parser.grammar.Terminal;
 import swp_compiler_ss13.fuc.parser.grammar.TokenEx;
 
 /**
@@ -36,29 +34,6 @@ public class LexerWrapper {
 	// --------------------------------------------------------------------------
 	public TokenEx getNextToken() {
 		Token nextToken = lexer.getNextToken();
-		TokenEx tokenEx;
-		if (nextToken.getTokenType() == TokenType.EOF) {
-			tokenEx = new TokenEx(nextToken, null);
-		} else {
-			Terminal terminal = null;
-			TokenType nextType = nextToken.getTokenType();
-			for (Terminal t : grammar.getTerminals()) {
-				TokenType type = t.getTokenType();
-				if (type != null && nextType != null && t.getTokenType().equals(nextToken.getTokenType())) {
-					terminal = t;
-					break;
-				}
-			}
-			// if (terminal == null) {
-			// log.warn("Unable to find a ");
-			// }
-			tokenEx = new TokenEx(nextToken, terminal);
-		}
-		return tokenEx;
+		return TokenEx.createFromToken(nextToken, grammar);
 	}
-
-	// --------------------------------------------------------------------------
-	// --- getter/setter
-	// --------------------------------------------------------
-	// --------------------------------------------------------------------------
 }

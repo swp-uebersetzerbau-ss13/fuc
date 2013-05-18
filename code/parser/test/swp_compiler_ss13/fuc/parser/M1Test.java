@@ -1,11 +1,17 @@
 package swp_compiler_ss13.fuc.parser;
 
-import org.junit.Test;
-
 import static junit.framework.Assert.assertNotNull;
+
 import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.M1.*;
 
+import java.io.ByteArrayInputStream;
+
+import lexer.LexerImpl;
+
+import org.junit.Test;
+
 import swp_compiler_ss13.common.ast.AST;
+import swp_compiler_ss13.common.lexer.Lexer;
 import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.common.parser.ReportLog;
@@ -33,33 +39,30 @@ public class M1Test {
 
 	@Test
 	public void testAdd() {
-		// # return 27
-		// long l;
-		// l = 10 +
-		// 23 # - 23
-		// - 23
-		// + 100 /
-		//
-		// 2
-		// - 30
-		// - 9 / 3;
-		// return l;
+		String input = "# return 27\n" + "long l;\n" + "l = 10 +\n"
+				+ "23 # - 23\n" + "- 23\n" + "+ 100 /\n" + "\n" + "2\n"
+				+ "- 30\n" + "- 9 / 3;\n" + "return l;\n";
 		// Generate parsing table
 		Grammar grammar = new ProjectGrammar.M1().getGrammar();
 		ALRGenerator<LR0Item, LR0State> generator = new LR0Generator(grammar);
 		LRParsingTable table = generator.getParsingTable();
 
 		// Simulate input
-		TestLexer testLexer = new TestLexer(t(longg), id("l"), t(sem), id("l"),
-				t(assignop), num(10), t(plus), num(23), t(minus), num(23), t(plus),
-				num(100), t(div), num(2), t(minus), num(30), t(minus), num(9), t(div), num(3));
+		Lexer lexer = new TestLexer(
+				new TestToken("long", TokenType.LONG_SYMBOL), id("l"), t(sem),
+				id("l"), t(assignop), num(10), t(plus), num(23), t(minus),
+				num(23), t(plus), num(100), t(div), num(2), t(minus), num(30),
+				t(minus), num(9), t(div), num(3), t(sem), t(returnn), id("l"),
+				t(sem));
+		// Lexer lexer = new LexerImpl();
+		// lexer.setSourceStream(new ByteArrayInputStream(input.getBytes()));
 
 		// Run LR-parser with table
 		LRParser lrParser = new LRParser();
-		LexerWrapper lexWrapper = new LexerWrapper(testLexer, grammar);
+		LexerWrapper lexWrapper = new LexerWrapper(lexer, grammar);
 		ReportLog reportLog = new ReportLogImpl();
 		AST ast = lrParser.parse(lexWrapper, reportLog, table);
-		
+
 		assertNotNull(ast);
 	}
 
@@ -68,7 +71,7 @@ public class M1Test {
 	}
 
 	private static Token t(Terminal terminal) {
-		return new TestToken(terminal.getId(), terminal.getTokenType());
+		return new TestToken(terminal.getId(), terminal.getTokenTypes().next());
 	}
 
 	private static Token id(String value) {

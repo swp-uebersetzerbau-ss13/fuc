@@ -1,9 +1,11 @@
 package swp_compiler_ss13.fuc.parser.grammar;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
 import swp_compiler_ss13.common.lexer.TokenType;
+import swp_compiler_ss13.fuc.parser.util.It;
 
 
 
@@ -19,7 +21,7 @@ public class Terminal extends Symbol {
       }
       
       SpecialTerminal(String repr) {
-         super(repr, null);
+         super(repr, new TokenType[0]);
          values.add(this);
       }
       
@@ -36,14 +38,14 @@ public class Terminal extends Symbol {
    
    
    /** TODO This is more a hack then anything else - find better solution! */
-   private final TokenType tokenType;
+   private final List<TokenType> tokenTypes;
    
-   public Terminal(String id, TokenType tokenType) {
+   public Terminal(String id, TokenType... tokenTypes) {
       super(SymbolType.TERMINAL, id);
-      this.tokenType = tokenType;
+      this.tokenTypes = Arrays.asList(tokenTypes);
    }
    
-   public TokenType getTokenType() {
-      return tokenType;
+   public It<TokenType> getTokenTypes() {
+      return new It<>(tokenTypes);
    }
 }

@@ -15,7 +15,7 @@ public class ProjectGrammar {
 				TokenType.LEFT_BRACKET);
 		public static final Terminal rsb = new Terminal("]",
 				TokenType.RIGHT_BRACKET);
-		public static final Terminal basic = new Terminal("basic", null);
+		public static final Terminal basic = new Terminal("basic", TokenType.LONG_SYMBOL, TokenType.DOUBLE_SYMBOL, TokenType.BOOL_SYMBOL);
 		// public static final Terminal record = new Terminal("record", null);
 
 		// public static final Terminal iff = new Terminal("if", TokenType.IF);
@@ -55,9 +55,8 @@ public class ProjectGrammar {
 		public static final Terminal times = new Terminal("*", TokenType.TIMES);
 		public static final Terminal div = new Terminal("/", TokenType.DIVIDE);
 //		public static final Terminal not = new Terminal("!", TokenType.NOT);
-		public static final Terminal num = new Terminal("num", TokenType.NUM);
+		public static final Terminal num = new Terminal("long", TokenType.NUM);
 		public static final Terminal real = new Terminal("real", TokenType.REAL);
-		public static final Terminal longg = new Terminal("long", TokenType.LONG_SYMBOL);
 //		public static final Terminal truee = new Terminal("true",
 //				TokenType.TRUE);
 //		public static final Terminal falsee = new Terminal("false",
@@ -197,8 +196,7 @@ public class ProjectGrammar {
 				TokenType.LEFT_BRACKET);
 		public static final Terminal rsb = new Terminal("]",
 				TokenType.RIGHT_BRACKET);
-		public static final Terminal basic = new Terminal("basic", null);
-		public static final Terminal record = new Terminal("record", null);
+		public static final Terminal record = new Terminal("record", new TokenType[0]);	// <-- TODO RECORD!!!
 
 		public static final Terminal iff = new Terminal("if", TokenType.IF);
 		public static final Terminal lb = new Terminal("(",
@@ -216,7 +214,7 @@ public class ProjectGrammar {
 				TokenType.RETURN);
 		public static final Terminal print = new Terminal("print",
 				TokenType.PRINT);
-		public static final Terminal dot = new Terminal(".", null); // TODO ???
+		public static final Terminal dot = new Terminal(".", null); // TODO Dot???
 		public static final Terminal assignop = new Terminal("=",
 				TokenType.ASSIGNOP);
 		public static final Terminal orop = new Terminal("||", TokenType.OR);
@@ -238,7 +236,7 @@ public class ProjectGrammar {
 		public static final Terminal not = new Terminal("!", TokenType.NOT);
 		public static final Terminal num = new Terminal("num", TokenType.NUM);
 		public static final Terminal real = new Terminal("real", TokenType.REAL);
-//		public static final Terminal longg = new Terminal("long", TokenType.LONG_SYMBOL);
+		public static final Terminal basic = new Terminal("basic", TokenType.LONG_SYMBOL, TokenType.DOUBLE_SYMBOL, TokenType.BOOL_SYMBOL);
 		public static final Terminal truee = new Terminal("true",
 				TokenType.TRUE);
 		public static final Terminal falsee = new Terminal("false",

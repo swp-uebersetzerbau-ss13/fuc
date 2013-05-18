@@ -1,5 +1,7 @@
 package swp_compiler_ss13.fuc.parser.grammar;
 
+import org.apache.log4j.Logger;
+
 import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
 
@@ -9,48 +11,84 @@ import swp_compiler_ss13.common.lexer.TokenType;
  * @author Gero
  */
 public class TokenEx implements Token {
-   // --------------------------------------------------------------------------
-   // --- variables and constants ----------------------------------------------
-   // --------------------------------------------------------------------------
-   private final Token token;
-   private final Terminal terminal;
-   
-   // --------------------------------------------------------------------------
-   // --- constructors ---------------------------------------------------------
-   // --------------------------------------------------------------------------
-   public TokenEx(Token token, Terminal terminal) {
-      this.token = token;
-      this.terminal = terminal;
-   }
-   
-   // --------------------------------------------------------------------------
-   // --- getter/setter --------------------------------------------------------
-   // --------------------------------------------------------------------------
-   public Token getToken() {
-      return token;
-   }
-   
-   public Terminal getTerminal() {
-      return terminal;
-   }
+	// --------------------------------------------------------------------------
+	// --- variables and constants
+	// ----------------------------------------------
+	// --------------------------------------------------------------------------
+	private static final Logger log = Logger.getLogger(TokenEx.class);
 
-   @Override
-   public String getValue() {
-      return token.getValue();
-   }
+	private final Token token;
+	private final Terminal terminal;
 
-   @Override
-   public TokenType getTokenType() {
-      return token.getTokenType();
-   }
+	// --------------------------------------------------------------------------
+	// --- constructors
+	// ---------------------------------------------------------
+	// --------------------------------------------------------------------------
+	public TokenEx(Token token, Terminal terminal) {
+		this.token = token;
+		this.terminal = terminal;
+	}
 
-   @Override
-   public Integer getLine() {
-      return token.getLine();
-   }
+	public static TokenEx createFromToken(Token token, Grammar grammar) {
+		// Handle SpecialTerminals first!
+		if (token.getTokenType() == TokenType.EOF) {
+			return new TokenEx(token, Terminal.EOF);
+		} else if (token.getTokenType() == TokenType.COMMENT){
+			return new TokenEx(token, null);
+		} else {
+			Terminal terminal = null;
+			TokenType newType = token.getTokenType();
+			for (Terminal t : grammar.getTerminals()) {
+				for (TokenType type : t.getTokenTypes()) {
+					if (type == newType) {
+						terminal = t;
+						break;
+					}
+				}
+			}
 
-   @Override
-   public Integer getColumn() {
-      return token.getColumn();
-   }
+			if (terminal == null) {
+				log.warn("Unable to find a ");
+			}
+			return new TokenEx(token, terminal);
+		}
+	}
+
+	// --------------------------------------------------------------------------
+	// --- getter/setter
+	// --------------------------------------------------------
+	// --------------------------------------------------------------------------
+	public Token getToken() {
+		return token;
+	}
+
+	public Terminal getTerminal() {
+		return terminal;
+	}
+
+	@Override
+	public String getValue() {
+		return token.getValue();
+	}
+
+	@Override
+	public TokenType getTokenType() {
+		return token.getTokenType();
+	}
+
+	@Override
+	public Integer getLine() {
+		return token.getLine();
+	}
+
+	@Override
+	public Integer getColumn() {
+		return token.getColumn();
+	}
+
+	@Override
+	public String toString() {
+		return "TokenEx: " + token.toString() + "|"
+				+ (terminal != null ? terminal.toString() : "");
+	}
 }
