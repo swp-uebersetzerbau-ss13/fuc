@@ -46,8 +46,8 @@ public class ParserImpl implements Parser {
       
       // Call semantic analysis
       // TODO Fix dependency cycle caused by ReportLogImpl + Error!!!
-//      SemanticAnalyser analyzer = new SemanticAnalyser(reportLog);
-//      ast = analyzer.analyse(ast);
+      SemanticAnalyser analyzer = new SemanticAnalyser(reportLog);
+      ast = analyzer.analyse(ast);
       
       return ast;
    }
