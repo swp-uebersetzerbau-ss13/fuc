@@ -1,0 +1,9 @@
+language: java
+before_install:
+  - git submodule update --init --recursive
+script: cd code && ant run-tests -keep-going
+notifications:
+  email:
+    on_success: never
+    on_failure: always
+

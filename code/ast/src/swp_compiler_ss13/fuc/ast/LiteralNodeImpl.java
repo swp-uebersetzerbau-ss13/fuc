@@ -57,8 +57,7 @@ public class LiteralNodeImpl extends ASTNodeImpl implements LiteralNode {
 	public String getLiteral() {
 		if (this.literal == null) {
 			logger.warn("Returning null as the literal!");
-		}
-		if (this.literal.length() == 0) {
+		} else if (this.literal.length() == 0) {
 			logger.warn("Returning an empty string as the literal");
 		}
 		return this.literal;

@@ -52,8 +52,7 @@ public class DeclarationNodeImpl extends ASTNodeImpl implements DeclarationNode 
 	public String getIdentifier() {
 		if (this.identifier == null) {
 			logger.warn("Returning null as the name of the identifier!");
-		}
-		if (this.identifier.length() == 0) {
+		} else if (this.identifier.length() == 0) {
 			logger.warn("Returning an empty string as the name of the identifier!");
 		}
 		return this.identifier;

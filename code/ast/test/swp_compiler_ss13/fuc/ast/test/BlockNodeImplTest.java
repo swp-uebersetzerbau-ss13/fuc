@@ -19,8 +19,10 @@ import swp_compiler_ss13.common.ast.ASTNode.ASTNodeType;
 import swp_compiler_ss13.common.ast.nodes.StatementNode;
 import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
 import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
+import swp_compiler_ss13.common.parser.SymbolTable;
 import swp_compiler_ss13.fuc.ast.BlockNodeImpl;
 import swp_compiler_ss13.fuc.ast.DeclarationNodeImpl;
+import swp_compiler_ss13.fuc.symbolTable.SymbolTableImpl;
 
 /**
  * Test the block node
@@ -334,6 +336,34 @@ public class BlockNodeImplTest {
 
 		this.node.setParentNode(parent);
 		assertSame(parent, PA.getValue(this.node, "parent"));
+	}
+
+	/**
+	 * test getSymbolTable
+	 */
+	@Test
+	public void testGetSymbolTable() {
+		assertEquals(null, this.node.getSymbolTable());
+		SymbolTable st = new SymbolTableImpl();
+		PA.setValue(this.node, "symbolTable", st);
+		assertSame(st, this.node.getSymbolTable());
+	}
+
+	/**
+	 * test setSymbolTable
+	 */
+	@Test
+	public void testSetSymbolTable() {
+		try {
+			this.node.setSymbolTable(null);
+			fail("expected illegal argument exception");
+		} catch (IllegalArgumentException e) {
+		}
+		assertEquals(null, this.node.getSymbolTable());
+
+		SymbolTable st = new SymbolTableImpl();
+		this.node.setSymbolTable(st);
+		assertSame(st, PA.getValue(this.node, "symbolTable"));
 	}
 
 }

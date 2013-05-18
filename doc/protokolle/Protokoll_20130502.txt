@@ -1,0 +1,51 @@
+Protokoll Sitzung 02.05.2013
+
+0. Vorneweg
+1. Check ToDos
+2. Zusammenfassung aus den Gruppen
+3. CI
+
+0. Vorneweg
+- Parser-Gruppe wurde um 2 Mitglieder erweitert
+
+
+1. Check ToDos
+- weitere Abhängigkeiten in Ant-Skripten an Frank kommunizieren
+- Git Commit-Hook in Arbeit (Sven)
+
+
+2. Zusammenfassung aus den Gruppen
+
+Controller:
+- Verwendung von ServiceLoader
+- kommuniziert mit der anderen Gruppe
+- Komponenten müssen als *.jar-File erzeugt werden
+- Jar-File beinhaltet *.class-Dateien, Meta-inf/services/[partname], wobei partname die Klassenname beinhaltet
+- *.jar-Dateien im Ant-Skript erzeugen (Frank)
+- Fehlerbehandlung ausstehend
+- Fehler werden durch Komponenten behandelt und dort auch abgebrochen
+
+Lexer:
+- noch nicht fertig
+- Visualisierung für Milestone 1 ausstehend
+
+Parser:
+- Interface für Fehlerbehandlung implementieren
+- Symboltabelle implementiert
+- Aufbau und Tests noch in Arbeit
+
+Semantische Analyse:
+- AST wird durch Token erweitert für interne Verarbeitung im Parser und Fehlerhandling
+
+Zwischencode:
+- Tests teils ausstehend
+- Visualisierung in Bearbeitung
+
+Backend:
+- weitesgehend fertig
+- evt. unvorhersehbare Fehler testen
+
+
+3. CI
+
+- wird initiiert und eingerichtet von Manuel
