@@ -25,6 +25,8 @@ public class SymbolTableImpl implements SymbolTable{
 	
 	public SymbolTableImpl(){
 		this.symbolMap = new HashMap<String, Type>();
+		this.liveMap = new HashMap<String,Liveliness>();
+		this.aliasMap = new HashMap<String, String>();
 	}
 	
 	@Override
@@ -124,7 +126,9 @@ public class SymbolTableImpl implements SymbolTable{
 
 	@Override
 	public void setIdentifierAlias(String identifier, String alias) {
-		aliasMap.put(identifier, alias);
+		if(isDeclaredInCurrentScope(identifier)){
+			aliasMap.put(identifier, alias);
+		}
 	}
 
 	@Override
