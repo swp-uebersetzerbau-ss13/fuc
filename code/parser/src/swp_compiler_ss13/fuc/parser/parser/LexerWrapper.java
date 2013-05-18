@@ -34,6 +34,7 @@ public class LexerWrapper {
 	// --------------------------------------------------------------------------
 	public TokenEx getNextToken() {
 		Token nextToken = lexer.getNextToken();
+//		System.out.println(TokenEx.tokenToString(nextToken) + "\n");
 		return TokenEx.createFromToken(nextToken, grammar);
 	}
 }

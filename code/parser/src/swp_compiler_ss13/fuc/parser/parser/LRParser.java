@@ -11,6 +11,7 @@ import swp_compiler_ss13.common.ast.nodes.ExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.IdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.StatementNode;
 import swp_compiler_ss13.common.ast.nodes.binary.ArithmeticBinaryExpressionNode;
+import swp_compiler_ss13.common.ast.nodes.binary.AssignmentNode;
 import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode.BinaryOperator;
 import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.LiteralNode;
@@ -47,6 +48,7 @@ import swp_compiler_ss13.fuc.parser.parser.tables.actions.ALRAction;
 import swp_compiler_ss13.fuc.parser.parser.tables.actions.Error;
 import swp_compiler_ss13.fuc.parser.parser.tables.actions.Reduce;
 import swp_compiler_ss13.fuc.parser.parser.tables.actions.Shift;
+import swp_compiler_ss13.fuc.symbolTable.SymbolTableImpl;
 
 public class LRParser {
 	// --------------------------------------------------------------------------
@@ -116,7 +118,7 @@ public class LRParser {
 			break;
 
 			case REDUCE: {
-				// pop states from stack
+				// pop reduced states from stack
 				Reduce reduce = (Reduce) action;
 				for (int i = 1; i <= reduce.getPopCount(); i++) {
 					parserStack.pop();
@@ -127,26 +129,17 @@ public class LRParser {
 				Production prod = reduce.getProduction();
 				ReduceAction reduceAction = getReduceAction(prod);
 
-				// check where to go-to... and push next state on stack
-				LRParserState newState = table.getGotoTable().get(state,
-						prod.getLHS());
-				if (newState.isErrorState()) {
-					reportLog.reportError(token.getValue(), token.getLine(), token.getColumn(), "");
-					return null;
-				}
-				parserStack.push(newState);
-
 				// If there is anything to do on the value stack
 				// (There might be no reduce-action for Productions like unary
 				// -> factor, e.g.)
 				if (reduceAction != null) {
 					// Pop all values reduced by this production
-					int nrOfValuesReduced = prod.getRHSSizeWoEpsilon();
+					int nrOfValuesReduced = reduce.getPopCount();
 					LinkedList<Object> valueHandle = new LinkedList<>();
 					for (int i = 0; i < nrOfValuesReduced; i++) {
 						valueHandle.addFirst(valueStack.pop());
 					}
-
+					
 					// Execute reduceAction and push onto the stack
 					Object newValue = reduceAction.create(arr(valueHandle));
 					if (newValue == null) {
@@ -155,6 +148,15 @@ public class LRParser {
 					}
 					valueStack.push(newValue);
 				}
+
+				// check where to go-to... and push next state on stack
+				LRParserState newState = table.getGotoTable().get(parserStack.peek(),
+						prod.getLHS());
+				if (newState.isErrorState()) {
+					reportLog.reportError(token.getValue(), token.getLine(), token.getColumn(), "");
+					return null;
+				}
+				parserStack.push(newState);
 			}
 			break;
 
@@ -165,7 +167,6 @@ public class LRParser {
 				} else {
 					BlockNode programBlock = (BlockNode) valueStack.pop();
 					ast.setRootNode(programBlock);
-					programBlock.setParentNode(ast.getRootNode());
 					return ast;
 				}
 			}
@@ -183,6 +184,17 @@ public class LRParser {
 	}
 
 	private static Object[] arr(List<Object> objs) {
+//		for (Object obj : objs) {
+//			if (obj instanceof BlockNode) {
+//				BlockNode node = (BlockNode) obj;
+//				if (node.getDeclarationList().size() != 0) {
+//					System.out.println();
+//				}
+//			}
+//			if (obj instanceof ReturnNode) {
+//				System.out.println();
+//			}
+//		}
 		return objs.toArray(new Object[objs.size()]);
 	}
 
@@ -233,8 +245,8 @@ public class LRParser {
 
 					// Handle right
 					if (right instanceof BlockNode) {
-						BlockNode oldBlock = (BlockNode) right;
-						declList.addAll(oldBlock.getDeclarationList());
+						BlockNode tmpBlock = (BlockNode) right;
+						declList.addAll(tmpBlock.getDeclarationList());
 					} else {
 						if (!(right instanceof DeclarationNode)) {
 							log.error("Error in decls -> decls decl: Right must be a DeclarationNode!");
@@ -245,8 +257,11 @@ public class LRParser {
 
 					// Create new BlockNode
 					BlockNode block = new BlockNodeImpl();
+					block.setSymbolTable(new SymbolTableImpl());
 					for (DeclarationNode decl : declList) {
 						block.addDeclaration(decl);
+						block.getSymbolTable().insert(decl.getIdentifier(), decl.getType());
+						// TODO Check for multiple definition!
 						decl.setParentNode(block);
 					}
 					return block;
@@ -271,16 +286,16 @@ public class LRParser {
 					DeclarationNode decl = new DeclarationNodeImpl();
 					// Set type
 					switch (typeToken.getTokenType()) {
-					case REAL:
+					case DOUBLE_SYMBOL:
 						decl.setType(new DoubleType());
 						break;
-					case NUM:
+					case LONG_SYMBOL:
 						decl.setType(new LongType());
 						break;
-					case STRING:
-						decl.setType(new StringType((long) typeToken.getValue()
-								.length()));
-						break;
+//					case STRING:
+//						decl.setType(new StringType((long) typeToken.getValue()
+//								.length()));
+//						break;
 					default:
 						break;
 					}
@@ -295,7 +310,7 @@ public class LRParser {
 			return new ReduceAction() {
 				@Override
 				public Object create(Object... objs) {
-					Object left = objs[0]; // Should be NO_VALUE or
+					Object left = objs[0]; // Should be NO_VALUE or BlockNode or other
 											// StatementNode
 					Object right = objs[1]; // Should be StatementNode or
 											// BlockNode
@@ -304,7 +319,9 @@ public class LRParser {
 					// Handle left
 					if (!left.equals(NO_VALUE)) {
 						// there are just 0ne statement
-						if (!(left instanceof StatementNode)) {
+						if (left instanceof BlockNode) {
+							stmtList.addAll(((BlockNode) left).getStatementList());
+						} else if (!(left instanceof StatementNode)) {
 							log.error("Error in decls -> decls decl: Left must be a DeclarationNode!");
 						} else {
 							stmtList.add((StatementNode) left);
@@ -341,8 +358,15 @@ public class LRParser {
 				}
 			};
 
-		case "stmt -> assign":
-			break; // Nothing to reduce here
+		case "stmt -> assign ;":
+			return new ReduceAction() {
+				@Override
+				public Object create(Object... objs) {
+					AssignmentNode assign = (AssignmentNode) objs[0];
+					// Drop semicolon!
+					return  assign;
+				}
+			};
 		case "stmt -> block":
 			break; // Nothing to reduce here. Block is a Stmt
 
@@ -416,6 +440,7 @@ public class LRParser {
 				}
 			};
 		case "assign -> bool":
+			return null;
 		case "bool -> bool || join":
 		case "bool -> join":
 		case "join -> join && equality":
@@ -516,11 +541,9 @@ public class LRParser {
 					literal.setLiteralType(new LongType());
 					return literal;
 				}
-
 			};
 		case "factor -> real":
 			return new ReduceAction() {
-
 				@Override
 				public Object create(Object... objs) {
 					LiteralNode literal = new LiteralNodeImpl();
@@ -529,11 +552,9 @@ public class LRParser {
 					literal.setLiteralType(new DoubleType());
 					return literal;
 				}
-
 			};
 		case "factor -> true":
 			return new ReduceAction() {
-
 				@Override
 				public Object create(Object... objs) {
 					LiteralNode literal = new LiteralNodeImpl();
@@ -542,11 +563,9 @@ public class LRParser {
 					literal.setLiteralType(new BooleanType());
 					return literal;
 				}
-
 			};
 		case "factor -> false":
 			return new ReduceAction() {
-
 				@Override
 				public Object create(Object... objs) {
 					LiteralNode literal = new LiteralNodeImpl();
@@ -555,11 +574,9 @@ public class LRParser {
 					literal.setLiteralType(new BooleanType());
 					return literal;
 				}
-
 			};
 		case "factor -> string":
 			return new ReduceAction() {
-
 				@Override
 				public Object create(Object... objs) {
 					LiteralNode literal = new LiteralNodeImpl();
@@ -577,6 +594,7 @@ public class LRParser {
 		case "type -> num":
 		case "type -> real":
 		case "type -> record { decls }":
+			return null;
 		default:
 			return null; // Means "no ReduceAction to perform"
 		}
@@ -585,11 +603,14 @@ public class LRParser {
 
 	private static Object joinBlocks(Object left, Object right) {
 		BlockNode newBlock = new BlockNodeImpl();
+		newBlock.setSymbolTable(new SymbolTableImpl());
+		
 		// Handle left
 		if (!left.equals(NO_VALUE)) {
 			BlockNode declsBlock = (BlockNode) left;
 			for (DeclarationNode decl : declsBlock.getDeclarationList()) {
 				newBlock.addDeclaration(decl);
+				newBlock.getSymbolTable().insert(decl.getIdentifier(), decl.getType());
 				decl.setParentNode(newBlock);
 			}
 		}

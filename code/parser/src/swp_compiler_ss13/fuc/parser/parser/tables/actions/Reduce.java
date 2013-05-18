@@ -15,6 +15,6 @@ public class Reduce extends ALRAction {
 	}
 
    public int getPopCount() {
-      return production.getRHSSizeWoEpsilon(); // TODO Correct???
+      return production.getRHSSizeWoEpsilon();
    }
 }

@@ -11,10 +11,10 @@ public class ProjectGrammar {
 		public static final Terminal id = new Terminal("id", TokenType.ID);
 		public static final Terminal sem = new Terminal(";",
 				TokenType.SEMICOLON);
-		public static final Terminal lsb = new Terminal("[",
-				TokenType.LEFT_BRACKET);
-		public static final Terminal rsb = new Terminal("]",
-				TokenType.RIGHT_BRACKET);
+//		public static final Terminal lsb = new Terminal("[",
+//				TokenType.LEFT_BRACKET);
+//		public static final Terminal rsb = new Terminal("]",
+//				TokenType.RIGHT_BRACKET);
 		public static final Terminal basic = new Terminal("basic", TokenType.LONG_SYMBOL, TokenType.DOUBLE_SYMBOL, TokenType.BOOL_SYMBOL);
 		// public static final Terminal record = new Terminal("record", null);
 
@@ -55,7 +55,7 @@ public class ProjectGrammar {
 		public static final Terminal times = new Terminal("*", TokenType.TIMES);
 		public static final Terminal div = new Terminal("/", TokenType.DIVIDE);
 //		public static final Terminal not = new Terminal("!", TokenType.NOT);
-		public static final Terminal num = new Terminal("long", TokenType.NUM);
+		public static final Terminal num = new Terminal("num", TokenType.NUM);
 		public static final Terminal real = new Terminal("real", TokenType.REAL);
 //		public static final Terminal truee = new Terminal("true",
 //				TokenType.TRUE);
@@ -92,8 +92,8 @@ public class ProjectGrammar {
 				Terminal.Epsilon);
 		public static final Production decl1 = new Production(4, decl, type,
 				id, sem);
-		public static final Production type1 = new Production(5, type, type,
-				lsb, num, rsb);
+//		public static final Production type1 = new Production(5, type, type,
+//				lsb, num, rsb);
 		public static final Production type2 = new Production(6, type, basic);
 		// public static final Production type3 = new Production(7, type,
 		// record,
@@ -111,17 +111,20 @@ public class ProjectGrammar {
 		// public static final Production stmt4 = new Production(13, stmt,
 		// whilee,
 		// lb, assign, rb, stmt);
+//		public static final Production stmt9 = new Production(52, stmt, doo, stmt, whilee, lb, assign, rb, sem);
 		// public static final Production stmt5 = new Production(14, stmt,
 		// breakk,
 		// sem);
 		public static final Production stmt6 = new Production(15, stmt,
 				returnn, sem);
+		public static final Production stmt10 = new Production(15, stmt,
+				returnn, loc, sem);
 		// public static final Production stmt7 = new Production(16, stmt,
 		// print,
 		// loc, sem);
 		public static final Production stmt8 = new Production(17, stmt, block);
-		public static final Production loc1 = new Production(18, loc, loc, lsb,
-				assign, rsb);
+//		public static final Production loc1 = new Production(18, loc, loc, lsb,
+//				assign, rsb);
 		public static final Production loc2 = new Production(19, loc, id);
 
 		// public static final Production loc3 = new Production(20, loc, loc,
@@ -130,14 +133,14 @@ public class ProjectGrammar {
 		public static final Production assign1 = new Production(22, assign,
 				loc, assignop, assign);
 		public static final Production assign2 = new Production(23, assign,
-				loc, assignop, bool);
+				bool);
 //		public static final Production bool1 = new Production(24, bool, bool,
 //				orop, join);
-//		public static final Production bool2 = new Production(25, bool, join);
+		public static final Production bool2 = new Production(25, bool, join);
 //		public static final Production join1 = new Production(26, join, join,
 //				andop, equality);
-//		public static final Production join2 = new Production(27, join,
-//				equality);
+		public static final Production join2 = new Production(27, join,
+				equality);
 //		public static final Production equality1 = new Production(28, equality,
 //				equality, equalop, rel);
 //		public static final Production equality2 = new Production(29, equality,
@@ -289,10 +292,13 @@ public class ProjectGrammar {
 				lb, assign, rb, stmt, elsee, stmt);
 		public static final Production stmt4 = new Production(13, stmt, whilee,
 				lb, assign, rb, stmt);
+		public static final Production stmt9 = new Production(52, stmt, doo, stmt, whilee, lb, assign, rb, sem);
 		public static final Production stmt5 = new Production(14, stmt, breakk,
 				sem);
 		public static final Production stmt6 = new Production(15, stmt,
 				returnn, sem);
+		public static final Production stmt10 = new Production(15, stmt,
+				returnn, loc, sem);
 		public static final Production stmt7 = new Production(16, stmt, print,
 				loc, sem);
 		public static final Production stmt8 = new Production(17, stmt, block);

@@ -85,10 +85,14 @@ public class TokenEx implements Token {
 	public Integer getColumn() {
 		return token.getColumn();
 	}
+	
+	public static String tokenToString(Token t) {
+		return t.getValue();
+	}
 
 	@Override
 	public String toString() {
-		return "TokenEx: " + token.toString() + "|"
+		return "TokenEx: " + tokenToString(token) + "|"
 				+ (terminal != null ? terminal.toString() : "");
 	}
 }

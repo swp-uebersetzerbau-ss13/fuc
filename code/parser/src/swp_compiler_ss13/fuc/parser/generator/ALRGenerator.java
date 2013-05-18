@@ -64,10 +64,10 @@ public abstract class ALRGenerator<I extends Item, S extends ALRState<I>> {
 			}
 		}
 
-		// Construct parsing table
+		// Construct parsing table (pass association 'parser state' -> 'generator state' for debugging)
 		table = new LRParsingTable(parserStatesMap);
 
-		// Traverse edge and generate shift, goto and accept
+		// Traverse edges and generate shift, goto and accept
 		for (DfaEdge<S> edge : dfa.getEdges()) {
 			LRParserState src = statesMap.get(edge.getSrc());
 			if (edge.getSymbol().isTerminal()) {
