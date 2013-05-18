@@ -157,6 +157,9 @@ public class ASTVisualizationTest {
 		program.setSymbolTable(new SymbolTableImpl());
 		ast2.setRootNode(program);
 
+		BlockNode block = new BlockNodeImpl();
+		block.setSymbolTable(new SymbolTableImpl());
+
 		DeclarationNode l = new DeclarationNodeImpl();
 		l.setIdentifier("l");
 		l.setType(new LongType());
@@ -178,15 +181,21 @@ public class ASTVisualizationTest {
 		minus.setRightValue(literal32);
 		literal32.setParentNode(minus);
 
-		ArithmeticBinaryExpressionNode add = new ArithmeticBinaryExpressionNodeImpl();
-		add.setOperator(BinaryOperator.ADDITION);
-		add.setLeftValue(minus);
-		add.setRightValue(literal32);
-		literal3.setParentNode(add);
-		literal32.setParentNode(add);
-
 		BasicIdentifierNode lid = new BasicIdentifierNodeImpl();
 		lid.setIdentifier("l");
+
+		AssignmentNode assign2 = new AssignmentNodeImpl();
+		assign2.setLeftValue(lid);
+		assign2.setRightValue(literal32);
+		lid.setParentNode(assign2);
+		literal32.setParentNode(assign2);
+
+		ArithmeticBinaryExpressionNode add = new ArithmeticBinaryExpressionNodeImpl();
+		add.setOperator(BinaryOperator.ADDITION);
+		add.setLeftValue(assign2);
+		add.setRightValue(minus);
+		literal3.setParentNode(add);
+		assign2.setParentNode(add);
 
 		AssignmentNode assign = new AssignmentNodeImpl();
 		assign.setLeftValue(lid);
@@ -194,8 +203,10 @@ public class ASTVisualizationTest {
 		lid.setParentNode(assign);
 		add.setParentNode(assign);
 
-		assign.setParentNode(program);
-		program.addStatement(assign);
+		assign.setParentNode(block);
+		program.addStatement(block);
+		block.setParentNode(program);
+		block.addStatement(assign);
 
 		BasicIdentifierNode lid2 = new BasicIdentifierNodeImpl();
 		lid2.setIdentifier("l");

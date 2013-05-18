@@ -80,7 +80,7 @@
 		<ant antfile="build.xml" dir="${test.dir}" target="build-tests" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.ast.infix.dir}" target="build-tests" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.ast.xml.dir}" target="build-tests" inheritall="false" />
-		<ant antfile="build.xml" dir="${visu.tac.quadruple.dir}" target="build.tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.tac.quadruple.dir}" target="build-tests" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.tac.triple.dir}" target="build-tests" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.tac.code.dir}" target="build-tests" inheritall="false" />
 	</target>

@@ -126,9 +126,7 @@ public class SymbolTableImpl implements SymbolTable{
 
 	@Override
 	public void setIdentifierAlias(String identifier, String alias) {
-		if(isDeclaredInCurrentScope(identifier)){
-			aliasMap.put(identifier, alias);
-		}
+		aliasMap.put(identifier, alias);
 	}
 
 	@Override

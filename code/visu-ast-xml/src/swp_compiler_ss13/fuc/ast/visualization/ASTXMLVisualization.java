@@ -76,7 +76,7 @@ public class ASTXMLVisualization implements ASTVisualization {
 			// TODO
 			break;
 		case DeclarationNode:
-			attributes = " type=\"" + ((DeclarationNode) node).getType().toString() + "\"";
+			attributes = " type=\"" + ((DeclarationNode) node).getType().toString().replaceFirst("Type$", "") + "\"";
 			value = ((DeclarationNode) node).getIdentifier().toString();
 			break;
 		case DoWhileNode:
