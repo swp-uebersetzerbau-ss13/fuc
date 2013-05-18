@@ -836,8 +836,9 @@ public class LLVMBackendTest {
 
 
 	private String generateCodeAsString(ArrayList<Quadruple> tac) throws IOException, BackendException {
-		Map<String, InputStream> result = backend.generateTargetCode(tac);
-		InputStream module = result.get(".ll");
+		String baseFileName = "baseFileName";
+		Map<String, InputStream> result = backend.generateTargetCode(baseFileName, tac);
+		InputStream module = result.get("baseFileName.ll");
 		BufferedReader in = new BufferedReader(new InputStreamReader(module));
 		StringBuilder builder = new StringBuilder();
 		for (String line = in.readLine(); line != null; line = in.readLine())

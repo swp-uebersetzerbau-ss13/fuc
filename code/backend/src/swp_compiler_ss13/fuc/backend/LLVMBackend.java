@@ -19,6 +19,8 @@ import java.util.Map;
  */
 public class LLVMBackend implements Backend
 {
+
+
 	/**
 	 * This function generates LLVM IR code for
 	 * given three address code.
@@ -27,7 +29,7 @@ public class LLVMBackend implements Backend
 	 * @return the generated LLVM IR code.
 	 */
 	@Override
-	public Map<String,InputStream> generateTargetCode(List<Quadruple> tac) throws BackendException {
+	public Map<String, InputStream> generateTargetCode(String baseFileName, List<Quadruple> tac) throws BackendException {
 		ByteArrayOutputStream outStream = new ByteArrayOutputStream();
 		PrintWriter out = new PrintWriter(outStream);
 
@@ -196,7 +198,7 @@ public class LLVMBackend implements Backend
 
 		/* Convert written target code to readable input format */
 		Map<String,InputStream> map = new HashMap<String,InputStream>();
-		map.put(".ll", new ByteArrayInputStream(outStream.toByteArray()));
+		map.put(baseFileName+".ll", new ByteArrayInputStream(outStream.toByteArray()));
 
 		/* Return the map containing the readable target code */
 		return map;

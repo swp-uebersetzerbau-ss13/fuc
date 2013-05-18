@@ -63,7 +63,7 @@ public class TACExecutor
 
 		List<Quadruple> tac = readTAC(stream);
 
-		Map.Entry<String,InputStream> entry = b.generateTargetCode(tac).entrySet().iterator().next();
+		Map.Entry<String,InputStream> entry = b.generateTargetCode("", tac).entrySet().iterator().next();
 		InputStream targetCode = entry.getValue();
 		String name = entry.getKey();
 
