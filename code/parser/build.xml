@@ -23,10 +23,20 @@
 	<target name="ast" description="Build the ast">
 		<ant antfile="build.xml" dir="../${ast.dir}" target="build" inheritall="false" />
 	</target>
+
+	<!-- === depends on the symbol table === -->
+	<target name="symbolTable" description="Build the symbolTable">
+		<ant antfile="build.xml" dir="../${symbolTable.dir}" target="build" inheritall="false" />
+	</target>
 	
 	<!-- === depends on the semantic analysis === -->
 	<target name="semanticanalyzer" description="Build the semantic Analyser">
 		<ant antfile="build.xml" dir="../${semanticAnalyzer.dir}" target="build" inheritall="false" />
+	</target>
+	
+	<!-- === depends on the lexer === -->
+	<target name="lexer" description="Build the lexer">
+		<ant antfile="build.xml" dir="../${lexer.dir}" target="build" inheritall="false" />
 	</target>
 
 	<!-- === clean === -->
@@ -36,7 +46,7 @@
 	</target>
 
 	<!-- === build === -->
-	<target name="build" depends="clean, interfaces, ast, semanticanalyzer" description="build the source files">
+	<target name="build" depends="clean, interfaces, ast, semanticanalyzer, symbolTable" description="build the source files">
 		<mkdir dir="${bin.dir}" />
 		<javac 
 			srcdir="${src.dir}"
@@ -69,7 +79,7 @@
 	</target>
 
 	<!-- === build tests === -->
-	<target name="build-tests" depends="build" description="build the junit tests">
+	<target name="build-tests" depends="build, lexer" description="build the junit tests">
 		<javac
 			srcdir="${test.dir}"
 			destdir="${bin.dir}"

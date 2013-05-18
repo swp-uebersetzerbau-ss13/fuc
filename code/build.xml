@@ -120,6 +120,9 @@
 			<zipfileset dir="${dist.dir}/temp" includes="swp_compiler_ss13.common.ast.AST" fullpath="META-INF/services/swp_compiler_ss13.common.ast.AST" />
 		</jar>
 		
+		<!-- create the SymbolTable package -->
+		<jar destfile="${dist.dir}/FUC-SymbolTable.jar" basedir="${symbolTable.dir}/${bin.dir}" />
+		
 		<!-- create the Backend package -->
 		<echo message="swp_compiler_ss13.fuc.backend.LLVMBackend" file="${dist.dir}/temp/swp_compiler_ss13.common.backend.Backend" />
 		<jar destfile="${dist.dir}/FUC-Backend.jar" basedir="${backend.dir}/${bin.dir}">
@@ -200,6 +203,13 @@
 			<zipfileset dir="${ast.dir}/${src.dir}" prefix="src" />
 			<zipfileset dir="${ast.dir}/${test.dir}" prefix="test" />
 			<zipfileset dir="${ast.dir}/${doc.dir}" prefix="doc" />
+		</jar>
+		
+		<!-- create the SymbolTable package -->
+		<jar destfile="${dist.dir}/FUC-SymbolTable.jar" update="true">
+			<zipfileset dir="${symbolTable.dir}/${src.dir}" prefix="src" />
+			<zipfileset dir="${symbolTable.dir}/${test.dir}" prefix="test" />
+			<zipfileset dir="${symbolTable.dir}/${doc.dir}" prefix="doc" />
 		</jar>
 		
 		<!-- create the Backend package -->

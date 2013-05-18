@@ -202,11 +202,11 @@ public class Controller {
 		input = new FileInputStream(inputfilename);
 		lexer.setSourceStream(input);
 
-		for (TokenStreamVisualization tokenvisu : tokenVisuService) {
-			tokenvisu.visualizeTokenStream(lexer);
-			input = new FileInputStream(inputfilename);
-			lexer.setSourceStream(input);
-		}
+		/*
+		 * for (TokenStreamVisualization tokenvisu : tokenVisuService) {
+		 * tokenvisu.visualizeTokenStream(lexer); input = new
+		 * FileInputStream(inputfilename); lexer.setSourceStream(input); }
+		 */
 
 		// parser...
 		parser.setLexer(lexer);
