@@ -23,14 +23,13 @@ import swp_compiler_ss13.fuc.parser.parser.LRParser;
 import swp_compiler_ss13.fuc.parser.parser.LexerWrapper;
 import swp_compiler_ss13.fuc.parser.parser.tables.LRParsingTable;
 
-public class M1UndefReturnTest {
+public class M1SimpleAddTest {
 	static {
 		BasicConfigurator.configure();
 	}
 
 //	@Test
-//	public void testDoubleDecl() {
-//
+//	public void testAdd() {
 //		// String input = "# return 27\n"
 //		// + "long l;\n"
 //		// + "l = 10 +\n"
@@ -59,9 +58,10 @@ public class M1UndefReturnTest {
 //		LRParser lrParser = new LRParser();
 //		LexerWrapper lexWrapper = new LexerWrapper(lexer, grammar);
 //		ReportLog reportLog = new ReportLogImpl();
-//		lrParser.parse(lexWrapper, reportLog, table);
+//		AST ast = lrParser.parse(lexWrapper, reportLog, table);
+//
+//		checkAst(ast);
 //	}
-
 
 	private static void checkAst(AST ast) {
 		assertNotNull(ast);
@@ -69,10 +69,11 @@ public class M1UndefReturnTest {
 	}
 
 	@Test
-	public void testErrorUndefReturnOrgLexer() {
-		String input = "# error: id spam is not initialized and returned"
-				+ "long spam;\n"
-				+ "return spam;";
+	public void testSimpleAddOrgLexer() {
+		String input = "# returns 6\n"
+				+ "long l;\n"
+				+ "l = 3 + 3;\n"
+				+ "return l;";
 		// Generate parsing table
 		Grammar grammar = new ProjectGrammar.M1().getGrammar();
 		ALRGenerator<LR0Item, LR0State> generator = new LR0Generator(grammar);
@@ -87,7 +88,7 @@ public class M1UndefReturnTest {
 		LexerWrapper lexWrapper = new LexerWrapper(lexer, grammar);
 		ReportLog reportLog = new ReportLogImpl();
 		AST ast = lrParser.parse(lexWrapper, reportLog, table);
-		
+
 		checkAst(ast);
 	}
 }
