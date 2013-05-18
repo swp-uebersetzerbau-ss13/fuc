@@ -25,6 +25,7 @@ import swp_compiler_ss13.common.ast.nodes.unary.UnaryExpressionNode.UnaryOperato
 import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.common.parser.ReportLog;
+import swp_compiler_ss13.common.parser.SymbolTable;
 import swp_compiler_ss13.common.types.primitive.BooleanType;
 import swp_compiler_ss13.common.types.primitive.DoubleType;
 import swp_compiler_ss13.common.types.primitive.LongType;
@@ -127,7 +128,7 @@ public class LRParser {
 				// +++++++++++++++++++++++++++++++++++
 				// get action for reduced production
 				Production prod = reduce.getProduction();
-				ReduceAction reduceAction = getReduceAction(prod);
+				ReduceAction reduceAction = getReduceAction(prod, reportLog);
 
 				// If there is anything to do on the value stack
 				// (There might be no reduce-action for Productions like unary
@@ -198,7 +199,7 @@ public class LRParser {
 		return objs.toArray(new Object[objs.size()]);
 	}
 
-	private ReduceAction getReduceAction(Production prod) {
+	private ReduceAction getReduceAction(Production prod, final ReportLog reportLog) {
 		switch (prod.getStringRep()) {
 
 		case "program -> decls stmts":
@@ -208,7 +209,7 @@ public class LRParser {
 					Object left = objs[0]; // Should be NO_VALUE or BlockNode
 					Object right = objs[1]; // Should be NO_VALUE or BlockNode
 
-					return joinBlocks(left, right);
+					return joinBlocks(left, right, reportLog);
 				}
 			};
 
@@ -219,7 +220,7 @@ public class LRParser {
 					Object left = objs[1]; // Should be NO_VALUE or BlockNode
 					Object right = objs[2]; // Should be NO_VALUE or BlockNode
 
-					return joinBlocks(left, right);
+					return joinBlocks(left, right, reportLog);
 				}
 			};
 
@@ -227,16 +228,17 @@ public class LRParser {
 			return new ReduceAction() {
 				@Override
 				public Object create(Object... objs) {
-					Object left = objs[0]; // Should be NO_VALUE or
-											// DeclarationNode
+					Object left = objs[0]; // Should be NO_VALUE, BlockNode or DeclarationNode
 					Object right = objs[1]; // Should be DeclarationNode or
 											// BlockNode
 
 					LinkedList<DeclarationNode> declList = new LinkedList<>();
 					// Handle left
 					if (!left.equals(NO_VALUE)) {
-						// We have exactlly ONE decl
-						if (!(left instanceof DeclarationNode)) {
+						if (left instanceof BlockNode) {
+							BlockNode leftBlock = (BlockNode) left;
+							declList.addAll(leftBlock.getDeclarationList());
+						} else if (!(left instanceof DeclarationNode)) {
 							log.error("Error in decls -> decls decl: Left must be a DeclarationNode!");
 						} else {
 							declList.add((DeclarationNode) left);
@@ -259,10 +261,7 @@ public class LRParser {
 					BlockNode block = new BlockNodeImpl();
 					block.setSymbolTable(new SymbolTableImpl());
 					for (DeclarationNode decl : declList) {
-						block.addDeclaration(decl);
-						block.getSymbolTable().insert(decl.getIdentifier(), decl.getType());
-						// TODO Check for multiple definition!
-						decl.setParentNode(block);
+						insertDecl(block, decl, reportLog);
 					}
 					return block;
 				}
@@ -601,7 +600,26 @@ public class LRParser {
 		return null;
 	}
 
-	private static Object joinBlocks(Object left, Object right) {
+	/**
+	 * Inserts the {@link DeclarationNode} into the block and its {@link SymbolTable} safely.
+	 * 
+	 * @param block
+	 * @param decl
+	 */
+	protected static void insertDecl(BlockNode block, DeclarationNode decl, final ReportLog reportLog) throws ParserException {
+		SymbolTable symbolTable = block.getSymbolTable();
+		// TODO M2: Shadowing allowed???
+		if (symbolTable.isDeclared(decl.getIdentifier())) {
+			// TODO Add token to Nodes
+			reportLog.reportError(decl.getType() + " " + decl.getIdentifier(), -1, -1, "The variable '" + decl.getIdentifier() + "' of type '" + decl.getType() + "' has been declared twice!");
+			throw new ParserException("double id exception");
+		}
+		block.addDeclaration(decl);
+		block.getSymbolTable().insert(decl.getIdentifier(), decl.getType());
+		decl.setParentNode(block);
+	}
+
+	private static Object joinBlocks(Object left, Object right, ReportLog reportLog) {
 		BlockNode newBlock = new BlockNodeImpl();
 		newBlock.setSymbolTable(new SymbolTableImpl());
 		
@@ -609,9 +627,7 @@ public class LRParser {
 		if (!left.equals(NO_VALUE)) {
 			BlockNode declsBlock = (BlockNode) left;
 			for (DeclarationNode decl : declsBlock.getDeclarationList()) {
-				newBlock.addDeclaration(decl);
-				newBlock.getSymbolTable().insert(decl.getIdentifier(), decl.getType());
-				decl.setParentNode(newBlock);
+				insertDecl(newBlock, decl, reportLog);
 			}
 		}
 
