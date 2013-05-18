@@ -8,18 +8,23 @@ import swp_compiler_ss13.common.types.Type;
 
 public class SymbolTableImpl implements SymbolTable{
 
-	private SymbolTable parent = null;
-	private HashMap<String, Type> symbolTable;
 	private static long ext;
 	
+	private SymbolTable parent = null;
+	private HashMap<String, Type> symbolMap;
+	private HashMap<String, Liveliness> liveMap;
+	private HashMap<String, String> aliasMap;
 	
+
 	public SymbolTableImpl(SymbolTable parent) {
 		this.parent = parent;
-		this.symbolTable = new HashMap<String, Type>();
+		this.symbolMap = new HashMap<String, Type>();
+		this.liveMap = new HashMap<String,Liveliness>();
+		this.aliasMap = new HashMap<String, String>();
 	}
 	
 	public SymbolTableImpl(){
-		this.symbolTable = new HashMap<String, Type>();
+		this.symbolMap = new HashMap<String, Type>();
 	}
 	
 	@Override
@@ -29,37 +34,53 @@ public class SymbolTableImpl implements SymbolTable{
 
 	@Override
 	public Boolean isDeclared(String identifier) {
-		return symbolTable.containsKey(identifier);
-	}
-
-	@Override
-	public Type lookupType(String identifier) {
-		return symbolTable.get(identifier);
-	}
-
-	@Override
-	public void insert(String identifier, Type type) {
-		if(!isDeclared(identifier)){
-			symbolTable.put(identifier, type);
+		if(parent == null){
+			return symbolMap.containsKey(identifier);
+		}else{
+			if(symbolMap.containsKey(identifier)){
+				return true;
+			}else{
+				return parent.isDeclared(identifier);
+			}
 		}
 	}
 
 	@Override
+	public Type lookupType(String identifier) {
+		if(parent == null){
+			return symbolMap.get(identifier);
+		}else{
+			if(symbolMap.containsKey(identifier)){
+				return symbolMap.get(identifier);
+			}else{
+				return parent.lookupType(identifier);
+			}
+		}
+	}
+
+	@Override
+	public Boolean insert(String identifier, Type type) {
+		if(!isDeclared(identifier)){
+			symbolMap.put(identifier, type);
+			return true;
+		}
+		return false;
+	}
+
+	@Override
 	public Boolean remove(String identifier) {
-		return symbolTable.remove(identifier) != null;
+		return symbolMap.remove(identifier) != null;
 	}
 
 	@Override
 	public void setLivelinessInformation(String identifier,
 			Liveliness liveliness) {
-		// TODO Auto-generated method stub
-		
+		liveMap.put(identifier,liveliness);
 	}
 
 	@Override
 	public Liveliness getLivelinessInformation(String identifier) {
-		// TODO Auto-generated method stub
-		return null;
+		return liveMap.get(identifier);
 	}
 
 	@Override
@@ -80,6 +101,48 @@ public class SymbolTableImpl implements SymbolTable{
 			insert(identifier, type);
 		}
 		
+	}
+
+	@Override
+	public SymbolTable getRootSymbolTable() {
+		if(parent == null){
+			return this;
+		}else{
+			return parent.getRootSymbolTable();
+		}
+	}
+
+	@Override
+	public Boolean isDeclaredInCurrentScope(String identifier) {
+		return symbolMap.containsKey(identifier);
+	}
+
+	@Override
+	public Type lookupTypeInCurrentScope(String identifier) {
+		return symbolMap.get(identifier);
+	}
+
+	@Override
+	public void setIdentifierAlias(String identifier, String alias) {
+		aliasMap.put(identifier, alias);
+	}
+
+	@Override
+	public String getIdentifierAlias(String identifier) {
+		return aliasMap.get(identifier);
+	}
+
+	@Override
+	public SymbolTable getDeclaringSymbolTable(String identifier) {
+		if(isDeclaredInCurrentScope(identifier)){
+			return this;
+		}else{
+			if(parent != null){
+				return parent.getDeclaringSymbolTable(identifier);
+			}else{
+				return null;
+			}
+		}
 	}
 
 }

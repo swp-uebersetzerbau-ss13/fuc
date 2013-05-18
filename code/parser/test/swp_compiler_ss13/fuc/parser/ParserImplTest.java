@@ -9,6 +9,7 @@ import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.loc;
 import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.sem;
 import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.type;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import swp_compiler_ss13.common.ast.AST;
@@ -20,6 +21,7 @@ import swp_compiler_ss13.fuc.parser.generator.states.LR0State;
 import swp_compiler_ss13.fuc.parser.grammar.Grammar;
 import swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar;
 
+@Ignore
 public class ParserImplTest {
 	@Test
 	public void testParsingComplete() {

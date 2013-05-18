@@ -17,11 +17,14 @@ public class SymboltableTest {
 	
 	private SymbolTable symbolTable;
 	private SymbolTable parentTable;
+	private SymbolTable rootTable;
 
 	@Before
 	public void setUp() throws Exception {
 		symbolTable = new SymbolTableImpl();
 		parentTable = new SymbolTableImpl(symbolTable);
+		rootTable = new SymbolTableImpl(rootTable);
+		
 	}
 
 	@After
