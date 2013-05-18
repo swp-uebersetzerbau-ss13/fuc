@@ -40,17 +40,17 @@ public class M1AddTest {
 
 	@Test
 	public void testAdd() {
-//		String input = "# return 27\n"
-//				+ "long l;\n"
-//				+ "l = 10 +\n"
-//				+ "23 # - 23\n"
-//				+ "- 23\n"
-//				+ "+ 100 /\n"
-//				+ "\n"
-//				+ "2\n"
-//				+ "- 30\n"
-//				+ "- 9 / 3;\n"
-//				+ "return l;\n";
+		// String input = "# return 27\n"
+		// + "long l;\n"
+		// + "l = 10 +\n"
+		// + "23 # - 23\n"
+		// + "- 23\n"
+		// + "+ 100 /\n"
+		// + "\n"
+		// + "2\n"
+		// + "- 30\n"
+		// + "- 9 / 3;\n"
+		// + "return l;\n";
 		// Generate parsing table
 		Grammar grammar = new ProjectGrammar.M1().getGrammar();
 		ALRGenerator<LR0Item, LR0State> generator = new LR0Generator(grammar);
@@ -72,12 +72,10 @@ public class M1AddTest {
 
 		checkAst(ast);
 	}
-	
+
 	private static void checkAst(AST ast) {
 		// TODO Validate ast
 	}
-	
-
 
 	@Test
 	public void testAddOrgLexer() {
