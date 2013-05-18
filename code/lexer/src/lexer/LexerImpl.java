@@ -39,7 +39,7 @@ public class LexerImpl implements Lexer {
 
 	/**
 	 * Method to initialize class variables when getting a new
-	 * {@link InputStream}
+	 * {@link InputStream}.
 	 */
 	private void init() {
 		this.actualLine = 1;
@@ -78,7 +78,7 @@ public class LexerImpl implements Lexer {
 	}
 
 	/**
-	 * Method to match a a {@link String} into a {@link TokenType}
+	 * Method to match a a {@link String} into a {@link TokenType}.
 	 * 
 	 * @param nextToken
 	 *            {@link String} to match
@@ -168,32 +168,23 @@ public class LexerImpl implements Lexer {
 
 	/**
 	 * Method to get the value, the actual line and the actual column of the
-	 * next token
+	 * next token.
 	 * 
 	 * @return abstracted token value of current read token
 	 */
 	private String abstractToken() {
-		String actualLineValue = this.convertedLines.get(this.actualLine - 1);
-
-		if ((actualLineValue.startsWith(" ") ? (actualLineValue.split("\\s+").length <= this.actualCountOfTokenInLine + 1)
-				: (actualLineValue.split("\\s+").length <= this.actualCountOfTokenInLine))) {
-			this.actualLine++;
-			this.actualColumn = 1;
-			this.actualCountOfTokenInLine = 0;
-		}
-
+		this.checkNewLine();
 		if (this.convertedLines.size() < this.actualLine) {
 			// EOF detected
 			return "";
 		} else {
-			actualLineValue = this.convertedLines.get(this.actualLine - 1);
+			String actualLineValue = this.convertedLines
+					.get(this.actualLine - 1);
 			String actualTokenValue;
 			if (this.nextTokenValue != null) {
 				// next token value was already read
 				actualTokenValue = this.nextTokenValue;
 				this.nextTokenValue = null;
-				// reset counter of tokens in line
-				this.actualCountOfTokenInLine--;
 			} else {
 				// read next token value
 				if (actualLineValue.startsWith(" ")) {
@@ -208,6 +199,8 @@ public class LexerImpl implements Lexer {
 					actualTokenValue = actualTokenValue.substring(0,
 							actualTokenValue.length() - 1);
 					this.nextTokenValue = ";";
+					// reset counter of tokens in line
+					this.actualCountOfTokenInLine--;
 				}
 			}
 
@@ -228,4 +221,30 @@ public class LexerImpl implements Lexer {
 		}
 	}
 
+	/**
+	 * Method to check if the token are already read in the actual line. If so,
+	 * tokens of the next line will be read.
+	 */
+	private void checkNewLine() {
+		if (this.convertedLines.size() >= this.actualLine) {
+			String actualLineValue = this.convertedLines
+					.get(this.actualLine - 1);
+			if ((actualLineValue.startsWith(" ") && (actualLineValue
+					.split("\\s+").length == this.actualCountOfTokenInLine + 1))
+					|| (!actualLineValue.startsWith(" ") && actualLineValue
+							.split("\\s+").length <= this.actualCountOfTokenInLine)) {
+				this.actualLine++;
+				this.actualColumn = 1;
+				this.actualCountOfTokenInLine = 0;
+				this.checkNewLine();
+			} else if (actualLineValue.length() == 0
+					|| actualLineValue.split("\\s+").length == 0) {
+				// empty line detected
+				this.actualLine++;
+				this.actualColumn = 1;
+				this.actualCountOfTokenInLine = 0;
+				this.checkNewLine();
+			}
+		}
+	}
 }

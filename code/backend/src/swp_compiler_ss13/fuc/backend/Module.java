@@ -1,5 +1,6 @@
 package swp_compiler_ss13.fuc.backend;
 
+import swp_compiler_ss13.common.backend.BackendException;
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.types.Type;
 
@@ -198,20 +199,24 @@ public class Module
 	 * @param variable the variable's name
 	 * @return a free use identifier for the variable
 	 */
-	private String getUseIdentifierForVariable(String variable)
-	{
-		int ssa_suffix = variableUseCount.get(variable);
+	private String getUseIdentifierForVariable(String variable) throws BackendException {
+		int ssa_suffix = 0;
+		try {
+			ssa_suffix = variableUseCount.get(variable);
+		} catch (NullPointerException e) {
+			throw new BackendException("Use of undeclared variable");
+		}
 		variableUseCount.put(variable, ssa_suffix + 1);
 		return "%" + variable + "." + String.valueOf(ssa_suffix);
 	}
 
 	/**
 	 * Convert a three adress code boolean
-	 * to an LLVM IR boolean.
+	 * to a LLVM IR boolean.
 	 * All other public functions expect booleans
 	 * to be in the LLVM IR format.
 	 *
-	 * @param constant a TAC boolean
+	 * @param bool a TAC boolean
 	 * @return the converted LLVM IR boolean
 	 */
 	public static String toIRBoolean(String bool)
@@ -261,8 +266,7 @@ public class Module
 	 * @param variable the variable's name
 	 * @param literalID the string literal's id
 	 */
-	private void addLoadStringLiteral(String variable, int literalID)
-	{
+	private void addLoadStringLiteral(String variable, int literalID) throws BackendException {
 		String variableIdentifier = "%" + variable;
 		String variableUseIdentifier = getUseIdentifierForVariable(variable);
 		String literalIdentifier = getStringLiteralIdentifier(literalID);
@@ -297,8 +301,7 @@ public class Module
 	 * @param variable the new variable's name
 	 * @param initializer the new variable's initial value
 	 */
-	public void addPrimitiveDeclare(Type.Kind type, String variable, String initializer)
-	{
+	public void addPrimitiveDeclare(Type.Kind type, String variable, String initializer) throws BackendException {
 		addNewVariable(type, variable);
 
 		if(!initializer.equals(Quadruple.EmptyArgument))
@@ -317,8 +320,7 @@ public class Module
 	 * @param dst the destination variable's name
 	 * @param src the source constant or the source variable's name
 	 */
-	public void addPrimitiveAssign(Type.Kind type, String dst, String src)
-	{
+	public void addPrimitiveAssign(Type.Kind type, String dst, String src) throws BackendException {
 		boolean constantSrc = false;
 		if(src.charAt(0) == '#')
 		{
@@ -360,8 +362,7 @@ public class Module
 	 * @param dstType the destination variable's type
 	 * @param dst the destination variable's name
 	 */
-	public void addPrimitiveConversion(Type.Kind srcType, String src, Type.Kind dstType, String dst)
-	{
+	public void addPrimitiveConversion(Type.Kind srcType, String src, Type.Kind dstType, String dst) throws BackendException {
 		String srcUseIdentifier = getUseIdentifierForVariable(src);
 		String dstUseIdentifier = getUseIdentifierForVariable(dst);
 		String srcIdentifier = "%" + src;
@@ -393,8 +394,7 @@ public class Module
 	 * @param rhs the constant or name of the variable on the right hand side
 	 * @param dst the destination variable's name
 	 */
-	public void addPrimitiveBinaryInstruction(Quadruple.Operator op, Type.Kind type, String lhs, String rhs, String dst)
-	{
+	public void addPrimitiveBinaryInstruction(Quadruple.Operator op, Type.Kind type, String lhs, String rhs, String dst) throws BackendException {
 		String irType = getIRType(type);
 		String irInst = getIRBinaryInstruction(op);
 
@@ -433,8 +433,7 @@ public class Module
 	 *
 	 * @param value the value to return (exit code)
 	 */
-	public void addMainReturn(String value)
-	{
+	public void addMainReturn(String value) throws BackendException {
 		if(value.charAt(0) == '#')
 		{
 			gen("ret i64 " + value.substring(1));

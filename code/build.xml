@@ -286,12 +286,17 @@
 	
 	<!-- === run without build === -->
 	<target name="run-without-build"  description="execute the FUC Controller without distributing the code (faster but only works if dist directory already exists)">
+		<condition property="source.file.set" else="false">
+    		<isset property="source.file"/>
+	    </condition>
+		<fail message="you need to set the source file with -Dsource.file=&lt;filename&gt;" unless="${source.file.set}" />
 		<java classname="controller.Controller" fork="yes">
 			<classpath>
 				<fileset dir="${dist.dir}">
 					<include name="**/*.jar" />
 				</fileset>			
 			</classpath>
+			<arg value="${source.file}" />
 		</java>
 	</target>
 	
