@@ -14,6 +14,8 @@ import java.io.ByteArrayInputStream;
 
 import lexer.LexerImpl;
 
+import static org.junit.Assert.assertNotNull;
+
 import org.apache.log4j.BasicConfigurator;
 import org.junit.Test;
 
@@ -74,6 +76,7 @@ public class M1AddTest {
 	}
 
 	private static void checkAst(AST ast) {
+		assertNotNull(ast);
 		// TODO Validate ast
 	}
 
