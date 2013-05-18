@@ -10,6 +10,7 @@ import java.util.Set;
 
 import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.backend.Backend;
+import swp_compiler_ss13.common.backend.BackendException;
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.ir.IntermediateCodeGenerator;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
@@ -115,7 +116,7 @@ public class Controller {
 	}
 
 	public static void main(String[] args)
-			throws IOException, IntermediateCodeGeneratorException
+			throws IOException, IntermediateCodeGeneratorException, BackendException
 	{
 		System.err.println("SWP Compiler v0.0\n");
 
@@ -175,7 +176,7 @@ public class Controller {
 		// IR gen...
 		List<Quadruple> tac = irgen.generateIntermediateCode(ast);
 		// backend...
-		Map<String, InputStream> targets = backend.generateTargetCode(tac);
+		Map<String, InputStream> targets = backend.generateTargetCode("", tac);
 
 		// output..
 		Set<String> outputFilenames = targets.keySet();
