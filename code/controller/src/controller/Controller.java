@@ -146,7 +146,8 @@ public class Controller {
 	}
 
 	public static void main(String[] args)
-			throws IOException, IntermediateCodeGeneratorException, BackendException
+			throws IOException, IntermediateCodeGeneratorException, BackendException, InstantiationException,
+			IllegalAccessException
 	{
 		System.err.println("SWP Compiler v0.0\n");
 
@@ -202,11 +203,11 @@ public class Controller {
 		input = new FileInputStream(inputfilename);
 		lexer.setSourceStream(input);
 
-		/*
-		 * for (TokenStreamVisualization tokenvisu : tokenVisuService) {
-		 * tokenvisu.visualizeTokenStream(lexer); input = new
-		 * FileInputStream(inputfilename); lexer.setSourceStream(input); }
-		 */
+		for (TokenStreamVisualization tokenvisu : tokenVisuService) {
+			Lexer vlexer = lexer.getClass().newInstance();
+			vlexer.setSourceStream(new FileInputStream(inputfilename));
+			tokenvisu.visualizeTokenStream(vlexer);
+		}
 
 		// parser...
 		parser.setLexer(lexer);
