@@ -22,6 +22,7 @@ import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.lexer.Lexer;
 import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.common.parser.ReportLog;
+import swp_compiler_ss13.fuc.parser.errorHandling.Error;
 import swp_compiler_ss13.fuc.parser.errorHandling.ReportLogImpl;
 import swp_compiler_ss13.fuc.parser.generator.ALRGenerator;
 import swp_compiler_ss13.fuc.parser.generator.LR0Generator;
@@ -35,7 +36,7 @@ import swp_compiler_ss13.fuc.parser.parser.LexerWrapper;
 import swp_compiler_ss13.fuc.parser.parser.ParserException;
 import swp_compiler_ss13.fuc.parser.parser.tables.LRParsingTable;
 
-public class M1ErrorInvalidIds {
+public class M1MultipleMinusENotationTest {
 	static {
 		BasicConfigurator.configure();
 	}
@@ -75,15 +76,10 @@ public class M1ErrorInvalidIds {
 //	}
 
 	@Test
-	public void testErrorInvalidIdOrgLexer() {
-		String input = "# error: invalid ids\n"
-				+ "long foo$bar;\n"
-				+ "long spam_ham;\n"
-				+ "long 2fooly;\n"
-				+ "long return;\n"
-				+ "long string;\n"
-				+ "long bool;\n"
-				+ "long fü_berlin;";
+	public void testErrorMultipleMinusENotationIdOrgLexer() {
+		String input = "# error: id foo has multiple minus in expontent notation\n"
+				+ "long foo;\n"
+				+ "foo = 10e----1;";
 		// Generate parsing table
 		Grammar grammar = new ProjectGrammar.M1().getGrammar();
 		ALRGenerator<LR0Item, LR0State> generator = new LR0Generator(grammar);
