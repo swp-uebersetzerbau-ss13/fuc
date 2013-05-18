@@ -73,6 +73,7 @@ public class SymbolTableImpl implements SymbolTable {
 
 	@Override
 	public Boolean remove(String identifier) {
+		this.aliasMap.remove(identifier);
 		return this.symbolMap.remove(identifier) != null;
 	}
 
