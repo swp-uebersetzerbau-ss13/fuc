@@ -1,20 +1,24 @@
 package controller;
 
-import java.util.ServiceLoader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.Set;
-import java.io.*;
 
-import swp_compiler_ss13.common.lexer.*;
-import swp_compiler_ss13.common.parser.*;
-import swp_compiler_ss13.common.ir.*;
-import swp_compiler_ss13.common.backend.*;
-import swp_compiler_ss13.common.ast.*;
+import swp_compiler_ss13.common.ast.AST;
+import swp_compiler_ss13.common.backend.Backend;
+import swp_compiler_ss13.common.backend.Quadruple;
+import swp_compiler_ss13.common.ir.IntermediateCodeGenerator;
+import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
+import swp_compiler_ss13.common.lexer.Lexer;
+import swp_compiler_ss13.common.parser.Parser;
 
 public class Controller {
 	// the input file, stdin by default
-	static InputStream input = System.in;	
+	static InputStream input = System.in;
 
 	// variables which hold our components,
 	// initially "null", will be assigned if
@@ -28,122 +32,138 @@ public class Controller {
 	static void loadPlugins() {
 
 		// create loaders for component plugins
-		ServiceLoader<Lexer> lexerService = ServiceLoader.load(     Lexer.class );
-		ServiceLoader<Parser> parserService = ServiceLoader.load(   Parser.class );
+		ServiceLoader<Lexer> lexerService = ServiceLoader.load(Lexer.class);
+		ServiceLoader<Parser> parserService = ServiceLoader.load(Parser.class);
 		ServiceLoader<IntermediateCodeGenerator> irgenService = ServiceLoader.load(
-			IntermediateCodeGenerator.class );
-		ServiceLoader<Backend> backendService = ServiceLoader.load( Backend.class );
+				IntermediateCodeGenerator.class);
+		ServiceLoader<Backend> backendService = ServiceLoader.load(Backend.class);
 
 		// lexer:
 		for (Lexer l : lexerService) {
-			System.err.print("  Plugin found (lexer): '"+l.getClass()+"'");
-			// if still null, assign and mention that we use this plugin on stderr
-			if(lexer == null) {
+			System.err.print("  Plugin found (lexer): '" + l.getClass() + "'");
+			// if still null, assign and mention that we use this plugin on
+			// stderr
+			if (lexer == null) {
 				System.err.println("   <- USED");
 				lexer = l;
+			} else {
+				System.err.println();
 			}
-			else System.err.println();
 		}
 
 		// load component plugins
 		// parser:
 		for (Parser p : parserService) {
-			System.err.print("  Plugin found (parser): '"+p.getClass()+"'");
-			// if still null, assign and mention that we use this plugin on stderr
-			if(parser == null) {
+			System.err.print("  Plugin found (parser): '" + p.getClass() + "'");
+			// if still null, assign and mention that we use this plugin on
+			// stderr
+			if (parser == null) {
 				System.err.println("   <- USED");
 				parser = p;
+			} else {
+				System.err.println();
 			}
-			else System.err.println();
 		}
 
 		// load component plugins
 		// intermediate code generator:
 		for (IntermediateCodeGenerator i : irgenService) {
-			System.err.print("  Plugin found (IRGen): '"+i.getClass()+"'");
-			// if still null, assign and mention that we use this plugin on stderr
-			if(irgen == null) {
+			System.err.print("  Plugin found (IRGen): '" + i.getClass() + "'");
+			// if still null, assign and mention that we use this plugin on
+			// stderr
+			if (irgen == null) {
 				System.err.println("   <- USED");
 				irgen = i;
+			} else {
+				System.err.println();
 			}
-			else System.err.println();
 		}
 
 		// load component plugins
 		// backend:
 		for (Backend b : backendService) {
-			System.err.print("  Plugin found (backend): '"+b.getClass()+"'");
-			// if still null, assign and mention that we use this plugin on stderr
-			if(backend == null) {
+			System.err.print("  Plugin found (backend): '" + b.getClass() + "'");
+			// if still null, assign and mention that we use this plugin on
+			// stderr
+			if (backend == null) {
 				System.err.println("   <- USED");
 				backend = b;
+			} else {
+				System.err.println();
 			}
-			else System.err.println();
 		}
 
 		// check that we have a working trio of lexer, parser and backend
-		if (lexer == null)
+		if (lexer == null) {
 			System.err.println("ERROR: no lexer plugin found!");
-		if (parser == null)
+		}
+		if (parser == null) {
 			System.err.println("ERROR: no parser plugin found!");
-		if (irgen == null)
+		}
+		if (irgen == null) {
 			System.err.println("ERROR: no IRGen plugin found!");
-		if (backend == null)
+		}
+		if (backend == null) {
 			System.err.println("ERROR: no backend plugin found!");
+		}
 		if (lexer == null ||
-		    parser == null ||
-		    irgen == null ||
-		    backend == null)
+				parser == null ||
+				irgen == null ||
+				backend == null) {
 			System.exit(1);
+		}
 	}
-	
+
 	public static void main(String[] args)
-		throws IOException, IntermediateCodeGeneratorException
+			throws IOException, IntermediateCodeGeneratorException
 	{
 		System.err.println("SWP Compiler v0.0\n");
 
 		// parser CMD args:
 		// if set to true, further arguments may be options,
-		//  will be false after encounering -- argument
+		// will be false after encounering -- argument
 		boolean may_be_option = true;
 		for (String arg : args) {
 			// set file
-			if(!may_be_option || arg.charAt(0) != '-') {
-				if(input != System.in) { // already set!
+			if (!may_be_option || arg.charAt(0) != '-') {
+				if (input != System.in) { // already set!
 					System.err.println("ERROR: only none or one input file allowed!");
 					System.exit(2);
 				} else {
-					if(arg.equals("-"))
+					if (arg.equals("-")) {
 						; // already set to stdin
-					else
-						input=new FileInputStream(arg);
+					} else {
+						input = new FileInputStream(arg);
+					}
 				}
 				continue; // it's no option, so we should continue with next arg
 			}
 			// -- seperator argument
-			if(arg.equals("--")) {
+			if (arg.equals("--")) {
 				may_be_option = false;
 				continue;
 			}
 			// help option, just displays usage summary
-			if(arg.equals("-h") || arg.equals("--help") || arg.equals("-?")) {
-				System.out.println("Usage: java -cp plugun1.jar:plugin2.jar:...:Controller.jar [options] [--] [input-filename]");
+			if (arg.equals("-h") || arg.equals("--help") || arg.equals("-?")) {
+				System.out
+						.println("Usage: java -cp plugun1.jar:plugin2.jar:...:Controller.jar [options] [--] [input-filename]");
 				System.out.println();
 				System.out.println("  input-filename may be '-' for stdin or a relative or absolute path to a file.");
 				System.out.println();
-				System.out.println("  '--' is an optional separator between options and the input-file, useful if path to the input file begins with character '-'.");
+				System.out
+						.println("  '--' is an optional separator between options and the input-file, useful if path to the input file begins with character '-'.");
 				System.out.println();
 				System.out.println();
 				System.out.println("  arguments may be any of:");
-				System.out.println("     -h/-?/--help:          emits this help message");				
+				System.out.println("     -h/-?/--help:          emits this help message");
 				System.out.println();
 				System.exit(0);
 			}
 		}
 
 		// try to find a lexer, parser and backend
-		//  this call assigns the variables lexer,parser,backend
-		//  or fails if any one components is missing.
+		// this call assigns the variables lexer,parser,backend
+		// or fails if any one components is missing.
 		loadPlugins();
 
 		// use the components now to compile our file
@@ -155,13 +175,13 @@ public class Controller {
 		// IR gen...
 		List<Quadruple> tac = irgen.generateIntermediateCode(ast);
 		// backend...
-		Map<String,InputStream> targets = backend.generateTargetCode(tac);
+		Map<String, InputStream> targets = backend.generateTargetCode(tac);
 
 		// output..
 		Set<String> outputFilenames = targets.keySet();
 		// for now, we always print everything on stdout.
 		for (String outFile : outputFilenames) {
-			System.err.println("//file: "+outFile);
+			System.err.println("//file: " + outFile);
 			InputStream is = targets.get(outFile);
 
 			// copied from stackoverflow.com

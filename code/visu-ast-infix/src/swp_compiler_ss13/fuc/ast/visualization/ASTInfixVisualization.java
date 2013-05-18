@@ -21,6 +21,20 @@ import swp_compiler_ss13.common.visualization.ASTVisualization;
 public class ASTInfixVisualization implements ASTVisualization {
 
 	/**
+	 * Represents the current environment of the node. It changes the output
+	 * e.g. nested assignments don't have semicolons
+	 */
+	protected enum Environment {
+		/**
+		 * use newlines and semicolons
+		 */
+		BLOCK, /**
+		 * print everything in one line
+		 */
+		ASSIGNMENT
+	};
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -28,7 +42,7 @@ public class ASTInfixVisualization implements ASTVisualization {
 		PrintStream out = System.out;
 
 		out.println("# Printing the AST in Infix Notation");
-		this.visualize(ast.getRootNode(), "", out);
+		this.visualizeChildren(ast.getRootNode(), "", out, Environment.BLOCK);
 	}
 
 	/**
@@ -40,39 +54,50 @@ public class ASTInfixVisualization implements ASTVisualization {
 	 *            A String of spaces for the current indentation level
 	 * @param out
 	 *            The stream to which the output gets written
+	 * @param env
+	 *            the environment of the current node
 	 */
-	protected void visualize(ASTNode node, String indent, PrintStream out) {
+	protected void visualize(ASTNode node, String indent, PrintStream out, Environment env) {
 		switch (node.getNodeType()) {
 		case ArithmeticBinaryExpressionNode:
 			out.print("(");
-			this.visualize(((ArithmeticBinaryExpressionNode) node).getLeftValue(), indent + "  ", out);
+			this.visualize(((ArithmeticBinaryExpressionNode) node).getLeftValue(), indent + "  ", out, env);
 			out.print(this.getBinaryOperatorSign((ArithmeticBinaryExpressionNode) node));
-			this.visualize(((ArithmeticBinaryExpressionNode) node).getRightValue(), indent + "  ", out);
+			this.visualize(((ArithmeticBinaryExpressionNode) node).getRightValue(), indent + "  ", out, env);
 			out.print(")");
 			break;
 		case ArithmeticUnaryExpressionNode:
 			out.print("(");
 			out.print(this.getUnaryOperatorSign((ArithmeticUnaryExpressionNode) node));
-			this.visualizeChildren(node, indent + "  ", out);
+			this.visualizeChildren(node, indent + "  ", out, env);
 			out.print(")");
 			break;
 		case ArrayIdentifierNode:
 			// TODO
 			break;
 		case AssignmentNode:
-			out.print(indent);
-			this.visualize(((AssignmentNode) node).getLeftValue(), indent + "  ", out);
+			if (env == Environment.ASSIGNMENT) {
+				out.print("(");
+			} else {
+				out.print(indent);
+			}
+			this.visualize(((AssignmentNode) node).getLeftValue(), indent + "  ", out, Environment.ASSIGNMENT);
 			out.print(" = ");
-			this.visualize(((AssignmentNode) node).getRightValue(), indent + "  ", out);
-			out.println(";");
+			this.visualize(((AssignmentNode) node).getRightValue(), indent + "  ", out, Environment.ASSIGNMENT);
+			if (env == Environment.ASSIGNMENT) {
+				out.print(")");
+			} else {
+				out.println(";");
+			}
 			break;
 		case BasicIdentifierNode:
 			out.print(((BasicIdentifierNode) node).getIdentifier());
 			break;
 		case BlockNode:
+			assert (env != Environment.ASSIGNMENT);
 			out.print(indent);
 			out.println("{");
-			this.visualizeChildren(node, indent + "  ", out);
+			this.visualizeChildren(node, indent + "  ", out, env);
 			out.print(indent);
 			out.println("}");
 			break;
@@ -83,6 +108,7 @@ public class ASTInfixVisualization implements ASTVisualization {
 			// TODO
 			break;
 		case DeclarationNode:
+			assert (env != Environment.ASSIGNMENT);
 			out.print(indent);
 			out.print(((DeclarationNode) node).getType().toString().replaceFirst("Type$", ""));
 			out.print(" ");
@@ -108,9 +134,10 @@ public class ASTInfixVisualization implements ASTVisualization {
 			// TODO
 			break;
 		case ReturnNode:
+			assert (env != Environment.ASSIGNMENT);
 			out.print(indent);
 			out.print("return ");
-			this.visualizeChildren(node, indent + "  ", out);
+			this.visualizeChildren(node, indent + "  ", out, env);
 			out.println(";");
 			break;
 		case StructIdentifierNode:
@@ -131,10 +158,12 @@ public class ASTInfixVisualization implements ASTVisualization {
 	 *            A String of spaces for the current indentation level
 	 * @param out
 	 *            The stream to which the output gets written
+	 * @param env
+	 *            the environment of the current node
 	 */
-	protected void visualizeChildren(ASTNode node, String indent, PrintStream out) {
+	protected void visualizeChildren(ASTNode node, String indent, PrintStream out, Environment env) {
 		for (ASTNode child : node.getChildren()) {
-			this.visualize(child, indent, out);
+			this.visualize(child, indent, out, env);
 		}
 	}
 

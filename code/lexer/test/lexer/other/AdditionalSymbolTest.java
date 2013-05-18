@@ -62,24 +62,30 @@ public class AdditionalSymbolTest {
 	@Test
 	public void simpleTokenizingOfSymbolsTest()
 			throws UnsupportedEncodingException {
-		String simpleSymbolString = Constants.SEMICOLON + " "
+		String simpleSymbolString = Constants.ID1 + Constants.SEMICOLON + " "
 				+ Constants.COMMENT + " " + Constants.COMMENT_EXAMPLE;
 
 		this.lexer.setSourceStream(new ByteArrayInputStream(simpleSymbolString
 				.getBytes("UTF-8")));
 
 		Token token = this.lexer.getNextToken();
+		assertEquals(Constants.ID1, token.getValue());
+		assertEquals(TokenType.ID, token.getTokenType());
+		assertEquals(1, token.getLine().intValue());
+		assertEquals(1, token.getColumn().intValue());
+
+		token = this.lexer.getNextToken();
 		assertEquals(Constants.SEMICOLON, token.getValue());
 		assertEquals(TokenType.SEMICOLON, token.getTokenType());
 		assertEquals(1, token.getLine().intValue());
-		assertEquals(1, token.getColumn().intValue());
+		assertEquals(3, token.getColumn().intValue());
 
 		token = this.lexer.getNextToken();
 		assertEquals(Constants.COMMENT + " " + Constants.COMMENT_EXAMPLE,
 				token.getValue());
 		assertEquals(TokenType.COMMENT, token.getTokenType());
 		assertEquals(1, token.getLine().intValue());
-		assertEquals(3, token.getColumn().intValue());
+		assertEquals(5, token.getColumn().intValue());
 
 		token = this.lexer.getNextToken();
 		assertEquals("", token.getValue());

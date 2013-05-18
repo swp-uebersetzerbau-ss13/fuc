@@ -21,8 +21,9 @@ import swp_compiler_ss13.fuc.parser.generator.states.LR0State;
 import swp_compiler_ss13.fuc.parser.grammar.Grammar;
 import swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar;
 
-@Ignore
-public class ParserImplTest {
+
+public class ParserImplTestDisabled {
+
 	@Test
 	public void testParsingComplete() {
 		Parser parser = new ParserImpl();

@@ -15,12 +15,14 @@
 		<pathelement location="${test.dir}" />
 		<pathelement location="../${ast.dir}/${src.dir}" />
 		<pathelement location="../${parser.dir}/${src.dir}" />
+		<pathelement location="../${symbolTable.dir}/${src.dir}" />
 	</path>
 
 	<path id="classpath-test">
 		<path refid="classpath" />
 		<pathelement location="../${ast.dir}/${bin.dir}" />
 		<pathelement location="../${parser.dir}/${bin.dir}" />
+		<pathelement location="../${symbolTable.dir}/${bin.dir}" />
 		<pathelement location="../${lib.dir}/hamcrest-core-1.3.jar" />
 		<pathelement location="../${lib.dir}/junit-4.11.jar" />
 		<pathelement location="../${lib.dir}/privilegedaccessor-1.2.1.jar" />

@@ -10,7 +10,6 @@ import java.util.Stack;
 
 import org.apache.log4j.Logger;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.ast.ASTNode;
 import swp_compiler_ss13.common.ast.nodes.ExpressionNode;
@@ -228,7 +227,7 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 	 *             Something went wrong
 	 */
 	private void processWhileNode(WhileNode node) throws IntermediateCodeGeneratorException {
-		throw new IntermediateCodeGeneratorException(new NotImplementedException());
+		throw new IntermediateCodeGeneratorException(new UnsupportedOperationException());
 	}
 
 	/**
@@ -240,7 +239,7 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 	 *             Something went wrong
 	 */
 	private void processStructIdentifierNode(StructIdentifierNode node) throws IntermediateCodeGeneratorException {
-		throw new IntermediateCodeGeneratorException(new NotImplementedException());
+		throw new IntermediateCodeGeneratorException(new UnsupportedOperationException());
 	}
 
 	/**
@@ -267,7 +266,7 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 	 *             Something went wrong
 	 */
 	private void processRelationExpressionNode(RelationExpressionNode node) throws IntermediateCodeGeneratorException {
-		throw new IntermediateCodeGeneratorException(new NotImplementedException());
+		throw new IntermediateCodeGeneratorException(new UnsupportedOperationException());
 	}
 
 	/**
@@ -279,7 +278,7 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 	 *             Something went wrong
 	 */
 	private void processPrintNode(PrintNode node) throws IntermediateCodeGeneratorException {
-		throw new IntermediateCodeGeneratorException(new NotImplementedException());
+		throw new IntermediateCodeGeneratorException(new UnsupportedOperationException());
 	}
 
 	/**
@@ -292,7 +291,7 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 	 */
 	private void processLogicUnaryExpressionNode(LogicUnaryExpressionNode node)
 			throws IntermediateCodeGeneratorException {
-		throw new IntermediateCodeGeneratorException(new NotImplementedException());
+		throw new IntermediateCodeGeneratorException(new UnsupportedOperationException());
 	}
 
 	/**
@@ -305,7 +304,7 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 	 */
 	private void processLogicBinaryExpressionNode(LogicBinaryExpressionNode node)
 			throws IntermediateCodeGeneratorException {
-		throw new IntermediateCodeGeneratorException(new NotImplementedException());
+		throw new IntermediateCodeGeneratorException(new UnsupportedOperationException());
 	}
 
 	/**
@@ -348,7 +347,7 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 	 *             Something went wrong
 	 */
 	private void processDoWhileNode(DoWhileNode node) throws IntermediateCodeGeneratorException {
-		throw new IntermediateCodeGeneratorException(new NotImplementedException());
+		throw new IntermediateCodeGeneratorException(new UnsupportedOperationException());
 	}
 
 	/**
@@ -375,7 +374,7 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 	 *             Something went wrong
 	 */
 	private void processBreakNode(BreakNode node) throws IntermediateCodeGeneratorException {
-		throw new IntermediateCodeGeneratorException(new NotImplementedException());
+		throw new IntermediateCodeGeneratorException(new UnsupportedOperationException());
 	}
 
 	/**
@@ -387,7 +386,7 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 	 *             Something went wrong
 	 */
 	private void processBranchNode(BranchNode node) throws IntermediateCodeGeneratorException {
-		throw new IntermediateCodeGeneratorException(new NotImplementedException());
+		throw new IntermediateCodeGeneratorException(new UnsupportedOperationException());
 	}
 
 	/**
@@ -451,10 +450,12 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 					typeOfId, temporary);
 			this.irCode.add(cast);
 			this.irCode.add(QuadrupleFactory.assign(typeOfId, temporary, idRenamed));
+			this.intermediateResults.push(new IntermediateResult(idRenamed, typeOfId));
 		}
 		else {
 			// no cast is needed,
 			this.irCode.add(QuadrupleFactory.assign(typeOfId, rightIntermediate.getValue(), idRenamed));
+			this.intermediateResults.push(new IntermediateResult(idRenamed, typeOfId));
 		}
 
 	}
@@ -468,7 +469,7 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 	 *             Something went wrong
 	 */
 	private void processArrayIdentifierNode(ArrayIdentifierNode node) throws IntermediateCodeGeneratorException {
-		throw new IntermediateCodeGeneratorException(new NotImplementedException());
+		throw new IntermediateCodeGeneratorException(new UnsupportedOperationException());
 	}
 
 	/**
@@ -544,7 +545,7 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 				String err = "Arithmetic Binary Expression with arguments of types %s and %s is not supported";
 				String errf = String.format(err, left.getType().toString(), right.getType().toString());
 				logger.fatal(errf);
-				throw new IntermediateCodeGeneratorException(errf, new NotImplementedException());
+				throw new IntermediateCodeGeneratorException(errf, new UnsupportedOperationException());
 			}
 		}
 		else {
@@ -578,7 +579,7 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 				String err = "Arithmetic Binary Expression with arguments of types %s and %s is not supported";
 				String errf = String.format(err, left.getType().toString(), right.getType().toString());
 				logger.fatal(errf);
-				throw new IntermediateCodeGeneratorException(errf, new NotImplementedException());
+				throw new IntermediateCodeGeneratorException(errf, new UnsupportedOperationException());
 			}
 		}
 
