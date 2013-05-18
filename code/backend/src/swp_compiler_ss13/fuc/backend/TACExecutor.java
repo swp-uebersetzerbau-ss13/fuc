@@ -1,6 +1,7 @@
 package swp_compiler_ss13.fuc.backend;
 
 import swp_compiler_ss13.common.backend.Backend;
+import swp_compiler_ss13.common.backend.BackendException;
 import swp_compiler_ss13.common.backend.Quadruple;
 
 import java.io.*;
@@ -57,8 +58,7 @@ public class TACExecutor
 	 * @return the generated LLVM IR code
 	 * @exception IOException if an error occurs
 	 */
-	public static InputStream jitTAC(InputStream stream) throws IOException
-	{
+	public static InputStream jitTAC(InputStream stream) throws IOException, BackendException {
 		Backend b = new LLVMBackend();
 
 		List<Quadruple> tac = readTAC(stream);
@@ -81,8 +81,7 @@ public class TACExecutor
 	 * @exception IOException if an error occurs
 	 * @exception InterruptedException if an error occurs
 	 */
-	public static void runTAC(InputStream stream) throws IOException, InterruptedException
-	{
+	public static void runTAC(InputStream stream) throws IOException, InterruptedException, BackendException {
 		BufferedReader in = new BufferedReader(new InputStreamReader(jitTAC(stream)));
 
 		Process p = Runtime.getRuntime().exec("lli -");
@@ -117,8 +116,7 @@ public class TACExecutor
 	 * @exception IOException if an error occurs
 	 * @exception InterruptedException if an error occurs
 	 */
-	public static void main(String[] args) throws IOException, InterruptedException
-	{
+	public static void main(String[] args) throws IOException, InterruptedException, BackendException {
 		if(args.length > 0)
 		{
 			for(String arg : args)

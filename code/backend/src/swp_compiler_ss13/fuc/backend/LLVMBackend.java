@@ -1,6 +1,7 @@
 package swp_compiler_ss13.fuc.backend;
 
 import swp_compiler_ss13.common.backend.Backend;
+import swp_compiler_ss13.common.backend.BackendException;
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.types.Type;
 
@@ -25,8 +26,7 @@ public class LLVMBackend implements Backend
 	 * @param tac the three address code
 	 * @return the generated LLVM IR code.
 	 */
-	public Map<String,InputStream> generateTargetCode(List<Quadruple> tac)
-	{
+	public Map<String,InputStream> generateTargetCode(List<Quadruple> tac) throws BackendException {
 		ByteArrayOutputStream outStream = new ByteArrayOutputStream();
 		PrintWriter out = new PrintWriter(outStream);
 
