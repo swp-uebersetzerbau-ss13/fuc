@@ -128,7 +128,14 @@ public class LRParser {
 				// +++++++++++++++++++++++++++++++++++
 				// get action for reduced production
 				Production prod = reduce.getProduction();
-				ReduceAction reduceAction = getReduceAction(prod, reportLog);
+				ReduceAction reduceAction = null;
+				
+				try{
+					reduceAction = getReduceAction(prod, reportLog);
+				}catch(ParserException e){
+					return null;
+				}
+				
 
 				// If there is anything to do on the value stack
 				// (There might be no reduce-action for Productions like unary
@@ -199,7 +206,7 @@ public class LRParser {
 		return objs.toArray(new Object[objs.size()]);
 	}
 
-	private ReduceAction getReduceAction(Production prod, final ReportLog reportLog) {
+	private ReduceAction getReduceAction(Production prod, final ReportLog reportLog) throws ParserException{
 		switch (prod.getStringRep()) {
 
 		case "program -> decls stmts":
