@@ -73,7 +73,7 @@ public class LRParser {
 	// --------------------------------------------------------------
 	// --------------------------------------------------------------------------
 	public AST parse(LexerWrapper lexer, ReportLog reportLog,
-			LRParsingTable table) {
+			LRParsingTable table) throws ParserException{
 		Stack<LRParserState> parserStack = new Stack<>();
 
 		AST ast = new ASTImpl();
@@ -92,7 +92,7 @@ public class LRParser {
 			case NOT_A_TOKEN:
 				reportLog.reportError(token.getValue(), token.getLine(),
 						token.getColumn(), "Found undefined token '" + token.getValue() + "'!");
-				return null;
+				throw new ParserException("undefined Token found");
 
 			case COMMENT:
 				// Skip it silently
@@ -103,7 +103,7 @@ public class LRParser {
 			action = table.getActionTable().get(state, token.getTerminal());
 			if (action == null) {
 				log.error("Error in Parsetable occured!");
-				return null;
+				throw new ParserException("An Error in Parsetable occured");
 			}
 
 			switch (action.getType()) {
@@ -146,19 +146,11 @@ public class LRParser {
 					}
 					
 					// Execute reduceAction and push onto the stack
-					Object newValue = null;
-					
-					try {
-						
-						newValue = reduceAction.create(arr(valueHandle));
-					} catch (DoubleIdentifierException e) {
-						reportLog.reportError(e.getReportLogText(), token.getLine(), token.getColumn(), e.getReportLogMessage());
-						return null;
-					}
-					
+					Object newValue = reduceAction.create(arr(valueHandle));
+										
 					if (newValue == null) {
 						log.error("Error occurred! newValue is null");
-						return null;
+						throw new ParserException("Error occurred! newValue is null");
 					}
 					valueStack.push(newValue);
 				}
@@ -168,7 +160,7 @@ public class LRParser {
 						prod.getLHS());
 				if (newState.isErrorState()) {
 					reportLog.reportError(token.getValue(), token.getLine(), token.getColumn(), "");
-					return null;
+					throw new ParserException("Error state occurred");
 				}
 				parserStack.push(newState);
 			}
@@ -178,20 +170,20 @@ public class LRParser {
 				if (tokenType != TokenType.EOF) {
 					reportLog.reportError(token.getValue(), token.getLine(),
 							token.getColumn(), "");
+					throw new ParserException("End of File expected!");
 				} else {
 					BlockNode programBlock = (BlockNode) valueStack.pop();
 					ast.setRootNode(programBlock);
 					return ast;
 				}
 			}
-			break;
 
 			case ERROR: {
 				Error error = (Error) action;
 				reportLog.reportError(token.getValue(), token.getLine(),
 						token.getColumn(),
 						"An error occurred: " + error.getMsg());
-				return ast; // TODO Correct?
+						throw new ParserException("Get Error State from Actiontable");
 			}
 			}
 		}
@@ -632,11 +624,8 @@ public class LRParser {
 		// TODO M2: Shadowing allowed???
 		if (symbolTable.isDeclared(decl.getIdentifier())) {
 			// TODO Add token to Nodes
-			//reportLog.reportError(decl.getType() + " " + decl.getIdentifier(), -1, -1, "The variable '" + decl.getIdentifier() + "' of type '" + decl.getType() + "' has been declared twice!");
-			DoubleIdentifierException exception = new DoubleIdentifierException("double id exception");
-			exception.addReportLogMessage("The variable '" + decl.getIdentifier() + "' of type '" + decl.getType() + "' has been declared twice!");
-			exception.addReportLogText(decl.getType() + " " + decl.getIdentifier());
-			throw exception ;
+			reportLog.reportError(decl.getType() + " " + decl.getIdentifier(), -1, -1, "The variable '" + decl.getIdentifier() + "' of type '" + decl.getType() + "' has been declared twice!");
+			throw new DoubleIdentifierException("double id exception");
 		}
 		block.addDeclaration(decl);
 		block.getSymbolTable().insert(decl.getIdentifier(), decl.getType());

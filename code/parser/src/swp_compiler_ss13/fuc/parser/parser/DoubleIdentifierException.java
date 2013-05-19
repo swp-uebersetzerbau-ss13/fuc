@@ -9,7 +9,28 @@ public class DoubleIdentifierException extends ParserException{
 
 	public DoubleIdentifierException(String msg) {
 		super(msg);
-		// TODO Auto-generated constructor stub
 	}
+
+	@Override
+	public void addReportLogMessage(String msg) {
+				super.addReportLogMessage(msg);
+	}
+
+	@Override
+	public String getReportLogMessage() {
+				return super.getReportLogMessage();
+	}
+
+	@Override
+	public void addReportLogText(String text) {
+				super.addReportLogText(text);
+	}
+
+	@Override
+	public String getReportLogText() {
+				return super.getReportLogText();
+	}
+	
+	
 
 }
