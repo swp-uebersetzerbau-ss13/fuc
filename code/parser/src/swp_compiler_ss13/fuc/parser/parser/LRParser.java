@@ -151,7 +151,8 @@ public class LRParser {
 					try {
 						
 						newValue = reduceAction.create(arr(valueHandle));
-					} catch (ParserException e) {
+					} catch (DoubleIdentifierException e) {
+						reportLog.reportError(e.getReportLogText(), token.getLine(), token.getColumn(), e.getReportLogMessage());
 						return null;
 					}
 					
@@ -631,8 +632,11 @@ public class LRParser {
 		// TODO M2: Shadowing allowed???
 		if (symbolTable.isDeclared(decl.getIdentifier())) {
 			// TODO Add token to Nodes
-			reportLog.reportError(decl.getType() + " " + decl.getIdentifier(), -1, -1, "The variable '" + decl.getIdentifier() + "' of type '" + decl.getType() + "' has been declared twice!");
-			throw new ParserException("double id exception");
+			//reportLog.reportError(decl.getType() + " " + decl.getIdentifier(), -1, -1, "The variable '" + decl.getIdentifier() + "' of type '" + decl.getType() + "' has been declared twice!");
+			DoubleIdentifierException exception = new DoubleIdentifierException("double id exception");
+			exception.addReportLogMessage("The variable '" + decl.getIdentifier() + "' of type '" + decl.getType() + "' has been declared twice!");
+			exception.addReportLogText(decl.getType() + " " + decl.getIdentifier());
+			throw exception ;
 		}
 		block.addDeclaration(decl);
 		block.getSymbolTable().insert(decl.getIdentifier(), decl.getType());
