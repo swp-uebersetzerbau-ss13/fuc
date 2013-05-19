@@ -27,10 +27,14 @@ public class Controller {
 	static IntermediateCodeGenerator irgen = null;
 	static Backend backend = null;
 
+	// several veriables which are affected by command line options
 	static boolean disableVisualization = false;
 	static String outname = null;
 	static boolean jit = false; 
-
+	
+	// our error report log for the parser
+	static ReportLogImpl errlog = new ReportLogImpl();
+	
 	// visualization service loaders
 	private static ServiceLoader<TokenStreamVisualization> tokenVisuService;
 	private static ServiceLoader<ASTVisualization> ASTVisuService;
@@ -233,12 +237,26 @@ public class Controller {
 
 		// parser...
 		parser.setLexer(lexer);
+		parser.setReportLog(errlog);
 		AST ast = parser.getParsedAST();
 
 		if(!disableVisualization) {
 			for (ASTVisualization astvisu : ASTVisuService) {
 				astvisu.visualizeAST(ast);
 			}
+		}
+
+		// in case of parser errors: abort and display errors
+		if(errlog.hasErrors()) {
+			System.err.println("ERROR: compile failed due to errors:");
+			for (Error e : errlog.getErrors()) {
+				System.err.println(
+					"(L"+e.getLine()+","+e.getColumn()+")"+
+					"\t "+e.getText()+
+					"\t "+e.getMessage()
+					);
+			}
+			System.exit(1);
 		}
 
 		// IR gen...
