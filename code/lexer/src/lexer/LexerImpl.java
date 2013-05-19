@@ -39,7 +39,7 @@ public class LexerImpl implements Lexer {
 
 	/**
 	 * Method to initialize class variables when getting a new
-	 * {@link InputStream}.
+	 * {@link InputStream}
 	 */
 	private void init() {
 		this.actualLine = 1;
@@ -73,12 +73,15 @@ public class LexerImpl implements Lexer {
 					this.actualLine, this.actualColumn);
 			break;
 		}
-
-		return this.actualToken;
+		
+		if (actualTokenValue.length() == 0 && actualTokenType == TokenType.NOT_A_TOKEN)
+			// skip empty line
+			return getNextToken();
+		else return this.actualToken;
 	}
 
 	/**
-	 * Method to match a a {@link String} into a {@link TokenType}.
+	 * Method to match a a {@link String} into a {@link TokenType}
 	 * 
 	 * @param nextToken
 	 *            {@link String} to match
@@ -91,17 +94,17 @@ public class LexerImpl implements Lexer {
 			return TokenType.REAL;
 		} else if (nextToken.matches(";")) {
 			return TokenType.SEMICOLON;
-		} else if (nextToken.matches("\\)")) {
-			return TokenType.LEFT_PARAN;
 		} else if (nextToken.matches("\\(")) {
+			return TokenType.LEFT_PARAN;
+		} else if (nextToken.matches("\\)")) {
 			return TokenType.RIGHT_PARAN;
-		} else if (nextToken.matches("\\}")) {
-			return TokenType.LEFT_BRACE;
 		} else if (nextToken.matches("\\{")) {
+			return TokenType.LEFT_BRACE;
+		} else if (nextToken.matches("\\}")) {
 			return TokenType.RIGHT_BRACE;
-		} else if (nextToken.matches("\\]")) {
-			return TokenType.LEFT_BRACKET;
 		} else if (nextToken.matches("\\[")) {
+			return TokenType.LEFT_BRACKET;
+		} else if (nextToken.matches("\\]")) {
 			return TokenType.RIGHT_BRACKET;
 		} else if (nextToken.matches("=")) {
 			return TokenType.ASSIGNOP;
@@ -159,7 +162,7 @@ public class LexerImpl implements Lexer {
 			return TokenType.ID;
 		} else if (nextToken.matches("#.*")) {
 			return TokenType.COMMENT;
-		} else if (nextToken.matches("")) {
+		} else if (nextToken == "$") {
 			return TokenType.EOF;
 		} else {
 			return TokenType.NOT_A_TOKEN;
@@ -168,23 +171,32 @@ public class LexerImpl implements Lexer {
 
 	/**
 	 * Method to get the value, the actual line and the actual column of the
-	 * next token.
+	 * next token
 	 * 
 	 * @return abstracted token value of current read token
 	 */
 	private String abstractToken() {
-		this.checkNewLine();
+		String actualLineValue = this.convertedLines.get(this.actualLine - 1);
+
+		if ((actualLineValue.startsWith(" ") ? (actualLineValue.split("\\s+").length <= this.actualCountOfTokenInLine + 1)
+				: (actualLineValue.split("\\s+").length <= this.actualCountOfTokenInLine))) {
+			this.actualLine++;
+			this.actualColumn = 1;
+			this.actualCountOfTokenInLine = 0;
+		}
+
 		if (this.convertedLines.size() < this.actualLine) {
 			// EOF detected
-			return "";
+			return "$";
 		} else {
-			String actualLineValue = this.convertedLines
-					.get(this.actualLine - 1);
+			actualLineValue = this.convertedLines.get(this.actualLine - 1);
 			String actualTokenValue;
 			if (this.nextTokenValue != null) {
 				// next token value was already read
 				actualTokenValue = this.nextTokenValue;
 				this.nextTokenValue = null;
+				// reset counter of tokens in line
+				this.actualCountOfTokenInLine--;
 			} else {
 				// read next token value
 				if (actualLineValue.startsWith(" ")) {
@@ -199,8 +211,6 @@ public class LexerImpl implements Lexer {
 					actualTokenValue = actualTokenValue.substring(0,
 							actualTokenValue.length() - 1);
 					this.nextTokenValue = ";";
-					// reset counter of tokens in line
-					this.actualCountOfTokenInLine--;
 				}
 			}
 
@@ -221,30 +231,4 @@ public class LexerImpl implements Lexer {
 		}
 	}
 
-	/**
-	 * Method to check if the token are already read in the actual line. If so,
-	 * tokens of the next line will be read.
-	 */
-	private void checkNewLine() {
-		if (this.convertedLines.size() >= this.actualLine) {
-			String actualLineValue = this.convertedLines
-					.get(this.actualLine - 1);
-			if ((actualLineValue.startsWith(" ") && (actualLineValue
-					.split("\\s+").length == this.actualCountOfTokenInLine + 1))
-					|| (!actualLineValue.startsWith(" ") && actualLineValue
-							.split("\\s+").length <= this.actualCountOfTokenInLine)) {
-				this.actualLine++;
-				this.actualColumn = 1;
-				this.actualCountOfTokenInLine = 0;
-				this.checkNewLine();
-			} else if (actualLineValue.length() == 0
-					|| actualLineValue.split("\\s+").length == 0) {
-				// empty line detected
-				this.actualLine++;
-				this.actualColumn = 1;
-				this.actualCountOfTokenInLine = 0;
-				this.checkNewLine();
-			}
-		}
-	}
 }

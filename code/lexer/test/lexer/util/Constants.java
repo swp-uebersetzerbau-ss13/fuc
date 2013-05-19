@@ -39,12 +39,12 @@ public class Constants {
 	public static final String DOUBLESTRINGOUTOFRANGE2 = "1e-9223372036854775809";
 
 	/* bracket types */
-	public static final String LEFT_PARAN = ")";
-	public static final String RIGHT_PARAN = "(";
-	public static final String LEFT_BRACE = "}";
-	public static final String RIGHT_BRACE = "{";
-	public static final String LEFT_BRACKET = "]";
-	public static final String RIGHT_BRACKET = "[";
+	public static final String LEFT_PARAN = "(";
+	public static final String RIGHT_PARAN = ")";
+	public static final String LEFT_BRACE = "{";
+	public static final String RIGHT_BRACE = "}";
+	public static final String LEFT_BRACKET = "[";
+	public static final String RIGHT_BRACKET = "]";
 
 	/* operation symbols */
 	public static final String ASSIGNOPSTRING = "=";
