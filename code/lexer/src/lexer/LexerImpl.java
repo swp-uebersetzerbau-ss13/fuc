@@ -176,59 +176,73 @@ public class LexerImpl implements Lexer {
 	 * @return abstracted token value of current read token
 	 */
 	private String abstractToken() {
-		String actualLineValue = this.convertedLines.get(this.actualLine - 1);
+		if (this.nextTokenValue != "$") {
+			String actualLineValue = this.convertedLines
+					.get(this.actualLine - 1);
 
-		if ((actualLineValue.startsWith(" ") ? (actualLineValue.split("\\s+").length <= this.actualCountOfTokenInLine + 1)
-				: (actualLineValue.split("\\s+").length <= this.actualCountOfTokenInLine))) {
-			this.actualLine++;
-			this.actualColumn = 1;
-			this.actualCountOfTokenInLine = 0;
-		}
+			if ((actualLineValue.startsWith(" ") ? (actualLineValue
+					.split("\\s+").length <= this.actualCountOfTokenInLine + 1)
+					: (actualLineValue.split("\\s+").length <= this.actualCountOfTokenInLine))) {
+				this.actualLine++;
+				this.actualColumn = 1;
+				this.actualCountOfTokenInLine = 0;
+			}
 
-		if (this.convertedLines.size() < this.actualLine) {
-			// EOF detected
-			return "$";
-		} else {
-			actualLineValue = this.convertedLines.get(this.actualLine - 1);
-			String actualTokenValue;
-			if (this.nextTokenValue != null) {
-				// next token value was already read
-				actualTokenValue = this.nextTokenValue;
-				this.nextTokenValue = null;
-				// reset counter of tokens in line
-				this.actualCountOfTokenInLine--;
+			if (this.convertedLines.size() < this.actualLine) {
+				if (this.nextTokenValue != null) {
+					// next token value was already read
+					String temp = this.nextTokenValue;
+					this.nextTokenValue = "$";
+
+					this.actualColumn += temp.length();
+					this.actualCountOfTokenInLine = 0;
+					return temp;
+				} else
+					// EOF detected
+					return "$";
 			} else {
-				// read next token value
-				if (actualLineValue.startsWith(" ")) {
-					// actual line starts with whitespaces
-					actualTokenValue = actualLineValue.split("\\s+")[this.actualCountOfTokenInLine + 1];
+				actualLineValue = this.convertedLines.get(this.actualLine - 1);
+				String actualTokenValue;
+				if (this.nextTokenValue != null) {
+					// next token value was already read
+					actualTokenValue = this.nextTokenValue;
+					this.nextTokenValue = null;
+					// reset counter of tokens in line
+					this.actualCountOfTokenInLine--;
 				} else {
-					actualTokenValue = actualLineValue.split("\\s+")[this.actualCountOfTokenInLine];
+					// read next token value
+					if (actualLineValue.startsWith(" ")) {
+						// actual line starts with whitespaces
+						actualTokenValue = actualLineValue.split("\\s+")[this.actualCountOfTokenInLine + 1];
+					} else {
+						actualTokenValue = actualLineValue.split("\\s+")[this.actualCountOfTokenInLine];
+					}
+
+					if (actualTokenValue.endsWith(";")) {
+						// semicolon at the end of the token detected
+						actualTokenValue = actualTokenValue.substring(0,
+								actualTokenValue.length() - 1);
+						this.nextTokenValue = ";";
+					}
 				}
 
-				if (actualTokenValue.endsWith(";")) {
-					// semicolon at the end of the token detected
-					actualTokenValue = actualTokenValue.substring(0,
-							actualTokenValue.length() - 1);
-					this.nextTokenValue = ";";
+				this.actualColumn = actualLineValue.indexOf(actualTokenValue,
+						(this.actualColumn == 1 ? 0 : this.actualColumn + 1)) + 1;
+
+				if (actualTokenValue.startsWith("#")) {
+					// line comment detected
+					actualTokenValue = actualLineValue
+							.substring(actualLineValue.indexOf("#"));
+					this.actualCountOfTokenInLine = this.convertedLines.get(
+							this.actualLine - 1).split("\\s+").length;
+				} else {
+					this.actualCountOfTokenInLine++;
 				}
+
+				return actualTokenValue;
 			}
-
-			this.actualColumn = actualLineValue.indexOf(actualTokenValue,
-					(this.actualColumn == 1 ? 0 : this.actualColumn + 1)) + 1;
-
-			if (actualTokenValue.startsWith("#")) {
-				// line comment detected
-				actualTokenValue = actualLineValue.substring(actualLineValue
-						.indexOf("#"));
-				this.actualCountOfTokenInLine = this.convertedLines.get(
-						this.actualLine - 1).split("\\s+").length;
-			} else {
-				this.actualCountOfTokenInLine++;
-			}
-
-			return actualTokenValue;
-		}
+		} else
+			return "$";
 	}
 
 }

@@ -70,6 +70,7 @@ public class AddProgTest {
 			new TokenImpl(";", TokenType.SEMICOLON, 1, 1),
 			new TokenImpl("return", TokenType.RETURN, 1, 1),
 			new TokenImpl("l", TokenType.ID, 1, 1),
+			new TokenImpl(";", TokenType.SEMICOLON, 1, 1),
 			new TokenImpl("$", TokenType.EOF, 1, 1)
 		));
 	}
@@ -82,6 +83,7 @@ public class AddProgTest {
 		do {
 			comparisontoken = list.remove(0);
 			token = this.lexer.getNextToken();
+			System.out.println(token.getValue()+"in : "+token.getTokenType());
 
 			assertTrue(token != null);
 			assertEquals(comparisontoken.getValue(), token.getValue());

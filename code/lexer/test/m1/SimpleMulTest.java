@@ -50,6 +50,7 @@ public class SimpleMulTest {
 			new TokenImpl(";", TokenType.SEMICOLON, 1, 1),
 			new TokenImpl("return", TokenType.RETURN, 1, 1),
 			new TokenImpl("l", TokenType.ID, 1, 1),
+			new TokenImpl(";", TokenType.SEMICOLON, 1, 1),
 			new TokenImpl("$", TokenType.EOF, 1, 1)
 		));
 	}
