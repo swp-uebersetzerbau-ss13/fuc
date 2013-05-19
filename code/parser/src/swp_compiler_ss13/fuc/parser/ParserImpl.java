@@ -15,7 +15,7 @@ import swp_compiler_ss13.fuc.parser.parser.LRParser;
 import swp_compiler_ss13.fuc.parser.parser.LexerWrapper;
 import swp_compiler_ss13.fuc.parser.parser.ParserException;
 import swp_compiler_ss13.fuc.parser.parser.tables.LRParsingTable;
-//import swp_compiler_ss13.fuc.semantic_analyser.SemanticAnalyser;
+import swp_compiler_ss13.fuc.semantic_analyser.SemanticAnalyser;
 
 public class ParserImpl implements Parser {
 	// --------------------------------------------------------------------------
@@ -58,8 +58,8 @@ public class ParserImpl implements Parser {
 		
 			// Call semantic analysis
 			// TODO Fix dependency cycle caused by ReportLogImpl + Error!!!
-			//SemanticAnalyser analyzer = new SemanticAnalyser(this.reportLog);
-			//ast = analyzer.analyse(ast);
+			SemanticAnalyser analyzer = new SemanticAnalyser(this.reportLog);
+			ast = analyzer.analyse(ast);
 		
 		
 
