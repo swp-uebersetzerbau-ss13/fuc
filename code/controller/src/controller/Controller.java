@@ -240,12 +240,6 @@ public class Controller {
 		parser.setReportLog(errlog);
 		AST ast = parser.getParsedAST();
 
-		if(!disableVisualization) {
-			for (ASTVisualization astvisu : ASTVisuService) {
-				astvisu.visualizeAST(ast);
-			}
-		}
-
 		// in case of parser errors: abort and display errors
 		if(errlog.hasErrors()) {
 			System.err.println("ERROR: compile failed due to errors:");
@@ -257,6 +251,12 @@ public class Controller {
 					);
 			}
 			System.exit(1);
+		}
+
+		if(!disableVisualization) {
+			for (ASTVisualization astvisu : ASTVisuService) {
+				astvisu.visualizeAST(ast);
+			}
 		}
 
 		// IR gen...
