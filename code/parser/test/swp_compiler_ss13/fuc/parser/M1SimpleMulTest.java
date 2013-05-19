@@ -21,6 +21,7 @@ import swp_compiler_ss13.fuc.parser.grammar.Grammar;
 import swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar;
 import swp_compiler_ss13.fuc.parser.parser.LRParser;
 import swp_compiler_ss13.fuc.parser.parser.LexerWrapper;
+import swp_compiler_ss13.fuc.parser.parser.ParserException;
 import swp_compiler_ss13.fuc.parser.parser.tables.LRParsingTable;
 
 public class M1SimpleMulTest {
@@ -87,8 +88,10 @@ public class M1SimpleMulTest {
 		LRParser lrParser = new LRParser();
 		LexerWrapper lexWrapper = new LexerWrapper(lexer, grammar);
 		ReportLog reportLog = new ReportLogImpl();
-		AST ast = lrParser.parse(lexWrapper, reportLog, table);
-
-		checkAst(ast);
+		try{
+			lrParser.parse(lexWrapper, reportLog, table);
+		}catch(ParserException e){
+			//well done
+		}
 	}
 }

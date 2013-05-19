@@ -10,6 +10,7 @@ import swp_compiler_ss13.fuc.parser.generator.items.LR0Item;
 import swp_compiler_ss13.fuc.parser.generator.states.LR0State;
 import swp_compiler_ss13.fuc.parser.grammar.Grammar;
 import swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar;
+import swp_compiler_ss13.fuc.parser.parser.DoubleIdentifierException;
 import swp_compiler_ss13.fuc.parser.parser.LRParser;
 import swp_compiler_ss13.fuc.parser.parser.LexerWrapper;
 import swp_compiler_ss13.fuc.parser.parser.ParserException;
@@ -46,15 +47,21 @@ public class ParserImpl implements Parser {
 		// Run LR-parser with table
 		LRParser lrParser = new LRParser();
 		LexerWrapper lexWrapper = new LexerWrapper(this.lexer, grammar);
-		AST ast = lrParser.parse(lexWrapper, this.reportLog, table);
-		if (ast == null) {
-			throw new ParserException("A parse exception occurred!");
+		AST ast = null;
+		try{
+			ast = lrParser.parse(lexWrapper, this.reportLog, table);
+		}catch(DoubleIdentifierException e){
+			return null;
+		}catch(ParserException e){
+			return null;
 		}
 		
-		// Call semantic analysis
-		// TODO Fix dependency cycle caused by ReportLogImpl + Error!!!
-		SemanticAnalyser analyzer = new SemanticAnalyser(this.reportLog);
-		ast = analyzer.analyse(ast);
+			// Call semantic analysis
+			// TODO Fix dependency cycle caused by ReportLogImpl + Error!!!
+			SemanticAnalyser analyzer = new SemanticAnalyser(this.reportLog);
+			ast = analyzer.analyse(ast);
+		
+		
 
 		return ast;
 	}
