@@ -48,7 +48,7 @@ public class TokenEx implements Token {
 			}
 
 			if (terminal == null) {
-				log.warn("Unable to find a ");
+				log.warn("Unable to find a terminal for token: " + tokenToStringFull(token));
 			}
 			return new TokenEx(token, terminal);
 		}
@@ -88,6 +88,10 @@ public class TokenEx implements Token {
 	
 	public static String tokenToString(Token t) {
 		return t.getValue();
+	}
+	
+	public static String tokenToStringFull(Token t) {
+		return "[Token: '" + t.getValue() + "|Type: '" + t.getTokenType() + "'|At: line " + t.getLine() + ", col " + t.getColumn() + "]";
 	}
 
 	@Override
