@@ -150,8 +150,9 @@ public class LRParser {
 					
 					try {
 						
-					} catch (ParserException e) {
 						newValue = reduceAction.create(arr(valueHandle));
+					} catch (ParserException e) {
+						return null;
 					}
 					
 					if (newValue == null) {
