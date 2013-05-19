@@ -15,6 +15,7 @@ public class ReportLogImpl implements ReportLog {
 	@Override
 	public void reportError(String text, Integer line, Integer column, String message) {
 		_errors.add(new Error(text, line, column, message));
+		System.err.println(text +", " + line + ", " + column + ", " +  message);
 	}
 	
 	public boolean hasErrors() {

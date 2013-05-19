@@ -7,6 +7,7 @@ import java.io.ByteArrayInputStream;
 import lexer.LexerImpl;
 
 import org.apache.log4j.BasicConfigurator;
+import org.junit.Assert;
 import org.junit.Test;
 
 import swp_compiler_ss13.common.lexer.Lexer;
@@ -18,6 +19,7 @@ import swp_compiler_ss13.fuc.parser.generator.items.LR0Item;
 import swp_compiler_ss13.fuc.parser.generator.states.LR0State;
 import swp_compiler_ss13.fuc.parser.grammar.Grammar;
 import swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar;
+import swp_compiler_ss13.fuc.parser.parser.DoubleIdentifierException;
 import swp_compiler_ss13.fuc.parser.parser.LRParser;
 import swp_compiler_ss13.fuc.parser.parser.LexerWrapper;
 import swp_compiler_ss13.fuc.parser.parser.ParserException;
@@ -82,9 +84,8 @@ public class M1ErrorDoubleDeclTest {
 		ReportLog reportLog = new ReportLogImpl();
 		try {
 			lrParser.parse(lexWrapper, reportLog, table);
-			fail("Expected double decl error!");
 		} catch (ParserException err) {
-			// Success
+			
 		}
 	}
 }
