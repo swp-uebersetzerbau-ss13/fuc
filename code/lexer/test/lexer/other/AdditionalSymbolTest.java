@@ -39,7 +39,7 @@ public class AdditionalSymbolTest {
 				"matchToken(java.lang.String)", Constants.SEMICOLON);
 		assertEquals(TokenType.SEMICOLON, tokenType);
 		tokenType = (TokenType) PA.invokeMethod(this.lexer,
-				"matchToken(java.lang.String)", "");
+				"matchToken(java.lang.String)", "$");
 		assertEquals(TokenType.EOF, tokenType);
 	}
 
@@ -88,7 +88,7 @@ public class AdditionalSymbolTest {
 		assertEquals(5, token.getColumn().intValue());
 
 		token = this.lexer.getNextToken();
-		assertEquals("", token.getValue());
+		assertEquals("$", token.getValue());
 		assertEquals(TokenType.EOF, token.getTokenType());
 		assertEquals(2, token.getLine().intValue());
 		assertEquals(1, token.getColumn().intValue());
