@@ -19,12 +19,12 @@ import org.junit.Test;
  * @author Tay, Ho Phuong
  * 
  */
-public class SimpleAddTest {
+public class Simple_AddProgTest {
 	private String prog = 
 			"# returns 6\n" +
 			"long l;\n" +
 			"l = 3 + 3;\n" +
-			"return l;\n";
+			"return l;";
 	private InputStream stream;
 	private LexerImpl lexer;
 	private ArrayList<Token> list;
@@ -34,7 +34,7 @@ public class SimpleAddTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
-	    this.stream = new ByteArrayInputStream(prog.getBytes());
+		this.stream = new ByteArrayInputStream(prog.getBytes());
 		this.lexer = new lexer.LexerImpl();
 		this.lexer.setSourceStream(this.stream);
 		this.list = new ArrayList<Token>(Arrays.asList(

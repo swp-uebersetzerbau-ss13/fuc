@@ -19,19 +19,11 @@ import org.junit.Test;
  * @author Tay, Ho Phuong
  * 
  */
-public class AddProgTest {
-	private String prog =
-		"# return 27\n" +
-		"long l;\n" +
-		"l = 10 +\n" +
-		"        23 # - 23\n" +
-		"- 23\n" +
-		"+ 100 /\n" +
-		"\n" +
-		"2\n" +
-		"-       30 \n" +
-		"      - 9 / 3;\n" +
-		"return l;";
+public class Error_Multiple_Minus_E_NotationProgTest {
+	private String prog = 
+		"# error: id foo has multiple minus in expontent notation\n" +
+		"long foo;\n" +
+		"foo = 10e----1;";
 	private InputStream stream;
 	private LexerImpl lexer;
 	private ArrayList<Token> list;
@@ -45,31 +37,13 @@ public class AddProgTest {
 		this.lexer = new lexer.LexerImpl();
 		this.lexer.setSourceStream(this.stream);
 		this.list = new ArrayList<Token>(Arrays.asList(
-			new TokenImpl("# return 27", TokenType.COMMENT, 1, 1),
+			new TokenImpl("# error: id foo has multiple minus in expontent notation", TokenType.COMMENT, 1, 1),
 			new TokenImpl("long", TokenType.LONG_SYMBOL, 1, 1),
-			new TokenImpl("l", TokenType.ID, 1, 1),
+			new TokenImpl("foo", TokenType.ID, 1, 1),
 			new TokenImpl(";", TokenType.SEMICOLON, 1, 1),
-			new TokenImpl("l", TokenType.ID, 1, 1),
+			new TokenImpl("foo", TokenType.ID, 1, 1),
 			new TokenImpl("=", TokenType.ASSIGNOP, 1, 1),
-			new TokenImpl("10", TokenType.NUM, 1, 1),
-			new TokenImpl("+", TokenType.PLUS, 1, 1),
-			new TokenImpl("23", TokenType.NUM, 1, 1),
-			new TokenImpl("# - 23", TokenType.COMMENT, 1, 1),
-			new TokenImpl("-", TokenType.MINUS, 1, 1),
-			new TokenImpl("23", TokenType.NUM, 1, 1),
-			new TokenImpl("+", TokenType.PLUS, 1, 1),
-			new TokenImpl("100", TokenType.NUM, 1, 1),
-			new TokenImpl("/", TokenType.DIVIDE, 1, 1),
-			new TokenImpl("2", TokenType.NUM, 1, 1),
-			new TokenImpl("-", TokenType.MINUS, 1, 1),
-			new TokenImpl("30", TokenType.NUM, 1, 1),
-			new TokenImpl("-", TokenType.MINUS, 1, 1),
-			new TokenImpl("9", TokenType.NUM, 1, 1),
-			new TokenImpl("/", TokenType.DIVIDE, 1, 1),
-			new TokenImpl("3", TokenType.NUM, 1, 1),
-			new TokenImpl(";", TokenType.SEMICOLON, 1, 1),
-			new TokenImpl("return", TokenType.RETURN, 1, 1),
-			new TokenImpl("l", TokenType.ID, 1, 1),
+			new TokenImpl("10e----1", TokenType.NOT_A_TOKEN, 1, 1),
 			new TokenImpl(";", TokenType.SEMICOLON, 1, 1),
 			new TokenImpl("$", TokenType.EOF, 1, 1)
 		));
