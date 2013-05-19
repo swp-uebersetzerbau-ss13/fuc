@@ -132,7 +132,7 @@ public class LRParser {
 				
 				try{
 					reduceAction = getReduceAction(prod, reportLog);
-				}catch(ParserException e){
+				}catch(Exception e){
 					return null;
 				}
 				
@@ -634,7 +634,7 @@ public class LRParser {
 		decl.setParentNode(block);
 	}
 
-	private static Object joinBlocks(Object left, Object right, ReportLog reportLog) {
+	private static Object joinBlocks(Object left, Object right, ReportLog reportLog) throws ParserException{
 		BlockNode newBlock = new BlockNodeImpl();
 		newBlock.setSymbolTable(new SymbolTableImpl());
 		
@@ -673,6 +673,6 @@ public class LRParser {
 	}
 
 	private interface ReduceAction {
-		Object create(Object... objs);
+		Object create(Object... objs) throws ParserException;
 	}
 }
