@@ -130,11 +130,8 @@ public class LRParser {
 				Production prod = reduce.getProduction();
 				ReduceAction reduceAction = null;
 				
-				try{
-					reduceAction = getReduceAction(prod, reportLog);
-				}catch(Exception e){
-					return null;
-				}
+
+				reduceAction = getReduceAction(prod, reportLog);
 				
 
 				// If there is anything to do on the value stack
@@ -149,7 +146,14 @@ public class LRParser {
 					}
 					
 					// Execute reduceAction and push onto the stack
-					Object newValue = reduceAction.create(arr(valueHandle));
+					Object newValue = null;
+					
+					try {
+						
+					} catch (ParserException e) {
+						newValue = reduceAction.create(arr(valueHandle));
+					}
+					
 					if (newValue == null) {
 						log.error("Error occurred! newValue is null");
 						return null;
@@ -206,13 +210,13 @@ public class LRParser {
 		return objs.toArray(new Object[objs.size()]);
 	}
 
-	private ReduceAction getReduceAction(Production prod, final ReportLog reportLog) throws ParserException{
+	private ReduceAction getReduceAction(Production prod, final ReportLog reportLog) {
 		switch (prod.getStringRep()) {
 
 		case "program -> decls stmts":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) {
+				public Object create(Object... objs) throws ParserException  {
 					Object left = objs[0]; // Should be NO_VALUE or BlockNode
 					Object right = objs[1]; // Should be NO_VALUE or BlockNode
 
@@ -223,7 +227,7 @@ public class LRParser {
 		case "block -> { decls stmts }":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) {
+				public Object create(Object... objs) throws ParserException  {
 					Object left = objs[1]; // Should be NO_VALUE or BlockNode
 					Object right = objs[2]; // Should be NO_VALUE or BlockNode
 
@@ -234,7 +238,7 @@ public class LRParser {
 		case "decls -> decls decl":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) {
+				public Object create(Object... objs) throws ParserException  {
 					Object left = objs[0]; // Should be NO_VALUE, BlockNode or DeclarationNode
 					Object right = objs[1]; // Should be DeclarationNode or
 											// BlockNode
@@ -277,7 +281,7 @@ public class LRParser {
 		case "decls -> ε":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) {
+				public Object create(Object... objs) throws ParserException  {
 					return NO_VALUE; // Symbolizes epsilon
 				}
 			};
@@ -285,7 +289,7 @@ public class LRParser {
 		case "decl -> type id ;":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) {
+				public Object create(Object... objs) throws ParserException  {
 					Token typeToken = (Token) objs[0];
 					Token idToken = (Token) objs[1];
 
@@ -315,7 +319,7 @@ public class LRParser {
 		case "stmts -> stmts stmt":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) {
+				public Object create(Object... objs) throws ParserException  {
 					Object left = objs[0]; // Should be NO_VALUE or BlockNode or other
 											// StatementNode
 					Object right = objs[1]; // Should be StatementNode or
@@ -359,7 +363,7 @@ public class LRParser {
 		case "stmts -> ε":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) {
+				public Object create(Object... objs) throws ParserException  {
 					return NO_VALUE; // Symbolizes epsilon
 				}
 			};
@@ -367,7 +371,7 @@ public class LRParser {
 		case "stmt -> assign ;":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) {
+				public Object create(Object... objs) throws ParserException  {
 					AssignmentNode assign = (AssignmentNode) objs[0];
 					// Drop semicolon!
 					return  assign;
@@ -386,7 +390,7 @@ public class LRParser {
 		case "stmt -> break ;":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) {
+				public Object create(Object... objs) throws ParserException  {
 					return new BreakNodeImpl();
 				}
 
@@ -394,14 +398,14 @@ public class LRParser {
 		case "stmt -> return ;":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) {
+				public Object create(Object... objs) throws ParserException  {
 					return new ReturnNodeImpl();
 				}
 			};
 		case "stmt -> return loc ;":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) {
+				public Object create(Object... objs) throws ParserException  {
 					ReturnNode returnNode = new ReturnNodeImpl();
 					IdentifierNode identifier = (IdentifierNode) objs[1];
 					returnNode.setRightValue(identifier);
@@ -417,7 +421,7 @@ public class LRParser {
 		case "loc -> id":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) {
+				public Object create(Object... objs) throws ParserException  {
 					BasicIdentifierNode identifierNode = new BasicIdentifierNodeImpl();
 					Token token = (Token) objs[0];
 					if (token.getTokenType() == TokenType.ID) {
@@ -433,7 +437,7 @@ public class LRParser {
 		case "assign -> loc = assign":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) {
+				public Object create(Object... objs) throws ParserException  {
 					AssignmentNodeImpl assignNode = new AssignmentNodeImpl();
 					assignNode.setLeftValue((IdentifierNode) objs[0]);
 					assignNode.getLeftValue().setParentNode(assignNode);
@@ -473,14 +477,14 @@ public class LRParser {
 		case "expr -> expr + term":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) {
+				public Object create(Object... objs) throws ParserException  {
 					return binop(objs[0], objs[2], BinaryOperator.ADDITION);
 				}
 			};
 		case "expr -> expr - term":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) {
+				public Object create(Object... objs) throws ParserException  {
 					return binop(objs[0], objs[2], BinaryOperator.SUBSTRACTION);
 				}
 			};
@@ -489,7 +493,7 @@ public class LRParser {
 		case "term -> term * unary":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) {
+				public Object create(Object... objs) throws ParserException  {
 					return binop(objs[0], objs[2],
 							BinaryOperator.MULTIPLICATION);
 				}
@@ -497,7 +501,7 @@ public class LRParser {
 		case "term -> term / unary":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) {
+				public Object create(Object... objs) throws ParserException  {
 					return binop(objs[0], objs[2], BinaryOperator.DIVISION);
 				}
 			};
@@ -506,7 +510,7 @@ public class LRParser {
 		case "unary -> ! unary":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) {
+				public Object create(Object... objs) throws ParserException  {
 					// Token token = (Token) objs[0]; // not
 					UnaryExpressionNode unary = (UnaryExpressionNode) objs[1];
 
@@ -521,7 +525,7 @@ public class LRParser {
 		case "unary -> - unary":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) {
+				public Object create(Object... objs) throws ParserException  {
 					// Token token = (Token) objs[0]; // minus
 					UnaryExpressionNode unary = (UnaryExpressionNode) objs[1];
 
@@ -535,7 +539,7 @@ public class LRParser {
 		case "factor -> ( assign )":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) {
+				public Object create(Object... objs) throws ParserException  {
 					// Drop left parathesis
 					ExpressionNode assign = (ExpressionNode) objs[1];
 					// Drop right parathesis
@@ -548,7 +552,7 @@ public class LRParser {
 		case "factor -> num":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) {
+				public Object create(Object... objs) throws ParserException  {
 					LiteralNode literal = new LiteralNodeImpl();
 					Token token = (Token) objs[0];
 					literal.setLiteral(token.getValue());
@@ -559,7 +563,7 @@ public class LRParser {
 		case "factor -> real":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) {
+				public Object create(Object... objs) throws ParserException  {
 					LiteralNode literal = new LiteralNodeImpl();
 					Token token = (Token) objs[0];
 					literal.setLiteral(token.getValue());
@@ -570,7 +574,7 @@ public class LRParser {
 		case "factor -> true":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) {
+				public Object create(Object... objs) throws ParserException  {
 					LiteralNode literal = new LiteralNodeImpl();
 					Token token = (Token) objs[0];
 					literal.setLiteral(token.getValue());
@@ -581,7 +585,7 @@ public class LRParser {
 		case "factor -> false":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) {
+				public Object create(Object... objs) throws ParserException  {
 					LiteralNode literal = new LiteralNodeImpl();
 					Token token = (Token) objs[0];
 					literal.setLiteral(token.getValue());
@@ -592,7 +596,7 @@ public class LRParser {
 		case "factor -> string":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) {
+				public Object create(Object... objs) throws ParserException  {
 					LiteralNode literal = new LiteralNodeImpl();
 					Token token = (Token) objs[0];
 					literal.setLiteral(token.getValue());
