@@ -22,11 +22,17 @@ public class TokenStreamVisualizationImpl implements TokenStreamVisualization {
 
 		Token token;
 		while ((token = lexer.getNextToken()).getTokenType() != TokenType.EOF) {
-			outStream.println("< " + token.getTokenType() + ", "
-					+ token.getValue() + " >");
+			if (token.getTokenType() == TokenType.NUM
+					|| token.getTokenType() == TokenType.REAL
+					|| token.getTokenType() == TokenType.ID) {
+				outStream.println("<" + token.getTokenType() + ", "
+						+ token.getValue() + ">");
+			} else {
+				outStream.println("<" + token.getValue() + ">");
+			}
 		}
 
-		outStream.println("< " + token.getTokenType() + ", " + token.getValue()
-				+ " >");
+		outStream.println("<" + token.getTokenType() + ", " + token.getValue()
+				+ ">");
 	}
 }
