@@ -173,7 +173,7 @@ public class SemanticAnalyser {
 	private void checkInitialization(ExpressionNode identifier) {
 		switch (this.getAttribute(identifier, Attribute.INITIALIZATION_STATUS)) {
 		case IS_NOT_INITIALIZED:
-			this.errorLog.reportError("Variable" + this.getAttribute(identifier, Attribute.IDENTIFIER)
+			this.errorLog.reportError("Variable " + this.getAttribute(identifier, Attribute.IDENTIFIER)
 					+ " is not initialized", -1, -1, "NotInitializedException");
 			break;
 		case IS_INITIALIZED:
