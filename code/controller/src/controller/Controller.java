@@ -1,7 +1,17 @@
 package controller;
 
-import java.io.*;
-import java.util.*;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.List;
+import java.util.Map;
+import java.util.ServiceLoader;
+import java.util.Set;
+
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.backend.Backend;
@@ -30,11 +40,12 @@ public class Controller {
 	// several veriables which are affected by command line options
 	static boolean disableVisualization = false;
 	static String outname = null;
-	static boolean jit = false; 
-	
+	static String loglevel = null;
+	static boolean jit = false;
+
 	// our error report log for the parser
 	static ReportLogImpl errlog = new ReportLogImpl();
-	
+
 	// visualization service loaders
 	private static ServiceLoader<TokenStreamVisualization> tokenVisuService;
 	private static ServiceLoader<ASTVisualization> ASTVisuService;
@@ -46,8 +57,7 @@ public class Controller {
 		// create loaders for component plugins
 		ServiceLoader<Lexer> lexerService = ServiceLoader.load(Lexer.class);
 		ServiceLoader<Parser> parserService = ServiceLoader.load(Parser.class);
-		ServiceLoader<IntermediateCodeGenerator> irgenService = ServiceLoader.load(
-				IntermediateCodeGenerator.class);
+		ServiceLoader<IntermediateCodeGenerator> irgenService = ServiceLoader.load(IntermediateCodeGenerator.class);
 		ServiceLoader<Backend> backendService = ServiceLoader.load(Backend.class);
 
 		tokenVisuService = ServiceLoader.load(TokenStreamVisualization.class);
@@ -122,51 +132,54 @@ public class Controller {
 		if (backend == null) {
 			System.err.println("ERROR: no backend plugin found!");
 		}
-		if (lexer == null ||
-				parser == null ||
-				irgen == null ||
-				backend == null) {
+		if (lexer == null || parser == null || irgen == null || backend == null) {
 			System.exit(1);
 		}
 
-		System.err.println("Token Stream Visualization found:");
+		System.err.println("  Token Stream Visualization found:");
 		for (TokenStreamVisualization tokenvisu : tokenVisuService) {
 			System.err.println("\t" + tokenvisu.getClass().getName());
 		}
 
-		System.err.println("AST Visualization found:");
+		System.err.println("  AST Visualization found:");
 		for (ASTVisualization astvisu : ASTVisuService) {
 			System.err.println("\t" + astvisu.getClass().getName());
 		}
 
-		System.err.println("TAC Visualization found:");
+		System.err.println("  TAC Visualization found:");
 		for (TACVisualization tacvisu : TACVisuService) {
 			System.err.println("\t" + tacvisu.getClass().getName());
 		}
 	}
 
-	public static void main(String[] args)
-			throws IOException, IntermediateCodeGeneratorException, BackendException, InstantiationException,
-			IllegalAccessException
-	{
+	public static void main(String[] args) throws IOException, IntermediateCodeGeneratorException, BackendException,
+			InstantiationException, IllegalAccessException {
 		System.err.println("SWP Compiler v0.0\n");
 
-		boolean expect_outname=false;
-		
+		boolean expect_outname = false;
+		boolean expect_loglevel = false;
+
 		// parser CMD args:
 		// if set to true, further arguments may be options,
 		// will be false after encounering -- argument
 		boolean may_be_option = true;
 		for (String arg : args) {
-			
-			// basically "OPTARG" strings work via setting a boolean when the flag is read,
-			//  the flag is checked for the next argument then after one iteration.
-			//  once all arguments for the option are read, the flag is unset again.
+
+			// basically "OPTARG" strings work via setting a boolean when the
+			// flag is read,
+			// the flag is checked for the next argument then after one
+			// iteration.
+			// once all arguments for the option are read, the flag is unset
+			// again.
 			// example: -o output.ll
-			//  <- reads "-o" and sets expect_outname to true
-			//  <- reads name and sets expect_outname to false_
-			if(expect_outname) {
-				outname=arg;
+			// <- reads "-o" and sets expect_outname to true
+			// <- reads name and sets expect_outname to false_
+			if (expect_outname) {
+				outname = arg;
+				expect_outname = false;
+			} else if (expect_loglevel) {
+				loglevel = arg;
+				expect_loglevel = false;
 			}
 			// set file
 			else if (!may_be_option || arg.charAt(0) != '-') {
@@ -189,12 +202,12 @@ public class Controller {
 			// -V disbales visualization passes
 			else if (arg.equals("-V") || arg.equals("--no-visualization")) {
 				disableVisualization = true;
-			}
-			else if (arg.equals("-j") || arg.equals("--jit")) {
-				jit=true;
-			}
-			else if (arg.equals("-o")) {
-				expect_outname=true;
+			} else if (arg.equals("-j") || arg.equals("--jit")) {
+				jit = true;
+			} else if (arg.equals("-o")) {
+				expect_outname = true;
+			} else if (arg.equals("-l") || arg.equals("--loglevel")) {
+				expect_loglevel = true;
 			}
 
 			// help option, just displays usage summary
@@ -212,8 +225,23 @@ public class Controller {
 				System.out.println("     -h/-?/--help            emits this help message");
 				System.out.println("     -o <output>             output filename, only used by llvm");
 				System.out.println("     -j --jit                just in time compile (not yet supported)");
-				System.out.println("     -V --no-visualization   disables the automatic visualization pass if visualization plugins are found");
+				System.out.println("     -l --loglevel <level>   set the loglevel. allowed values are:");
+				System.out.println("                               ALL DEBUG ERROR FATAL INFO OFF TRACE WARN");
+				System.out
+						.println("     -V --no-visualization   disables the automatic visualization pass if visualization plugins are found");
 				System.out.println();
+				System.exit(0);
+			}
+		}
+
+		// set the logger level
+		if (loglevel != null) {
+			loglevel = loglevel.toUpperCase();
+			Level level = Level.toLevel(loglevel);
+			if (level.toString() != loglevel) {
+				Logger.getRootLogger().setLevel(level);
+			} else {
+				System.out.println("unknown loglevel see -h for help");
 				System.exit(0);
 			}
 		}
@@ -227,7 +255,7 @@ public class Controller {
 		// lexer...
 		lexer.setSourceStream(input);
 
-		if(!disableVisualization) {
+		if (!disableVisualization) {
 			for (TokenStreamVisualization tokenvisu : tokenVisuService) {
 				Lexer vlexer = lexer.getClass().newInstance();
 				vlexer.setSourceStream(input);
@@ -241,19 +269,16 @@ public class Controller {
 		AST ast = parser.getParsedAST();
 
 		// in case of parser errors: abort and display errors
-		if(errlog.hasErrors()) {
+		if (errlog.hasErrors()) {
 			System.err.println("ERROR: compile failed due to errors:");
 			for (Error e : errlog.getErrors()) {
-				System.err.println(
-					"(L"+e.getLine()+","+e.getColumn()+")"+
-					"\t "+e.getText()+
-					"\t "+e.getMessage()
-					);
+				System.err.println("(L" + e.getLine() + "," + e.getColumn() + ")" + "\t " + e.getText() + "\t "
+						+ e.getMessage());
 			}
 			System.exit(1);
 		}
 
-		if(!disableVisualization) {
+		if (!disableVisualization) {
 			for (ASTVisualization astvisu : ASTVisuService) {
 				astvisu.visualizeAST(ast);
 			}
@@ -262,7 +287,7 @@ public class Controller {
 		// IR gen...
 		List<Quadruple> tac = irgen.generateIntermediateCode(ast);
 
-		if(!disableVisualization) {
+		if (!disableVisualization) {
 			for (TACVisualization tacvisu : TACVisuService) {
 				tacvisu.visualizeTAC(tac);
 			}
@@ -276,15 +301,14 @@ public class Controller {
 		// for now, we always print everything on stdout.
 		for (String outFile : outputFilenames) {
 			OutputStream output;
-			if (outFile.equals(".ll")) // llvm output, consult -o <filename> option or use STDOUT
-				if(outname != null) {
+			if (outFile.equals(".ll")) {
+				if (outname != null) {
 					output = new FileOutputStream(outname);
-				}
-				else {
+				} else {
 					outname = "<<stdout>>";
 					output = System.out;
 				}
-			else // java bytecode output
+			} else // java bytecode output
 			{
 				output = new FileOutputStream(outFile);
 			}
@@ -296,8 +320,7 @@ public class Controller {
 			// http://stackoverflow.com/questions/1574837/connecting-an-input-stream-to-an-outputstream
 			byte[] buffer = new byte[4096];
 			int bytesRead;
-			while ((bytesRead = is.read(buffer)) != -1)
-			{
+			while ((bytesRead = is.read(buffer)) != -1) {
 				output.write(buffer, 0, bytesRead);
 			}
 		}

@@ -19,4 +19,4 @@ dotify () {
 	done
 }
 
-java -cp $(dotify dist/*.jar dist/lib/*.jar) controller.Controller "$@"
+java -cp $(dotify dist/*.jar dist/lib/*.jar) controller.Controller -l OFF "$@"
