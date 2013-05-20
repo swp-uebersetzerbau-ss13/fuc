@@ -238,7 +238,7 @@ public class Controller {
 		if (loglevel != null) {
 			loglevel = loglevel.toUpperCase();
 			Level level = Level.toLevel(loglevel);
-			if (level.toString() != loglevel) {
+			if (level.toString().equals(loglevel)) {
 				Logger.getRootLogger().setLevel(level);
 			} else {
 				System.out.println("unknown loglevel see -h for help");
