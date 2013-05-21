@@ -31,6 +31,12 @@ public class QuadrupleFactory {
 			return new QuadrupleImpl(Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, id);
 		case LONG:
 			return new QuadrupleImpl(Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, id);
+		case STRING:
+			// TODO: Add correct Quadruple Operators
+			return new QuadrupleImpl(null, Quadruple.EmptyArgument, Quadruple.EmptyArgument, id);
+		case BOOLEAN:
+			// TODO: Add correct Quadruple Operators
+			return new QuadrupleImpl(null, Quadruple.EmptyArgument, Quadruple.EmptyArgument, id);
 		default:
 			throw new IntermediateCodeGeneratorException("Unsupported type " + type.toString());
 		}
@@ -182,5 +188,340 @@ public class QuadrupleFactory {
 	public static Quadruple returnNode(String identifier) {
 		return new QuadrupleImpl(Quadruple.Operator.RETURN, identifier, Quadruple.EmptyArgument,
 				Quadruple.EmptyArgument);
+	}
+
+	/**
+	 * Create a Quadruple for relation equals
+	 * 
+	 * @param left
+	 *            left value
+	 * @param right
+	 *            right value
+	 * @param result
+	 *            the result
+	 * @param type
+	 *            type of values
+	 * @return The quadruple representing the equals relation
+	 * @throws IntermediateCodeGeneratorException
+	 *             illegal quadruple
+	 */
+	public static Quadruple relationEqual(String left, String right, String result, Type type)
+			throws IntermediateCodeGeneratorException {
+		switch (type.getKind()) {
+		case BOOLEAN:
+			// TODO: Add correct Quadruple Operators
+			return new QuadrupleImpl(null, left, right, result);
+		case DOUBLE:
+			// TODO: Add correct Quadruple Operators
+			return new QuadrupleImpl(null, left, right, result);
+		case LONG:
+			// TODO: Add correct Quadruple Operators
+			return new QuadrupleImpl(null, left, right, result);
+		case STRING:
+			// TODO: Add correct Quadruple Operators
+			return new QuadrupleImpl(null, left, right, result);
+		default:
+			String err = "Illegal Relation Equals for Type " + type;
+			throw new IntermediateCodeGeneratorException(err);
+		}
+	}
+
+	/**
+	 * Create a Quadruple for relation greater
+	 * 
+	 * @param left
+	 *            left value
+	 * @param right
+	 *            right value
+	 * @param result
+	 *            the result
+	 * @param type
+	 *            type of values
+	 * @return The quadruple representing the greater relation
+	 * @throws IntermediateCodeGeneratorException
+	 *             illegal quadruple
+	 */
+	public static Quadruple relationGreater(String left, String right, String result, Type type)
+			throws IntermediateCodeGeneratorException {
+		switch (type.getKind()) {
+		case BOOLEAN:
+			// TODO: Add correct Quadruple Operators
+			return new QuadrupleImpl(null, left, right, result);
+		case DOUBLE:
+			// TODO: Add correct Quadruple Operators
+			return new QuadrupleImpl(null, left, right, result);
+		case LONG:
+			// TODO: Add correct Quadruple Operators
+			return new QuadrupleImpl(null, left, right, result);
+		case STRING:
+			// TODO: Add correct Quadruple Operators
+			return new QuadrupleImpl(null, left, right, result);
+		default:
+			String err = "Illegal Relation Greater for Type " + type;
+			throw new IntermediateCodeGeneratorException(err);
+		}
+	}
+
+	/**
+	 * Create a Quadruple for relation greater equals
+	 * 
+	 * @param left
+	 *            left value
+	 * @param right
+	 *            right value
+	 * @param result
+	 *            the result
+	 * @param type
+	 *            type of values
+	 * @return The quadruple representing the greater equals relation
+	 * @throws IntermediateCodeGeneratorException
+	 *             illegal quadruple
+	 */
+	public static Quadruple relationGreaterEqual(String left, String right, String result, Type type)
+			throws IntermediateCodeGeneratorException {
+		switch (type.getKind()) {
+		case BOOLEAN:
+			// TODO: Add correct Quadruple Operators
+			return new QuadrupleImpl(null, left, right, result);
+		case DOUBLE:
+			// TODO: Add correct Quadruple Operators
+			return new QuadrupleImpl(null, left, right, result);
+		case LONG:
+			// TODO: Add correct Quadruple Operators
+			return new QuadrupleImpl(null, left, right, result);
+		case STRING:
+			// TODO: Add correct Quadruple Operators
+			return new QuadrupleImpl(null, left, right, result);
+		default:
+			String err = "Illegal Relation GreaterEquals for Type " + type;
+			throw new IntermediateCodeGeneratorException(err);
+		}
+	}
+
+	/**
+	 * Create a Quadruple for relation inequals
+	 * 
+	 * @param left
+	 *            left value
+	 * @param right
+	 *            right value
+	 * @param result
+	 *            the result
+	 * @param type
+	 *            type of values
+	 * @return The quadruple representing the inequals relation
+	 * @throws IntermediateCodeGeneratorException
+	 *             illegal quadruple
+	 */
+	public static Quadruple relationInEqual(String left, String right, String result, Type type)
+			throws IntermediateCodeGeneratorException {
+		switch (type.getKind()) {
+		case BOOLEAN:
+			// TODO: Add correct Quadruple Operators
+			return new QuadrupleImpl(null, left, right, result);
+		case DOUBLE:
+			// TODO: Add correct Quadruple Operators
+			return new QuadrupleImpl(null, left, right, result);
+		case LONG:
+			// TODO: Add correct Quadruple Operators
+			return new QuadrupleImpl(null, left, right, result);
+		case STRING:
+			// TODO: Add correct Quadruple Operators
+			return new QuadrupleImpl(null, left, right, result);
+		default:
+			String err = "Illegal Relation InEquals for Type " + type;
+			throw new IntermediateCodeGeneratorException(err);
+		}
+	}
+
+	/**
+	 * Create a Quadruple for relation less
+	 * 
+	 * @param left
+	 *            left value
+	 * @param right
+	 *            right value
+	 * @param result
+	 *            the result
+	 * @param type
+	 *            type of values
+	 * @return The quadruple representing the less relation
+	 * @throws IntermediateCodeGeneratorException
+	 *             illegal quadruple
+	 */
+	public static Quadruple relationLess(String left, String right, String result, Type type)
+			throws IntermediateCodeGeneratorException {
+		switch (type.getKind()) {
+		case BOOLEAN:
+			// TODO: Add correct Quadruple Operators
+			return new QuadrupleImpl(null, left, right, result);
+		case DOUBLE:
+			// TODO: Add correct Quadruple Operators
+			return new QuadrupleImpl(null, left, right, result);
+		case LONG:
+			// TODO: Add correct Quadruple Operators
+			return new QuadrupleImpl(null, left, right, result);
+		case STRING:
+			// TODO: Add correct Quadruple Operators
+			return new QuadrupleImpl(null, left, right, result);
+		default:
+			String err = "Illegal Relation Less for Type " + type;
+			throw new IntermediateCodeGeneratorException(err);
+		}
+	}
+
+	/**
+	 * Create a Quadruple for relation less equals
+	 * 
+	 * @param left
+	 *            left value
+	 * @param right
+	 *            right value
+	 * @param result
+	 *            the result
+	 * @param type
+	 *            type of values
+	 * @return The quadruple representing the less equals relation
+	 * @throws IntermediateCodeGeneratorException
+	 *             illegal quadruple
+	 */
+	public static Quadruple relationLessEqual(String left, String right, String result, Type type)
+			throws IntermediateCodeGeneratorException {
+		switch (type.getKind()) {
+		case BOOLEAN:
+			// TODO: Add correct Quadruple Operators
+			return new QuadrupleImpl(null, left, right, result);
+		case DOUBLE:
+			// TODO: Add correct Quadruple Operators
+			return new QuadrupleImpl(null, left, right, result);
+		case LONG:
+			// TODO: Add correct Quadruple Operators
+			return new QuadrupleImpl(null, left, right, result);
+		case STRING:
+			// TODO: Add correct Quadruple Operators
+			return new QuadrupleImpl(null, left, right, result);
+		default:
+			String err = "Illegal Relation Less Equals for Type " + type;
+			throw new IntermediateCodeGeneratorException(err);
+		}
+	}
+
+	/**
+	 * Create a Quadruple for the print statement
+	 * 
+	 * @param value
+	 *            The variable to print
+	 * @param type
+	 *            The type of the variable
+	 * @return The quadruple for the print statement
+	 */
+	public static Quadruple print(String value, Type type) {
+		switch (type.getKind()) {
+		case ARRAY:
+		case BOOLEAN:
+		case DOUBLE:
+		case LONG:
+		case STRING:
+		case STRUCT:
+		default:
+			// TODO: Add correct Quadruple Operators
+			return new QuadrupleImpl(null, value, Quadruple.EmptyArgument, Quadruple.EmptyArgument);
+		}
+	}
+
+	/**
+	 * Create a quadruple for unary NOT operation
+	 * 
+	 * @param value
+	 *            The value to negate
+	 * @param result
+	 *            The result variable
+	 * @return The quadruple
+	 */
+	public static Quadruple unaryNot(String value, String result) {
+		// TODO: Add correct Quadruple Operators
+		return new QuadrupleImpl(null, value, Quadruple.EmptyArgument, result);
+	}
+
+	/**
+	 * Create a quadruple for boolean arithmetic
+	 * 
+	 * @param operator
+	 *            The boolean operator
+	 * @param left
+	 *            left value
+	 * @param right
+	 *            right value
+	 * @param result
+	 *            result value
+	 * @return The quadruple
+	 * @throws IntermediateCodeGeneratorException
+	 *             Illegal operator given
+	 */
+	public static Quadruple booleanArithmetic(BinaryOperator operator, String left, String right, String result)
+			throws IntermediateCodeGeneratorException {
+		switch (operator) {
+		case LOGICAL_AND:
+			// TODO: Add correct Quadruple Operators
+			return new QuadrupleImpl(null, left, right, result);
+		case LOGICAL_OR:
+			// TODO: Add correct Quadruple Operators
+			return new QuadrupleImpl(null, left, right, result);
+		default:
+			String err = "unsupported logical operator " + operator;
+			throw new IntermediateCodeGeneratorException(err);
+		}
+	}
+
+	/**
+	 * Create if false quadruple
+	 * 
+	 * @param condition
+	 *            The condition to check
+	 * @param label
+	 *            The label to jump to if condition is false
+	 * @return The quadruple
+	 */
+	public static Quadruple ifFalse(String condition, String label) {
+		// TODO: Add correct Quadruple Operators
+		return new QuadrupleImpl(null, condition, label, Quadruple.EmptyArgument);
+	}
+
+	/**
+	 * Create if true quadruple
+	 * 
+	 * @param condition
+	 *            The condition to check
+	 * @param label
+	 *            The label to jump to if condition is true
+	 * @return The quadruple
+	 */
+	public static Quadruple ifTrue(String condition, String label) {
+		// TODO: Add correct Quadruple Operators
+		return new QuadrupleImpl(null, condition, label, Quadruple.EmptyArgument);
+	}
+
+	/**
+	 * Add a new label into the TAC
+	 * 
+	 * @param label
+	 *            The label to add
+	 * @return The Quadruple
+	 */
+	public static Quadruple label(String label) {
+		// TODO: Add correct Quadruple Operators
+		return new QuadrupleImpl(null, label, Quadruple.EmptyArgument, Quadruple.EmptyArgument);
+	}
+
+	/**
+	 * Add an unconditional jump to the label
+	 * 
+	 * @param label
+	 *            The label to jump to
+	 * @return The Quadruple
+	 */
+	public static Quadruple jump(String label) {
+		// TODO: Add correct Quadruple Operators
+		return new QuadrupleImpl(null, label, Quadruple.EmptyArgument, Quadruple.EmptyArgument);
 	}
 }

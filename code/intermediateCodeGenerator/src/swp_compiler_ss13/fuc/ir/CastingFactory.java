@@ -5,6 +5,7 @@ import org.apache.log4j.Logger;
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 import swp_compiler_ss13.common.types.Type;
+import swp_compiler_ss13.common.types.Type.Kind;
 import swp_compiler_ss13.common.types.primitive.PrimitiveType;
 
 /**
@@ -120,5 +121,33 @@ public class CastingFactory {
 		String err = "Can not create a cast from %s of type %s to %s of type %s.";
 		String errf = String.format(err, fromId, fromType, toId, toType);
 		throw new IntermediateCodeGeneratorException(errf, new UnsupportedOperationException());
+	}
+
+	/**
+	 * Check if the given result is of a numeric type (double or long)
+	 * 
+	 * @param result
+	 *            the result to check
+	 * @return true if the type of the result is double or long
+	 */
+	public static boolean isNumeric(IntermediateResult result) {
+		return isNumeric(result.getType());
+	}
+
+	/**
+	 * Check if the given type is numeric (double or long)
+	 * 
+	 * @param type
+	 *            the type to check
+	 * @return true if the type is numeric
+	 */
+	private static boolean isNumeric(Type type) {
+		if (type.getKind() == Kind.LONG) {
+			return true;
+		}
+		if (type.getKind() == Kind.DOUBLE) {
+			return true;
+		}
+		return false;
 	}
 }
