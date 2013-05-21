@@ -14,6 +14,7 @@ import javax.swing.JTextPane;
 import javax.swing.ScrollPaneConstants;
 
 public class EditorPanel extends JPanel {
+	private JTextPane textPane;
 
 	/**
 	 * Create the panel.
@@ -60,10 +61,10 @@ public class EditorPanel extends JPanel {
 		scrollPane.setViewportView(panel);
 		panel.setLayout(new GridLayout(0, 1, 0, 0));
 
-		JTextPane textPane = new JTextPane();
-		panel.add(textPane);
-		textPane.setAlignmentY(Component.TOP_ALIGNMENT);
-		textPane.setAlignmentX(Component.LEFT_ALIGNMENT);
+		this.textPane = new JTextPane();
+		panel.add(this.textPane);
+		this.textPane.setAlignmentY(Component.TOP_ALIGNMENT);
+		this.textPane.setAlignmentX(Component.LEFT_ALIGNMENT);
 
 		StringBuilder linenumbers = new StringBuilder();
 		for (int i = 1; i < 1000; i++) {
@@ -74,6 +75,18 @@ public class EditorPanel extends JPanel {
 		textPane_1.setMinimumSize(new Dimension(30, 6));
 
 		scrollPane_1.getVerticalScrollBar().setModel(scrollPane.getVerticalScrollBar().getModel());
+	}
+
+	public void setText(String text) {
+		this.textPane.setText(text);
+	}
+
+	public String getText() {
+		return this.textPane.getText();
+	}
+
+	public void clearText() {
+		this.textPane.setText("");
 	}
 
 }
