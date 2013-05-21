@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
 import java.awt.Insets;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
@@ -72,6 +73,9 @@ public class FucIDE extends JFrame {
 	 * Create the frame.
 	 */
 	public FucIDE() {
+		this.setIconImage(Toolkit.getDefaultToolkit().getImage(
+				FucIDE.class.getResource("/swp_compiler_ss13/fuc/gui/ide/assets/fucide.png")));
+		this.setTitle("Super Geile FUC IDE  -^_^-");
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setBounds(100, 100, 450, 300);
 
