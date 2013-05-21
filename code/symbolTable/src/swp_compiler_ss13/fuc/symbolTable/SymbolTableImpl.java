@@ -142,7 +142,11 @@ public class SymbolTableImpl implements SymbolTable {
 	@Override
 	public String getIdentifierAlias(String identifier) {
 		if (this.isDeclaredInCurrentScope(identifier)) {
-			return this.aliasMap.get(identifier);
+			String alias = this.aliasMap.get(identifier);
+			if (alias == null) {
+				alias = identifier;
+			}
+			return alias;
 		}
 		return this.getDeclaringSymbolTable(identifier).getIdentifierAlias(identifier);
 	}
