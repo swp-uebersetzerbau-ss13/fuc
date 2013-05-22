@@ -21,5 +21,6 @@
 		<pathelement location="../${lib.dir}/junit-4.11.jar" />
 		<pathelement location="../${lib.dir}/privilegedaccessor-1.2.1.jar" />
 		<pathelement location="../${lib.dir}/log4jprops.jar" />
+		<pathelement location="../${lib.dir}/jacocoant.jar" />
 	</path>
 </project>
