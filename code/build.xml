@@ -29,6 +29,7 @@
 		<ant antfile="build.xml" dir="${visu.tac.quadruple.dir}" target="clean" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.tac.triple.dir}" target="clean" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.tac.code.dir}" target="clean" inheritall="false" />
+		<ant antfile="build.xml" dir="${errorLog.dir}" target="clean" inheritall="false" />
 	</target>
 	
 	<!-- === build all projects === -->
@@ -47,6 +48,7 @@
 		<ant antfile="build.xml" dir="${visu.tac.quadruple.dir}" target="build" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.tac.triple.dir}" target="build" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.tac.code.dir}" target="build" inheritall="false" />
+		<ant antfile="build.xml" dir="${errorLog.dir}" target="build" inheritall="false" />
 	</target>
 	
 	<!-- === doc all projects === -->
@@ -65,6 +67,7 @@
 		<ant antfile="build.xml" dir="${visu.tac.quadruple.dir}" target="doc" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.tac.triple.dir}" target="doc" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.tac.code.dir}" target="doc" inheritall="false" />
+		<ant antfile="build.xml" dir="${errorLog.dir}" target="doc" inheritall="false" />
 	</target>
 	
 	<!-- === build all tests === -->
@@ -83,6 +86,7 @@
 		<ant antfile="build.xml" dir="${visu.tac.quadruple.dir}" target="build-tests" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.tac.triple.dir}" target="build-tests" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.tac.code.dir}" target="build-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${errorLog.dir}" target="build-tests" inheritall="false" />
 	</target>
 	
 	<!-- === run all tests === -->
@@ -101,6 +105,7 @@
 		<ant antfile="build.xml" dir="${visu.tac.quadruple.dir}" target="run-tests" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.tac.triple.dir}" target="run-tests" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.tac.code.dir}" target="run-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${errorLog.dir}" target="run-tests" inheritall="false" />
 	</target>
 	
 	<!-- === dist === -->
@@ -145,7 +150,12 @@
 		<echo message="swp_compiler_ss13.fuc.parser.ParserImpl" file="${dist.dir}/temp/swp_compiler_ss13.common.parser.Parser" />
 		<jar destfile="${dist.dir}/FUC-Parser.jar" basedir="${parser.dir}/${bin.dir}">
 			<zipfileset dir="${dist.dir}/temp" includes="swp_compiler_ss13.common.parser.Parser" fullpath="META-INF/services/swp_compiler_ss13.common.parser.Parser" />
-			<zipfileset dir="${semanticAnalyzer.dir}/${bin.dir}" />
+		</jar>
+		
+		<!-- create the SemanticAnalyzer package -->
+		<echo message="swp_compiler_ss13.fuc.semantic_analyser.SemanticAnalyser" file="${dist.dir}/temp/swp_compiler_ss13.common.semantic_analyser.SemanticAnalyser" />
+		<jar destfile="${dist.dir}/FUC-Semantic-Analyser.jar" basedir="${semanticAnalyzer.dir}/${bin.dir}">
+			<zipfileset dir="${dist.dir}/temp" includes="swp_compiler_ss13.common.semantic_analyser.SemanticAnalyser" fullpath="META-INF/services/swp_compiler_ss13.common.semantic_analyser.SemanticAnalyser" />
 		</jar>
 		
 		<!-- create the AST Infix Visu -->
@@ -238,6 +248,10 @@
 			<zipfileset dir="${parser.dir}/${src.dir}" prefix="src" />
 			<zipfileset dir="${parser.dir}/${test.dir}" prefix="test" />
 			<zipfileset dir="${parser.dir}/${doc.dir}" prefix="doc-parser" />
+		</jar>
+		
+		<!-- create the SemanticAnalyzer package -->
+		<jar destfile="${dist.dir}/FUC-Semantic-Analyser.jar" update="true">
 			<zipfileset dir="${semanticAnalyzer.dir}/${src.dir}" prefix="src" />
 			<zipfileset dir="${semanticAnalyzer.dir}/${test.dir}" prefix="test" />
 			<zipfileset dir="${semanticAnalyzer.dir}/${doc.dir}" prefix="doc-semanticAnalyzer" />
