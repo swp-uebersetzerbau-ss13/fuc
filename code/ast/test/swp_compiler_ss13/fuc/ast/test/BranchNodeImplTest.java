@@ -11,6 +11,7 @@ import org.junit.Test;
 import swp_compiler_ss13.common.ast.ASTNode;
 import swp_compiler_ss13.common.ast.ASTNode.ASTNodeType;
 import swp_compiler_ss13.common.ast.nodes.ExpressionNode;
+import swp_compiler_ss13.common.ast.nodes.StatementNode;
 import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
 import swp_compiler_ss13.common.ast.nodes.ternary.BranchNode;
 import swp_compiler_ss13.fuc.ast.BasicIdentifierNodeImpl;
@@ -144,7 +145,7 @@ public class BranchNodeImplTest {
 	 */
 	@Test
 	public void testGetBlockNodeOnTrue() {
-		BlockNode actualValue = this.node.getBlockNodeOnTrue();
+		StatementNode actualValue = this.node.getBlockNodeOnTrue();
 		assertEquals(null, actualValue);
 
 		BlockNode blockTestValue = new BlockNodeImpl();
@@ -175,7 +176,7 @@ public class BranchNodeImplTest {
 	 */
 	@Test
 	public void testGetBlockNodeOnFalse() {
-		BlockNode actualValue = this.node.getBlockNodeOnFalse();
+		StatementNode actualValue = this.node.getBlockNodeOnFalse();
 		assertEquals(null, actualValue);
 
 		BlockNode blockTestValue = new BlockNodeImpl();

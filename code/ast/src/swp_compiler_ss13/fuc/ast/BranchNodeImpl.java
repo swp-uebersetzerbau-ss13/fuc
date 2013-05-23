@@ -7,7 +7,7 @@ import org.apache.log4j.Logger;
 
 import swp_compiler_ss13.common.ast.ASTNode;
 import swp_compiler_ss13.common.ast.nodes.ExpressionNode;
-import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
+import swp_compiler_ss13.common.ast.nodes.StatementNode;
 import swp_compiler_ss13.common.ast.nodes.ternary.BranchNode;
 
 /**
@@ -26,12 +26,12 @@ public class BranchNodeImpl extends ASTNodeImpl implements BranchNode {
 	/**
 	 * The block when the expression evaluates to true
 	 */
-	private BlockNode trueBlock;
+	private StatementNode trueBlock;
 
 	/**
 	 * The block when the expression evaluates to false
 	 */
-	private BlockNode falseBlock;
+	private StatementNode falseBlock;
 
 	/**
 	 * The logger
@@ -91,7 +91,7 @@ public class BranchNodeImpl extends ASTNodeImpl implements BranchNode {
 	}
 
 	@Override
-	public void setBlockNodeOnTrue(BlockNode block) {
+	public void setBlockNodeOnTrue(StatementNode block) {
 		if (block == null) {
 			logger.error("The argument block can not be null!");
 			throw new IllegalArgumentException("The argument block can not be null!");
@@ -100,7 +100,7 @@ public class BranchNodeImpl extends ASTNodeImpl implements BranchNode {
 	}
 
 	@Override
-	public BlockNode getBlockNodeOnTrue() {
+	public StatementNode getBlockNodeOnTrue() {
 		if (this.trueBlock == null) {
 			logger.warn("Returning null as a block");
 		}
@@ -108,7 +108,7 @@ public class BranchNodeImpl extends ASTNodeImpl implements BranchNode {
 	}
 
 	@Override
-	public void setBlockNodeOnFalse(BlockNode block) {
+	public void setBlockNodeOnFalse(StatementNode block) {
 		if (block == null) {
 			logger.error("The argument block can not be null!");
 			throw new IllegalArgumentException("The argument block can not be null!");
@@ -117,7 +117,7 @@ public class BranchNodeImpl extends ASTNodeImpl implements BranchNode {
 	}
 
 	@Override
-	public BlockNode getBlockNodeOnFalse() {
+	public StatementNode getBlockNodeOnFalse() {
 		if (this.falseBlock == null) {
 			logger.warn("Returning null as a block");
 		}
