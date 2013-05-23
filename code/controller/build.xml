@@ -19,6 +19,11 @@
 		<ant antfile="interfaces.xml" dir=".." target="build" inheritall="false" />
 	</target>
 
+	<!-- === depends on the errorLog === -->
+	<target name="errorLog" description="Build the errorLog">
+		<ant antfile="build.xml" dir="../${errorLog.dir}" target="build" inheritall="false" />
+	</target>
+
 	<!-- === clean === -->
 	<target name="clean" description="clean this project">
 		<delete dir="${bin.dir}" />
@@ -26,7 +31,7 @@
 	</target>
 
 	<!-- === build === -->
-	<target name="build" depends="clean, interfaces" description="build the source files">
+	<target name="build" depends="clean, interfaces, errorLog" description="build the source files">
 		<mkdir dir="${bin.dir}" />
 		<javac 
 			srcdir="${src.dir}"

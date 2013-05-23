@@ -20,10 +20,12 @@
 		<path refid="sourcepath" />
 		<pathelement location="${test.dir}" />
 		<pathelement location="../${lexer.dir}/${src.dir}" />
+		<pathelement location="../${errorLog.dir}/${src.dir}" />
 	</path>
 
 	<path id="classpath-test">
 		<path refid="classpath" />
+		<pathelement location="../${errorLog.dir}/${bin.dir}" />
 		<pathelement location="../${lexer.dir}/${bin.dir}" />
 		<pathelement location="../${lib.dir}/hamcrest-core-1.3.jar" />
 		<pathelement location="../${lib.dir}/junit-4.11.jar" />

@@ -24,6 +24,8 @@ import swp_compiler_ss13.common.parser.Parser;
 import swp_compiler_ss13.common.visualization.ASTVisualization;
 import swp_compiler_ss13.common.visualization.TACVisualization;
 import swp_compiler_ss13.common.visualization.TokenStreamVisualization;
+import swp_compiler_ss13.fuc.parser.errorHandling.Error;
+import swp_compiler_ss13.fuc.parser.errorHandling.ReportLogImpl;
 
 public class Controller {
 	// the input file, stdin by default
