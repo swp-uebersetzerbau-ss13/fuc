@@ -1,4 +1,4 @@
-<project basedir="." name="FUC Backend" default="help">
+<project basedir="." name="FUC Backend" default="help" xmlns:jacoco="antlib:org.jacoco.ant">
 	<!-- === load the properties === -->
 	<loadproperties srcFile="../build.properties" />
 
@@ -28,7 +28,7 @@
 	<!-- === build === -->
 	<target name="build" depends="clean, interfaces" description="build the source files">
 		<mkdir dir="${bin.dir}" />
-		<javac 
+		<javac
 			srcdir="${src.dir}"
 			destdir="${bin.dir}"
 			target="1.7"
@@ -68,24 +68,63 @@
 			includeantruntime="false" />
 	</target>
 
+	<!-- Java Code Coverage -->
+    <taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
+		<classpath>
+			<path refid="classpath-test" />
+		</classpath>
+    </taskdef>
+
 	<!-- === run tests === -->
 	<target name="run-tests" depends="build-tests" description="run the junit tests">
-		<junit
-			printsummary="on"
-			fork="true"
-			haltonerror="true"
-			haltonfailure="true" >
-			<classpath>
-				<path refid="classpath-test" />
-			</classpath>
-			<batchtest>
-				<fileset dir="${test.dir}">
-					<include name="**/*Test.java" />
-				</fileset>
-			</batchtest>
-			<formatter type="plain" usefile="no" />
-		</junit>
-	
+		<mkdir dir="${test.results.dir}" />
+
+		<jacoco:coverage destfile="${test.results.dir}/jacoco.exec">
+			<junit
+				printsummary="on"
+				fork="true"
+				haltonerror="true"
+				haltonfailure="true" >
+				<classpath>
+					<path refid="classpath-test" />
+				</classpath>
+				<batchtest todir="${test.results.dir}">
+					<fileset dir="${test.dir}">
+						<include name="**/*Test.java" />
+					</fileset>
+				</batchtest>
+				<formatter type="xml" />
+			</junit>
+		</jacoco:coverage>
+
+		<!-- Generate HTML report -->
+		<junitreport todir="${test.results.dir}">
+			<fileset dir="${test.results.dir}">
+				<include name="TEST-*.xml" />
+			</fileset>
+			<report format="noframes" todir="${test.reports.dir}" />
+		</junitreport>
+
+		<!-- Generate Code Coverage report
+			See: http://www.eclemma.org/jacoco/trunk/doc/ant.html -->
+		<jacoco:report>
+			<executiondata>
+				<file file="${test.results.dir}/jacoco.exec" />
+			</executiondata>
+
+			<structure name="Code coverage">
+				<classfiles>
+					<fileset dir="${bin.dir}">
+						<include name="**/*.class" />
+                        <exclude name="**/TACExecutor*.class" />
+                        <exclude name="**/*Test.class" />
+                        <exclude name="**/*Test$*.class" />
+					</fileset>
+				</classfiles>
+			</structure>
+
+			<html destdir="${test.coverage_report.dir}" />
+		</jacoco:report>
 	</target>
 
 </project>
