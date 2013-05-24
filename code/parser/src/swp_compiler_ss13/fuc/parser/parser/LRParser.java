@@ -16,9 +16,11 @@ import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode.BinaryOper
 import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.LiteralNode;
 import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
+import swp_compiler_ss13.common.ast.nodes.ternary.BranchNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ArithmeticUnaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
 import swp_compiler_ss13.common.ast.nodes.unary.LogicUnaryExpressionNode;
+import swp_compiler_ss13.common.ast.nodes.unary.PrintNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ReturnNode;
 import swp_compiler_ss13.common.ast.nodes.unary.UnaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.unary.UnaryExpressionNode.UnaryOperator;
@@ -36,10 +38,12 @@ import swp_compiler_ss13.fuc.ast.ArithmeticUnaryExpressionNodeImpl;
 import swp_compiler_ss13.fuc.ast.AssignmentNodeImpl;
 import swp_compiler_ss13.fuc.ast.BasicIdentifierNodeImpl;
 import swp_compiler_ss13.fuc.ast.BlockNodeImpl;
+import swp_compiler_ss13.fuc.ast.BranchNodeImpl;
 import swp_compiler_ss13.fuc.ast.BreakNodeImpl;
 import swp_compiler_ss13.fuc.ast.DeclarationNodeImpl;
 import swp_compiler_ss13.fuc.ast.LiteralNodeImpl;
 import swp_compiler_ss13.fuc.ast.LogicUnaryExpressionNodeImpl;
+import swp_compiler_ss13.fuc.ast.PrintNodeImpl;
 import swp_compiler_ss13.fuc.ast.ReturnNodeImpl;
 import swp_compiler_ss13.fuc.parser.grammar.Production;
 import swp_compiler_ss13.fuc.parser.grammar.TokenEx;
@@ -296,10 +300,10 @@ public class LRParser {
 					case LONG_SYMBOL:
 						decl.setType(new LongType());
 						break;
-//					case STRING:
-//						decl.setType(new StringType((long) typeToken.getValue()
-//								.length()));
-//						break;
+					case STRING_SYMBOL:
+						decl.setType(new StringType((long) typeToken.getValue()
+								.length()));
+						break;
 					default:
 						break;
 					}
@@ -372,13 +376,84 @@ public class LRParser {
 				}
 			};
 		case "stmt -> block":
-			break; // Nothing to reduce here. Block is a Stmt
+			break;
 
 		case "stmt -> if ( assign ) stmt":
+			return new ReduceAction() {
+
+				@Override
+				public Object create(Object... objs) throws ParserException {
+					
+					BranchNode node = new BranchNodeImpl();
+					
+					if(objs[0] instanceof BlockNode){
+						node.setBlockNodeOnTrue((BlockNode)objs[0]);
+					}else{
+						if(objs[0] instanceof StatementNode){
+							//TODO: AST accept only BlockNodes
+						}else{
+							reportLog.reportError("No statement", -1, -1, "theres no statement or blocknode in true case");
+							throw new ParserException("Statement or Blocknode expected");
+						}
+					}
+					
+					if(objs[2] instanceof AssignmentNode){
+						node.setCondition((AssignmentNode)objs[2]);
+					}else{
+						reportLog.reportError("No assignment", -1, -1, "theres no assignment as condition");
+						throw new ParserException("Assignment expected");
+					}
+					
+					//TODO: is false to be set??
+					
+					return node;
+				}
+				
+			};
 		case "stmt -> if ( assign ) stmt else stmt":
+			return new ReduceAction() {
+
+				@Override
+				public Object create(Object... objs) throws ParserException {
+					
+					BranchNode node = new BranchNodeImpl();
+					
+					if(objs[0] instanceof BlockNode){
+						node.setBlockNodeOnFalse((BlockNode)objs[0]);
+					}else{
+						if(objs[0] instanceof StatementNode){
+							//TODO: AST accept only BlockNodes
+						}else{
+							reportLog.reportError("No statement", -1, -1, "theres no statement or blocknode in true case");
+							throw new ParserException("Statement or Blocknode expected");
+						}
+					}
+					
+					if(objs[2] instanceof BlockNode){
+						node.setBlockNodeOnTrue((BlockNode)objs[0]);
+					}else{
+						if(objs[2] instanceof StatementNode){
+							//TODO: AST accept only BlockNodes
+						}else{
+							reportLog.reportError("No statement", -1, -1, "theres no statement or blocknode in true case");
+							throw new ParserException("Statement or Blocknode expected");
+						}
+					}
+					
+					if(objs[4] instanceof AssignmentNode){
+						node.setCondition((AssignmentNode)objs[2]);
+					}else{
+						reportLog.reportError("No assignment", -1, -1, "theres no assignment as condition");
+						throw new ParserException("Assignment expected");
+					}
+							
+					return node;
+				}
+			};
+			
 		case "stmt -> while ( assign ) stmt":
 		case "stmt -> do stmt while ( assign )":
-			// TODO M2
+			// TODO M3
 			break;
 
 		case "stmt -> break ;":
@@ -407,7 +482,23 @@ public class LRParser {
 					return returnNode;
 				}
 			};
+			
 		case "stmt -> print loc ;":
+			return new ReduceAction() {
+				@Override
+				public Object create(Object... objs) throws ParserException  {
+					PrintNode printNode = new PrintNodeImpl();
+					if(objs[0] instanceof IdentifierNode){
+						printNode.setRightValue((IdentifierNode)objs[0]);
+					}else{
+						reportLog.reportError("No identifier", -1, -1, "print expect an identifier");
+						throw new ParserException("Identifier expected");
+					}
+					
+					return printNode;
+				}
+			};
+			
 		case "loc -> loc [ assign ]":
 			// TODO m2
 			break;
@@ -613,6 +704,11 @@ public class LRParser {
 		return null;
 	}
 
+	private ReduceAction ReduceAction() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	/**
 	 * Inserts the {@link DeclarationNode} into the block and its {@link SymbolTable} safely.
 	 * 
@@ -622,7 +718,7 @@ public class LRParser {
 	protected static void insertDecl(BlockNode block, DeclarationNode decl, final ReportLog reportLog) throws ParserException {
 		SymbolTable symbolTable = block.getSymbolTable();
 		// TODO M2: Shadowing allowed???
-		if (symbolTable.isDeclared(decl.getIdentifier())) {
+		if (symbolTable.isDeclaredInCurrentScope(decl.getIdentifier())) {
 			// TODO Add token to Nodes
 			reportLog.reportError(decl.getType() + " " + decl.getIdentifier(), -1, -1, "The variable '" + decl.getIdentifier() + "' of type '" + decl.getType() + "' has been declared twice!");
 			throw new DoubleIdentifierException("double id exception");
