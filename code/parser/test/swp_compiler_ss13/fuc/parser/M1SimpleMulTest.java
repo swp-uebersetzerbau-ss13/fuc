@@ -12,7 +12,7 @@ import org.junit.Test;
 import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.lexer.Lexer;
 import swp_compiler_ss13.common.parser.ReportLog;
-import swp_compiler_ss13.fuc.parser.errorHandling.ReportLogImpl;
+import swp_compiler_ss13.fuc.parser.errorHandling.ParserReportLogImpl;
 import swp_compiler_ss13.fuc.parser.generator.ALRGenerator;
 import swp_compiler_ss13.fuc.parser.generator.LR0Generator;
 import swp_compiler_ss13.fuc.parser.generator.items.LR0Item;
@@ -87,7 +87,7 @@ public class M1SimpleMulTest {
 		// Run LR-parser with table
 		LRParser lrParser = new LRParser();
 		LexerWrapper lexWrapper = new LexerWrapper(lexer, grammar);
-		ReportLog reportLog = new ReportLogImpl();
+		ReportLog reportLog = new ParserReportLogImpl();
 		try{
 			lrParser.parse(lexWrapper, reportLog, table);
 		}catch(ParserException e){
