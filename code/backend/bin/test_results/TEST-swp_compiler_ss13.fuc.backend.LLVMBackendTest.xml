@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuite errors="0" failures="0" hostname="frank-MLIN" name="swp_compiler_ss13.fuc.backend.LLVMBackendTest" tests="43" time="0.142" timestamp="2013-05-28T12:56:43">
+  <properties>
+    <property name="java.vendor" value="Oracle Corporation" />
+    <property name="lib.dir" value="lib" />
+    <property name="sun.java.launcher" value="SUN_STANDARD" />
+    <property name="sun.management.compiler" value="HotSpot Tiered Compilers" />
+    <property name="visu.tac.triple.dir" value="visu-console/visu-tac-triple" />
+    <property name="os.name" value="Linux" />
+    <property name="sun.boot.class.path" value="/usr/lib/jvm/java-7-openjdk-i386/jre/lib/resources.jar:/usr/lib/jvm/java-7-openjdk-i386/jre/lib/rt.jar:/usr/lib/jvm/java-7-openjdk-i386/jre/lib/sunrsasign.jar:/usr/lib/jvm/java-7-openjdk-i386/jre/lib/jsse.jar:/usr/lib/jvm/java-7-openjdk-i386/jre/lib/jce.jar:/usr/lib/jvm/java-7-openjdk-i386/jre/lib/charsets.jar:/usr/lib/jvm/java-7-openjdk-i386/jre/lib/netx.jar:/usr/lib/jvm/java-7-openjdk-i386/jre/lib/plugin.jar:/usr/lib/jvm/java-7-openjdk-i386/jre/lib/rhino.jar:/usr/lib/jvm/java-7-openjdk-i386/jre/lib/jfr.jar:/usr/lib/jvm/java-7-openjdk-i386/jre/classes" />
+    <property name="test.reports.dir" value="bin/test_reports" />
+    <property name="parser.dir" value="parser" />
+    <property name="backend.dir" value="backend" />
+    <property name="java.vm.specification.vendor" value="Oracle Corporation" />
+    <property name="ant.home" value="/usr/share/ant" />
+    <property name="visu.token.dir" value="visu-console/visu-token" />
+    <property name="java.runtime.version" value="1.7.0_21-b02" />
+    <property name="symbolTable.dir" value="symbolTable" />
+    <property name="user.name" value="frank" />
+    <property name="ast.dir" value="ast" />
+    <property name="user.language" value="en" />
+    <property name="sun.boot.library.path" value="/usr/lib/jvm/java-7-openjdk-i386/jre/lib/i386" />
+    <property name="globalTest.dir" value="test" />
+    <property name="ant.project.default-target" value="help" />
+    <property name="doc.dir" value="doc" />
+    <property name="ant.project.name" value="FUC Backend" />
+    <property name="java.version" value="1.7.0_21" />
+    <property name="intermediateCodeGenerator.dir" value="intermediateCodeGenerator" />
+    <property name="user.timezone" value="" />
+    <property name="sun.arch.data.model" value="32" />
+    <property name="java.endorsed.dirs" value="/usr/lib/jvm/java-7-openjdk-i386/jre/lib/endorsed" />
+    <property name="sun.cpu.isalist" value="" />
+    <property name="sun.jnu.encoding" value="UTF-8" />
+    <property name="file.encoding.pkg" value="sun.io" />
+    <property name="file.separator" value="/" />
+    <property name="java.specification.name" value="Java Platform API Specification" />
+    <property name="java.class.version" value="51.0" />
+    <property name="visu.ast.infix.dir" value="visu-console/visu-ast-infix" />
+    <property name="user.country" value="US" />
+    <property name="ant.file.FUC Backend" value="/home/frank/swp-compiler/fuc/code/backend/build.xml" />
+    <property name="java.home" value="/usr/lib/jvm/java-7-openjdk-i386/jre" />
+    <property name="dist.dir" value="dist" />
+    <property name="java.vm.info" value="mixed mode" />
+    <property name="ant.file" value="/home/frank/swp-compiler/fuc/code/backend/build.xml" />
+    <property name="os.version" value="3.5.0-25-generic" />
+    <property name="errorLog.dir" value="errorLog" />
+    <property name="path.separator" value=":" />
+    <property name="test.results.dir" value="bin/test_results" />
+    <property name="java.vm.version" value="23.7-b01" />
+    <property name="ant.library.dir" value="/usr/share/ant/lib" />
+    <property name="java.awt.printerjob" value="sun.print.PSPrinterJob" />
+    <property name="sun.io.unicode.encoding" value="UnicodeLittle" />
+    <property name="visu.tac.code.dir" value="visu-console/visu-tac-code" />
+    <property name="awt.toolkit" value="sun.awt.X11.XToolkit" />
+    <property name="_jacoco.agentFile" value="/tmp/jacocoagent4973289468043820027.jar" />
+    <property name="visu.tac.quadruple.dir" value="visu-console/visu-tac-quadruple" />
+    <property name="user.home" value="/home/frank" />
+    <property name="java.specification.vendor" value="Oracle Corporation" />
+    <property name="ant.file.type.FUC Backend" value="file" />
+    <property name="test.dir" value="test" />
+    <property name="java.library.path" value="/opt/ros/groovy/lib:/usr/java/packages/lib/i386:/usr/lib/jni:/lib:/usr/lib" />
+    <property name="java.vendor.url" value="http://java.oracle.com/" />
+    <property name="bin.dir" value="bin" />
+    <property name="java.vm.vendor" value="Oracle Corporation" />
+    <property name="visu.ast.xml.dir" value="visu-console/visu-ast-xml" />
+    <property name="test.coverage_report.dir" value="bin/test_reports/coverage" />
+    <property name="java.runtime.name" value="OpenJDK Runtime Environment" />
+    <property name="sun.java.command" value="org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner swp_compiler_ss13.fuc.backend.LLVMBackendTest filtertrace=true haltOnError=true haltOnFailure=true formatter=org.apache.tools.ant.taskdefs.optional.junit.SummaryJUnitResultFormatter showoutput=false outputtoformatters=true logfailedtests=true logtestlistenerevents=false formatter=org.apache.tools.ant.taskdefs.optional.junit.XMLJUnitResultFormatter,/home/frank/swp-compiler/fuc/code/backend/bin/test_results/TEST-swp_compiler_ss13.fuc.backend.LLVMBackendTest.xml crashfile=/home/frank/swp-compiler/fuc/code/backend/junitvmwatcher7925415121336048792.properties propsfile=/home/frank/swp-compiler/fuc/code/backend/junit3657048305113517691.properties" />
+    <property name="java.class.path" value="/home/frank/swp-compiler/fuc/code/backend/bin:/home/frank/swp-compiler/fuc/code/common/interfaces/bin:/home/frank/swp-compiler/fuc/code/lib/log4j-1.2.17.jar:/home/frank/swp-compiler/fuc/code/lib/hamcrest-core-1.3.jar:/home/frank/swp-compiler/fuc/code/lib/junit-4.11.jar:/home/frank/swp-compiler/fuc/code/lib/privilegedaccessor-1.2.1.jar:/home/frank/swp-compiler/fuc/code/lib/log4jprops.jar:/home/frank/swp-compiler/fuc/code/lib/jacocoant.jar:/usr/share/java/ant-launcher-1.8.2.jar:/usr/share/ant/lib/ant.jar:/usr/share/ant/lib/ant-junit.jar:/usr/share/ant/lib/ant-junit4.jar:/tmp/jacocoagent4973289468043820027.jar" />
+    <property name="ant.version" value="Apache Ant(TM) version 1.8.2 compiled on May 18 2012" />
+    <property name="controller.dir" value="controller" />
+    <property name="java.vm.specification.name" value="Java Virtual Machine Specification" />
+    <property name="ant.file.type" value="file" />
+    <property name="java.vm.specification.version" value="1.7" />
+    <property name="sun.os.patch.level" value="unknown" />
+    <property name="interfaces.dir" value="common/interfaces" />
+    <property name="sun.cpu.endian" value="little" />
+    <property name="java.io.tmpdir" value="/tmp" />
+    <property name="java.vendor.url.bug" value="http://bugreport.sun.com/bugreport/" />
+    <property name="os.arch" value="i386" />
+    <property name="java.awt.graphicsenv" value="sun.awt.X11GraphicsEnvironment" />
+    <property name="common.dir" value="common" />
+    <property name="java.ext.dirs" value="/usr/lib/jvm/java-7-openjdk-i386/jre/lib/ext:/usr/java/packages/lib/ext" />
+    <property name="etc.dir" value="etc" />
+    <property name="user.dir" value="/home/frank/swp-compiler/fuc/code" />
+    <property name="ant.file.FUC Compiler" value="/home/frank/swp-compiler/fuc/code/build.xml" />
+    <property name="line.separator" value="&#xa;" />
+    <property name="java.vm.name" value="OpenJDK Server VM" />
+    <property name="ant.file.type.FUC Compiler" value="file" />
+    <property name="semanticAnalyzer.dir" value="semanticAnalyzer" />
+    <property name="basedir" value="/home/frank/swp-compiler/fuc/code/backend" />
+    <property name="ant.java.version" value="1.7" />
+    <property name="ant.core.lib" value="/usr/share/ant/lib/ant.jar" />
+    <property name="file.encoding" value="UTF-8" />
+    <property name="java.specification.version" value="1.7" />
+    <property name="src.dir" value="src" />
+    <property name="ant.project.invoked-targets" value="run-tests" />
+    <property name="lexer.dir" value="lexer" />
+    <property name="project.dir" value="." />
+  </properties>
+  <testcase classname="swp_compiler_ss13.fuc.backend.LLVMBackendTest" name="generateTargetCodeTest_DeclareDouble" time="0.014" />
+  <testcase classname="swp_compiler_ss13.fuc.backend.LLVMBackendTest" name="generateTargetCodeTest_DeclareBoolean" time="0.0" />
+  <testcase classname="swp_compiler_ss13.fuc.backend.LLVMBackendTest" name="generateTargetCodeTest_DeclareString" time="0.0" />
+  <testcase classname="swp_compiler_ss13.fuc.backend.LLVMBackendTest" name="generateTargetCodeTest_AssignDouble_Var" time="0.001" />
+  <testcase classname="swp_compiler_ss13.fuc.backend.LLVMBackendTest" name="generateTargetCodeTest_MulDouble_Const" time="0.0" />
+  <testcase classname="swp_compiler_ss13.fuc.backend.LLVMBackendTest" name="generateTargetCodeTest_SubLong_Var" time="0.0" />
+  <testcase classname="swp_compiler_ss13.fuc.backend.LLVMBackendTest" name="generateTargetCodeTest_Return_Var" time="0.0" />
+  <testcase classname="swp_compiler_ss13.fuc.backend.LLVMBackendTest" name="generateTargetCodeTest_AddLong_Const" time="0.001" />
+  <testcase classname="swp_compiler_ss13.fuc.backend.LLVMBackendTest" name="generateTargetCodeTest_LongToDouble" time="0.0" />
+  <testcase classname="swp_compiler_ss13.fuc.backend.LLVMBackendTest" name="generateTargetCodeTest_SubLong_Const" time="0.0" />
+  <testcase classname="swp_compiler_ss13.fuc.backend.LLVMBackendTest" name="generateTargetCodeTest_DeclareLong_InitVar" time="0.0" />
+  <testcase classname="swp_compiler_ss13.fuc.backend.LLVMBackendTest" name="generateTargetCodeTest_DeclareBoolean_InitConst_True" time="0.0" />
+  <testcase classname="swp_compiler_ss13.fuc.backend.LLVMBackendTest" name="generateTargetCodeTest_AddDouble_Const" time="0.0" />
+  <testcase classname="swp_compiler_ss13.fuc.backend.LLVMBackendTest" name="generateTargetCodeTest_MulLong_Var" time="0.0" />
+  <testcase classname="swp_compiler_ss13.fuc.backend.LLVMBackendTest" name="generateTargetCodeTest_DeclareBoolean_InitVar" time="0.001" />
+  <testcase classname="swp_compiler_ss13.fuc.backend.LLVMBackendTest" name="generateTargetCodeTest_AddDouble_Var" time="0.002" />
+  <testcase classname="swp_compiler_ss13.fuc.backend.LLVMBackendTest" name="generateTargetCodeTest_AssignString_Var" time="0.0" />
+  <testcase classname="swp_compiler_ss13.fuc.backend.LLVMBackendTest" name="generateTargetCodeTest_DeclareDouble_InitConst" time="0.0" />
+  <testcase classname="swp_compiler_ss13.fuc.backend.LLVMBackendTest" name="generateTargetCodeTest_DivLong_Var" time="0.001" />
+  <testcase classname="swp_compiler_ss13.fuc.backend.LLVMBackendTest" name="generateTargetCodeTest_AssignBoolean_Const_False" time="0.0" />
+  <testcase classname="swp_compiler_ss13.fuc.backend.LLVMBackendTest" name="generateTargetCodeTest_MulLong_Const" time="0.0" />
+  <testcase classname="swp_compiler_ss13.fuc.backend.LLVMBackendTest" name="generateTargetCodeTest_AssignString_Const" time="0.001" />
+  <testcase classname="swp_compiler_ss13.fuc.backend.LLVMBackendTest" name="generateTargetCodeTest_DoubleToLong" time="0.0" />
+  <testcase classname="swp_compiler_ss13.fuc.backend.LLVMBackendTest" name="generateTargetCodeTest_DeclareString_InitConst" time="0.0" />
+  <testcase classname="swp_compiler_ss13.fuc.backend.LLVMBackendTest" name="generateTargetCodeTest_DeclareLong_InitConst" time="0.0" />
+  <testcase classname="swp_compiler_ss13.fuc.backend.LLVMBackendTest" name="generateTargetCodeTest_AddLong_Var" time="0.001" />
+  <testcase classname="swp_compiler_ss13.fuc.backend.LLVMBackendTest" name="generateTargetCodeTest_SubDouble_Var" time="0.0" />
+  <testcase classname="swp_compiler_ss13.fuc.backend.LLVMBackendTest" name="generateTargetCodeTest_Return_Const" time="0.0" />
+  <testcase classname="swp_compiler_ss13.fuc.backend.LLVMBackendTest" name="generateTargetCodeTest_DivLong_Const" time="0.001" />
+  <testcase classname="swp_compiler_ss13.fuc.backend.LLVMBackendTest" name="generateTargetCodeTest_DivDouble_Const" time="0.0" />
+  <testcase classname="swp_compiler_ss13.fuc.backend.LLVMBackendTest" name="generateTargetCodeTest_DeclareString_InitVar" time="0.0" />
+  <testcase classname="swp_compiler_ss13.fuc.backend.LLVMBackendTest" name="generateTargetCodeTest_AssignLong_Var" time="0.0" />
+  <testcase classname="swp_compiler_ss13.fuc.backend.LLVMBackendTest" name="generateTargetCodeTest_DeclareDouble_InitVar" time="0.001" />
+  <testcase classname="swp_compiler_ss13.fuc.backend.LLVMBackendTest" name="generateTargetCodeTest_AssignBoolean_Const_True" time="0.0" />
+  <testcase classname="swp_compiler_ss13.fuc.backend.LLVMBackendTest" name="generateTargetCodeTest_AssignLong_Const" time="0.0" />
+  <testcase classname="swp_compiler_ss13.fuc.backend.LLVMBackendTest" name="generateTargetCodeTest_AssignBoolean_Var" time="0.0" />
+  <testcase classname="swp_compiler_ss13.fuc.backend.LLVMBackendTest" name="generateTargetCodeTest_AssignDouble_Const" time="0.001" />
+  <testcase classname="swp_compiler_ss13.fuc.backend.LLVMBackendTest" name="generateTargetCodeTest_MulDouble_Var" time="0.0" />
+  <testcase classname="swp_compiler_ss13.fuc.backend.LLVMBackendTest" name="generateTargetCodeTest_DeclareLong" time="0.0" />
+  <testcase classname="swp_compiler_ss13.fuc.backend.LLVMBackendTest" name="generateTargetCodeTest_AssignWithoutDeclaration" time="0.0" />
+  <testcase classname="swp_compiler_ss13.fuc.backend.LLVMBackendTest" name="generateTargetCodeTest_SubDouble_Const" time="0.0" />
+  <testcase classname="swp_compiler_ss13.fuc.backend.LLVMBackendTest" name="generateTargetCodeTest_DeclareBoolean_InitConst_False" time="0.0" />
+  <testcase classname="swp_compiler_ss13.fuc.backend.LLVMBackendTest" name="generateTargetCodeTest_DivDouble_Var" time="0.0" />
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

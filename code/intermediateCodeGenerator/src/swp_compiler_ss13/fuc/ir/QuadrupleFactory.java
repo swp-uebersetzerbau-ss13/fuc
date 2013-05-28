@@ -316,11 +316,11 @@ public class QuadrupleFactory {
 		switch (type.getKind()) {
 		case DOUBLE:
 			// TODO: Add correct Quadruple Operators
-			return new QuadrupleImpl(Operator.COMPARE_DOUBLE_IE, left, right,
+			return new QuadrupleImpl(null, left, right,
 					result);
 		case LONG:
 			// TODO: Add correct Quadruple Operators
-			return new QuadrupleImpl(Operator.COMPARE_LONG_IE, left, right,
+			return new QuadrupleImpl(null, left, right,
 					result);
 		default:
 			String err = "Illegal Relation InEquals for Type " + type;
