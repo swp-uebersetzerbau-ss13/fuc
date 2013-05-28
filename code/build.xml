@@ -30,6 +30,7 @@
 		<ant antfile="build.xml" dir="${visu.tac.triple.dir}" target="clean" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.tac.code.dir}" target="clean" inheritall="false" />
 		<ant antfile="build.xml" dir="${errorLog.dir}" target="clean" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.token.dir}" target="clean" inheritall="false" />
 	</target>
 	
 	<!-- === build all projects === -->
@@ -49,6 +50,7 @@
 		<ant antfile="build.xml" dir="${visu.tac.triple.dir}" target="build" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.tac.code.dir}" target="build" inheritall="false" />
 		<ant antfile="build.xml" dir="${errorLog.dir}" target="build" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.token.dir}" target="build" inheritall="false" />
 	</target>
 	
 	<!-- === doc all projects === -->
@@ -68,6 +70,7 @@
 		<ant antfile="build.xml" dir="${visu.tac.triple.dir}" target="doc" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.tac.code.dir}" target="doc" inheritall="false" />
 		<ant antfile="build.xml" dir="${errorLog.dir}" target="doc" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.token.dir}" target="doc" inheritall="false" />
 	</target>
 	
 	<!-- === build all tests === -->
@@ -87,6 +90,7 @@
 		<ant antfile="build.xml" dir="${visu.tac.triple.dir}" target="build-tests" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.tac.code.dir}" target="build-tests" inheritall="false" />
 		<ant antfile="build.xml" dir="${errorLog.dir}" target="build-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.token.dir}" target="build-tests" inheritall="false" />
 	</target>
 	
 	<!-- === run all tests === -->
@@ -106,6 +110,7 @@
 		<ant antfile="build.xml" dir="${visu.tac.triple.dir}" target="run-tests" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.tac.code.dir}" target="run-tests" inheritall="false" />
 		<ant antfile="build.xml" dir="${errorLog.dir}" target="run-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.token.dir}" target="run-tests" inheritall="false" />
 	</target>
 	
 	<!-- === dist === -->
@@ -127,6 +132,9 @@
 		
 		<!-- create the SymbolTable package -->
 		<jar destfile="${dist.dir}/FUC-SymbolTable.jar" basedir="${symbolTable.dir}/${bin.dir}" />
+		
+		<!-- create the ErrorLog package -->
+		<jar destfile="${dist.dir}/FUC-ErrorLog.jar" basedir="${errorLog.dir}/${bin.dir}" />
 		
 		<!-- create the Backend package -->
 		<echo message="swp_compiler_ss13.fuc.backend.LLVMBackend" file="${dist.dir}/temp/swp_compiler_ss13.common.backend.Backend" />
@@ -188,6 +196,12 @@
 			<zipfileset dir="${dist.dir}/temp" includes="swp_compiler_ss13.common.visualization.TACVisualization" fullpath="META-INF/services/swp_compiler_ss13.common.visualization.TACVisualization" />
 		</jar>
 		
+		<!-- create the TokenStream Visu -->
+		<echo message="swp_compiler_ss13.fuc.token.visualization.TokenStreamVisualizationImpl" file="${dist.dir}/temp/swp_compiler_ss13.common.visualization.TokenStreamVisualization" />
+		<jar destfile="${dist.dir}/FUC-VISU-TokenStream.jar" basedir="${visu.token.dir}/${bin.dir}">
+			<zipfileset dir="${dist.dir}/temp" includes="swp_compiler_ss13.common.visualization.TokenStreamVisualization" fullpath="META-INF/services/swp_compiler_ss13.common.visualization.TokenStreamVisualization" />
+		</jar>
+		
 		<!-- create the Controller package -->
 		<jar destfile="${dist.dir}/FUC-Controller.jar" basedir="${controller.dir}/${bin.dir}" />
 		
@@ -220,6 +234,13 @@
 			<zipfileset dir="${symbolTable.dir}/${src.dir}" prefix="src" />
 			<zipfileset dir="${symbolTable.dir}/${test.dir}" prefix="test" />
 			<zipfileset dir="${symbolTable.dir}/${doc.dir}" prefix="doc" />
+		</jar>
+		
+		<!-- create the ErrorLog package -->
+		<jar destfile="${dist.dir}/FUC-ErrorLog.jar" update="true">
+			<zipfileset dir="${errorLog.dir}/${src.dir}" prefix="src" />
+			<zipfileset dir="${errorLog.dir}/${test.dir}" prefix="test" />
+			<zipfileset dir="${errorLog.dir}/${doc.dir}" prefix="doc" />
 		</jar>
 		
 		<!-- create the Backend package -->
@@ -305,6 +326,13 @@
 			<zipfileset dir="${visu.tac.code.dir}/${src.dir}" prefix="src" />
 			<zipfileset dir="${visu.tac.code.dir}/${test.dir}" prefix="test" />
 			<zipfileset dir="${visu.tac.code.dir}/${doc.dir}" prefix="doc" />
+		</jar>
+		
+		<!-- create the Token Stream Visu -->
+		<jar destfile="${dist.dir}/FUC-VISU-TokenStream.jar" update="true">
+			<zipfileset dir="${visu.token.dir}/${src.dir}" prefix="src" />
+			<zipfileset dir="${visu.token.dir}/${test.dir}" prefix="test" />
+			<zipfileset dir="${visu.token.dir}/${doc.dir}" prefix="doc" />
 		</jar>
 	</target>
 	

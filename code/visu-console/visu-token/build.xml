@@ -31,7 +31,7 @@
 	</target>
 
 	<!-- === build === -->
-	<target name="build" depends="clean, interfaces" description="build the source files">
+	<target name="build" depends="clean, interfaces, lexer" description="build the source files">
 		<mkdir dir="${bin.dir}" />
 		<javac 
 			srcdir="${src.dir}"
