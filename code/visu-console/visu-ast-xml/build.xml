@@ -1,6 +1,6 @@
-<project basedir="." name="FUC Visualisation - Token visualisation" default="help">
+<project basedir="." name="FUC Visualisation - AST to XML" default="help">
 	<!-- === load the properties === -->
-	<loadproperties srcFile="../build.properties" />
+	<loadproperties srcFile="../../build.properties" />
 
 	<!-- === import paths === -->
 	<import file="path.xml" />
@@ -16,12 +16,17 @@
 
 	<!-- === depends on the interfaces === -->
 	<target name="interfaces" description="Build the interfaces">
-		<ant antfile="interfaces.xml" dir=".." target="build" inheritall="false" />
+		<ant antfile="interfaces.xml" dir="../.." target="build" inheritall="false" />
 	</target>
-	
-	<!-- === depends on the lexer === -->
-	<target name="lexer" description="Build the lexer">
-		<ant antfile="build.xml" dir="../${lexer.dir}" target="build" inheritall="false" />
+
+	<!-- === depends on the symbolTable === -->
+	<target name="symboltable" description="Build the symbolTable">
+		<ant antfile="build.xml" dir="../../${symbolTable.dir}" target="build" inheritall="false" />
+	</target>
+
+	<!-- === depends on the ast === -->
+	<target name="ast" description="Build the ast">
+		<ant antfile="build.xml" dir="../../${ast.dir}" target="build" inheritall="false" />
 	</target>
 
 	<!-- === clean === -->
@@ -31,7 +36,7 @@
 	</target>
 
 	<!-- === build === -->
-	<target name="build" depends="clean, interfaces" description="build the source files">
+	<target name="build" depends="clean, interfaces, symboltable" description="build the source files">
 		<mkdir dir="${bin.dir}" />
 		<javac 
 			srcdir="${src.dir}"
@@ -64,7 +69,7 @@
 	</target>
 
 	<!-- === build tests === -->
-	<target name="build-tests" depends="build" description="build the junit tests">
+	<target name="build-tests" depends="symboltable,ast,build" description="build the junit tests">
 		<javac
 			srcdir="${test.dir}"
 			destdir="${bin.dir}"

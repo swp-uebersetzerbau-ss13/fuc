@@ -1,6 +1,6 @@
-<project basedir="." name="FUC Visualisation - TAC to Code" default="help">
+<project basedir="." name="FUC Visualisation - TAC to Quadruple" default="help">
 	<!-- === load the properties === -->
-	<loadproperties srcFile="../build.properties" />
+	<loadproperties srcFile="../../build.properties" />
 
 	<!-- === import paths === -->
 	<import file="path.xml" />
@@ -16,22 +16,22 @@
 
 	<!-- === depends on the interfaces === -->
 	<target name="interfaces" description="Build the interfaces">
-		<ant antfile="interfaces.xml" dir=".." target="build" inheritall="false" />
+		<ant antfile="interfaces.xml" dir="../.." target="build" inheritall="false" />
 	</target>
 
 	<!-- === depends on the symbolTable === -->
 	<target name="symboltable" description="Build the symbolTable">
-		<ant antfile="build.xml" dir="../${symbolTable.dir}" target="build" inheritall="false" />
+		<ant antfile="build.xml" dir="../../${symbolTable.dir}" target="build" inheritall="false" />
 	</target>
 
 	<!-- === depends on the ast === -->
 	<target name="ast" description="Build the ast">
-		<ant antfile="build.xml" dir="../${ast.dir}" target="build" inheritall="false" />
+		<ant antfile="build.xml" dir="../../${ast.dir}" target="build" inheritall="false" />
 	</target>
 
 	<!-- === depends on the intermediateCodeGenerator === -->
 	<target name="intermediateCodeGenerator" description="Build the intermediateCodeGenerator">
-		<ant antfile="build.xml" dir="../${intermediateCodeGenerator.dir}" target="build" inheritall="false" />
+		<ant antfile="build.xml" dir="../../${intermediateCodeGenerator.dir}" target="build" inheritall="false" />
 	</target>
 
 	<!-- === clean === -->
