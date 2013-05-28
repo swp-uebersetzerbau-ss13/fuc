@@ -38,6 +38,11 @@
 	<target name="lexer" description="Build the lexer">
 		<ant antfile="build.xml" dir="../${lexer.dir}" target="build" inheritall="false" />
 	</target>
+	
+	<!-- === depends on the errorLog === -->
+	<target name="errorLog" description="Build the error log">
+		<ant antfile="build.xml" dir="../${errorLog.dir}" target="build" inheritall="false" />
+	</target>
 
 	<!-- === clean === -->
 	<target name="clean" description="clean this project">
@@ -79,7 +84,7 @@
 	</target>
 
 	<!-- === build tests === -->
-	<target name="build-tests" depends="build, lexer" description="build the junit tests">
+	<target name="build-tests" depends="build, lexer, errorLog" description="build the junit tests">
 		<javac
 			srcdir="${test.dir}"
 			destdir="${bin.dir}"

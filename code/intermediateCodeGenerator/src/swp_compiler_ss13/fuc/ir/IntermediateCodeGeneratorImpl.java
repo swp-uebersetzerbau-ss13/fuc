@@ -483,8 +483,8 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 	 */
 	private void processBranchNode(BranchNode node) throws IntermediateCodeGeneratorException {
 		ExpressionNode condition = node.getCondition();
-		BlockNode onTrue = node.getBlockNodeOnTrue();
-		BlockNode onFalse = node.getBlockNodeOnFalse();
+		StatementNode onTrue = node.getStatementNodeOnTrue();
+		StatementNode onFalse = node.getStatementNodeOnFalse();
 
 		this.callProcessing(condition);
 		IntermediateResult conditionResult = this.intermediateResults.pop();
