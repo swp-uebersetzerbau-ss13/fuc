@@ -9,7 +9,7 @@ import swp_compiler_ss13.common.types.Type;
 /**
  * This factory generates quadruples for the given instructions
  * 
- * @author "Frank Zechert"
+ * @author "Frank Zechert,Danny Maasch"
  * @version 1
  */
 public class QuadrupleFactory {
@@ -25,20 +25,24 @@ public class QuadrupleFactory {
 	 * @throws IntermediateCodeGeneratorException
 	 *             Thrown if an unknown type is declared
 	 */
-	public static Quadruple declaration(String id, Type type) throws IntermediateCodeGeneratorException {
+	public static Quadruple declaration(String id, Type type)
+			throws IntermediateCodeGeneratorException {
 		switch (type.getKind()) {
 		case DOUBLE:
-			return new QuadrupleImpl(Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, id);
+			return new QuadrupleImpl(Operator.DECLARE_DOUBLE,
+					Quadruple.EmptyArgument, Quadruple.EmptyArgument, id);
 		case LONG:
-			return new QuadrupleImpl(Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, id);
+			return new QuadrupleImpl(Operator.DECLARE_LONG,
+					Quadruple.EmptyArgument, Quadruple.EmptyArgument, id);
 		case STRING:
-			// TODO: Add correct Quadruple Operators
-			return new QuadrupleImpl(null, Quadruple.EmptyArgument, Quadruple.EmptyArgument, id);
+			return new QuadrupleImpl(Operator.DECLARE_STRING,
+					Quadruple.EmptyArgument, Quadruple.EmptyArgument, id);
 		case BOOLEAN:
-			// TODO: Add correct Quadruple Operators
-			return new QuadrupleImpl(null, Quadruple.EmptyArgument, Quadruple.EmptyArgument, id);
+			return new QuadrupleImpl(Operator.DECLARE_BOOLEAN,
+					Quadruple.EmptyArgument, Quadruple.EmptyArgument, id);
 		default:
-			throw new IntermediateCodeGeneratorException("Unsupported type " + type.toString());
+			throw new IntermediateCodeGeneratorException("Unsupported type "
+					+ type.toString());
 		}
 	}
 
@@ -47,29 +51,31 @@ public class QuadrupleFactory {
 	 * 
 	 * @param operator
 	 *            The binary operator
-	 * @param arg1
+	 * @param left
 	 *            argument 1
-	 * @param arg2
+	 * @param right
 	 *            argument 2
-	 * @param res
+	 * @param result
 	 *            result
 	 * @return the quadruple
 	 * @throws IntermediateCodeGeneratorException
 	 *             unsupported operator
 	 */
-	public static Quadruple longArithmeticBinaryOperation(BinaryOperator operator, String arg1, String arg2, String res)
+	public static Quadruple longArithmeticBinaryOperation(
+			BinaryOperator operator, String left, String right, String result)
 			throws IntermediateCodeGeneratorException {
 		switch (operator) {
 		case ADDITION:
-			return new QuadrupleImpl(Operator.ADD_LONG, arg1, arg2, res);
+			return new QuadrupleImpl(Operator.ADD_LONG, left, right, result);
 		case DIVISION:
-			return new QuadrupleImpl(Operator.DIV_LONG, arg1, arg2, res);
+			return new QuadrupleImpl(Operator.DIV_LONG, left, right, result);
 		case MULTIPLICATION:
-			return new QuadrupleImpl(Operator.MUL_LONG, arg1, arg2, res);
+			return new QuadrupleImpl(Operator.MUL_LONG, left, right, result);
 		case SUBSTRACTION:
-			return new QuadrupleImpl(Operator.SUB_LONG, arg1, arg2, res);
+			return new QuadrupleImpl(Operator.SUB_LONG, left, right, result);
 		default:
-			throw new IntermediateCodeGeneratorException("Unsupported binary operator " + operator.toString());
+			throw new IntermediateCodeGeneratorException(
+					"Unsupported binary operator " + operator.toString());
 		}
 	}
 
@@ -78,29 +84,31 @@ public class QuadrupleFactory {
 	 * 
 	 * @param operator
 	 *            The binary operator
-	 * @param arg1
+	 * @param left
 	 *            argument 1
-	 * @param arg2
+	 * @param right
 	 *            argument 2
-	 * @param res
+	 * @param result
 	 *            result
 	 * @return the quadruple
 	 * @throws IntermediateCodeGeneratorException
 	 *             unsupported operator
 	 */
-	public static Quadruple doubleArithmeticBinaryOperation(BinaryOperator operator, String arg1, String arg2,
-			String res) throws IntermediateCodeGeneratorException {
+	public static Quadruple doubleArithmeticBinaryOperation(
+			BinaryOperator operator, String left, String right, String result)
+			throws IntermediateCodeGeneratorException {
 		switch (operator) {
 		case ADDITION:
-			return new QuadrupleImpl(Operator.ADD_DOUBLE, arg1, arg2, res);
+			return new QuadrupleImpl(Operator.ADD_DOUBLE, left, right, result);
 		case DIVISION:
-			return new QuadrupleImpl(Operator.DIV_DOUBLE, arg1, arg2, res);
+			return new QuadrupleImpl(Operator.DIV_DOUBLE, left, right, result);
 		case MULTIPLICATION:
-			return new QuadrupleImpl(Operator.MUL_DOUBLE, arg1, arg2, res);
+			return new QuadrupleImpl(Operator.MUL_DOUBLE, left, right, result);
 		case SUBSTRACTION:
-			return new QuadrupleImpl(Operator.SUB_DOUBLE, arg1, arg2, res);
+			return new QuadrupleImpl(Operator.SUB_DOUBLE, left, right, result);
 		default:
-			throw new IntermediateCodeGeneratorException("Unsupported binary operator " + operator.toString());
+			throw new IntermediateCodeGeneratorException(
+					"Unsupported binary operator " + operator.toString());
 		}
 	}
 
@@ -114,7 +122,8 @@ public class QuadrupleFactory {
 	 * @return The tac quadruple
 	 */
 	public static Quadruple castLongToDouble(String from, String to) {
-		return new QuadrupleImpl(Operator.LONG_TO_DOUBLE, from, Quadruple.EmptyArgument, to);
+		return new QuadrupleImpl(Operator.LONG_TO_DOUBLE, from,
+				Quadruple.EmptyArgument, to);
 	}
 
 	/**
@@ -127,7 +136,8 @@ public class QuadrupleFactory {
 	 * @return The tac quadurple
 	 */
 	public static Quadruple castDoubleToLong(String from, String to) {
-		return new QuadrupleImpl(Operator.DOUBLE_TO_LONG, from, Quadruple.EmptyArgument, to);
+		return new QuadrupleImpl(Operator.DOUBLE_TO_LONG, from,
+				Quadruple.EmptyArgument, to);
 	}
 
 	/**
@@ -143,14 +153,18 @@ public class QuadrupleFactory {
 	 * @throws IntermediateCodeGeneratorException
 	 *             something went wrong.
 	 */
-	public static Quadruple assign(Type typeOfid, String from, String to) throws IntermediateCodeGeneratorException {
+	public static Quadruple assign(Type typeOfid, String from, String to)
+			throws IntermediateCodeGeneratorException {
 		switch (typeOfid.getKind()) {
 		case DOUBLE:
-			return new QuadrupleImpl(Operator.ASSIGN_DOUBLE, from, Quadruple.EmptyArgument, to);
+			return new QuadrupleImpl(Operator.ASSIGN_DOUBLE, from,
+					Quadruple.EmptyArgument, to);
 		case LONG:
-			return new QuadrupleImpl(Operator.ASSIGN_LONG, from, Quadruple.EmptyArgument, to);
+			return new QuadrupleImpl(Operator.ASSIGN_LONG, from,
+					Quadruple.EmptyArgument, to);
 		default:
-			throw new IntermediateCodeGeneratorException("Unsupport assignment type");
+			throw new IntermediateCodeGeneratorException(
+					"Unsupport assignment type");
 		}
 	}
 
@@ -167,14 +181,16 @@ public class QuadrupleFactory {
 	 * @throws IntermediateCodeGeneratorException
 	 *             something went wrong
 	 */
-	public static Quadruple unaryMinus(Type typeOfId, String from, String to) throws IntermediateCodeGeneratorException {
+	public static Quadruple unaryMinus(Type typeOfId, String from, String to)
+			throws IntermediateCodeGeneratorException {
 		switch (typeOfId.getKind()) {
 		case DOUBLE:
 			return new QuadrupleImpl(Operator.SUB_DOUBLE, "#0.0", from, to);
 		case LONG:
 			return new QuadrupleImpl(Operator.SUB_LONG, "#0", from, to);
 		default:
-			throw new IntermediateCodeGeneratorException("Unsupport assignment type");
+			throw new IntermediateCodeGeneratorException(
+					"Unsupport assignment type");
 		}
 	}
 
@@ -186,8 +202,8 @@ public class QuadrupleFactory {
 	 * @return The quadruple representing the return node
 	 */
 	public static Quadruple returnNode(String identifier) {
-		return new QuadrupleImpl(Quadruple.Operator.RETURN, identifier, Quadruple.EmptyArgument,
-				Quadruple.EmptyArgument);
+		return new QuadrupleImpl(Quadruple.Operator.RETURN, identifier,
+				Quadruple.EmptyArgument, Quadruple.EmptyArgument);
 	}
 
 	/**
@@ -205,21 +221,15 @@ public class QuadrupleFactory {
 	 * @throws IntermediateCodeGeneratorException
 	 *             illegal quadruple
 	 */
-	public static Quadruple relationEqual(String left, String right, String result, Type type)
-			throws IntermediateCodeGeneratorException {
+	public static Quadruple relationEqual(String left, String right,
+			String result, Type type) throws IntermediateCodeGeneratorException {
 		switch (type.getKind()) {
-		case BOOLEAN:
-			// TODO: Add correct Quadruple Operators
-			return new QuadrupleImpl(null, left, right, result);
 		case DOUBLE:
-			// TODO: Add correct Quadruple Operators
-			return new QuadrupleImpl(null, left, right, result);
+			return new QuadrupleImpl(Operator.COMPARE_DOUBLE_E, left, right,
+					result);
 		case LONG:
-			// TODO: Add correct Quadruple Operators
-			return new QuadrupleImpl(null, left, right, result);
-		case STRING:
-			// TODO: Add correct Quadruple Operators
-			return new QuadrupleImpl(null, left, right, result);
+			return new QuadrupleImpl(Operator.COMPARE_LONG_E, left, right,
+					result);
 		default:
 			String err = "Illegal Relation Equals for Type " + type;
 			throw new IntermediateCodeGeneratorException(err);
@@ -241,21 +251,15 @@ public class QuadrupleFactory {
 	 * @throws IntermediateCodeGeneratorException
 	 *             illegal quadruple
 	 */
-	public static Quadruple relationGreater(String left, String right, String result, Type type)
-			throws IntermediateCodeGeneratorException {
+	public static Quadruple relationGreater(String left, String right,
+			String result, Type type) throws IntermediateCodeGeneratorException {
 		switch (type.getKind()) {
-		case BOOLEAN:
-			// TODO: Add correct Quadruple Operators
-			return new QuadrupleImpl(null, left, right, result);
 		case DOUBLE:
-			// TODO: Add correct Quadruple Operators
-			return new QuadrupleImpl(null, left, right, result);
+			return new QuadrupleImpl(Operator.COMPARE_DOUBLE_G, left, right,
+					result);
 		case LONG:
-			// TODO: Add correct Quadruple Operators
-			return new QuadrupleImpl(null, left, right, result);
-		case STRING:
-			// TODO: Add correct Quadruple Operators
-			return new QuadrupleImpl(null, left, right, result);
+			return new QuadrupleImpl(Operator.COMPARE_LONG_G, left, right,
+					result);
 		default:
 			String err = "Illegal Relation Greater for Type " + type;
 			throw new IntermediateCodeGeneratorException(err);
@@ -277,21 +281,15 @@ public class QuadrupleFactory {
 	 * @throws IntermediateCodeGeneratorException
 	 *             illegal quadruple
 	 */
-	public static Quadruple relationGreaterEqual(String left, String right, String result, Type type)
-			throws IntermediateCodeGeneratorException {
+	public static Quadruple relationGreaterEqual(String left, String right,
+			String result, Type type) throws IntermediateCodeGeneratorException {
 		switch (type.getKind()) {
-		case BOOLEAN:
-			// TODO: Add correct Quadruple Operators
-			return new QuadrupleImpl(null, left, right, result);
 		case DOUBLE:
-			// TODO: Add correct Quadruple Operators
-			return new QuadrupleImpl(null, left, right, result);
+			return new QuadrupleImpl(Operator.COMPARE_DOUBLE_GE, left, right,
+					result);
 		case LONG:
-			// TODO: Add correct Quadruple Operators
-			return new QuadrupleImpl(null, left, right, result);
-		case STRING:
-			// TODO: Add correct Quadruple Operators
-			return new QuadrupleImpl(null, left, right, result);
+			return new QuadrupleImpl(Operator.COMPARE_LONG_GE, left, right,
+					result);
 		default:
 			String err = "Illegal Relation GreaterEquals for Type " + type;
 			throw new IntermediateCodeGeneratorException(err);
@@ -313,21 +311,17 @@ public class QuadrupleFactory {
 	 * @throws IntermediateCodeGeneratorException
 	 *             illegal quadruple
 	 */
-	public static Quadruple relationInEqual(String left, String right, String result, Type type)
-			throws IntermediateCodeGeneratorException {
+	public static Quadruple relationInEqual(String left, String right,
+			String result, Type type) throws IntermediateCodeGeneratorException {
 		switch (type.getKind()) {
-		case BOOLEAN:
-			// TODO: Add correct Quadruple Operators
-			return new QuadrupleImpl(null, left, right, result);
 		case DOUBLE:
 			// TODO: Add correct Quadruple Operators
-			return new QuadrupleImpl(null, left, right, result);
+			return new QuadrupleImpl(Operator.COMPARE_DOUBLE_IE, left, right,
+					result);
 		case LONG:
 			// TODO: Add correct Quadruple Operators
-			return new QuadrupleImpl(null, left, right, result);
-		case STRING:
-			// TODO: Add correct Quadruple Operators
-			return new QuadrupleImpl(null, left, right, result);
+			return new QuadrupleImpl(Operator.COMPARE_LONG_IE, left, right,
+					result);
 		default:
 			String err = "Illegal Relation InEquals for Type " + type;
 			throw new IntermediateCodeGeneratorException(err);
@@ -349,21 +343,15 @@ public class QuadrupleFactory {
 	 * @throws IntermediateCodeGeneratorException
 	 *             illegal quadruple
 	 */
-	public static Quadruple relationLess(String left, String right, String result, Type type)
-			throws IntermediateCodeGeneratorException {
+	public static Quadruple relationLess(String left, String right,
+			String result, Type type) throws IntermediateCodeGeneratorException {
 		switch (type.getKind()) {
-		case BOOLEAN:
-			// TODO: Add correct Quadruple Operators
-			return new QuadrupleImpl(null, left, right, result);
 		case DOUBLE:
-			// TODO: Add correct Quadruple Operators
-			return new QuadrupleImpl(null, left, right, result);
+			return new QuadrupleImpl(Operator.COMPARE_DOUBLE_L, left, right,
+					result);
 		case LONG:
-			// TODO: Add correct Quadruple Operators
-			return new QuadrupleImpl(null, left, right, result);
-		case STRING:
-			// TODO: Add correct Quadruple Operators
-			return new QuadrupleImpl(null, left, right, result);
+			return new QuadrupleImpl(Operator.COMPARE_LONG_L, left, right,
+					result);
 		default:
 			String err = "Illegal Relation Less for Type " + type;
 			throw new IntermediateCodeGeneratorException(err);
@@ -385,21 +373,15 @@ public class QuadrupleFactory {
 	 * @throws IntermediateCodeGeneratorException
 	 *             illegal quadruple
 	 */
-	public static Quadruple relationLessEqual(String left, String right, String result, Type type)
-			throws IntermediateCodeGeneratorException {
+	public static Quadruple relationLessEqual(String left, String right,
+			String result, Type type) throws IntermediateCodeGeneratorException {
 		switch (type.getKind()) {
-		case BOOLEAN:
-			// TODO: Add correct Quadruple Operators
-			return new QuadrupleImpl(null, left, right, result);
 		case DOUBLE:
-			// TODO: Add correct Quadruple Operators
-			return new QuadrupleImpl(null, left, right, result);
+			return new QuadrupleImpl(Operator.COMPARE_DOUBLE_LE, left, right,
+					result);
 		case LONG:
-			// TODO: Add correct Quadruple Operators
-			return new QuadrupleImpl(null, left, right, result);
-		case STRING:
-			// TODO: Add correct Quadruple Operators
-			return new QuadrupleImpl(null, left, right, result);
+			return new QuadrupleImpl(Operator.COMPARE_LONG_LE, left, right,
+					result);
 		default:
 			String err = "Illegal Relation Less Equals for Type " + type;
 			throw new IntermediateCodeGeneratorException(err);
@@ -414,18 +396,27 @@ public class QuadrupleFactory {
 	 * @param type
 	 *            The type of the variable
 	 * @return The quadruple for the print statement
+	 * @throws IntermediateCodeGeneratorException
+	 *             illegal print
 	 */
-	public static Quadruple print(String value, Type type) {
+	public static Quadruple print(String value, Type type)
+			throws IntermediateCodeGeneratorException {
 		switch (type.getKind()) {
-		case ARRAY:
 		case BOOLEAN:
+			return new QuadrupleImpl(Operator.PRINT_BOOLEAN, value,
+					Quadruple.EmptyArgument, Quadruple.EmptyArgument);
 		case DOUBLE:
+			return new QuadrupleImpl(Operator.PRINT_DOUBLE, value,
+					Quadruple.EmptyArgument, Quadruple.EmptyArgument);
 		case LONG:
+			return new QuadrupleImpl(Operator.PRINT_LONG, value,
+					Quadruple.EmptyArgument, Quadruple.EmptyArgument);
 		case STRING:
-		case STRUCT:
+			return new QuadrupleImpl(Operator.PRINT_STRING, value,
+					Quadruple.EmptyArgument, Quadruple.EmptyArgument);
 		default:
-			// TODO: Add correct Quadruple Operators
-			return new QuadrupleImpl(null, value, Quadruple.EmptyArgument, Quadruple.EmptyArgument);
+			String err = "Cannot print array or struct " + type;
+			throw new IntermediateCodeGeneratorException(err);
 		}
 	}
 
@@ -439,8 +430,8 @@ public class QuadrupleFactory {
 	 * @return The quadruple
 	 */
 	public static Quadruple unaryNot(String value, String result) {
-		// TODO: Add correct Quadruple Operators
-		return new QuadrupleImpl(null, value, Quadruple.EmptyArgument, result);
+		return new QuadrupleImpl(Operator.NOT_BOOLEAN, value,
+				Quadruple.EmptyArgument, result);
 	}
 
 	/**
@@ -458,15 +449,14 @@ public class QuadrupleFactory {
 	 * @throws IntermediateCodeGeneratorException
 	 *             Illegal operator given
 	 */
-	public static Quadruple booleanArithmetic(BinaryOperator operator, String left, String right, String result)
+	public static Quadruple booleanArithmetic(BinaryOperator operator,
+			String left, String right, String result)
 			throws IntermediateCodeGeneratorException {
 		switch (operator) {
 		case LOGICAL_AND:
-			// TODO: Add correct Quadruple Operators
-			return new QuadrupleImpl(null, left, right, result);
+			return new QuadrupleImpl(Operator.AND_BOOLEAN, left, right, result);
 		case LOGICAL_OR:
-			// TODO: Add correct Quadruple Operators
-			return new QuadrupleImpl(null, left, right, result);
+			return new QuadrupleImpl(Operator.OR_BOOLEAN, left, right, result);
 		default:
 			String err = "unsupported logical operator " + operator;
 			throw new IntermediateCodeGeneratorException(err);
@@ -484,7 +474,8 @@ public class QuadrupleFactory {
 	 */
 	public static Quadruple ifFalse(String condition, String label) {
 		// TODO: Add correct Quadruple Operators
-		return new QuadrupleImpl(null, condition, label, Quadruple.EmptyArgument);
+		return new QuadrupleImpl(null, condition, label,
+				Quadruple.EmptyArgument);
 	}
 
 	/**
@@ -498,7 +489,8 @@ public class QuadrupleFactory {
 	 */
 	public static Quadruple ifTrue(String condition, String label) {
 		// TODO: Add correct Quadruple Operators
-		return new QuadrupleImpl(null, condition, label, Quadruple.EmptyArgument);
+		return new QuadrupleImpl(null, condition, label,
+				Quadruple.EmptyArgument);
 	}
 
 	/**
@@ -509,8 +501,8 @@ public class QuadrupleFactory {
 	 * @return The Quadruple
 	 */
 	public static Quadruple label(String label) {
-		// TODO: Add correct Quadruple Operators
-		return new QuadrupleImpl(null, label, Quadruple.EmptyArgument, Quadruple.EmptyArgument);
+		return new QuadrupleImpl(Operator.LABEL, label,
+				Quadruple.EmptyArgument, Quadruple.EmptyArgument);
 	}
 
 	/**
@@ -522,6 +514,7 @@ public class QuadrupleFactory {
 	 */
 	public static Quadruple jump(String label) {
 		// TODO: Add correct Quadruple Operators
-		return new QuadrupleImpl(null, label, Quadruple.EmptyArgument, Quadruple.EmptyArgument);
+		return new QuadrupleImpl(null, label, Quadruple.EmptyArgument,
+				Quadruple.EmptyArgument);
 	}
 }
