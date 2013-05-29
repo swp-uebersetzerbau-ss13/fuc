@@ -283,7 +283,7 @@ public class LLVMBackendTest {
 		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
-	// Conversion
+	/* Conversion */
 
 	@Test
 	public void generateTargetCodeTest_LongToDouble() throws IOException, BackendException {
@@ -342,7 +342,7 @@ public class LLVMBackendTest {
 	}
 
 
-	// Assign
+	/* Assign */
 
 	@Test
 	public void generateTargetCodeTest_AssignLong_Const() throws IOException, BackendException {
@@ -555,7 +555,7 @@ public class LLVMBackendTest {
 		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
-	// Control flow
+	/* Control flow */
 
 	@Test
 	public void generateTargetCodeTest_Return_Const() throws IOException, BackendException {
@@ -614,9 +614,9 @@ public class LLVMBackendTest {
 	}
 
 
-	// ARITHMETIC
+	/* ARITHMETIC */
 
-	// Add
+	/* Add */
 
 
 	@Test
@@ -687,7 +687,7 @@ public class LLVMBackendTest {
 		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
-	// Sub
+	/* Sub */
 
 	@Test
 	public void generateTargetCodeTest_SubLong_Const() throws IOException, BackendException {
@@ -757,7 +757,7 @@ public class LLVMBackendTest {
 		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
-	// Multiplication
+	/* Multiplication */
 
 	@Test
 	public void generateTargetCodeTest_MulLong_Const() throws IOException, BackendException {
@@ -827,7 +827,7 @@ public class LLVMBackendTest {
 		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
-	// Division
+	/* Division */
 
 	@Test
 	public void generateTargetCodeTest_DivLong_Const() throws IOException, BackendException {
@@ -897,7 +897,7 @@ public class LLVMBackendTest {
 		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
-	// Util
+	/* Util */
 
 
 	private String generateCodeAsString(ArrayList<Quadruple> tac) throws IOException, BackendException {

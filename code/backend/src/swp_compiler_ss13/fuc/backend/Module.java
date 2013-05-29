@@ -164,7 +164,7 @@ public class Module
 
 		switch(operator)
 		{
-			// Arithmetic
+			/* Arithmetic */
 			case ADD_LONG:
 				irInst = "add";
 				break;
@@ -190,7 +190,7 @@ public class Module
 				irInst = "fdiv";
 				break;
 
-			// Boolean Arithmetic
+			/* Boolean Arithmetic */
 			case OR_BOOLEAN:
 				irInst = "or";
 				break;
@@ -198,7 +198,7 @@ public class Module
 				irInst = "and";
 				break;
 
-			// Comparisons
+			/* Comparisons */
 			case COMPARE_LONG_E:
 				irInst = " icmp eq";
 				break;
@@ -475,12 +475,12 @@ public class Module
 
 		String irType = getIRType(BOOLEAN);
 
-		// source (ir boolean) is #1 or #0 constant
+		/* source (ir boolean) is #1 or #0 constant */
 		if(source.charAt(0) == '#')
 		{
 			source = source.substring(1);
 		}
-		// source is identifier
+		/* source is identifier */
 		else
 		{
 			String sourceIdentifier = "%" + source;
@@ -521,7 +521,7 @@ public class Module
 	}
 
 	public void addBranch(String target1, String target2, String condition) throws BackendException {
-		// conditional branch
+		/* conditional branch */
 		if (!target2.equals(Quadruple.EmptyArgument)){
 			String conditionUseIdentifier = getUseIdentifierForVariable(condition);
 			gen(conditionUseIdentifier + " = load " + "i8" + "* %" + condition);
