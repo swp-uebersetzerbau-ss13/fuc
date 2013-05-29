@@ -177,6 +177,7 @@ public class LLVMBackend implements Backend
 					break;
 				case NOT_BOOLEAN:
 					m.addBooleanNot(Module.toIRBoolean(q.getArgument1()), q.getResult());
+					m.addBooleanNot(q.getArgument1(), q.getResult());
 					break;
 				case OR_BOOLEAN:
 					m.addPrimitiveBinaryInstruction(
