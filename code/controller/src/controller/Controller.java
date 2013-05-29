@@ -1,5 +1,7 @@
 package controller;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -253,12 +255,24 @@ public class Controller {
 		// or fails if any one components is missing.
 		loadPlugins();
 
+		// copy the input stream
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		byte[] buffer = new byte[1024];
+		int len;
+		while ((len = input.read(buffer)) > -1) {
+			baos.write(buffer, 0, len);
+		}
+		baos.flush();
+
+		input = new ByteArrayInputStream(baos.toByteArray());
+
 		// use the components now to compile our file
 		// lexer...
 		lexer.setSourceStream(input);
 
 		if (!disableVisualization) {
 			for (TokenStreamVisualization tokenvisu : tokenVisuService) {
+				input = new ByteArrayInputStream(baos.toByteArray());
 				Lexer vlexer = lexer.getClass().newInstance();
 				vlexer.setSourceStream(input);
 				tokenvisu.visualizeTokenStream(vlexer);
@@ -320,10 +334,10 @@ public class Controller {
 
 			// copied and modified from stackoverflow.com
 			// http://stackoverflow.com/questions/1574837/connecting-an-input-stream-to-an-outputstream
-			byte[] buffer = new byte[4096];
+			byte[] buf = new byte[4096];
 			int bytesRead;
-			while ((bytesRead = is.read(buffer)) != -1) {
-				output.write(buffer, 0, bytesRead);
+			while ((bytesRead = is.read(buf)) != -1) {
+				output.write(buf, 0, bytesRead);
 			}
 		}
 	}

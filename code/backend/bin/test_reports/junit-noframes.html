@@ -1,0 +1,701 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html xmlns:lxslt="http://xml.apache.org/xslt" xmlns:stringutils="xalan://org.apache.tools.ant.util.StringUtils">
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Unit Test Results.</title>
+<style type="text/css">
+      body {
+        font:normal 68% verdana,arial,helvetica;
+        color:#000000;
+      }
+      table tr td, table tr th {
+          font-size: 68%;
+      }
+      table.details tr th{
+        font-weight: bold;
+        text-align:left;
+        background:#a6caf0;
+      }
+      table.details tr td{
+        background:#eeeee0;
+      }
+
+      p {
+        line-height:1.5em;
+        margin-top:0.5em; margin-bottom:1.0em;
+      }
+      h1 {
+        margin: 0px 0px 5px; font: 165% verdana,arial,helvetica
+      }
+      h2 {
+        margin-top: 1em; margin-bottom: 0.5em; font: bold 125% verdana,arial,helvetica
+      }
+      h3 {
+        margin-bottom: 0.5em; font: bold 115% verdana,arial,helvetica
+      }
+      h4 {
+        margin-bottom: 0.5em; font: bold 100% verdana,arial,helvetica
+      }
+      h5 {
+        margin-bottom: 0.5em; font: bold 100% verdana,arial,helvetica
+      }
+      h6 {
+        margin-bottom: 0.5em; font: bold 100% verdana,arial,helvetica
+      }
+      .Error {
+        font-weight:bold; color:red;
+      }
+      .Failure {
+        font-weight:bold; color:purple;
+      }
+      .Properties {
+        text-align:right;
+      }
+      </style>
+<script type="text/javascript" language="JavaScript">
+        var TestCases = new Array();
+        var cur;
+        
+    cur = TestCases['swp_compiler_ss13.fuc.backend.LLVMBackendTest'] = new Array();
+    
+        cur['_jacoco.agentFile'] = '/tmp/jacocoagent4973289468043820027.jar';
+    
+        cur['ant.core.lib'] = '/usr/share/ant/lib/ant.jar';
+    
+        cur['ant.file'] = '/home/frank/swp-compiler/fuc/code/backend/build.xml';
+    
+        cur['ant.file.FUC Backend'] = '/home/frank/swp-compiler/fuc/code/backend/build.xml';
+    
+        cur['ant.file.FUC Compiler'] = '/home/frank/swp-compiler/fuc/code/build.xml';
+    
+        cur['ant.file.type'] = 'file';
+    
+        cur['ant.file.type.FUC Backend'] = 'file';
+    
+        cur['ant.file.type.FUC Compiler'] = 'file';
+    
+        cur['ant.home'] = '/usr/share/ant';
+    
+        cur['ant.java.version'] = '1.7';
+    
+        cur['ant.library.dir'] = '/usr/share/ant/lib';
+    
+        cur['ant.project.default-target'] = 'help';
+    
+        cur['ant.project.invoked-targets'] = 'run-tests';
+    
+        cur['ant.project.name'] = 'FUC Backend';
+    
+        cur['ant.version'] = 'Apache Ant(TM) version 1.8.2 compiled on May 18 2012';
+    
+        cur['ast.dir'] = 'ast';
+    
+        cur['awt.toolkit'] = 'sun.awt.X11.XToolkit';
+    
+        cur['backend.dir'] = 'backend';
+    
+        cur['basedir'] = '/home/frank/swp-compiler/fuc/code/backend';
+    
+        cur['bin.dir'] = 'bin';
+    
+        cur['common.dir'] = 'common';
+    
+        cur['controller.dir'] = 'controller';
+    
+        cur['dist.dir'] = 'dist';
+    
+        cur['doc.dir'] = 'doc';
+    
+        cur['errorLog.dir'] = 'errorLog';
+    
+        cur['etc.dir'] = 'etc';
+    
+        cur['file.encoding'] = 'UTF-8';
+    
+        cur['file.encoding.pkg'] = 'sun.io';
+    
+        cur['file.separator'] = '/';
+    
+        cur['globalTest.dir'] = 'test';
+    
+        cur['interfaces.dir'] = 'common/interfaces';
+    
+        cur['intermediateCodeGenerator.dir'] = 'intermediateCodeGenerator';
+    
+        cur['java.awt.graphicsenv'] = 'sun.awt.X11GraphicsEnvironment';
+    
+        cur['java.awt.printerjob'] = 'sun.print.PSPrinterJob';
+    
+        cur['java.class.path'] = '/home/frank/swp-compiler/fuc/code/backend/bin:/home/frank/swp-compiler/fuc/code/common/interfaces/bin:/home/frank/swp-compiler/fuc/code/lib/log4j-1.2.17.jar:/home/frank/swp-compiler/fuc/code/lib/hamcrest-core-1.3.jar:/home/frank/swp-compiler/fuc/code/lib/junit-4.11.jar:/home/frank/swp-compiler/fuc/code/lib/privilegedaccessor-1.2.1.jar:/home/frank/swp-compiler/fuc/code/lib/log4jprops.jar:/home/frank/swp-compiler/fuc/code/lib/jacocoant.jar:/usr/share/java/ant-launcher-1.8.2.jar:/usr/share/ant/lib/ant.jar:/usr/share/ant/lib/ant-junit.jar:/usr/share/ant/lib/ant-junit4.jar:/tmp/jacocoagent4973289468043820027.jar';
+    
+        cur['java.class.version'] = '51.0';
+    
+        cur['java.endorsed.dirs'] = '/usr/lib/jvm/java-7-openjdk-i386/jre/lib/endorsed';
+    
+        cur['java.ext.dirs'] = '/usr/lib/jvm/java-7-openjdk-i386/jre/lib/ext:/usr/java/packages/lib/ext';
+    
+        cur['java.home'] = '/usr/lib/jvm/java-7-openjdk-i386/jre';
+    
+        cur['java.io.tmpdir'] = '/tmp';
+    
+        cur['java.library.path'] = '/opt/ros/groovy/lib:/usr/java/packages/lib/i386:/usr/lib/jni:/lib:/usr/lib';
+    
+        cur['java.runtime.name'] = 'OpenJDK Runtime Environment';
+    
+        cur['java.runtime.version'] = '1.7.0_21-b02';
+    
+        cur['java.specification.name'] = 'Java Platform API Specification';
+    
+        cur['java.specification.vendor'] = 'Oracle Corporation';
+    
+        cur['java.specification.version'] = '1.7';
+    
+        cur['java.vendor'] = 'Oracle Corporation';
+    
+        cur['java.vendor.url'] = 'http://java.oracle.com/';
+    
+        cur['java.vendor.url.bug'] = 'http://bugreport.sun.com/bugreport/';
+    
+        cur['java.version'] = '1.7.0_21';
+    
+        cur['java.vm.info'] = 'mixed mode';
+    
+        cur['java.vm.name'] = 'OpenJDK Server VM';
+    
+        cur['java.vm.specification.name'] = 'Java Virtual Machine Specification';
+    
+        cur['java.vm.specification.vendor'] = 'Oracle Corporation';
+    
+        cur['java.vm.specification.version'] = '1.7';
+    
+        cur['java.vm.vendor'] = 'Oracle Corporation';
+    
+        cur['java.vm.version'] = '23.7-b01';
+    
+        cur['lexer.dir'] = 'lexer';
+    
+        cur['lib.dir'] = 'lib';
+    
+        cur['line.separator'] = '
+';
+    
+        cur['os.arch'] = 'i386';
+    
+        cur['os.name'] = 'Linux';
+    
+        cur['os.version'] = '3.5.0-25-generic';
+    
+        cur['parser.dir'] = 'parser';
+    
+        cur['path.separator'] = ':';
+    
+        cur['project.dir'] = '.';
+    
+        cur['semanticAnalyzer.dir'] = 'semanticAnalyzer';
+    
+        cur['src.dir'] = 'src';
+    
+        cur['sun.arch.data.model'] = '32';
+    
+        cur['sun.boot.class.path'] = '/usr/lib/jvm/java-7-openjdk-i386/jre/lib/resources.jar:/usr/lib/jvm/java-7-openjdk-i386/jre/lib/rt.jar:/usr/lib/jvm/java-7-openjdk-i386/jre/lib/sunrsasign.jar:/usr/lib/jvm/java-7-openjdk-i386/jre/lib/jsse.jar:/usr/lib/jvm/java-7-openjdk-i386/jre/lib/jce.jar:/usr/lib/jvm/java-7-openjdk-i386/jre/lib/charsets.jar:/usr/lib/jvm/java-7-openjdk-i386/jre/lib/netx.jar:/usr/lib/jvm/java-7-openjdk-i386/jre/lib/plugin.jar:/usr/lib/jvm/java-7-openjdk-i386/jre/lib/rhino.jar:/usr/lib/jvm/java-7-openjdk-i386/jre/lib/jfr.jar:/usr/lib/jvm/java-7-openjdk-i386/jre/classes';
+    
+        cur['sun.boot.library.path'] = '/usr/lib/jvm/java-7-openjdk-i386/jre/lib/i386';
+    
+        cur['sun.cpu.endian'] = 'little';
+    
+        cur['sun.cpu.isalist'] = '';
+    
+        cur['sun.io.unicode.encoding'] = 'UnicodeLittle';
+    
+        cur['sun.java.command'] = 'org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner swp_compiler_ss13.fuc.backend.LLVMBackendTest filtertrace=true haltOnError=true haltOnFailure=true formatter=org.apache.tools.ant.taskdefs.optional.junit.SummaryJUnitResultFormatter showoutput=false outputtoformatters=true logfailedtests=true logtestlistenerevents=false formatter=org.apache.tools.ant.taskdefs.optional.junit.XMLJUnitResultFormatter,/home/frank/swp-compiler/fuc/code/backend/bin/test_results/TEST-swp_compiler_ss13.fuc.backend.LLVMBackendTest.xml crashfile=/home/frank/swp-compiler/fuc/code/backend/junitvmwatcher7925415121336048792.properties propsfile=/home/frank/swp-compiler/fuc/code/backend/junit3657048305113517691.properties';
+    
+        cur['sun.java.launcher'] = 'SUN_STANDARD';
+    
+        cur['sun.jnu.encoding'] = 'UTF-8';
+    
+        cur['sun.management.compiler'] = 'HotSpot Tiered Compilers';
+    
+        cur['sun.os.patch.level'] = 'unknown';
+    
+        cur['symbolTable.dir'] = 'symbolTable';
+    
+        cur['test.coverage_report.dir'] = 'bin/test_reports/coverage';
+    
+        cur['test.dir'] = 'test';
+    
+        cur['test.reports.dir'] = 'bin/test_reports';
+    
+        cur['test.results.dir'] = 'bin/test_results';
+    
+        cur['user.country'] = 'US';
+    
+        cur['user.dir'] = '/home/frank/swp-compiler/fuc/code';
+    
+        cur['user.home'] = '/home/frank';
+    
+        cur['user.language'] = 'en';
+    
+        cur['user.name'] = 'frank';
+    
+        cur['user.timezone'] = '';
+    
+        cur['visu.ast.infix.dir'] = 'visu-console/visu-ast-infix';
+    
+        cur['visu.ast.xml.dir'] = 'visu-console/visu-ast-xml';
+    
+        cur['visu.tac.code.dir'] = 'visu-console/visu-tac-code';
+    
+        cur['visu.tac.quadruple.dir'] = 'visu-console/visu-tac-quadruple';
+    
+        cur['visu.tac.triple.dir'] = 'visu-console/visu-tac-triple';
+    
+        cur['visu.token.dir'] = 'visu-console/visu-token';
+    
+    cur = TestCases['swp_compiler_ss13.fuc.backend.ModuleTest'] = new Array();
+    
+        cur['_jacoco.agentFile'] = '/tmp/jacocoagent4973289468043820027.jar';
+    
+        cur['ant.core.lib'] = '/usr/share/ant/lib/ant.jar';
+    
+        cur['ant.file'] = '/home/frank/swp-compiler/fuc/code/backend/build.xml';
+    
+        cur['ant.file.FUC Backend'] = '/home/frank/swp-compiler/fuc/code/backend/build.xml';
+    
+        cur['ant.file.FUC Compiler'] = '/home/frank/swp-compiler/fuc/code/build.xml';
+    
+        cur['ant.file.type'] = 'file';
+    
+        cur['ant.file.type.FUC Backend'] = 'file';
+    
+        cur['ant.file.type.FUC Compiler'] = 'file';
+    
+        cur['ant.home'] = '/usr/share/ant';
+    
+        cur['ant.java.version'] = '1.7';
+    
+        cur['ant.library.dir'] = '/usr/share/ant/lib';
+    
+        cur['ant.project.default-target'] = 'help';
+    
+        cur['ant.project.invoked-targets'] = 'run-tests';
+    
+        cur['ant.project.name'] = 'FUC Backend';
+    
+        cur['ant.version'] = 'Apache Ant(TM) version 1.8.2 compiled on May 18 2012';
+    
+        cur['ast.dir'] = 'ast';
+    
+        cur['awt.toolkit'] = 'sun.awt.X11.XToolkit';
+    
+        cur['backend.dir'] = 'backend';
+    
+        cur['basedir'] = '/home/frank/swp-compiler/fuc/code/backend';
+    
+        cur['bin.dir'] = 'bin';
+    
+        cur['common.dir'] = 'common';
+    
+        cur['controller.dir'] = 'controller';
+    
+        cur['dist.dir'] = 'dist';
+    
+        cur['doc.dir'] = 'doc';
+    
+        cur['errorLog.dir'] = 'errorLog';
+    
+        cur['etc.dir'] = 'etc';
+    
+        cur['file.encoding'] = 'UTF-8';
+    
+        cur['file.encoding.pkg'] = 'sun.io';
+    
+        cur['file.separator'] = '/';
+    
+        cur['globalTest.dir'] = 'test';
+    
+        cur['interfaces.dir'] = 'common/interfaces';
+    
+        cur['intermediateCodeGenerator.dir'] = 'intermediateCodeGenerator';
+    
+        cur['java.awt.graphicsenv'] = 'sun.awt.X11GraphicsEnvironment';
+    
+        cur['java.awt.printerjob'] = 'sun.print.PSPrinterJob';
+    
+        cur['java.class.path'] = '/home/frank/swp-compiler/fuc/code/backend/bin:/home/frank/swp-compiler/fuc/code/common/interfaces/bin:/home/frank/swp-compiler/fuc/code/lib/log4j-1.2.17.jar:/home/frank/swp-compiler/fuc/code/lib/hamcrest-core-1.3.jar:/home/frank/swp-compiler/fuc/code/lib/junit-4.11.jar:/home/frank/swp-compiler/fuc/code/lib/privilegedaccessor-1.2.1.jar:/home/frank/swp-compiler/fuc/code/lib/log4jprops.jar:/home/frank/swp-compiler/fuc/code/lib/jacocoant.jar:/usr/share/java/ant-launcher-1.8.2.jar:/usr/share/ant/lib/ant.jar:/usr/share/ant/lib/ant-junit.jar:/usr/share/ant/lib/ant-junit4.jar:/tmp/jacocoagent4973289468043820027.jar';
+    
+        cur['java.class.version'] = '51.0';
+    
+        cur['java.endorsed.dirs'] = '/usr/lib/jvm/java-7-openjdk-i386/jre/lib/endorsed';
+    
+        cur['java.ext.dirs'] = '/usr/lib/jvm/java-7-openjdk-i386/jre/lib/ext:/usr/java/packages/lib/ext';
+    
+        cur['java.home'] = '/usr/lib/jvm/java-7-openjdk-i386/jre';
+    
+        cur['java.io.tmpdir'] = '/tmp';
+    
+        cur['java.library.path'] = '/opt/ros/groovy/lib:/usr/java/packages/lib/i386:/usr/lib/jni:/lib:/usr/lib';
+    
+        cur['java.runtime.name'] = 'OpenJDK Runtime Environment';
+    
+        cur['java.runtime.version'] = '1.7.0_21-b02';
+    
+        cur['java.specification.name'] = 'Java Platform API Specification';
+    
+        cur['java.specification.vendor'] = 'Oracle Corporation';
+    
+        cur['java.specification.version'] = '1.7';
+    
+        cur['java.vendor'] = 'Oracle Corporation';
+    
+        cur['java.vendor.url'] = 'http://java.oracle.com/';
+    
+        cur['java.vendor.url.bug'] = 'http://bugreport.sun.com/bugreport/';
+    
+        cur['java.version'] = '1.7.0_21';
+    
+        cur['java.vm.info'] = 'mixed mode';
+    
+        cur['java.vm.name'] = 'OpenJDK Server VM';
+    
+        cur['java.vm.specification.name'] = 'Java Virtual Machine Specification';
+    
+        cur['java.vm.specification.vendor'] = 'Oracle Corporation';
+    
+        cur['java.vm.specification.version'] = '1.7';
+    
+        cur['java.vm.vendor'] = 'Oracle Corporation';
+    
+        cur['java.vm.version'] = '23.7-b01';
+    
+        cur['lexer.dir'] = 'lexer';
+    
+        cur['lib.dir'] = 'lib';
+    
+        cur['line.separator'] = '
+';
+    
+        cur['os.arch'] = 'i386';
+    
+        cur['os.name'] = 'Linux';
+    
+        cur['os.version'] = '3.5.0-25-generic';
+    
+        cur['parser.dir'] = 'parser';
+    
+        cur['path.separator'] = ':';
+    
+        cur['project.dir'] = '.';
+    
+        cur['semanticAnalyzer.dir'] = 'semanticAnalyzer';
+    
+        cur['src.dir'] = 'src';
+    
+        cur['sun.arch.data.model'] = '32';
+    
+        cur['sun.boot.class.path'] = '/usr/lib/jvm/java-7-openjdk-i386/jre/lib/resources.jar:/usr/lib/jvm/java-7-openjdk-i386/jre/lib/rt.jar:/usr/lib/jvm/java-7-openjdk-i386/jre/lib/sunrsasign.jar:/usr/lib/jvm/java-7-openjdk-i386/jre/lib/jsse.jar:/usr/lib/jvm/java-7-openjdk-i386/jre/lib/jce.jar:/usr/lib/jvm/java-7-openjdk-i386/jre/lib/charsets.jar:/usr/lib/jvm/java-7-openjdk-i386/jre/lib/netx.jar:/usr/lib/jvm/java-7-openjdk-i386/jre/lib/plugin.jar:/usr/lib/jvm/java-7-openjdk-i386/jre/lib/rhino.jar:/usr/lib/jvm/java-7-openjdk-i386/jre/lib/jfr.jar:/usr/lib/jvm/java-7-openjdk-i386/jre/classes';
+    
+        cur['sun.boot.library.path'] = '/usr/lib/jvm/java-7-openjdk-i386/jre/lib/i386';
+    
+        cur['sun.cpu.endian'] = 'little';
+    
+        cur['sun.cpu.isalist'] = '';
+    
+        cur['sun.io.unicode.encoding'] = 'UnicodeLittle';
+    
+        cur['sun.java.command'] = 'org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner swp_compiler_ss13.fuc.backend.ModuleTest filtertrace=true haltOnError=true haltOnFailure=true formatter=org.apache.tools.ant.taskdefs.optional.junit.SummaryJUnitResultFormatter showoutput=false outputtoformatters=true logfailedtests=true logtestlistenerevents=false formatter=org.apache.tools.ant.taskdefs.optional.junit.XMLJUnitResultFormatter,/home/frank/swp-compiler/fuc/code/backend/bin/test_results/TEST-swp_compiler_ss13.fuc.backend.ModuleTest.xml crashfile=/home/frank/swp-compiler/fuc/code/backend/junitvmwatcher6835208218128205211.properties propsfile=/home/frank/swp-compiler/fuc/code/backend/junit5728627936351819224.properties';
+    
+        cur['sun.java.launcher'] = 'SUN_STANDARD';
+    
+        cur['sun.jnu.encoding'] = 'UTF-8';
+    
+        cur['sun.management.compiler'] = 'HotSpot Tiered Compilers';
+    
+        cur['sun.os.patch.level'] = 'unknown';
+    
+        cur['symbolTable.dir'] = 'symbolTable';
+    
+        cur['test.coverage_report.dir'] = 'bin/test_reports/coverage';
+    
+        cur['test.dir'] = 'test';
+    
+        cur['test.reports.dir'] = 'bin/test_reports';
+    
+        cur['test.results.dir'] = 'bin/test_results';
+    
+        cur['user.country'] = 'US';
+    
+        cur['user.dir'] = '/home/frank/swp-compiler/fuc/code';
+    
+        cur['user.home'] = '/home/frank';
+    
+        cur['user.language'] = 'en';
+    
+        cur['user.name'] = 'frank';
+    
+        cur['user.timezone'] = '';
+    
+        cur['visu.ast.infix.dir'] = 'visu-console/visu-ast-infix';
+    
+        cur['visu.ast.xml.dir'] = 'visu-console/visu-ast-xml';
+    
+        cur['visu.tac.code.dir'] = 'visu-console/visu-tac-code';
+    
+        cur['visu.tac.quadruple.dir'] = 'visu-console/visu-tac-quadruple';
+    
+        cur['visu.tac.triple.dir'] = 'visu-console/visu-tac-triple';
+    
+        cur['visu.token.dir'] = 'visu-console/visu-token';
+    </script><script type="text/javascript" language="JavaScript">
+        function displayProperties (name) {
+          var win = window.open('','JUnitSystemProperties','scrollbars=1,resizable=1');
+          var doc = win.document;
+          doc.open();
+          doc.write("<html><head><title>Properties of " + name + "</title>");
+          doc.write("<style>")
+          doc.write("body {font:normal 68% verdana,arial,helvetica; color:#000000; }");
+          doc.write("table tr td, table tr th { font-size: 68%; }");
+          doc.write("table.properties { border-collapse:collapse; border-left:solid 1 #cccccc; border-top:solid 1 #cccccc; padding:5px; }");
+          doc.write("table.properties th { text-align:left; border-right:solid 1 #cccccc; border-bottom:solid 1 #cccccc; background-color:#eeeeee; }");
+          doc.write("table.properties td { font:normal; text-align:left; border-right:solid 1 #cccccc; border-bottom:solid 1 #cccccc; background-color:#fffffff; }");
+          doc.write("h3 { margin-bottom: 0.5em; font: bold 115% verdana,arial,helvetica }");
+          doc.write("</style>");
+          doc.write("</head><body>");
+          doc.write("<h3>Properties of " + name + "</h3>");
+          doc.write("<div align=\"right\"><a href=\"javascript:window.close();\">Close</a></div>");
+          doc.write("<table class='properties'>");
+          doc.write("<tr><th>Name</th><th>Value</th></tr>");
+          for (prop in TestCases[name]) {
+            doc.write("<tr><th>" + prop + "</th><td>" + TestCases[name][prop] + "</td></tr>");
+          }
+          doc.write("</table>");
+          doc.write("</body></html>");
+          doc.close();
+          win.focus();
+        }
+      
+      </script>
+</head>
+<body>
+<a name="top"></a>
+<h1>Unit Test Results.</h1>
+<table width="100%">
+<tr>
+<td align="left"></td><td align="right">Designed for use with <a href="http://www.junit.org">JUnit</a> and <a href="http://ant.apache.org/ant">Ant</a>.</td>
+</tr>
+</table>
+<hr size="1">
+<h2>Summary</h2>
+<table class="details" border="0" cellpadding="5" cellspacing="2" width="95%">
+<tr valign="top">
+<th>Tests</th><th>Failures</th><th>Errors</th><th>Success rate</th><th>Time</th>
+</tr>
+<tr valign="top" class="">
+<td>47</td><td>0</td><td>0</td><td>100.00%</td><td>0.237</td>
+</tr>
+</table>
+<table border="0" width="95%">
+<tr>
+<td style="text-align: justify;">
+        Note: <i>failures</i> are anticipated and checked for with assertions while <i>errors</i> are unanticipated.
+        </td>
+</tr>
+</table>
+<hr size="1" width="95%" align="left">
+<h2>Packages</h2>
+        Note: package statistics are not computed recursively, they only sum up all of its testsuites numbers.
+        <table class="details" border="0" cellpadding="5" cellspacing="2" width="95%">
+<tr valign="top">
+<th width="80%">Name</th><th>Tests</th><th>Errors</th><th>Failures</th><th nowrap>Time(s)</th><th nowrap>Time Stamp</th><th>Host</th>
+</tr>
+<tr valign="top" class="">
+<td><a href="#swp_compiler_ss13.fuc.backend">swp_compiler_ss13.fuc.backend</a></td><td>47</td><td>0</td><td>0</td><td>0.237</td><td>2013-05-28T12:56:43</td><td>frank-MLIN</td>
+</tr>
+</table>
+<hr size="1" width="95%" align="left">
+<a name="swp_compiler_ss13.fuc.backend"></a>
+<h3>Package swp_compiler_ss13.fuc.backend</h3>
+<table class="details" border="0" cellpadding="5" cellspacing="2" width="95%">
+<tr valign="top">
+<th width="80%">Name</th><th>Tests</th><th>Errors</th><th>Failures</th><th nowrap>Time(s)</th><th nowrap>Time Stamp</th><th>Host</th>
+</tr>
+<tr valign="top" class="">
+<td><a href="#LLVMBackendTest">LLVMBackendTest</a></td><td>43</td><td>0</td><td>0</td><td>0.142</td><td>2013-05-28T12:56:43</td><td>frank-MLIN</td>
+</tr>
+<tr valign="top" class="">
+<td><a href="#ModuleTest">ModuleTest</a></td><td>4</td><td>0</td><td>0</td><td>0.095</td><td>2013-05-28T12:56:44</td><td>frank-MLIN</td>
+</tr>
+</table>
+<a href="#top">Back to top</a>
+<p></p>
+<p></p>
+<hr size="1" width="95%" align="left">
+<a name="LLVMBackendTest"></a>
+<h3>TestCase LLVMBackendTest</h3>
+<table class="details" border="0" cellpadding="5" cellspacing="2" width="95%">
+<tr valign="top">
+<th>Name</th><th>Status</th><th width="80%">Type</th><th nowrap>Time(s)</th>
+</tr>
+<tr valign="top" class="">
+<td>generateTargetCodeTest_DeclareDouble</td><td>Success</td><td></td><td>0.014</td>
+</tr>
+<tr valign="top" class="">
+<td>generateTargetCodeTest_DeclareBoolean</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>generateTargetCodeTest_DeclareString</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>generateTargetCodeTest_AssignDouble_Var</td><td>Success</td><td></td><td>0.001</td>
+</tr>
+<tr valign="top" class="">
+<td>generateTargetCodeTest_MulDouble_Const</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>generateTargetCodeTest_SubLong_Var</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>generateTargetCodeTest_Return_Var</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>generateTargetCodeTest_AddLong_Const</td><td>Success</td><td></td><td>0.001</td>
+</tr>
+<tr valign="top" class="">
+<td>generateTargetCodeTest_LongToDouble</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>generateTargetCodeTest_SubLong_Const</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>generateTargetCodeTest_DeclareLong_InitVar</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>generateTargetCodeTest_DeclareBoolean_InitConst_True</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>generateTargetCodeTest_AddDouble_Const</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>generateTargetCodeTest_MulLong_Var</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>generateTargetCodeTest_DeclareBoolean_InitVar</td><td>Success</td><td></td><td>0.001</td>
+</tr>
+<tr valign="top" class="">
+<td>generateTargetCodeTest_AddDouble_Var</td><td>Success</td><td></td><td>0.002</td>
+</tr>
+<tr valign="top" class="">
+<td>generateTargetCodeTest_AssignString_Var</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>generateTargetCodeTest_DeclareDouble_InitConst</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>generateTargetCodeTest_DivLong_Var</td><td>Success</td><td></td><td>0.001</td>
+</tr>
+<tr valign="top" class="">
+<td>generateTargetCodeTest_AssignBoolean_Const_False</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>generateTargetCodeTest_MulLong_Const</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>generateTargetCodeTest_AssignString_Const</td><td>Success</td><td></td><td>0.001</td>
+</tr>
+<tr valign="top" class="">
+<td>generateTargetCodeTest_DoubleToLong</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>generateTargetCodeTest_DeclareString_InitConst</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>generateTargetCodeTest_DeclareLong_InitConst</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>generateTargetCodeTest_AddLong_Var</td><td>Success</td><td></td><td>0.001</td>
+</tr>
+<tr valign="top" class="">
+<td>generateTargetCodeTest_SubDouble_Var</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>generateTargetCodeTest_Return_Const</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>generateTargetCodeTest_DivLong_Const</td><td>Success</td><td></td><td>0.001</td>
+</tr>
+<tr valign="top" class="">
+<td>generateTargetCodeTest_DivDouble_Const</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>generateTargetCodeTest_DeclareString_InitVar</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>generateTargetCodeTest_AssignLong_Var</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>generateTargetCodeTest_DeclareDouble_InitVar</td><td>Success</td><td></td><td>0.001</td>
+</tr>
+<tr valign="top" class="">
+<td>generateTargetCodeTest_AssignBoolean_Const_True</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>generateTargetCodeTest_AssignLong_Const</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>generateTargetCodeTest_AssignBoolean_Var</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>generateTargetCodeTest_AssignDouble_Const</td><td>Success</td><td></td><td>0.001</td>
+</tr>
+<tr valign="top" class="">
+<td>generateTargetCodeTest_MulDouble_Var</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>generateTargetCodeTest_DeclareLong</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>generateTargetCodeTest_AssignWithoutDeclaration</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>generateTargetCodeTest_SubDouble_Const</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>generateTargetCodeTest_DeclareBoolean_InitConst_False</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>generateTargetCodeTest_DivDouble_Var</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+</table>
+<div class="Properties">
+<a href="javascript:displayProperties('swp_compiler_ss13.fuc.backend.LLVMBackendTest');">
+                    Properties &raquo;
+                </a>
+</div>
+<p></p>
+<a href="#top">Back to top</a><a name="ModuleTest"></a>
+<h3>TestCase ModuleTest</h3>
+<table class="details" border="0" cellpadding="5" cellspacing="2" width="95%">
+<tr valign="top">
+<th>Name</th><th>Status</th><th width="80%">Type</th><th nowrap>Time(s)</th>
+</tr>
+<tr valign="top" class="">
+<td>getIRTypeDoubleTest</td><td>Success</td><td></td><td>0.016</td>
+</tr>
+<tr valign="top" class="">
+<td>getIRTypeLongTest</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>Test</td><td>Success</td><td></td><td>0.000</td>
+</tr>
+<tr valign="top" class="">
+<td>generateTest</td><td>Success</td><td></td><td>0.001</td>
+</tr>
+</table>
+<div class="Properties">
+<a href="javascript:displayProperties('swp_compiler_ss13.fuc.backend.ModuleTest');">
+                    Properties &raquo;
+                </a>
+</div>
+<p></p>
+<a href="#top">Back to top</a>
+</body>
+</html>
