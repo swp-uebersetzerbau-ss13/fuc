@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import swp_compiler_ss13.common.ast.ASTNode;
+import swp_compiler_ss13.common.lexer.Token;
 
 /**
  * AST Node implementation
@@ -33,5 +34,11 @@ public abstract class ASTNodeImpl implements ASTNode {
 		final List<ASTNode> children = this.getChildren();
 		final Iterator<ASTNode> childIterator = children.iterator();
 		return new DFSLTRIterator(childIterator);
+	}
+
+	@Override
+	public List<Token> coverage() {
+		// TODO Make this do something useful.
+		return null;
 	}
 }
