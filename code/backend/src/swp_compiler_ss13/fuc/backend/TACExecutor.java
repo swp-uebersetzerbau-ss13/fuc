@@ -81,7 +81,7 @@ public class TACExecutor
 	 * @exception IOException if an error occurs
 	 * @exception InterruptedException if an error occurs
 	 */
-	public static void runTAC(InputStream stream) throws IOException, InterruptedException, BackendException {
+	public static int runTAC(InputStream stream) throws IOException, InterruptedException, BackendException {
 		BufferedReader in = new BufferedReader(new InputStreamReader(jitTAC(stream)));
 
 		Process p = Runtime.getRuntime().exec("lli -");
@@ -97,8 +97,10 @@ public class TACExecutor
 		}
 
 		out.close();
-		System.out.println("\nExecution of that code yields: "
-		                   + String.valueOf(p.waitFor()));
+
+		int exitCodeLLI = p.waitFor();
+		System.out.println("\nExecution of that code yields: " + exitCodeLLI);
+		return exitCodeLLI;
 	}
 
 	/**
