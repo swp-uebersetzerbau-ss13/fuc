@@ -162,6 +162,7 @@ public class Module
 
 		switch(operator)
 		{
+			// Arithmetic
 			case ADD_LONG:
 				irInst = "add";
 				break;
@@ -186,6 +187,47 @@ public class Module
 			case DIV_DOUBLE:
 				irInst = "fdiv";
 				break;
+
+			// Boolean Arithmetic
+			case OR_BOOLEAN:
+				irInst = "or";
+				break;
+			case AND_BOOLEAN:
+				irInst = "and";
+				break;
+
+			// Comparisons
+			case COMPARE_LONG_E:
+				irInst = " icmp eq";
+				break;
+			case COMPARE_LONG_G:
+				irInst = " icmp sgt";
+			break;
+			case COMPARE_LONG_L:
+				irInst = " icmp slt";
+				break;
+			case COMPARE_LONG_GE:
+				irInst = " icmp sge";
+			break;
+			case COMPARE_LONG_LE:
+				irInst = " icmp sle";
+			break;
+
+			case COMPARE_DOUBLE_E:
+				irInst = " fcmp oeq";
+			break;
+			case COMPARE_DOUBLE_G:
+				irInst = " fcmp ogt";
+			break;
+			case COMPARE_DOUBLE_L:
+				irInst = " fcmp olt";
+			break;
+			case COMPARE_DOUBLE_GE:
+				irInst = " fcmp oge";
+			break;
+			case COMPARE_DOUBLE_LE:
+				irInst = " fcmp ole";
+			break;
 		}
 
 		return irInst;
@@ -427,6 +469,70 @@ public class Module
 		gen("store " + irType + " " + dstUseIdentifier + ", " + irType + "* " + dstIdentifier);
 	}
 
+	public void addBooleanNot(String source, String destination) throws BackendException {
+
+		String irType = getIRType(Type.Kind.BOOLEAN);
+
+		// source (ir boolean) is #1 or #0 constant
+		if(source.charAt(0) == '#')
+		{
+			source = source.substring(1);
+		}
+		// source is identifier
+		else
+		{
+			String sourceIdentifier = "%" + source;
+			source = getUseIdentifierForVariable(source);
+			gen(source + " = load " + irType + "* " + sourceIdentifier);
+		}
+
+		String dstUseIdentifier = getUseIdentifierForVariable(destination);
+		String dstIdentifier = "%" + destination;
+
+		gen(dstUseIdentifier + " = " + "sub " + irType + " 1, " + source);
+		gen("store " + irType + " " + dstUseIdentifier + ", " + irType + "* " + dstIdentifier);
+	}
+
+
+	/*
+	public void addBooleanOr(String lhs, String rhs, String destination) throws BackendException {
+
+		String irType = getIRType(Type.Kind.BOOLEAN);
+
+		// lhs (ir boolean) is #1 or #0 constant
+		if(lhs.charAt(0) == '#')
+		{
+			lhs = lhs.substring(1);
+		}
+		// lhs is identifier
+		else
+		{
+			String lhsIdentifier = "%" + lhs;
+			lhs = getUseIdentifierForVariable(lhs);
+			gen(lhs + " = load " + irType + "* " + lhsIdentifier);
+		}
+
+		// rhs (ir boolean) is #1 or #0 constant
+		if(rhs.charAt(0) == '#')
+		{
+			rhs = rhs.substring(1);
+		}
+		// rhs is identifier
+		else
+		{
+			String rhsIdentifier = "%" + rhs;
+			rhs = getUseIdentifierForVariable(rhs);
+			gen(rhs + " = load " + irType + "* " + rhsIdentifier);
+		}
+
+		String dstUseIdentifier = getUseIdentifierForVariable(destination);
+		String dstIdentifier = "%" + destination;
+
+		gen(dstUseIdentifier + " = " + "or " + irType + " " + lhs + ", " + rhs);
+		gen("store " + irType + " " + dstUseIdentifier + ", " + irType + "* " + dstIdentifier);
+	}
+	*/
+
 	/**
 	 * Adds the return instruction for the
 	 * main method.
@@ -446,4 +552,24 @@ public class Module
 			gen("ret i64 " + valueUseIdentifier);
 		}
 	}
+
+	public void addLabel(String name){
+		gen(name+":");
+	}
+
+	public void addBranch(String target1, String target2, String condition) throws BackendException {
+		// conditional branch
+		if (!target2.equals(Quadruple.EmptyArgument)){
+			String conditionUseIdentifier = getUseIdentifierForVariable(condition);
+			gen(conditionUseIdentifier + " = load " + "i8" + "* %" + condition);
+			gen(conditionUseIdentifier + ".cond = trunc i8 " + conditionUseIdentifier + " to i1");
+			gen("br i1 " + conditionUseIdentifier + ".cond, label " + target1 + ", label "+ target2);
+		}
+		else {
+			gen("br label " + target1);
+		}
+	}
+
+
+
 }

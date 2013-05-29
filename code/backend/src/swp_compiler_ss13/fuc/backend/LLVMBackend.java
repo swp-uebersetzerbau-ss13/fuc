@@ -175,11 +175,119 @@ public class LLVMBackend implements Backend
 						q.getArgument2(),
 						q.getResult());
 					break;
+				case NOT_BOOLEAN:
+					m.addBooleanNot(Module.toIRBoolean(q.getArgument1()), q.getResult());
+					break;
+				case OR_BOOLEAN:
+					m.addPrimitiveBinaryInstruction(
+							q.getOperator(),
+							Type.Kind.BOOLEAN,
+							Module.toIRBoolean(q.getArgument1()),
+							Module.toIRBoolean(q.getArgument2()),
+							q.getResult());
+					break;
+				case AND_BOOLEAN:
+					m.addPrimitiveBinaryInstruction(
+							q.getOperator(),
+							Type.Kind.BOOLEAN,
+							Module.toIRBoolean(q.getArgument1()),
+							Module.toIRBoolean(q.getArgument2()),
+							q.getResult());
+					break;
 
+				/* Comparisons */
+				case COMPARE_LONG_E:
+				m.addPrimitiveBinaryInstruction(
+						q.getOperator(),
+						Type.Kind.LONG,
+						q.getArgument1(),
+						q.getArgument2(),
+						q.getResult());
+				break;
+				case COMPARE_LONG_G:
+					m.addPrimitiveBinaryInstruction(
+							q.getOperator(),
+							Type.Kind.LONG,
+							q.getArgument1(),
+							q.getArgument2(),
+							q.getResult());
+					break;
+				case COMPARE_LONG_L:
+					m.addPrimitiveBinaryInstruction(
+							q.getOperator(),
+							Type.Kind.LONG,
+							q.getArgument1(),
+							q.getArgument2(),
+							q.getResult());
+					break;
+				case COMPARE_LONG_GE:
+					m.addPrimitiveBinaryInstruction(
+							q.getOperator(),
+							Type.Kind.LONG,
+							q.getArgument1(),
+							q.getArgument2(),
+							q.getResult());
+					break;
+				case COMPARE_LONG_LE:
+					m.addPrimitiveBinaryInstruction(
+							q.getOperator(),
+							Type.Kind.LONG,
+							q.getArgument1(),
+							q.getArgument2(),
+							q.getResult());
+					break;
+				case COMPARE_DOUBLE_E:
+					m.addPrimitiveBinaryInstruction(
+							q.getOperator(),
+							Type.Kind.DOUBLE,
+							q.getArgument1(),
+							q.getArgument2(),
+							q.getResult());
+					break;
+				case COMPARE_DOUBLE_G:
+					m.addPrimitiveBinaryInstruction(
+							q.getOperator(),
+							Type.Kind.DOUBLE,
+							q.getArgument1(),
+							q.getArgument2(),
+							q.getResult());
+					break;
+				case COMPARE_DOUBLE_L:
+					m.addPrimitiveBinaryInstruction(
+							q.getOperator(),
+							Type.Kind.DOUBLE,
+							q.getArgument1(),
+							q.getArgument2(),
+							q.getResult());
+					break;
+				case COMPARE_DOUBLE_GE:
+					m.addPrimitiveBinaryInstruction(
+							q.getOperator(),
+							Type.Kind.DOUBLE,
+							q.getArgument1(),
+							q.getArgument2(),
+							q.getResult());
+					break;
+				case COMPARE_DOUBLE_LE:
+					m.addPrimitiveBinaryInstruction(
+							q.getOperator(),
+							Type.Kind.DOUBLE,
+							q.getArgument1(),
+							q.getArgument2(),
+							q.getResult());
+					break;
 
 				/* Control flow */
 				case RETURN:
 					m.addMainReturn(q.getArgument1());
+					break;
+				case LABEL:
+					m.addLabel(q.getArgument1());
+					break;
+				case BRANCH:
+					m.addBranch(q.getArgument1(),
+							q.getArgument2(),
+							q.getResult());
 					break;
 			}
 		}
