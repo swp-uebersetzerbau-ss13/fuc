@@ -7,6 +7,9 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Locale;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 import static swp_compiler_ss13.common.types.Type.*;
 import static swp_compiler_ss13.common.types.Type.Kind.BOOLEAN;
@@ -279,6 +282,38 @@ public class Module
 		}
 	}
 
+	private static Pattern toIRString_ReplacePattern = Pattern.compile("[^a-zA-Z0-9üÜöÖäÄ]");
+
+	public static String toIRString(String str)
+	{
+		String irString = str;
+
+		if(str.charAt(0) == '#')
+		{
+			irString = "#\"";
+
+			str = str.substring(2, str.length() - 1);
+			Matcher m = Module.toIRString_ReplacePattern.matcher(str);
+
+			int pos = 0;
+			while(m.find())
+			{
+				irString += str.substring(pos, m.end() - 1);
+				pos = m.end();
+
+				System.err.println(str.charAt(pos - 1));
+				irString += "\\" + String.format(
+					(Locale) null,
+					"%x",
+					(int) str.charAt(pos - 1));
+			}
+
+			irString += "\\00\"";
+		}
+
+		return irString;
+	}
+
 	/**
 	 * Generates a new string literal from a <code>String</code>
 	 * value and returns its id (i.e. its position in the
@@ -289,7 +324,9 @@ public class Module
 	 */
 	private Integer addStringLiteral(String literal)
 	{
-		int length = literal.length() - 2;
+		int length = literal.substring(1, literal.length() - 1)
+			.replaceAll("\\\\[a-fA-f0-9][a-fA-f0-9]","_")
+			.replaceAll("[üÜöÖäÄ]","__").length();
 		int id = stringLiterals.size();
 		stringLiterals.add(length);
 
@@ -309,8 +346,9 @@ public class Module
 	 *
 	 * @param variable the variable's name
 	 * @param literalID the string literal's id
+	 * @return the used "use identifier" for variable
 	 */
-	private void addLoadStringLiteral(String variable, int literalID) throws BackendException {
+	private String addLoadStringLiteral(String variable, int literalID) throws BackendException {
 		String variableIdentifier = "%" + variable;
 		String variableUseIdentifier = getUseIdentifierForVariable(variable);
 		String literalIdentifier = getStringLiteralIdentifier(literalID);
@@ -318,6 +356,7 @@ public class Module
 
 		gen(variableUseIdentifier + " = getelementptr " + literalType + "* " + literalIdentifier + ", i64 0, i64 0");
 		gen("store i8* " + variableUseIdentifier + ", i8** " + variableIdentifier);
+		return variableUseIdentifier;
 	}
 
 	/**
@@ -535,13 +574,14 @@ public class Module
 
 	public void addPrint(String value, Kind type) throws BackendException {
 		String irType = getIRType(type);
+		boolean constantSrc = false;
 
-		/* value (ir boolean) is #1 or #0 constant */
+		/* value is constant */
 		if(value.charAt(0) == '#')
 		{
 			value = value.substring(1);
+			constantSrc = true;
 		}
-
 		/* value is identifier */
 		else
 		{
@@ -550,25 +590,31 @@ public class Module
 			gen(value + " = load " + irType + "* " + valueIdentifier);
 		}
 
+		String formatUseIdentifier = getUseIdentifierForVariable(".format.string");
+
 		switch (type) {
 			case BOOLEAN:
 				gen("call void (i8)* @print_boolean(" + irType + " " + value + ")");
 				break;
 			case LONG:
-				gen("%format = getelementptr [4 x i8]* @.string_format_long, i64 0, i64 0");
-				gen("call i32 (i8*, ...)* @printf(i8* %format, " + irType + " " + value + ")");
+				gen(formatUseIdentifier + " = getelementptr [4 x i8]* @.string_format_long, i64 0, i64 0");
+				gen("call i32 (i8*, ...)* @printf(i8* " + formatUseIdentifier + ", " + irType + " " + value + ")");
 				break;
 			case DOUBLE:
-				gen("%format = getelementptr [4 x i8]* @.string_format_double, i64 0, i64 0");
-				gen("call i32 (i8*, ...)* @printf(i8* %format, " + irType + " " + value + ")");
+				gen(formatUseIdentifier + " = getelementptr [4 x i8]* @.string_format_double, i64 0, i64 0");
+				gen("call i32 (i8*, ...)* @printf(i8* " + formatUseIdentifier + ", " + irType + " " + value + ")");
 				break;
 			case STRING:
-				gen("%format = getelementptr [4 x i8]* @.string_format_string, i64 0, i64 0");
-				gen("call i32 (i8*, ...)* @printf(i8* %format, " + irType + " " + value + ")");
+				if(constantSrc)
+				{
+					int id = addStringLiteral(value);
+					value = addLoadStringLiteral(".tmp.string", id);
+				}
+
+				gen(formatUseIdentifier + " = getelementptr [4 x i8]* @.string_format_string, i64 0, i64 0");
+				gen("call i32 (i8*, ...)* @printf(i8* " + formatUseIdentifier + ", " + irType + " " + value + ")");
 				break;
 		}
-		
-
 	}
 
 

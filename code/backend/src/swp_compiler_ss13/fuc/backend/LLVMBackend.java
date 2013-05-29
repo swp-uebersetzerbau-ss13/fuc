@@ -65,6 +65,15 @@ public class LLVMBackend implements Backend
 		/* Write begin for main function */
 		out.println("define i64 @main() {");
 
+		m.addPrimitiveDeclare(
+			Type.Kind.STRING,
+			".tmp.string",
+			Quadruple.EmptyArgument);
+		m.addPrimitiveDeclare(
+			Type.Kind.STRING,
+			".format.string",
+			Quadruple.EmptyArgument);
+
 		for(Quadruple q : tac)
 		{
 			switch(q.getOperator())
@@ -92,7 +101,7 @@ public class LLVMBackend implements Backend
 					m.addPrimitiveDeclare(
 						Type.Kind.STRING,
 						q.getResult(),
-						q.getArgument1());
+						Module.toIRString(q.getArgument1()));
 					break;
 
 				/* Type conversion */
@@ -134,7 +143,7 @@ public class LLVMBackend implements Backend
 					m.addPrimitiveAssign(
 						Type.Kind.STRING,
 						q.getResult(),
-						q.getArgument1());
+						Module.toIRString(q.getArgument1()));
 					break;
 
 				/* Arithmetic */
@@ -328,7 +337,7 @@ public class LLVMBackend implements Backend
 					m.addPrint(Module.toIRBoolean(q.getArgument1()), Type.Kind.BOOLEAN);
 					break;
 				case PRINT_STRING:
-					m.addPrint(q.getArgument1(), Type.Kind.STRING);
+					m.addPrint(Module.toIRString(q.getArgument1()), Type.Kind.STRING);
 					break;
 			}
 		}

@@ -84,7 +84,9 @@ public class TACExecutor
 	public static void runTAC(InputStream stream) throws IOException, InterruptedException, BackendException {
 		BufferedReader in = new BufferedReader(new InputStreamReader(jitTAC(stream)));
 
-		Process p = Runtime.getRuntime().exec("lli -");
+		ProcessBuilder pb = new ProcessBuilder("lli", "-");
+		pb.redirectErrorStream(true);
+		Process p = pb.start();
 		PrintWriter out = new PrintWriter(p.getOutputStream());
 
 		System.out.println("\nGenerated LLVM IR:\n");
@@ -97,7 +99,17 @@ public class TACExecutor
 		}
 
 		out.close();
-		System.out.println("\nExecution of that code yields: "
+		System.out.println("Executing on LLVM...\n<execution output=\"stdout,stderr\">");
+
+		in = new BufferedReader(new InputStreamReader(p.getInputStream()));
+		line = null;
+		while((line = in.readLine()) != null)
+		{
+			System.out.println(line);
+			out.println(line);
+		}
+
+		System.out.println("</execution>\nThe execution of that code yielded: "
 		                   + String.valueOf(p.waitFor()));
 	}
 
