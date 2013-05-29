@@ -2,12 +2,14 @@ package swp_compiler_ss13.fuc.backend;
 
 import swp_compiler_ss13.common.backend.BackendException;
 import swp_compiler_ss13.common.backend.Quadruple;
-import swp_compiler_ss13.common.types.Type;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
+import static swp_compiler_ss13.common.types.Type.*;
+import static swp_compiler_ss13.common.types.Type.Kind.BOOLEAN;
 
 /**
  * This class allows for the generation of an LLVM IR module.
@@ -122,7 +124,7 @@ public class Module
 	 * @param type the type from the three address code
 	 * @return the corresponding LLVM IR type
 	 */
-	private String getIRType(Type.Kind type)
+	private String getIRType(Kind type)
 	{
 		String irType = "";
 		switch(type)
@@ -325,7 +327,7 @@ public class Module
 	 * @param variable the new variable's name
 	 * @return the variable's identifier
 	 */
-	private String addNewVariable(Type.Kind type, String variable)
+	private String addNewVariable(Kind type, String variable)
 	{
 		String irType = getIRType(type);
 		String variableIdentifier = "%" + variable;
@@ -343,7 +345,7 @@ public class Module
 	 * @param variable the new variable's name
 	 * @param initializer the new variable's initial value
 	 */
-	public void addPrimitiveDeclare(Type.Kind type, String variable, String initializer) throws BackendException {
+	public void addPrimitiveDeclare(Kind type, String variable, String initializer) throws BackendException {
 		addNewVariable(type, variable);
 
 		if(!initializer.equals(Quadruple.EmptyArgument))
@@ -362,7 +364,7 @@ public class Module
 	 * @param dst the destination variable's name
 	 * @param src the source constant or the source variable's name
 	 */
-	public void addPrimitiveAssign(Type.Kind type, String dst, String src) throws BackendException {
+	public void addPrimitiveAssign(Kind type, String dst, String src) throws BackendException {
 		boolean constantSrc = false;
 		if(src.charAt(0) == '#')
 		{
@@ -375,7 +377,7 @@ public class Module
 
 		if(constantSrc)
 		{
-			if(type == Type.Kind.STRING)
+			if(type == Kind.STRING)
 			{
 				int id = addStringLiteral(src);
 				addLoadStringLiteral(dst, id);
@@ -404,19 +406,19 @@ public class Module
 	 * @param dstType the destination variable's type
 	 * @param dst the destination variable's name
 	 */
-	public void addPrimitiveConversion(Type.Kind srcType, String src, Type.Kind dstType, String dst) throws BackendException {
+	public void addPrimitiveConversion(Kind srcType, String src, Kind dstType, String dst) throws BackendException {
 		String srcUseIdentifier = getUseIdentifierForVariable(src);
 		String dstUseIdentifier = getUseIdentifierForVariable(dst);
 		String srcIdentifier = "%" + src;
 		String dstIdentifier = "%" + dst;
 
-		if((srcType == Type.Kind.LONG) && (dstType == Type.Kind.DOUBLE))
+		if((srcType == Kind.LONG) && (dstType == Kind.DOUBLE))
 		{
 			gen(srcUseIdentifier + " = load i64* " + srcIdentifier);
 			gen(dstUseIdentifier + " = sitofp i64 " + srcUseIdentifier + " to double");
 			gen("store double " + dstUseIdentifier + ", double* " + dstIdentifier);
 		}
-		else if((srcType == Type.Kind.DOUBLE) && (dstType == Type.Kind.LONG))
+		else if((srcType == Kind.DOUBLE) && (dstType == Kind.LONG))
 		{
 			gen(srcUseIdentifier + " = load double* " + srcIdentifier);
 			gen(dstUseIdentifier + " = fptosi double " + srcUseIdentifier + " to i64");
@@ -436,7 +438,7 @@ public class Module
 	 * @param rhs the constant or name of the variable on the right hand side
 	 * @param dst the destination variable's name
 	 */
-	public void addPrimitiveBinaryInstruction(Quadruple.Operator op, Type.Kind type, String lhs, String rhs, String dst) throws BackendException {
+	public void addPrimitiveBinaryInstruction(Quadruple.Operator op, Kind type, String lhs, String rhs, String dst) throws BackendException {
 		String irType = getIRType(type);
 		String irInst = getIRBinaryInstruction(op);
 
@@ -471,7 +473,7 @@ public class Module
 
 	public void addBooleanNot(String source, String destination) throws BackendException {
 
-		String irType = getIRType(Type.Kind.BOOLEAN);
+		String irType = getIRType(BOOLEAN);
 
 		// source (ir boolean) is #1 or #0 constant
 		if(source.charAt(0) == '#')
@@ -493,45 +495,6 @@ public class Module
 		gen("store " + irType + " " + dstUseIdentifier + ", " + irType + "* " + dstIdentifier);
 	}
 
-
-	/*
-	public void addBooleanOr(String lhs, String rhs, String destination) throws BackendException {
-
-		String irType = getIRType(Type.Kind.BOOLEAN);
-
-		// lhs (ir boolean) is #1 or #0 constant
-		if(lhs.charAt(0) == '#')
-		{
-			lhs = lhs.substring(1);
-		}
-		// lhs is identifier
-		else
-		{
-			String lhsIdentifier = "%" + lhs;
-			lhs = getUseIdentifierForVariable(lhs);
-			gen(lhs + " = load " + irType + "* " + lhsIdentifier);
-		}
-
-		// rhs (ir boolean) is #1 or #0 constant
-		if(rhs.charAt(0) == '#')
-		{
-			rhs = rhs.substring(1);
-		}
-		// rhs is identifier
-		else
-		{
-			String rhsIdentifier = "%" + rhs;
-			rhs = getUseIdentifierForVariable(rhs);
-			gen(rhs + " = load " + irType + "* " + rhsIdentifier);
-		}
-
-		String dstUseIdentifier = getUseIdentifierForVariable(destination);
-		String dstIdentifier = "%" + destination;
-
-		gen(dstUseIdentifier + " = " + "or " + irType + " " + lhs + ", " + rhs);
-		gen("store " + irType + " " + dstUseIdentifier + ", " + irType + "* " + dstIdentifier);
-	}
-	*/
 
 	/**
 	 * Adds the return instruction for the
@@ -563,11 +526,49 @@ public class Module
 			String conditionUseIdentifier = getUseIdentifierForVariable(condition);
 			gen(conditionUseIdentifier + " = load " + "i8" + "* %" + condition);
 			gen(conditionUseIdentifier + ".cond = trunc i8 " + conditionUseIdentifier + " to i1");
-			gen("br i1 " + conditionUseIdentifier + ".cond, label " + target1 + ", label "+ target2);
+			gen("br i1 " + conditionUseIdentifier + ".cond, label %" + target1 + ", label %"+ target2);
 		}
 		else {
-			gen("br label " + target1);
+			gen("br label %" + target1);
 		}
+	}
+
+	public void addPrint(String value, Kind type) throws BackendException {
+		String irType = getIRType(type);
+
+		/* value (ir boolean) is #1 or #0 constant */
+		if(value.charAt(0) == '#')
+		{
+			value = value.substring(1);
+		}
+
+		/* value is identifier */
+		else
+		{
+			String valueIdentifier = "%" + value;
+			value = getUseIdentifierForVariable(value);
+			gen(value + " = load " + irType + "* " + valueIdentifier);
+		}
+
+		switch (type) {
+			case BOOLEAN:
+				gen("call void (i8)* @print_boolean(" + irType + " " + value + ")");
+				break;
+			case LONG:
+				gen("%format = getelementptr [4 x i8]* @.string_format_long, i64 0, i64 0");
+				gen("call i32 (i8*, ...)* @printf(i8* %format, " + irType + " " + value + ")");
+				break;
+			case DOUBLE:
+				gen("%format = getelementptr [4 x i8]* @.string_format_double, i64 0, i64 0");
+				gen("call i32 (i8*, ...)* @printf(i8* %format, " + irType + " " + value + ")");
+				break;
+			case STRING:
+				gen("%format = getelementptr [4 x i8]* @.string_format_string, i64 0, i64 0");
+				gen("call i32 (i8*, ...)* @printf(i8* %format, " + irType + " " + value + ")");
+				break;
+		}
+		
+
 	}
 
 
