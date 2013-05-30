@@ -14,9 +14,9 @@ public class SymbolTableImpl implements SymbolTable {
 	private static Logger logger = Logger.getLogger(SymbolTableImpl.class);
 
 	private SymbolTable parent = null;
-	private HashMap<String, Type> symbolMap;
-	private HashMap<String, Liveliness> liveMap;
-	private HashMap<String, String> aliasMap;
+	private final HashMap<String, Type> symbolMap;
+	private final HashMap<String, Liveliness> liveMap;
+	private final HashMap<String, String> aliasMap;
 
 	public SymbolTableImpl(SymbolTable parent) {
 		this.parent = parent;
@@ -78,8 +78,7 @@ public class SymbolTableImpl implements SymbolTable {
 	}
 
 	@Override
-	public void setLivelinessInformation(String identifier,
-			Liveliness liveliness) {
+	public void setLivelinessInformation(String identifier, Liveliness liveliness) {
 		this.liveMap.put(identifier, liveliness);
 	}
 
@@ -131,8 +130,7 @@ public class SymbolTableImpl implements SymbolTable {
 	public void setIdentifierAlias(String identifier, String alias) {
 		if (this.isDeclaredInCurrentScope(identifier)) {
 			this.aliasMap.put(identifier, alias);
-		}
-		else {
+		} else {
 			logger.warn("Can not set an alias for identifier " + identifier
 					+ " beacuase it is not declared in this symbol table!");
 			logger.warn("Use getDeclaringSymbolTable() to get the correct symbol table that declares " + identifier);
@@ -148,7 +146,11 @@ public class SymbolTableImpl implements SymbolTable {
 			}
 			return alias;
 		}
-		return this.getDeclaringSymbolTable(identifier).getIdentifierAlias(identifier);
+		SymbolTable table = this.getDeclaringSymbolTable(identifier);
+		if (table != null) {
+			return table.getIdentifierAlias(identifier);
+		}
+		return identifier;
 	}
 
 	@Override

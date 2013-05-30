@@ -23,6 +23,7 @@ import swp_compiler_ss13.common.ast.nodes.unary.StructIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.unary.UnaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.unary.UnaryExpressionNode.UnaryOperator;
 import swp_compiler_ss13.common.types.Type;
+import swp_compiler_ss13.fuc.symbolTable.SymbolTableImpl;
 
 /**
  * @author kaworu
@@ -55,7 +56,7 @@ public class ASTFactory {
 	public ASTFactory() {
 		this.ast = new ASTImpl();
 		BlockNode program = new BlockNodeImpl();
-		// program.setSymbolTable(new SymbolTableImpl());
+		program.setSymbolTable(new SymbolTableImpl());
 		this.ast.setRootNode(program);
 		this.node = program;
 	}
@@ -104,7 +105,7 @@ public class ASTFactory {
 		DeclarationNode declaration = new DeclarationNodeImpl();
 		BlockNode block = (BlockNode) this.node;
 		block.addDeclaration(declaration);
-		// block.getSymbolTable().insert(identifier, type);
+		block.getSymbolTable().insert(identifier, type);
 		declaration.setIdentifier(identifier);
 		declaration.setType(type);
 		declaration.setParentNode(this.node);
@@ -120,8 +121,7 @@ public class ASTFactory {
 	public BlockNode addBlock() {
 		BlockNode block = new BlockNodeImpl();
 		block.setParentNode(this.node);
-		// block.setSymbolTable(new SymbolTableImpl(((BlockNode)
-		// this.node).getSymbolTable()));
+		block.setSymbolTable(new SymbolTableImpl(((BlockNode) this.node).getSymbolTable()));
 		switch (this.node.getNodeType()) {
 		case BranchNode:
 			BranchNode branch = ((BranchNode) this.node);
@@ -168,6 +168,9 @@ public class ASTFactory {
 	 * creates a new BranchNode, adds it as child to the current node, and sets
 	 * it as the new current node
 	 * 
+	 * the next addBlock() will add the TrueBlock. goToParent(); addBlock() will
+	 * add the FalseBlock
+	 * 
 	 * @param condition
 	 *            the condition which decides which childBlock gets executed
 	 * @return the created BranchNode
@@ -185,6 +188,8 @@ public class ASTFactory {
 	/**
 	 * creates a new LoopNode, adds it as child to the current node, and sets it
 	 * as the new current node
+	 * 
+	 * (needs 2 calls to goToParent() to get to the original node)
 	 * 
 	 * @param condition
 	 *            the condition to end the loop
@@ -206,6 +211,8 @@ public class ASTFactory {
 	 * creates a new DoWhileNode, adds it as child to the current node, and sets
 	 * it as the new current node
 	 * 
+	 * (needs 2 calls to goToParent() to get to the original node)
+	 * 
 	 * @param condition
 	 *            the condition to end the loop
 	 * @return the created DoWhileNode
@@ -217,6 +224,8 @@ public class ASTFactory {
 	/**
 	 * creates a new WhileNode, adds it as child to the current node, and sets
 	 * it as the new current node
+	 * 
+	 * (needs 2 calls to goToParent() to get to the original node)
 	 * 
 	 * @param condition
 	 *            the condition to end the loop
@@ -367,13 +376,24 @@ public class ASTFactory {
 	 */
 	public AssignmentNode newAssignment(IdentifierNode identifier, ExpressionNode expression) {
 		AssignmentNode assignment = new AssignmentNodeImpl();
-		((BlockNode) this.node).addStatement(assignment);
-		assignment.setParentNode(this.node);
 		identifier.setParentNode(assignment);
 		expression.setParentNode(assignment);
 		assignment.setLeftValue(identifier);
 		assignment.setRightValue(expression);
 		return assignment;
+	}
+
+	/**
+	 * creates a AssignmentNode and adds it to the current node
+	 * 
+	 * @param identifier
+	 *            the identifier to be assigned
+	 * @param expression
+	 *            the expression which is assigned
+	 * @return the created AssignmentNode
+	 */
+	public AssignmentNode addAssignment(IdentifierNode identifier, ExpressionNode expression) {
+		return (AssignmentNode) this.addExpression(this.newAssignment(identifier, expression));
 	}
 
 	/**
