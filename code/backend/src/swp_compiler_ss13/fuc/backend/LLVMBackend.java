@@ -36,7 +36,7 @@ public class LLVMBackend implements Backend
 		Module m = new Module(out);
 
 		/* Write printf format strings for primitive types */
-		out.println("@.string_format_long = private unnamed_addr constant [4 x i8] c\"%d\\0A\\00\"");
+		out.println("@.string_format_long = private unnamed_addr constant [5 x i8] c\"%ld\\0A\\00\"");
 		out.println("@.string_format_double = private unnamed_addr constant [4 x i8] c\"%e\\0A\\00\"");
 		out.println("@.string_boolean_false = private unnamed_addr constant [7 x i8] c\"false\\0A\\00\"");
 		out.println("@.string_boolean_true = private unnamed_addr constant [6 x i8] c\"true\\0A\\00\"");

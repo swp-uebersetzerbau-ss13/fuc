@@ -597,7 +597,7 @@ public class Module
 				gen("call void (i8)* @print_boolean(" + irType + " " + value + ")");
 				break;
 			case LONG:
-				gen(formatUseIdentifier + " = getelementptr [4 x i8]* @.string_format_long, i64 0, i64 0");
+				gen(formatUseIdentifier + " = getelementptr [5 x i8]* @.string_format_long, i64 0, i64 0");
 				gen("call i32 (i8*, ...)* @printf(i8* " + formatUseIdentifier + ", " + irType + " " + value + ")");
 				break;
 			case DOUBLE:
