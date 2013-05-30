@@ -21,6 +21,80 @@ import java.util.Map;
  */
 public class TACExecutor
 {
+
+	/**
+	 * Trys to start <code>lli</code> as a process. 
+	 * @return the process identifier
+	 * @throws IOException if <code>lli</code> is not found
+	 */
+	private static Process tryToStartLLI() throws IOException {
+		ProcessBuilder pb = new ProcessBuilder("lli", "-");
+		pb.redirectErrorStream(true);
+		Process p = null;
+		try {
+			p = pb.start();
+		} catch (IOException e) {
+			String errorMsg = "No lli found \n" +
+					"If you have lli installed you might need to check your PATH:\n" +
+					"Intellij IDEA: Run -> Edit Configurations -> Environment variables\n" +
+					"Eclipse: Run Configurations -> Environment\n" +
+					"Shell: Check $PATH";
+			System.out.println(errorMsg);
+			throw e;
+		}
+		return p;
+	}
+	
+	/**
+	 * Exectues LLVM IR code via LLVM's <code>lli</code> tool and shows the
+	 * result of that execution (exit code and output from the programm).
+	 * 
+	 * @param irCode
+	 *            an <code>InputStream</code> of LLVM IR Code
+	 * @return the output and exit code of the execution of the LLVM IR code
+	 * @exception java.io.IOException
+	 *                if an error occurs
+	 * @exception InterruptedException
+	 *                if an error occurs
+	 * @throws swp_compiler_ss13.common.backend.BackendException
+	 *             if an error occurs
+	 */
+	public static ExecutionResult runIR(InputStream irCode) throws InterruptedException, BackendException, IOException {
+
+		BufferedReader irCodeReader = new BufferedReader(new InputStreamReader(irCode));
+
+		Process p = tryToStartLLI();
+
+		PrintWriter out = new PrintWriter(p.getOutputStream());
+
+		System.out.println("\nGenerated LLVM IR:\n");
+
+		String line = null;
+		while ((line = irCodeReader.readLine()) != null) {
+			System.out.println(line);
+			out.println(line);
+		}
+		out.close();
+
+		System.out.println("Executing on LLVM...\n<execution output=\"stdout,stderr\">");
+
+		BufferedReader outPutReader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+		StringBuilder executionOutput = new StringBuilder();
+
+		line = null;
+		while ((line = outPutReader.readLine()) != null) {
+			System.out.println(line);
+			executionOutput.append(line);
+		}
+
+		int executionExitCode = p.waitFor();
+
+		System.out.println("</execution>\nThe execution of that code yielded: " + String.valueOf(executionExitCode));
+
+		return new ExecutionResult(executionOutput.toString(), executionExitCode);
+	}
+	
+	
 	/**
 	 * Reads three address code from an input stream
 	 * and formats it to the list of <code>Quadruple</code>'s
@@ -78,40 +152,13 @@ public class TACExecutor
 	 * of that execution (exit code).
 	 *
 	 * @param stream an <code>InputStream</code> value
+	 * @return the exit code of the execution of the llvm ir code
 	 * @exception IOException if an error occurs
 	 * @exception InterruptedException if an error occurs
+	 * @throws BackendException if an error occurs
 	 */
-	public static int runTAC(InputStream stream) throws IOException, InterruptedException, BackendException {
-		BufferedReader in = new BufferedReader(new InputStreamReader(jitTAC(stream)));
-
-		ProcessBuilder pb = new ProcessBuilder("lli", "-");
-		pb.redirectErrorStream(true);
-		Process p = pb.start();
-		PrintWriter out = new PrintWriter(p.getOutputStream());
-
-		System.out.println("\nGenerated LLVM IR:\n");
-
-		String line = null;
-		while ((line = in.readLine()) != null) {
-			System.out.println(line);
-			out.println(line);
-		}
-
-		out.close();
-		System.out.println("Executing on LLVM...\n<execution output=\"stdout,stderr\">");
-
-		in = new BufferedReader(new InputStreamReader(p.getInputStream()));
-		line = null;
-		while ((line = in.readLine()) != null) {
-			System.out.println(line);
-			out.println(line);
-		}
-
-		int exitCodeLLI = p.waitFor();
-
-		System.out.println("</execution>\nThe execution of that code yielded: " + String.valueOf(exitCodeLLI));
-
-		return exitCodeLLI;
+	public static ExecutionResult runTAC(InputStream stream) throws IOException, InterruptedException, BackendException {
+		return runIR(jitTAC(stream));
 	}
 
 	/**
@@ -143,6 +190,7 @@ public class TACExecutor
 		}
 	}
 
+
 	/**
 	 * A bare-bones implementation of the
 	 * <code>Quadruple</code> interface used to format
@@ -170,5 +218,19 @@ public class TACExecutor
 		public String getArgument1() { return argument1; }
 		public String getArgument2() { return argument2; }
 		public String getResult() { return result; }
+	}
+
+	/**
+	 * The result of executing LLVM IR Code. The result consists of the output
+	 * and the exit code of the execution.
+	 */
+	public static class ExecutionResult {
+		public String output;
+		public int exitCode;
+
+		public ExecutionResult(String output, int exitCode) {
+			this.output = output;
+			this.exitCode = exitCode;
+		}
 	}
 }
