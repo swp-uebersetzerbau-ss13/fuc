@@ -10,6 +10,8 @@
 .project
 *.iml
 .idea/
+bin/
+doc/
 
 # allow the lib directory #
 !code/lib/*.jar

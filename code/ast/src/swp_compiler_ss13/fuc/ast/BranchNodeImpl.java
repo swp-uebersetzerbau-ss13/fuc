@@ -91,7 +91,7 @@ public class BranchNodeImpl extends ASTNodeImpl implements BranchNode {
 	}
 
 	@Override
-	public void setBlockNodeOnTrue(StatementNode block) {
+	public void setStatementNodeOnTrue(StatementNode block) {
 		if (block == null) {
 			logger.error("The argument block can not be null!");
 			throw new IllegalArgumentException("The argument block can not be null!");
@@ -100,7 +100,7 @@ public class BranchNodeImpl extends ASTNodeImpl implements BranchNode {
 	}
 
 	@Override
-	public StatementNode getBlockNodeOnTrue() {
+	public StatementNode getStatementNodeOnTrue() {
 		if (this.trueBlock == null) {
 			logger.warn("Returning null as a block");
 		}
@@ -108,7 +108,7 @@ public class BranchNodeImpl extends ASTNodeImpl implements BranchNode {
 	}
 
 	@Override
-	public void setBlockNodeOnFalse(StatementNode block) {
+	public void setStatementNodeOnFalse(StatementNode block) {
 		if (block == null) {
 			logger.error("The argument block can not be null!");
 			throw new IllegalArgumentException("The argument block can not be null!");
@@ -117,7 +117,7 @@ public class BranchNodeImpl extends ASTNodeImpl implements BranchNode {
 	}
 
 	@Override
-	public StatementNode getBlockNodeOnFalse() {
+	public StatementNode getStatementNodeOnFalse() {
 		if (this.falseBlock == null) {
 			logger.warn("Returning null as a block");
 		}
