@@ -312,7 +312,9 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 			this.irCode.add(QuadrupleFactory.relationGreaterEqual(castedleft, castedright, result, type));
 			break;
 		case INEQUAL:
-			this.irCode.add(QuadrupleFactory.relationInEqual(castedleft, castedright, result, type));
+			String tmp = this.createAndSaveTemporaryIdentifier(new BooleanType());
+			this.irCode.add(QuadrupleFactory.booleanArithmetic(UnaryOperator.LOGICAL_NEGATE, castedleft, tmp));
+			this.irCode.add(QuadrupleFactory.relationEqual(tmp, castedright, result, type));
 			break;
 		case LESSTHAN:
 			this.irCode.add(QuadrupleFactory.relationLess(castedleft, castedright, result, type));
@@ -495,11 +497,12 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 			throw new IntermediateCodeGeneratorException(err);
 		}
 
+		String trueLabel = this.createNewLabel();
 		String falseLabel = this.createNewLabel();
 		String endLabel = this.createNewLabel();
 
-		this.irCode.add(QuadrupleFactory.ifFalse(conditionResult.getValue(), falseLabel));
-
+		this.irCode.add(QuadrupleFactory.branch(conditionResult.getValue(), trueLabel, falseLabel));
+		this.irCode.add(QuadrupleFactory.label(trueLabel));
 		this.callProcessing(onTrue);
 		this.irCode.add(QuadrupleFactory.jump(endLabel));
 		this.irCode.add(QuadrupleFactory.label(falseLabel));

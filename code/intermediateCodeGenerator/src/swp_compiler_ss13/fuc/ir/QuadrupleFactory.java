@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode.BinaryOperator;
+import swp_compiler_ss13.common.ast.nodes.unary.UnaryExpressionNode.UnaryOperator;
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
@@ -312,36 +313,6 @@ public class QuadrupleFactory {
 	}
 
 	/**
-	 * Create a Quadruple for relation inequals
-	 * 
-	 * @param left
-	 *            left value
-	 * @param right
-	 *            right value
-	 * @param result
-	 *            the result
-	 * @param type
-	 *            type of values
-	 * @return The quadruple representing the inequals relation
-	 * @throws IntermediateCodeGeneratorException
-	 *             illegal quadruple
-	 */
-	public static Quadruple relationInEqual(String left, String right, String result, Type type)
-			throws IntermediateCodeGeneratorException {
-		switch (type.getKind()) {
-		case DOUBLE:
-			// TODO: Add correct Quadruple Operators
-			return new QuadrupleImpl(null, left, right, result);
-		case LONG:
-			// TODO: Add correct Quadruple Operators
-			return new QuadrupleImpl(null, left, right, result);
-		default:
-			String err = "Illegal Relation InEquals for Type " + type;
-			throw new IntermediateCodeGeneratorException(err);
-		}
-	}
-
-	/**
 	 * Create a Quadruple for relation less
 	 * 
 	 * @param left
@@ -466,31 +437,41 @@ public class QuadrupleFactory {
 	}
 
 	/**
-	 * Create if false quadruple
+	 * Create a quadruple for boolean arithmetic with unary operator
 	 * 
-	 * @param condition
-	 *            The condition to check
-	 * @param label
-	 *            The label to jump to if condition is false
-	 * @return The quadruple
+	 * @param operator
+	 *            the operator
+	 * @param from
+	 *            the source value
+	 * @param to
+	 *            the target value
+	 * @return the quadruple
+	 * @throws IntermediateCodeGeneratorException
+	 *             something went wrong
 	 */
-	public static Quadruple ifFalse(String condition, String label) {
-		// TODO: Add correct Quadruple Operators
-		return new QuadrupleImpl(null, condition, label, Quadruple.EmptyArgument);
+	public static Quadruple booleanArithmetic(UnaryOperator operator, String from, String to)
+			throws IntermediateCodeGeneratorException {
+		switch (operator) {
+		case LOGICAL_NEGATE:
+			return new QuadrupleImpl(Operator.NOT_BOOLEAN, from, Quadruple.EmptyArgument, to);
+		default:
+			throw new IntermediateCodeGeneratorException("Unsupported binary operator " + operator.toString());
+		}
 	}
 
 	/**
-	 * Create if true quadruple
+	 * Create a conditional jump
 	 * 
 	 * @param condition
-	 *            The condition to check
-	 * @param label
-	 *            The label to jump to if condition is true
-	 * @return The quadruple
+	 *            The condition to evaluate
+	 * @param trueLabel
+	 *            the label to jump to if the condition is true
+	 * @param falseLabel
+	 *            the label to jump to if the condition is false
+	 * @return the quadruple
 	 */
-	public static Quadruple ifTrue(String condition, String label) {
-		// TODO: Add correct Quadruple Operators
-		return new QuadrupleImpl(null, condition, label, Quadruple.EmptyArgument);
+	public static Quadruple branch(String condition, String trueLabel, String falseLabel) {
+		return new QuadrupleImpl(Operator.BRANCH, trueLabel, falseLabel, condition);
 	}
 
 	/**
@@ -512,7 +493,6 @@ public class QuadrupleFactory {
 	 * @return The Quadruple
 	 */
 	public static Quadruple jump(String label) {
-		// TODO: Add correct Quadruple Operators
-		return new QuadrupleImpl(null, label, Quadruple.EmptyArgument, Quadruple.EmptyArgument);
+		return new QuadrupleImpl(Operator.BRANCH, label, Quadruple.EmptyArgument, Quadruple.EmptyArgument);
 	}
 }
