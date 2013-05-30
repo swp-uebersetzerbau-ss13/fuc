@@ -2,12 +2,14 @@
 	<path id="sourcepath">
 		<pathelement location="${src.dir}" />
 		<pathelement location="../${interfaces.dir}/${src.dir}" />
+		<pathelement location="../${symbolTable.dir}/${src.dir}" />
 	</path>
 
 	<path id="classpath">
 		<pathelement location="${bin.dir}" />
 		<pathelement location="../${interfaces.dir}/${bin.dir}" />
 		<pathelement location="../${lib.dir}/log4j-1.2.17.jar" />
+		<pathelement location="../${symbolTable.dir}/${bin.dir}" />
 	</path>
 
 	<path id="sourcepath-test">
