@@ -18,8 +18,12 @@ public interface IDE {
 	 *            The menu to add
 	 * @param position
 	 *            The position of the new menu
+	 * @param displayAlways
+	 *            if true the menu will be displayed all the time. if false the
+	 *            menu will only be shown, when the component is currently
+	 *            visible (the tab is actvie)
 	 */
-	public void addMenu(JMenu menu, Position position);
+	public void addMenu(JMenu menu, Position position, boolean displayAlways);
 
 	/**
 	 * Add your own button to the button bar
@@ -28,8 +32,12 @@ public interface IDE {
 	 *            The button to add
 	 * @param position
 	 *            The position of the new button
+	 * @param displayAlways
+	 *            if true the menu will be displayed all the time. if false the
+	 *            menu will only be shown, when the component is currently
+	 *            visible (the tab is actvie)
 	 */
-	public void addButton(JButton button, Position position);
+	public void addButton(JButton button, Position position, boolean displayAlways);
 
 	/**
 	 * Add your own label to the status bar
@@ -38,6 +46,10 @@ public interface IDE {
 	 *            The label to add
 	 * @param position
 	 *            The position of the new label
+	 * @param displayAlways
+	 *            if true the menu will be displayed all the time. if false the
+	 *            menu will only be shown, when the component is currently
+	 *            visible (the tab is actvie)
 	 */
-	public void addStatusLabel(JLabel label, Position position);
+	public void addStatusLabel(JLabel label, Position position, boolean displayAlways);
 }
