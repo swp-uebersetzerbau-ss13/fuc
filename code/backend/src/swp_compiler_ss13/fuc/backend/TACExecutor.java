@@ -84,22 +84,33 @@ public class TACExecutor
 	public static int runTAC(InputStream stream) throws IOException, InterruptedException, BackendException {
 		BufferedReader in = new BufferedReader(new InputStreamReader(jitTAC(stream)));
 
-		Process p = Runtime.getRuntime().exec("lli -");
+		ProcessBuilder pb = new ProcessBuilder("lli", "-");
+		pb.redirectErrorStream(true);
+		Process p = pb.start();
 		PrintWriter out = new PrintWriter(p.getOutputStream());
 
 		System.out.println("\nGenerated LLVM IR:\n");
 
 		String line = null;
-		while((line = in.readLine()) != null)
-		{
+		while ((line = in.readLine()) != null) {
 			System.out.println(line);
 			out.println(line);
 		}
 
 		out.close();
+		System.out.println("Executing on LLVM...\n<execution output=\"stdout,stderr\">");
+
+		in = new BufferedReader(new InputStreamReader(p.getInputStream()));
+		line = null;
+		while ((line = in.readLine()) != null) {
+			System.out.println(line);
+			out.println(line);
+		}
 
 		int exitCodeLLI = p.waitFor();
-		System.out.println("\nExecution of that code yields: " + exitCodeLLI);
+
+		System.out.println("</execution>\nThe execution of that code yielded: " + String.valueOf(exitCodeLLI));
+
 		return exitCodeLLI;
 	}
 
@@ -119,19 +130,15 @@ public class TACExecutor
 	 * @exception InterruptedException if an error occurs
 	 */
 	public static void main(String[] args) throws IOException, InterruptedException, BackendException {
-		if(args.length > 0)
-		{
-			for(String arg : args)
-			{
+		if (args.length > 0) {
+			for (String arg : args) {
 				System.out.println("Generating LLVM IR for " + arg);
 				runTAC(new FileInputStream(arg));
 			}
-		}
-		else
-		{
-			System.out.println("Generating LLVM IR for stdin, please enter" +
-			                   " one quadruple per line in the format "+
-			                   "\"Operator|Arg1|Arg2|Res\" (without the quotes):");
+		} 
+		else {
+			System.out.println("Generating LLVM IR for stdin, please enter" + " one quadruple per line in the format "
+					+ "\"Operator|Arg1|Arg2|Res\" (without the quotes):");
 			runTAC(System.in);
 		}
 	}
