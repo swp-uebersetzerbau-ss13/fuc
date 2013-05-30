@@ -33,8 +33,8 @@ public interface IDE {
 	 * @param position
 	 *            The position of the new button
 	 * @param displayAlways
-	 *            if true the menu will be displayed all the time. if false the
-	 *            menu will only be shown, when the component is currently
+	 *            if true the button will be displayed all the time. if false
+	 *            the button will only be shown, when the component is currently
 	 *            visible (the tab is actvie)
 	 */
 	public void addButton(JButton button, Position position, boolean displayAlways);
@@ -47,8 +47,8 @@ public interface IDE {
 	 * @param position
 	 *            The position of the new label
 	 * @param displayAlways
-	 *            if true the menu will be displayed all the time. if false the
-	 *            menu will only be shown, when the component is currently
+	 *            if true the label will be displayed all the time. if false the
+	 *            label will only be shown, when the component is currently
 	 *            visible (the tab is actvie)
 	 */
 	public void addStatusLabel(JLabel label, Position position, boolean displayAlways);
