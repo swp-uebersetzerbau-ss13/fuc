@@ -8,19 +8,22 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.apache.log4j.Logger;
 
 /**
  * This class describes a just-in-time compiler
  * for three address code to LLVM IR code, that
  * can also execute the generated code via
  * LLVM's <code>lli</code> command and show the
- * result of that execution (exit code).
+ * result of that execution (exit code and execution output).
  * The format for the text-style TAC is:
  * "Operator|Arg1|Arg2|Res" (without the quotes)
  *
  */
 public class TACExecutor
 {
+
+	private static Logger logger = Logger.getLogger(TACExecutor.class);
 
 	/**
 	 * Tries to start <code>lli</code> as a process.
@@ -34,12 +37,13 @@ public class TACExecutor
 		try {
 			p = pb.start();
 		} catch (IOException e) {
-			String errorMsg = "\nNo lli (interpreter and dynamic compiler, part of LLVM) found.\n\n" +
-					"If you have LLVM installed you might need to check your PATH:\n" +
+			String errorMsg = "If you have LLVM installed you might need to check your PATH:\n" +
 					"Intellij IDEA: Run -> Edit Configurations -> Environment variables\n" +
 					"Eclipse: Run Configurations -> Environment\n" +
 					"Shell: Check $PATH";
-			System.err.println(errorMsg);
+			logger.error("No lli (interpreter and dynamic compiler, part of LLVM) found.");
+			logger.info(errorMsg);
+			logger.error(e.getStackTrace());
 			throw e;
 		}
 		return p;
@@ -157,13 +161,11 @@ public class TACExecutor
 
 		ExecutionResult result = runIR(irCode);
 
-		System.out.println("\nGenerated LLVM IR:\n");
-		System.out.println(result.irCode);
+		logger.info("Generated LLVM IR:\n" + result.irCode + "\n");
 
-		System.out.println("Executing on LLVM...\n<execution output=\"stdout,stderr\">");
-		System.out.println(result.output);
+		logger.info("Execution output (stdout,stderr):\n" + result.output + "\n");
 
-		System.out.println("</execution>\nThe execution of that code yielded: " + String.valueOf(result.exitCode));
+		logger.info("Exit code of execution: " + String.valueOf(result.exitCode));
 
 		return result;
 	}
@@ -186,12 +188,12 @@ public class TACExecutor
 	public static void main(String[] args) throws IOException, InterruptedException, BackendException {
 		if (args.length > 0) {
 			for (String arg : args) {
-				System.out.println("Generating LLVM IR for " + arg);
+				logger.info("Generating LLVM IR for " + arg);
 				runTAC(new FileInputStream(arg));
 			}
 		} 
 		else {
-			System.out.println("Generating LLVM IR for stdin, please enter" + " one quadruple per line in the format "
+			logger.info("Generating LLVM IR for stdin, please enter" + " one quadruple per line in the format "
 					+ "\"Operator|Arg1|Arg2|Res\" (without the quotes):");
 			runTAC(System.in);
 		}
