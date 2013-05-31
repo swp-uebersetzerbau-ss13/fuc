@@ -14,13 +14,58 @@
 		</java>
 	</target>
 
+    <!-- === depends on the interfaces === -->
+    <target name="interfaces" description="Build the interfaces">
+        <ant antfile="interfaces.xml" dir=".." target="build" inheritall="false" />
+    </target>
+
+    <!-- === depends on the lexer === -->
+    <target name="lexer" description="Build the lexer">
+        <ant antfile="build.xml" dir="../${lexer.dir}" target="build" inheritall="false" />
+    </target>
+
+    <!-- === depends on the ast === -->
+    <target name="ast" description="Build the ast">
+        <ant antfile="build.xml" dir="../${ast.dir}" target="build" inheritall="false" />
+    </target>
+
+    <!-- === depends on the symbol table === -->
+    <target name="symbolTable" description="Build the symbolTable">
+        <ant antfile="build.xml" dir="../${symbolTable.dir}" target="build" inheritall="false" />
+    </target>
+
+    <!-- === depends on the errorLog === -->
+    <target name="errorLog" description="Build the error log">
+        <ant antfile="build.xml" dir="../${errorLog.dir}" target="build" inheritall="false" />
+    </target>
+
+    <!-- === depends on the parser === -->
+    <target name="parser" description="Build the parser">
+        <ant antfile="build.xml" dir="../${parser.dir}" target="build" inheritall="false" />
+    </target>
+
+    <!-- === depends on the semantic analysis === -->
+    <target name="semanticanalyzer" description="Build the semantic Analyser">
+        <ant antfile="build.xml" dir="../${semanticAnalyzer.dir}" target="build" inheritall="false" />
+    </target>
+
+    <!-- === depends on the intermediateCodeGenerator === -->
+    <target name="intermediateCodeGenerator" description="Build the intermediateCodeGenerator">
+        <ant antfile="build.xml" dir="../${intermediateCodeGenerator.dir}" target="build" inheritall="false" />
+    </target>
+
+    <!-- === depends on the backend === -->
+    <target name="backend" description="Build the backend">
+        <ant antfile="build.xml" dir="../${backend.dir}" target="build" inheritall="false" />
+    </target>
+
 	<!-- === clean === -->
 	<target name="clean" description="clean this project">
 		<delete dir="${bin.dir}" />
 	</target>
 
 	<!-- === build tests === -->
-	<target name="build-tests" depends="clean" description="build the junit tests">
+	<target name="build-tests" depends="clean, interfaces, lexer, parser, ast, symbolTable, errorLog, semanticanalyzer, intermediateCodeGenerator, backend" description="build the junit tests">
 		<mkdir dir="${bin.dir}" />
 		<javac
 			srcdir="${test.dir}"

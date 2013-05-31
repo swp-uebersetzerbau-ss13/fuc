@@ -34,6 +34,11 @@
 			target="1.7"
 			classpathref="classpath"
 			includeantruntime="false" />
+		<copy todir="${bin.dir}/swp_compiler_ss13/fuc/backend/">
+			<fileset dir="${src.dir}/swp_compiler_ss13/fuc/backend">
+				<include name="*.ll" />
+			</fileset>
+		</copy>
 	</target>
 
 	<!-- === doc === -->
