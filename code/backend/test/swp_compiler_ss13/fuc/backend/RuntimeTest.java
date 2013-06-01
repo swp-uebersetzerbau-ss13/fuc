@@ -7,10 +7,10 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Map;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import junit.extensions.PA;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.junit.*;
 
 import swp_compiler_ss13.common.backend.BackendException;
 import swp_compiler_ss13.common.backend.Quadruple;
@@ -24,11 +24,18 @@ public class RuntimeTest {
 	private static ArrayList<Quadruple> tac;
 	private static PrintWriter out;
 	private ByteArrayOutputStream os;
+	private static Logger logger;
+
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		backend = new LLVMBackend();
 
+		logger = Logger.getLogger(RuntimeTest.class);
+		
+		/* only run tests if lli (dynamic compiler from LLVM) is found */
+		Assume.assumeTrue(checkForLLIInstallation());
+		
+		backend = new LLVMBackend();				 
 	}
 
 	/* Called before every test */
@@ -120,6 +127,37 @@ public class RuntimeTest {
 
 		assertEquals(0, runTAC().exitCode);
 
+	}
+
+
+
+	/*
+	 * Check if lli is correctly installed.
+	 */
+	private static boolean checkForLLIInstallation() {
+
+		Level level = Logger.getRootLogger().getLevel();
+
+		Logger.getRootLogger().setLevel(Level.FATAL);
+		boolean hasLLI;
+		try {
+			PA.invokeMethod(TACExecutor.class, "tryToStartLLI()");
+			hasLLI = true;
+		} catch (Exception e) {
+			hasLLI = false;
+		}
+
+		Logger.getRootLogger().setLevel(level);
+
+		if (!hasLLI) {
+			logger.warn("Runtime tests are ignored, because of missing LLVM lli installation.");
+			String infoMsg = "If you have LLVM installed you might need to check your $PATH: " +
+					"Intellij IDEA: Run -> Edit Configurations -> Environment variables; " +
+					"Eclipse: Run Configurations -> Environment; " +
+					"Shell: Check $PATH";
+			logger.info(infoMsg);
+		}
+		return hasLLI;
 	}
 
 	private ExecutionResult runTAC() throws IOException, InterruptedException, BackendException {
