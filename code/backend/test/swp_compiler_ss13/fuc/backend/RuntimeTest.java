@@ -18,7 +18,7 @@ import swp_compiler_ss13.common.backend.Quadruple;
 /**
  * Runtime tests for the LLVMBackend
  */
-public class RuntimeTests {
+public class RuntimeTest {
 
 	private static LLVMBackend backend;
 	private static ArrayList<Quadruple> tac;
@@ -57,9 +57,9 @@ public class RuntimeTests {
 		ExecutionResult result = TACExecutor.runIR(generateCode(tac));
 
 		assertEquals(4, result.exitCode);
-		assertEquals("4", result.output);
+		assertEquals("4\n", result.output);
 	}
-	
+
 	@Test
 	public void booleanArithmeticTest() throws IOException, BackendException, InterruptedException {
 		tac.add(new Q(Quadruple.Operator.DECLARE_BOOLEAN, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "b1"));
@@ -71,7 +71,7 @@ public class RuntimeTests {
 		tac.add(new Q(Quadruple.Operator.PRINT_BOOLEAN, "b3", Quadruple.EmptyArgument, Quadruple.EmptyArgument));
 
 		ExecutionResult res = TACExecutor.runIR(generateCode(tac));
-		assertEquals("false", res.output);
+		assertEquals("false\n", res.output);
 	}
 
 	@Test
@@ -107,7 +107,7 @@ public class RuntimeTests {
 	public void printDouble() throws InterruptedException, BackendException, IOException {
 
 		out.println("DECLARE_DOUBLE|#1.0|!|d");
-		out.println("PRINT_DOUBLE|d|!|!|");
+		out.println("PRINT_DOUBLE|d|!|!");
 
 		assertEquals(0, runTAC().exitCode);
 	}
@@ -115,8 +115,8 @@ public class RuntimeTests {
 	@Test
 	public void printString() throws InterruptedException, BackendException, IOException {
 
-		out.println("DECLARE_STRING|#\"bla\00\"|!|s");
-		out.println("PRINT_STRING|s|!|!|");
+		out.println("DECLARE_STRING|#\"bla\"|!|s");
+		out.println("PRINT_STRING|s|!|!");
 
 		assertEquals(0, runTAC().exitCode);
 

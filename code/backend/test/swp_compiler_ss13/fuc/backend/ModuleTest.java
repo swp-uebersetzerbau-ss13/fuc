@@ -36,7 +36,7 @@ public class ModuleTest {
     public void tearDown() throws Exception {
     }
 
-    @Test
+    @Ignore @Test
     public void generateTest() throws IOException {
         String code = "code stub";
         PA.invokeMethod(module, "gen(String)", code);
@@ -50,21 +50,21 @@ public class ModuleTest {
         assertEquals(result.charAt(1), ' ');
     }
 
-    @Test
+    @Ignore @Test
     public void getIRTypeLongTest() {
         Class kindClass = Type.Kind.class;
         String type = (String) PA.invokeMethod(module, "getIRType(swp_compiler_ss13.common.types.Type$Kind)", Type.Kind.LONG);
         assertEquals(type, "i64");
     }
 
-    @Test
+    @Ignore @Test
     public void getIRTypeDoubleTest() {
         Class kindClass = Type.Kind.class;
         String type = (String) PA.invokeMethod(module, "getIRType(swp_compiler_ss13.common.types.Type$Kind)", Type.Kind.DOUBLE);
         assertEquals(type, "double");
     }
 
-    @Test
+    @Ignore @Test
     public void Test() {
     }
 

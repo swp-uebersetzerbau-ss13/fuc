@@ -80,6 +80,9 @@ public class Module
 		stringLiterals = new ArrayList<Integer>();
 		variableUseCount = new HashMap<String,Integer>();
 
+		/* Add fake temporary variable */
+		variableUseCount.put(".tmp", 0);
+
 		this.out = out;
 	}
 
@@ -238,6 +241,23 @@ public class Module
 		return irInst;
 	}
 
+	private String getIRBinaryCall(Quadruple.Operator operator) {
+		String irCall = "";
+
+		switch(operator)
+		{
+			/* Arithmetic */
+			case DIV_LONG:
+				irCall = "div_long";
+				break;
+			case DIV_DOUBLE:
+				irCall = "div_double";
+				break;
+		}
+
+		return irCall;
+	}
+
 	/**
 	 * Gets a unique use identifier for
 	 * a variable; no two calls will return
@@ -288,6 +308,12 @@ public class Module
 	{
 		String irString = str;
 
+		/* Unescape special characters */
+		str = str.replace("\\\"", "\"").
+			replace("\\r", "\r").
+			replace("\\n", "\n").
+			replace("\\t", "\t");
+
 		if(str.charAt(0) == '#')
 		{
 			irString = "#\"";
@@ -304,9 +330,11 @@ public class Module
 				System.err.println(str.charAt(pos - 1));
 				irString += "\\" + String.format(
 					(Locale) null,
-					"%x",
+					"%02X",
 					(int) str.charAt(pos - 1));
 			}
+
+			irString += str.substring(pos, str.length());
 
 			irString += "\\00\"";
 		}
@@ -510,6 +538,46 @@ public class Module
 		gen("store " + irType + " " + dstUseIdentifier + ", " + irType + "* " + dstIdentifier);
 	}
 
+	public void addPrimitiveBinaryCall(Quadruple.Operator op,
+	                                   Kind resultType,
+	                                   Kind argumentType,
+	                                   String lhs,
+	                                   String rhs,
+	                                   String dst) throws BackendException {
+		String irArgumentType = getIRType(argumentType);
+		String irResultType = getIRType(resultType);
+		String irCall = getIRBinaryCall(op);
+
+		if(lhs.charAt(0) == '#')
+		{
+			lhs = lhs.substring(1);
+		}
+		else
+		{
+			String lhsIdentifier = "%" + lhs;
+			lhs = getUseIdentifierForVariable(lhs);
+			gen(lhs + " = load " + irArgumentType + "* " + lhsIdentifier);
+		}
+
+		if(rhs.charAt(0) == '#')
+		{
+			rhs = rhs.substring(1);
+		}
+		else
+		{
+			String rhsIdentifier = "%" + rhs;
+			rhs = getUseIdentifierForVariable(rhs);
+			gen(rhs + " = load " + irArgumentType + "* " + rhsIdentifier);
+		}
+
+		String dstUseIdentifier = getUseIdentifierForVariable(dst);
+		String dstIdentifier = "%" + dst;
+
+		gen(dstUseIdentifier + " = call " + irResultType + " (" + irArgumentType + ", " + irArgumentType + ")* " +
+		    "@" + irCall + "(" + irArgumentType + " " + lhs + ", " + irArgumentType + " " + rhs + ")");
+		gen("store " + irResultType + " " + dstUseIdentifier + ", " + irResultType + "* " + dstIdentifier);
+	}
+
 	public void addBooleanNot(String source, String destination) throws BackendException {
 
 		String irType = getIRType(BOOLEAN);
@@ -590,31 +658,39 @@ public class Module
 			gen(value + " = load " + irType + "* " + valueIdentifier);
 		}
 
-		String formatUseIdentifier = getUseIdentifierForVariable(".format.string");
+		String temporaryIdentifier = "";
 
 		switch (type) {
 			case BOOLEAN:
-				gen("call void (i8)* @print_boolean(" + irType + " " + value + ")");
+				temporaryIdentifier = getUseIdentifierForVariable(".tmp");
+				gen(temporaryIdentifier + " = call i8* (" + irType + ")* @btoa(" + irType + " " + value + ")");
 				break;
 			case LONG:
-				gen(formatUseIdentifier + " = getelementptr [5 x i8]* @.string_format_long, i64 0, i64 0");
-				gen("call i32 (i8*, ...)* @printf(i8* " + formatUseIdentifier + ", " + irType + " " + value + ")");
+				temporaryIdentifier = getUseIdentifierForVariable(".tmp");
+				gen(temporaryIdentifier + " = call i8* (" + irType + ")* @ltoa(" + irType + " " + value + ")");
 				break;
 			case DOUBLE:
-				gen(formatUseIdentifier + " = getelementptr [4 x i8]* @.string_format_double, i64 0, i64 0");
-				gen("call i32 (i8*, ...)* @printf(i8* " + formatUseIdentifier + ", " + irType + " " + value + ")");
+				temporaryIdentifier = getUseIdentifierForVariable(".tmp");
+				gen(temporaryIdentifier + " = call i8* (" + irType + ")* @dtoa(" + irType + " " + value + ")");
 				break;
 			case STRING:
 				if(constantSrc)
 				{
+					temporaryIdentifier = getUseIdentifierForVariable(".tmp");
 					int id = addStringLiteral(value);
-					value = addLoadStringLiteral(".tmp.string", id);
-				}
+					String literalIdentifier = getStringLiteralIdentifier(id);
+					String literalType = getStringLiteralType(id);
 
-				gen(formatUseIdentifier + " = getelementptr [4 x i8]* @.string_format_string, i64 0, i64 0");
-				gen("call i32 (i8*, ...)* @printf(i8* " + formatUseIdentifier + ", " + irType + " " + value + ")");
+					gen(temporaryIdentifier + " = getelementptr " + literalType + "* " + literalIdentifier + ", i64 0, i64 0");
+				}
+				else
+				{
+					temporaryIdentifier = value;
+				}
 				break;
 		}
+
+		gen("call i32 (i8*, ...)* @printf(i8* " + temporaryIdentifier + ")");
 	}
 
 

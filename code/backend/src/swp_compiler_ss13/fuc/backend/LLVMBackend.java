@@ -55,44 +55,11 @@ public class LLVMBackend implements Backend
 
 		Module m = new Module(out);
 
-		/* Write printf format strings for primitive types */
-		out.println("@.string_format_long = private unnamed_addr constant [5 x i8] c\"%ld\\0A\\00\"");
-		out.println("@.string_format_double = private unnamed_addr constant [4 x i8] c\"%e\\0A\\00\"");
-		out.println("@.string_boolean_false = private unnamed_addr constant [7 x i8] c\"false\\0A\\00\"");
-		out.println("@.string_boolean_true = private unnamed_addr constant [6 x i8] c\"true\\0A\\00\"");
-		out.println("@.string_format_string = private unnamed_addr constant [4 x i8] c\"%s\\0A\\00\"");
-		out.println("");
-
-		out.println("define void @print_boolean(i8) {");
-		out.println("  %condition = trunc i8 %0 to i1");
-		out.println("  br i1 %condition, label %IfTrue, label %IfFalse");
-		out.println("  IfTrue:");
-		out.println("    %true = getelementptr [6 x i8]* @.string_boolean_true, i64 0, i64 0");
-		out.println("    call i32 (i8*, ...)* @printf(i8* %true)");
-		out.println("    br label %End");
-		out.println("  IfFalse:");
-		out.println("    %false = getelementptr [7 x i8]* @.string_boolean_false, i64 0, i64 0");
-		out.println("    call i32 (i8*, ...)* @printf(i8* %false)");
-		out.println("    br label %End");
-		out.println("  End:");
-		out.println("  ret void");
-		out.println("}\n");
-
-		/* Write builtin printer function (llvm lib) */
-		out.println("declare i32 @printf(i8* noalias nocapture, ...)");
-		out.println("");
+		/* Write preamble */
+		out.println(this.llvm_preamble);
 
 		/* Write begin for main function */
 		out.println("define i64 @main() {");
-
-		m.addPrimitiveDeclare(
-			Type.Kind.STRING,
-			".tmp.string",
-			Quadruple.EmptyArgument);
-		m.addPrimitiveDeclare(
-			Type.Kind.STRING,
-			".format.string",
-			Quadruple.EmptyArgument);
 
 		for(Quadruple q : tac)
 		{
@@ -216,16 +183,18 @@ public class LLVMBackend implements Backend
 						q.getResult());
 					break;
 				case DIV_LONG:
-					m.addPrimitiveBinaryInstruction(
+					m.addPrimitiveBinaryCall(
 						q.getOperator(),
+						Type.Kind.LONG,
 						Type.Kind.LONG,
 						q.getArgument1(),
 						q.getArgument2(),
 						q.getResult());
 					break;
 				case DIV_DOUBLE:
-					m.addPrimitiveBinaryInstruction(
+					m.addPrimitiveBinaryCall(
 						q.getOperator(),
+						Type.Kind.DOUBLE,
 						Type.Kind.DOUBLE,
 						q.getArgument1(),
 						q.getArgument2(),

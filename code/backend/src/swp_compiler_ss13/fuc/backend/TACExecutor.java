@@ -48,11 +48,11 @@ public class TACExecutor
 		}
 		return p;
 	}
-	
+
 	/**
 	 * Exectues LLVM IR code via LLVM's <code>lli</code> tool and shows the
 	 * result of that execution (exit code and output from the programm).
-	 * 
+	 *
 	 * @param irCode
 	 *            an <code>InputStream</code> of LLVM IR Code
 	 * @return the output and exit code of the execution of the LLVM IR code
@@ -81,18 +81,18 @@ public class TACExecutor
 
 		/* read stdout from lli process */
 		BufferedReader outPutReader = new BufferedReader(new InputStreamReader(p.getInputStream()));
-		StringBuilder executionOutput = new StringBuilder();		
+		StringBuilder executionOutput = new StringBuilder();
 		line = null;
-		while ((line = outPutReader.readLine()) != null) {			
-			executionOutput.append(line);
+		while ((line = outPutReader.readLine()) != null) {
+			executionOutput.append(line + "\n");
 		}
 
 		int executionExitCode = p.waitFor();
 
 		return new ExecutionResult(executionOutput.toString(), executionExitCode, irCodeStringBuilder.toString());
 	}
-	
-	
+
+
 	/**
 	 * Reads three address code (as quadruples) from an input stream, Calls the
 	 * <code>LLVMBackend</code> with the quadruple list of TAC instructions and
@@ -161,9 +161,9 @@ public class TACExecutor
 
 		ExecutionResult result = runIR(irCode);
 
-		logger.info("Generated LLVM IR:\n" + result.irCode + "\n");
+		logger.info("Generated LLVM IR:\n" + result.irCode);
 
-		logger.info("Execution output (stdout,stderr):\n" + result.output + "\n");
+		logger.info("Execution output (stdout,stderr):\n" + result.output);
 
 		logger.info("Exit code of execution: " + String.valueOf(result.exitCode));
 
@@ -191,7 +191,7 @@ public class TACExecutor
 				logger.info("Generating LLVM IR for " + arg);
 				runTAC(new FileInputStream(arg));
 			}
-		} 
+		}
 		else {
 			logger.info("Generating LLVM IR for stdin, please enter" + " one quadruple per line in the format "
 					+ "\"Operator|Arg1|Arg2|Res\" (without the quotes):");
