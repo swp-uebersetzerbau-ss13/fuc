@@ -81,6 +81,6 @@ public class Constants {
 
 	/* strings */
 	public static final String STRING1 = "\"Hallo Welt!\"";
-	public static final String STRING2 = "\"\"";
+	public static final String STRING2 = "\"\ntest\"";
 
 }

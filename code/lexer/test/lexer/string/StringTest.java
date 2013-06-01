@@ -17,8 +17,7 @@ import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
 
 /**
- * Testclass for tokenizing of strings
- * TODO: implement
+ * Testclass for tokenizing of strings TODO: implement
  * 
  * @author "Thomas Benndorf"
  * 
@@ -37,28 +36,12 @@ public class StringTest {
 	@Test
 	public void matchingStringsTest() {
 		TokenType tokenType = (TokenType) PA.invokeMethod(this.lexer,
-				"matchToken(java.lang.String)", Constants.IFSTRING);
-		//assertEquals(TokenType.IF, tokenType);
+				"matchToken(java.lang.String)", Constants.STRING1);
+		assertEquals(TokenType.STRING, tokenType);
 
 		tokenType = (TokenType) PA.invokeMethod(this.lexer,
-				"matchToken(java.lang.String)", Constants.WHILESTRING);
-		//assertEquals(TokenType.WHILE, tokenType);
-
-		tokenType = (TokenType) PA.invokeMethod(this.lexer,
-				"matchToken(java.lang.String)", Constants.DOSTRING);
-		//assertEquals(TokenType.DO, tokenType);
-
-		tokenType = (TokenType) PA.invokeMethod(this.lexer,
-				"matchToken(java.lang.String)", Constants.BREAKSTRING);
-		//assertEquals(TokenType.BREAK, tokenType);
-
-		tokenType = (TokenType) PA.invokeMethod(this.lexer,
-				"matchToken(java.lang.String)", Constants.RETURNSTRING);
-		//assertEquals(TokenType.RETURN, tokenType);
-
-		tokenType = (TokenType) PA.invokeMethod(this.lexer,
-				"matchToken(java.lang.String)", Constants.PRINTSTRING);
-		//assertEquals(TokenType.PRINT, tokenType);
+				"matchToken(java.lang.String)", Constants.STRING2);
+		assertEquals(TokenType.STRING, tokenType);
 	}
 
 	/**
@@ -70,20 +53,20 @@ public class StringTest {
 	@Test
 	public void simpleTokenizingStringsTest()
 			throws UnsupportedEncodingException {
-		String simpleStringString = Constants.NOID1 + " " + Constants.NOID2;
+		String simpleStringString = Constants.STRING1 + " " + Constants.STRING2;
 		this.lexer.setSourceStream(new ByteArrayInputStream(simpleStringString
 				.getBytes("UTF-8")));
 
 		Token token = this.lexer.getNextToken();
-		//assertEquals(Constants.STRING1, token.getValue());
-		//assertEquals(TokenType.STRING, token.getTokenType());
-		//assertEquals(1, token.getLine().intValue());
-		//assertEquals(1, token.getColumn().intValue());
+		assertEquals(Constants.STRING1, token.getValue());
+		assertEquals(TokenType.STRING, token.getTokenType());
+		assertEquals(1, token.getLine().intValue());
+		assertEquals(1, token.getColumn().intValue());
 
 		token = this.lexer.getNextToken();
-		//assertEquals(Constants.STRING2, token.getValue());
-		//assertEquals(TokenType.STRING, token.getTokenType());
-		//assertEquals(1, token.getLine().intValue());
-		//assertEquals(5, token.getColumn().intValue());
+		// assertEquals(Constants.STRING2, token.getValue());
+		// assertEquals(TokenType.STRING, token.getTokenType());
+		// assertEquals(1, token.getLine().intValue());
+		// assertEquals(9, token.getColumn().intValue());
 	}
 }

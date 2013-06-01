@@ -1,6 +1,8 @@
 package lexer.bool;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.UnsupportedEncodingException;
@@ -12,6 +14,7 @@ import lexer.util.Constants;
 import org.junit.Before;
 import org.junit.Test;
 
+import swp_compiler_ss13.common.lexer.BoolToken;
 import swp_compiler_ss13.common.lexer.Lexer;
 import swp_compiler_ss13.common.lexer.TokenType;
 
@@ -58,20 +61,19 @@ public class BoolTokenTest {
 		this.lexer.setSourceStream(new ByteArrayInputStream(simpleKeywordString
 				.getBytes("UTF-8")));
 
-		// FIXME: java.lang.ClassCastException: lexer.token.TokenImpl cannot be
-		// cast to swp_compiler_ss13.common.lexer.BoolToken
-		/*
-		 * BoolToken token = (BoolToken) this.lexer.getNextToken();
-		 * assertEquals(Constants.TRUESTRING, token.getValue());
-		 * assertEquals(TokenType.TRUE, token.getTokenType()); assertEquals(1,
-		 * token.getLine().intValue()); assertEquals(1,
-		 * token.getColumn().intValue()); assertTrue(token.getBooleanValue());
-		 * 
-		 * token = (BoolToken) this.lexer.getNextToken();
-		 * assertEquals(Constants.FALSESTRING, token.getValue());
-		 * assertEquals(TokenType.FALSE, token.getTokenType()); assertEquals(1,
-		 * token.getLine().intValue()); assertEquals(6,
-		 * token.getColumn().intValue()); assertFalse(token.getBooleanValue());
-		 */
+		BoolToken token = (BoolToken) this.lexer.getNextToken();
+		assertEquals(Constants.TRUESTRING, token.getValue());
+		assertEquals(TokenType.TRUE, token.getTokenType());
+		assertEquals(1, token.getLine().intValue());
+		assertEquals(1, token.getColumn().intValue());
+		assertTrue(token.getBooleanValue());
+
+		token = (BoolToken) this.lexer.getNextToken();
+		assertEquals(Constants.FALSESTRING, token.getValue());
+		assertEquals(TokenType.FALSE, token.getTokenType());
+		assertEquals(1, token.getLine().intValue());
+		assertEquals(6, token.getColumn().intValue());
+		assertFalse(token.getBooleanValue());
+
 	}
 }

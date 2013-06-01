@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
 import junit.extensions.PA;
@@ -29,7 +30,6 @@ public class InputTest {
 		this.lexer = new LexerImpl();
 		this.lexer.setSourceStream(new ByteArrayInputStream(
 				" test1 test2 \ntest3".getBytes("UTF-8")));
-
 	}
 
 	/**
@@ -104,5 +104,20 @@ public class InputTest {
 
 		PA.invokeMethod(this.lexer, "abstractToken()");
 		assertEquals(2, PA.getValue(this.lexer, "actualLine"));
+	}
+
+	/**
+	 * Test for read an empty input
+	 * 
+	 * @throws UnsupportedEncodingException
+	 */
+	@Test
+	public void readEmptyInputTest() throws UnsupportedEncodingException {
+		this.lexer.setSourceStream(new ByteArrayInputStream(""
+				.getBytes("UTF-8")));
+		// Token token = this.lexer.getNextToken();
+		// assertEquals(TokenType.EOF, token.getTokenType());
+		// assertEquals(1, token.getLine().intValue());
+		// assertEquals(1, token.getColumn().intValue());
 	}
 }

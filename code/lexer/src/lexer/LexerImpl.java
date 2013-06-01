@@ -65,19 +65,23 @@ public class LexerImpl implements Lexer {
 		case "TRUE":
 			this.actualToken = new BoolTokenImpl(actualTokenValue,
 					actualTokenType, this.actualLine, this.actualColumn);
+			break;
 		case "FALSE":
 			this.actualToken = new BoolTokenImpl(actualTokenValue,
 					actualTokenType, this.actualLine, this.actualColumn);
+			break;
 		default:
 			this.actualToken = new TokenImpl(actualTokenValue, actualTokenType,
 					this.actualLine, this.actualColumn);
 			break;
 		}
-		
-		if (actualTokenValue.length() == 0 && actualTokenType == TokenType.NOT_A_TOKEN)
+
+		if (actualTokenValue.length() == 0) {
 			// skip empty line
-			return getNextToken();
-		else return this.actualToken;
+			return this.getNextToken();
+		} else {
+			return this.actualToken;
+		}
 	}
 
 	/**
@@ -92,6 +96,8 @@ public class LexerImpl implements Lexer {
 			return TokenType.NUM;
 		} else if (nextToken.matches("[0-9]+\\.[0-9]+((e|E)-?[0-9]+)?")) {
 			return TokenType.REAL;
+		} else if (nextToken.matches("\\\"(?:[^\\\"\\\\]+|\\\\.)*\\\"")) {
+			return TokenType.STRING;
 		} else if (nextToken.matches(";")) {
 			return TokenType.SEMICOLON;
 		} else if (nextToken.matches("\\(")) {
@@ -197,9 +203,10 @@ public class LexerImpl implements Lexer {
 					this.actualColumn += temp.length();
 					this.actualCountOfTokenInLine = 0;
 					return temp;
-				} else
+				} else {
 					// EOF detected
 					return "$";
+				}
 			} else {
 				actualLineValue = this.convertedLines.get(this.actualLine - 1);
 				String actualTokenValue;
@@ -229,6 +236,14 @@ public class LexerImpl implements Lexer {
 				this.actualColumn = actualLineValue.indexOf(actualTokenValue,
 						(this.actualColumn == 1 ? 0 : this.actualColumn + 1)) + 1;
 
+				if (actualTokenValue.startsWith("\"")) {
+					// string detected
+					actualTokenValue = actualLineValue
+							.substring(this.actualColumn - 1, actualLineValue
+									.indexOf("\"", this.actualColumn) + 1);
+					// FIXME: Next Token
+				}
+
 				if (actualTokenValue.startsWith("#")) {
 					// line comment detected
 					actualTokenValue = actualLineValue
@@ -241,8 +256,8 @@ public class LexerImpl implements Lexer {
 
 				return actualTokenValue;
 			}
-		} else
+		} else {
 			return "$";
+		}
 	}
-
 }
