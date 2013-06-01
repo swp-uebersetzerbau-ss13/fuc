@@ -312,7 +312,8 @@ public class Module
 		str = str.replace("\\\"", "\"").
 			replace("\\r", "\r").
 			replace("\\n", "\n").
-			replace("\\t", "\t");
+			replace("\\t", "\t").
+			replace("\\0", "\0");
 
 		if(str.charAt(0) == '#')
 		{

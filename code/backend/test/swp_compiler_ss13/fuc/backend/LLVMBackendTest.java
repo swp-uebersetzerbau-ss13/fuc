@@ -27,31 +27,8 @@ public class LLVMBackendTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		backend = new LLVMBackend();
-		header = "@.string_format_long = private unnamed_addr constant [5 x i8] c\"%ld\\0A\\00\"\n" +
-				"@.string_format_double = private unnamed_addr constant [4 x i8] c\"%e\\0A\\00\"\n" +
-				"@.string_boolean_false = private unnamed_addr constant [7 x i8] c\"false\\0A\\00\"\n" +
-				"@.string_boolean_true = private unnamed_addr constant [6 x i8] c\"true\\0A\\00\"\n" +
-				"@.string_format_string = private unnamed_addr constant [4 x i8] c\"%s\\0A\\00\"\n" +
-				"\n" +
-				"define void @print_boolean(i8) {\n" +
-				"  %condition = trunc i8 %0 to i1\n" +
-				"  br i1 %condition, label %IfTrue, label %IfFalse\n" +
-				"  IfTrue:\n" +
-				"    %true = getelementptr [6 x i8]* @.string_boolean_true, i64 0, i64 0\n" +
-				"    call i32 (i8*, ...)* @printf(i8* %true)\n" +
-				"    br label %End\n" +
-				"  IfFalse:\n" +
-				"    %false = getelementptr [7 x i8]* @.string_boolean_false, i64 0, i64 0\n" +
-				"    call i32 (i8*, ...)* @printf(i8* %false)\n" +
-				"    br label %End\n" +
-				"  End:\n" +
-				"  ret void\n" +
-				"}\n" +
-				"\n" +
-				"declare i32 @printf(i8* noalias nocapture, ...)\n\n" + 
-				"define i64 @main() {\n" +
-				"  %.tmp.string = alloca i8*\n" +
-				"  %.format.string = alloca i8*\n";
+		header = backend.llvm_preamble +
+			"\ndefine i64 @main() {\n";
 	}
 
 	/* Called after all the tests have ended */
@@ -70,7 +47,7 @@ public class LLVMBackendTest {
 	public void tearDown() throws Exception {
 	}
 
-	@Ignore @Test
+	@Test
 	public void generateTargetCodeTest_DeclareLong() throws IOException, BackendException {
 		tac.add(new Q(
 			        Quadruple.Operator.DECLARE_LONG,
@@ -83,7 +60,7 @@ public class LLVMBackendTest {
 
 	}
 
-	@Ignore @Test
+	@Test
 	public void generateTargetCodeTest_DeclareLong_InitConst() throws IOException, BackendException {
 		tac.add(new Q(
 			        Quadruple.Operator.DECLARE_LONG,
@@ -99,7 +76,7 @@ public class LLVMBackendTest {
 
 	}
 
-	@Ignore @Test
+	@Test
 	public void generateTargetCodeTest_DeclareLong_InitVar() throws IOException, BackendException {
 		tac.add(new Q(
 			        Quadruple.Operator.DECLARE_LONG,
@@ -121,7 +98,7 @@ public class LLVMBackendTest {
 		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
-	@Ignore @Test
+	@Test
 	public void generateTargetCodeTest_DeclareDouble() throws IOException, BackendException {
 		tac.add(new Q(
 			        Quadruple.Operator.DECLARE_DOUBLE,
@@ -133,7 +110,7 @@ public class LLVMBackendTest {
 		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
-	@Ignore @Test
+	@Test
 	public void generateTargetCodeTest_DeclareDouble_InitConst() throws IOException, BackendException {
 		tac.add(new Q(
 			        Quadruple.Operator.DECLARE_DOUBLE,
@@ -148,7 +125,7 @@ public class LLVMBackendTest {
 		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
-	@Ignore @Test
+	@Test
 	public void generateTargetCodeTest_DeclareDouble_InitVar() throws IOException, BackendException {
 		tac.add(new Q(
 			        Quadruple.Operator.DECLARE_DOUBLE,
@@ -170,7 +147,7 @@ public class LLVMBackendTest {
 		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
-	@Ignore @Test
+	@Test
 	public void generateTargetCodeTest_DeclareBoolean() throws IOException, BackendException {
 		tac.add(new Q(
 			        Quadruple.Operator.DECLARE_BOOLEAN,
@@ -182,7 +159,7 @@ public class LLVMBackendTest {
 		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
-	@Ignore @Test
+	@Test
 	public void generateTargetCodeTest_DeclareBoolean_InitConst_False() throws IOException, BackendException {
 		tac.add(new Q(
 			        Quadruple.Operator.DECLARE_BOOLEAN,
@@ -197,7 +174,7 @@ public class LLVMBackendTest {
 		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
-	@Ignore @Test
+	@Test
 	public void generateTargetCodeTest_DeclareBoolean_InitConst_True() throws IOException, BackendException {
 		tac.add(new Q(
 			        Quadruple.Operator.DECLARE_BOOLEAN,
@@ -212,7 +189,7 @@ public class LLVMBackendTest {
 		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
-	@Ignore @Test
+	@Test
 	public void generateTargetCodeTest_DeclareBoolean_InitVar() throws IOException, BackendException {
 		tac.add(new Q(
 			        Quadruple.Operator.DECLARE_BOOLEAN,
@@ -234,7 +211,7 @@ public class LLVMBackendTest {
 		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
-	@Ignore @Test
+	@Test
 	public void generateTargetCodeTest_DeclareString() throws IOException, BackendException {
 		tac.add(new Q(
 			        Quadruple.Operator.DECLARE_STRING,
@@ -246,7 +223,7 @@ public class LLVMBackendTest {
 		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
-	@Ignore @Test
+	@Test
 	public void generateTargetCodeTest_DeclareString_InitConst() throws IOException, BackendException {
 		tac.add(new Q(
 			        Quadruple.Operator.DECLARE_STRING,
@@ -255,16 +232,16 @@ public class LLVMBackendTest {
 			        "stringVariable"));
 		String mainFunctionCode = ""
 			+ "  %stringVariable = alloca i8*\n"
-			+ "  %.string_0 = alloca [1 x i8]\n"
-			+ "  store [1 x i8] c\"\\00\", [1 x i8]* %.string_0\n"
-			+ "  %stringVariable.0 = getelementptr [1 x i8]* %.string_0, i64 0, i64 0\n"
+			+ "  %.string_0 = alloca [4 x i8]\n"
+			+ "  store [4 x i8] c\"Foo\\00\", [4 x i8]* %.string_0\n"
+			+ "  %stringVariable.0 = getelementptr [4 x i8]* %.string_0, i64 0, i64 0\n"
 			+ "  store i8* %stringVariable.0, i8** %stringVariable\n"
 			+ "  ret i64 0\n}\n";
 		String expectedCode = header + mainFunctionCode;
 		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
-	@Ignore @Test
+	@Test
 	public void generateTargetCodeTest_DeclareString_InitVar() throws IOException, BackendException {
 		tac.add(new Q(
 			        Quadruple.Operator.DECLARE_STRING,
@@ -288,7 +265,7 @@ public class LLVMBackendTest {
 
 	/* Conversion */
 
-	@Ignore @Test
+	@Test
 	public void generateTargetCodeTest_LongToDouble() throws IOException, BackendException {
 		tac.add(new Q(
 			        Quadruple.Operator.DECLARE_LONG,
@@ -316,7 +293,7 @@ public class LLVMBackendTest {
 		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
-	@Ignore @Test
+	@Test
 	public void generateTargetCodeTest_DoubleToLong() throws IOException, BackendException {
 		tac.add(new Q(
 			        Quadruple.Operator.DECLARE_LONG,
@@ -347,7 +324,7 @@ public class LLVMBackendTest {
 
 	/* Assign */
 
-	@Ignore @Test
+	@Test
 	public void generateTargetCodeTest_AssignLong_Const() throws IOException, BackendException {
 		tac.add(new Q(
 			        Quadruple.Operator.DECLARE_LONG,
@@ -367,7 +344,7 @@ public class LLVMBackendTest {
 		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
-	@Ignore @Test
+	@Test
 	public void generateTargetCodeTest_AssignLong_Var() throws IOException, BackendException {
 		tac.add(new Q(
 			        Quadruple.Operator.DECLARE_LONG,
@@ -394,7 +371,7 @@ public class LLVMBackendTest {
 		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
-	@Ignore @Test
+	@Test
 	public void generateTargetCodeTest_AssignDouble_Const() throws IOException, BackendException {
 		tac.add(new Q(
 			        Quadruple.Operator.DECLARE_DOUBLE,
@@ -414,7 +391,7 @@ public class LLVMBackendTest {
 		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
-	@Ignore @Test
+	@Test
 	public void generateTargetCodeTest_AssignDouble_Var() throws IOException, BackendException {
 		tac.add(new Q(
 			        Quadruple.Operator.DECLARE_DOUBLE,
@@ -441,7 +418,7 @@ public class LLVMBackendTest {
 		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
-	@Ignore @Test
+	@Test
 	public void generateTargetCodeTest_AssignBoolean_Const_False() throws IOException, BackendException {
 		tac.add(new Q(
 			        Quadruple.Operator.DECLARE_BOOLEAN,
@@ -461,7 +438,7 @@ public class LLVMBackendTest {
 		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
-	@Ignore @Test
+	@Test
 	public void generateTargetCodeTest_AssignBoolean_Const_True() throws IOException, BackendException {
 		tac.add(new Q(
 			        Quadruple.Operator.DECLARE_BOOLEAN,
@@ -481,7 +458,7 @@ public class LLVMBackendTest {
 		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
-	@Ignore @Test
+	@Test
 	public void generateTargetCodeTest_AssignBoolean_Var() throws IOException, BackendException {
 		tac.add(new Q(
 			        Quadruple.Operator.DECLARE_BOOLEAN,
@@ -508,7 +485,7 @@ public class LLVMBackendTest {
 		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
-	@Ignore @Test
+	@Test
 	public void generateTargetCodeTest_AssignString_Const() throws IOException, BackendException {
 		tac.add(new Q(
 			        Quadruple.Operator.DECLARE_STRING,
@@ -517,21 +494,21 @@ public class LLVMBackendTest {
 			        "stringVariable"));
 		tac.add(new Q(
 			        Quadruple.Operator.ASSIGN_STRING,
-			        "#\"Foo\"",
+			        "#\"\\0Foo\"",
 			        Quadruple.EmptyArgument,
 			        "stringVariable"));
 		String mainFunctionCode = ""
 			+ "  %stringVariable = alloca i8*\n"
-			+ "  %.string_0 = alloca [1 x i8]\n"
-			+ "  store [1 x i8] c\"\\00\", [1 x i8]* %.string_0\n"
-			+ "  %stringVariable.0 = getelementptr [1 x i8]* %.string_0, i64 0, i64 0\n"
+			+ "  %.string_0 = alloca [5 x i8]\n"
+			+ "  store [5 x i8] c\"\\00Foo\\00\", [5 x i8]* %.string_0\n"
+			+ "  %stringVariable.0 = getelementptr [5 x i8]* %.string_0, i64 0, i64 0\n"
 			+ "  store i8* %stringVariable.0, i8** %stringVariable\n"
 			+ "  ret i64 0\n}\n";
 		String expectedCode = header + mainFunctionCode;
 		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
-	@Ignore @Test
+	@Test
 	public void generateTargetCodeTest_AssignString_Var() throws IOException, BackendException {
 		tac.add(new Q(
 			        Quadruple.Operator.DECLARE_STRING,
@@ -560,7 +537,7 @@ public class LLVMBackendTest {
 
 	/* Control flow */
 
-	@Ignore @Test
+	@Test
 	public void generateTargetCodeTest_Return_Const() throws IOException, BackendException {
 		tac.add(new Q(
 			        Quadruple.Operator.RETURN,
@@ -573,7 +550,7 @@ public class LLVMBackendTest {
 		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
-	@Ignore @Test
+	@Test
 	public void generateTargetCodeTest_Return_Var() throws IOException, BackendException {
 		tac.add(new Q(
 			        Quadruple.Operator.DECLARE_LONG,
@@ -594,7 +571,7 @@ public class LLVMBackendTest {
 		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
-	@Ignore @Test (expected = BackendException.class)
+	@Test (expected = BackendException.class)
 	public void generateTargetCodeTest_AssignWithoutDeclaration() throws IOException, BackendException {
 		tac.add(new Q(
 				Quadruple.Operator.DECLARE_LONG,
@@ -622,7 +599,7 @@ public class LLVMBackendTest {
 	/* Add */
 
 
-	@Ignore @Test
+	@Test
 	public void generateTargetCodeTest_AddLong_Const() throws IOException, BackendException {
 		tac.add(new Q(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
 		tac.add(new Q(Quadruple.Operator.ADD_LONG, "#23", "#42", "result"));
@@ -636,7 +613,7 @@ public class LLVMBackendTest {
 		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
-	@Ignore @Test
+	@Test
 	public void generateTargetCodeTest_AddLong_Var() throws IOException, BackendException {
 		tac.add(new Q(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "longVar1"));
 		tac.add(new Q(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "longVar2"));
@@ -656,7 +633,7 @@ public class LLVMBackendTest {
 		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
-	@Ignore @Test
+	@Test
 	public void generateTargetCodeTest_AddDouble_Const() throws IOException, BackendException {
 		tac.add(new Q(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
 		tac.add(new Q(Quadruple.Operator.ADD_DOUBLE, "#23.0", "#42.0", "result"));
@@ -670,7 +647,7 @@ public class LLVMBackendTest {
 		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
-	@Ignore @Test
+	@Test
 	public void generateTargetCodeTest_AddDouble_Var() throws IOException, BackendException {
 		tac.add(new Q(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "doubleVar1"));
 		tac.add(new Q(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "doubleVar2"));
@@ -692,7 +669,7 @@ public class LLVMBackendTest {
 
 	/* Sub */
 
-	@Ignore @Test
+	@Test
 	public void generateTargetCodeTest_SubLong_Const() throws IOException, BackendException {
 		tac.add(new Q(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
 		tac.add(new Q(Quadruple.Operator.SUB_LONG, "#23", "#42", "result"));
@@ -706,7 +683,7 @@ public class LLVMBackendTest {
 		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
-	@Ignore @Test
+	@Test
 	public void generateTargetCodeTest_SubLong_Var() throws IOException, BackendException {
 		tac.add(new Q(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "longVar1"));
 		tac.add(new Q(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "longVar2"));
@@ -726,7 +703,7 @@ public class LLVMBackendTest {
 		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
-	@Ignore @Test
+	@Test
 	public void generateTargetCodeTest_SubDouble_Const() throws IOException, BackendException {
 		tac.add(new Q(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
 		tac.add(new Q(Quadruple.Operator.SUB_DOUBLE, "#23.0", "#42.0", "result"));
@@ -740,7 +717,7 @@ public class LLVMBackendTest {
 		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
-	@Ignore @Test
+	@Test
 	public void generateTargetCodeTest_SubDouble_Var() throws IOException, BackendException {
 		tac.add(new Q(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "doubleVar1"));
 		tac.add(new Q(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "doubleVar2"));
@@ -762,7 +739,7 @@ public class LLVMBackendTest {
 
 	/* Multiplication */
 
-	@Ignore @Test
+	@Test
 	public void generateTargetCodeTest_MulLong_Const() throws IOException, BackendException {
 		tac.add(new Q(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
 		tac.add(new Q(Quadruple.Operator.MUL_LONG, "#23", "#42", "result"));
@@ -776,7 +753,7 @@ public class LLVMBackendTest {
 		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
-	@Ignore @Test
+	@Test
 	public void generateTargetCodeTest_MulLong_Var() throws IOException, BackendException {
 		tac.add(new Q(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "longVar1"));
 		tac.add(new Q(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "longVar2"));
@@ -796,7 +773,7 @@ public class LLVMBackendTest {
 		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
-	@Ignore @Test
+	@Test
 	public void generateTargetCodeTest_MulDouble_Const() throws IOException, BackendException {
 		tac.add(new Q(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
 		tac.add(new Q(Quadruple.Operator.MUL_DOUBLE, "#23.0", "#42.0", "result"));
@@ -810,7 +787,7 @@ public class LLVMBackendTest {
 		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
-	@Ignore @Test
+	@Test
 	public void generateTargetCodeTest_MulDouble_Var() throws IOException, BackendException {
 		tac.add(new Q(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "doubleVar1"));
 		tac.add(new Q(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "doubleVar2"));
@@ -832,13 +809,13 @@ public class LLVMBackendTest {
 
 	/* Division */
 
-	@Ignore @Test
+	@Test
 	public void generateTargetCodeTest_DivLong_Const() throws IOException, BackendException {
 		tac.add(new Q(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
 		tac.add(new Q(Quadruple.Operator.DIV_LONG, "#23", "#42", "result"));
 		String mainFunctionCode = "" +
 				"  %result = alloca i64\n" +
-				"  %result.0 = sdiv i64 23, 42\n" +
+				"  %result.0 = call i64 (i64, i64)* @div_long(i64 23, i64 42)\n" +
 				"  store i64 %result.0, i64* %result\n" +
 				"  ret i64 0\n" +
 				"}\n";
@@ -846,7 +823,7 @@ public class LLVMBackendTest {
 		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
-	@Ignore @Test
+	@Test
 	public void generateTargetCodeTest_DivLong_Var() throws IOException, BackendException {
 		tac.add(new Q(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "longVar1"));
 		tac.add(new Q(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "longVar2"));
@@ -858,7 +835,7 @@ public class LLVMBackendTest {
 				"  %result = alloca i64\n" +
 				"  %longVar1.0 = load i64* %longVar1\n" +
 				"  %longVar2.0 = load i64* %longVar2\n" +
-				"  %result.0 = sdiv i64 %longVar1.0, %longVar2.0\n" +
+				"  %result.0 = call i64 (i64, i64)* @div_long(i64 %longVar1.0, i64 %longVar2.0)\n" +
 				"  store i64 %result.0, i64* %result\n" +
 				"  ret i64 0\n" +
 				"}\n";
@@ -866,13 +843,13 @@ public class LLVMBackendTest {
 		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
-	@Ignore @Test
+	@Test
 	public void generateTargetCodeTest_DivDouble_Const() throws IOException, BackendException {
 		tac.add(new Q(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
 		tac.add(new Q(Quadruple.Operator.DIV_DOUBLE, "#23.0", "#42.0", "result"));
 		String mainFunctionCode = ""
 				+ "  %result = alloca double\n"
-				+ "  %result.0 = fdiv double 23.0, 42.0\n"
+				+ "  %result.0 = call double (double, double)* @div_double(double 23.0, double 42.0)\n"
 				+ "  store double %result.0, double* %result\n"
 				+ "  ret i64 0\n"
 				+ "}\n";
@@ -880,7 +857,7 @@ public class LLVMBackendTest {
 		assertEquals(expectedCode, generateCodeAsString(tac));
 	}
 
-	@Ignore @Test
+	@Test
 	public void generateTargetCodeTest_DivDouble_Var() throws IOException, BackendException {
 		tac.add(new Q(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "doubleVar1"));
 		tac.add(new Q(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "doubleVar2"));
@@ -892,7 +869,7 @@ public class LLVMBackendTest {
 				"  %result = alloca double\n" +
 				"  %doubleVar1.0 = load double* %doubleVar1\n" +
 				"  %doubleVar2.0 = load double* %doubleVar2\n" +
-				"  %result.0 = fdiv double %doubleVar1.0, %doubleVar2.0\n" +
+				"  %result.0 = call double (double, double)* @div_double(double %doubleVar1.0, double %doubleVar2.0)\n" +
 				"  store double %result.0, double* %result\n" +
 				"  ret i64 0\n" +
 				"}\n";
