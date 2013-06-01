@@ -1,6 +1,7 @@
 package swp_compiler_ss13.fuc.parser.parser;
 
 import java.util.LinkedList;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
@@ -21,10 +22,13 @@ import swp_compiler_ss13.common.ast.nodes.unary.PrintNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ReturnNode;
 import swp_compiler_ss13.common.ast.nodes.unary.UnaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.unary.UnaryExpressionNode.UnaryOperator;
+import swp_compiler_ss13.common.lexer.NumToken;
 import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.common.parser.ReportLog;
 import swp_compiler_ss13.common.parser.SymbolTable;
+import swp_compiler_ss13.common.types.Type;
+import swp_compiler_ss13.common.types.derived.ArrayType;
 import swp_compiler_ss13.common.types.primitive.BooleanType;
 import swp_compiler_ss13.common.types.primitive.DoubleType;
 import swp_compiler_ss13.common.types.primitive.LongType;
@@ -86,7 +90,7 @@ public class ReduceImpl {
 				public Object create(Object... objs) throws ParserException  {
 					Object left = objs[1]; // Should be NO_VALUE or BlockNode
 					Object right = objs[2]; // Should be NO_VALUE or BlockNode
-
+					
 					return joinBlocks(left, right, reportLog);
 				}
 			};
@@ -146,28 +150,28 @@ public class ReduceImpl {
 			return new ReduceAction() {
 				@Override
 				public Object create(Object... objs) throws ParserException  {
-					Token typeToken = (Token) objs[0];
+					
+					if(!(objs[0] instanceof DeclarationNode)){
+						reportLog.reportError("No declaration", -1, -1, "there is no Declarationnode found!");
+						throw new ParserException("Declarationnode expected");
+					}
+					
+					DeclarationNode decl = (DeclarationNode) objs[0];
 					Token idToken = (Token) objs[1];
-
-					DeclarationNode decl = new DeclarationNodeImpl();
-					// Set type
-					switch (typeToken.getTokenType()) {
-					case DOUBLE_SYMBOL:
-						decl.setType(new DoubleType());
-						break;
-					case LONG_SYMBOL:
-						decl.setType(new LongType());
-						break;
-					case STRING_SYMBOL:
-						decl.setType(new StringType((long) typeToken.getValue()
-								.length()));
-						break;
-					default:
-						break;
+					Token semicolon = (Token) objs[2];
+					
+					if(decl.getType() instanceof ReduceStringType){
+						List<Token> coverage = decl.coverage();
+						decl = new DeclarationNodeImpl();
+						decl.setType(new StringType((long)idToken.getValue().length()));
+						((DeclarationNodeImpl)decl).setCoverage(coverage);
 					}
 
 					// Set ID
 					decl.setIdentifier(idToken.getValue());
+					
+					//Set left token
+					((DeclarationNodeImpl)decl).setCoverage(idToken, semicolon);
 					return decl;
 				}
 			};
@@ -229,7 +233,8 @@ public class ReduceImpl {
 				@Override
 				public Object create(Object... objs) throws ParserException  {
 					AssignmentNode assign = (AssignmentNode) objs[0];
-					// Drop semicolon!
+					Token semicolon = (Token) objs[1];
+					((AssignmentNodeImpl)assign).setCoverage(semicolon);
 					return  assign;
 				}
 			};
@@ -248,7 +253,7 @@ public class ReduceImpl {
 						node.setStatementNodeOnTrue((BlockNode)objs[0]);
 					}else{
 						if(objs[0] instanceof StatementNode){
-							//TODO: AST accept only BlockNodes
+							node.setStatementNodeOnTrue((StatementNode)objs[0]);
 						}else{
 							reportLog.reportError("No statement", -1, -1, "theres no statement or blocknode in true case");
 							throw new ParserException("Statement or Blocknode expected");
@@ -318,6 +323,8 @@ public class ReduceImpl {
 			return new ReduceAction() {
 				@Override
 				public Object create(Object... objs) throws ParserException  {
+					BreakNodeImpl breakImpl = new BreakNodeImpl();
+					breakImpl.setCoverage((Token)objs[0],(Token)objs[1]);
 					return new BreakNodeImpl();
 				}
 
@@ -326,7 +333,9 @@ public class ReduceImpl {
 			return new ReduceAction() {
 				@Override
 				public Object create(Object... objs) throws ParserException  {
-					return new ReturnNodeImpl();
+					ReturnNodeImpl returnImpl = new ReturnNodeImpl();
+					returnImpl.setCoverage((Token)objs[0],(Token)objs[1]);
+					return returnImpl;
 				}
 			};
 		case "stmt -> return loc ;":
@@ -382,13 +391,19 @@ public class ReduceImpl {
 				@Override
 				public Object create(Object... objs) throws ParserException  {
 					AssignmentNodeImpl assignNode = new AssignmentNodeImpl();
-					assignNode.setLeftValue((IdentifierNode) objs[0]);
+					IdentifierNode identifier = (IdentifierNode) objs[0];
+					Token equalSign = (Token) objs[1];
+					ExpressionNode node = (ExpressionNode) objs[2];
+					assignNode.setLeftValue(identifier);
 					assignNode.getLeftValue().setParentNode(assignNode);
-					assignNode.setRightValue((ExpressionNode) objs[2]); // [1] is
-																		// the
-																		// "="
-																		// token
+					assignNode.setRightValue(node); 
 					assignNode.getRightValue().setParentNode(assignNode);
+					
+					AssignmentNodeImpl assignImpl = ((AssignmentNodeImpl)assignNode);
+					
+					assignImpl.setCoverage(identifier.coverage());
+					assignImpl.setCoverage(equalSign);
+					assignImpl.setCoverage(node.coverage());
 					return assignNode;
 				}
 			};
@@ -421,14 +436,16 @@ public class ReduceImpl {
 			return new ReduceAction() {
 				@Override
 				public Object create(Object... objs) throws ParserException  {
-					return binop(objs[0], objs[2], BinaryOperator.ADDITION);
+					ArithmeticBinaryExpressionNode binop = binop(objs[0], objs[1], objs[2], BinaryOperator.ADDITION);
+					
+					return binop;
 				}
 			};
 		case "expr -> expr - term":
 			return new ReduceAction() {
 				@Override
 				public Object create(Object... objs) throws ParserException  {
-					return binop(objs[0], objs[2], BinaryOperator.SUBSTRACTION);
+					return binop(objs[0], objs[1], objs[2], BinaryOperator.SUBSTRACTION);
 				}
 			};
 		case "expr -> term":
@@ -437,7 +454,7 @@ public class ReduceImpl {
 			return new ReduceAction() {
 				@Override
 				public Object create(Object... objs) throws ParserException  {
-					return binop(objs[0], objs[2],
+					return binop(objs[0], objs[1], objs[2],
 							BinaryOperator.MULTIPLICATION);
 				}
 			};
@@ -445,7 +462,7 @@ public class ReduceImpl {
 			return new ReduceAction() {
 				@Override
 				public Object create(Object... objs) throws ParserException  {
-					return binop(objs[0], objs[2], BinaryOperator.DIVISION);
+					return binop(objs[0], objs[1], objs[2], BinaryOperator.DIVISION);
 				}
 			};
 		case "term -> unary":
@@ -550,12 +567,96 @@ public class ReduceImpl {
 
 			};
 		case "type -> type [ num ]":
+			return new ReduceAction() {
+				@Override
+				public Object create(Object... objs) throws ParserException  {
+					//typeToken DeclarationNode is wasted after reduce, not needed any more
+					DeclarationNode typeToken = (DeclarationNode) objs[0];
+					Token leftBrace = (Token) objs[1];
+					
+					if(!(objs[2] instanceof NumToken)){
+						reportLog.reportError("No Number", -1, -1, "Array expect a number");
+						throw new ParserException("NumToken expected");
+					}
+					NumToken size = (NumToken) objs[2];
+					Token rightBrace = (Token) objs[3];
+					
+					//create Array declaration
+					Type type = new ArrayType(typeToken.getType(), size.getLongValue().intValue());
+					DeclarationNodeImpl declImpl = new DeclarationNodeImpl();
+					declImpl.setType(type);
+					
+					//set coverage
+					declImpl.setCoverage(typeToken.coverage());
+					declImpl.setCoverage(leftBrace,size,rightBrace);
+					return declImpl;
+				}
+
+			};
 		case "type -> bool":
+			return new ReduceAction() {
+				@Override
+				public Object create(Object... objs) throws ParserException  {
+					Token token = (Token)objs[0];
+					DeclarationNodeImpl decl = new DeclarationNodeImpl();
+					decl.setType(new BooleanType());
+					decl.setCoverage(token);
+					
+					return decl;
+				}
+
+			};
 		case "type -> string":
+			return new ReduceAction() {
+				@Override
+				public Object create(Object... objs) throws ParserException  {
+					Token token = (Token)objs[0];
+					DeclarationNodeImpl decl = new DeclarationNodeImpl();
+					
+					//decl is thrown away afterwards, nobody has to know ReduceStringType
+					decl.setType(new ReduceStringType(Type.Kind.STRING));
+					
+					decl.setCoverage(token);
+					
+					return decl;
+				}
+
+			};
 		case "type -> num":
+			return new ReduceAction() {
+				@Override
+				public Object create(Object... objs) throws ParserException  {
+					Token token = (Token)objs[0];
+					DeclarationNodeImpl decl = new DeclarationNodeImpl();
+					decl.setType(new LongType());
+					decl.setCoverage(token);
+					
+					return decl;
+				}
+
+			};
 		case "type -> real":
+			return new ReduceAction() {
+				@Override
+				public Object create(Object... objs) throws ParserException  {
+					Token token = (Token)objs[0];
+					DeclarationNodeImpl decl = new DeclarationNodeImpl();
+					decl.setType(new DoubleType());
+					decl.setCoverage(token);
+					
+					return decl;
+				}
+
+			};
 		case "type -> record { decls }":
-			return null;
+			return new ReduceAction() {
+				@Override
+				public Object create(Object... objs) throws ParserException  {
+					//TODO: type reduce
+					return null;
+				}
+
+			};
 		default:
 			return null; // Means "no ReduceAction to perform"
 		}
@@ -586,26 +687,44 @@ public class ReduceImpl {
 		BlockNode newBlock = new BlockNodeImpl();
 		newBlock.setSymbolTable(new SymbolTableImpl());
 		
+		BlockNodeImpl newBlockImpl = (BlockNodeImpl)newBlock;
 		// Handle left
 		if (!left.equals(NO_VALUE)) {
 			BlockNode declsBlock = (BlockNode) left;
 			for (DeclarationNode decl : declsBlock.getDeclarationList()) {
 				insertDecl(newBlock, decl, reportLog);
+				decl.setParentNode(newBlock);
+				newBlockImpl.setCoverage(decl.coverage());
 			}
 		}
 
 		// Handle right
 		if (!right.equals(NO_VALUE)) {
 			BlockNode stmtsBlock = (BlockNode) right;
-			for (StatementNode decl : stmtsBlock.getStatementList()) {
-				newBlock.addStatement(decl);
-				decl.setParentNode(newBlock);
+			for (StatementNode stmt : stmtsBlock.getStatementList()) {
+				newBlock.addStatement(stmt);
+				stmt.setParentNode(newBlock);
+				newBlockImpl.setCoverage(stmt.coverage());
 			}
 		}
+		
+		
+		
+		
+		
 		return newBlock;
 	}
 
-	private static ArithmeticBinaryExpressionNode binop(Object leftExpr,
+	/**
+	 * Creates a binary operation as ArithmeticBinaryExpressionNode.
+	 * Add the coverage token to the node.
+	 * @param leftExpr
+	 * @param opSign
+	 * @param rightExpr
+	 * @param op
+	 * @return
+	 */
+	private static ArithmeticBinaryExpressionNode binop(Object leftExpr, Object opSign,
 			Object rightExpr, final BinaryOperator op) {
 		ExpressionNode left = (ExpressionNode) leftExpr;
 		ExpressionNode right = (ExpressionNode) rightExpr;
@@ -617,6 +736,33 @@ public class ReduceImpl {
 		left.setParentNode(binop);
 		right.setParentNode(binop);
 
+		//set coverage
+		ArithmeticBinaryExpressionNodeImpl binopImpl = ((ArithmeticBinaryExpressionNodeImpl)binop);
+		binopImpl.setCoverage(left.coverage());
+		binopImpl.setCoverage((Token)opSign);
+		binopImpl.setCoverage(right.coverage());
+		
 		return binop;
+	}
+	
+	private static class ReduceStringType extends Type{
+
+		/**
+		 * its not possible to create a StringType without the length, so
+		 * we need a dummy class to do it right
+		 */
+		protected ReduceStringType(Kind kind) {
+			super(kind);
+		}
+
+		@Override
+		public String getTypeName() {
+			return "String";
+		}
+
+		@Override
+		public String toString() {
+			return getTypeName();
+		}
 	}
 }
