@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import junit.extensions.PA;
-import lexer.LexerImpl;
+import swp_compiler_ss13.common.lexer.LexerImpl;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
