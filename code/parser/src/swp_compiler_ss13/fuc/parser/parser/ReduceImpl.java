@@ -245,7 +245,7 @@ public class ReduceImpl {
 					BranchNode node = new BranchNodeImpl();
 					
 					if(objs[0] instanceof BlockNode){
-						node.setBlockNodeOnTrue((BlockNode)objs[0]);
+						node.setStatementNodeOnTrue((BlockNode)objs[0]);
 					}else{
 						if(objs[0] instanceof StatementNode){
 							//TODO: AST accept only BlockNodes
@@ -277,7 +277,7 @@ public class ReduceImpl {
 					BranchNode node = new BranchNodeImpl();
 					
 					if(objs[0] instanceof BlockNode){
-						node.setBlockNodeOnFalse((BlockNode)objs[0]);
+						node.setStatementNodeOnFalse((BlockNode)objs[0]);
 					}else{
 						if(objs[0] instanceof StatementNode){
 							//TODO: AST accept only BlockNodes
@@ -288,7 +288,7 @@ public class ReduceImpl {
 					}
 					
 					if(objs[2] instanceof BlockNode){
-						node.setBlockNodeOnTrue((BlockNode)objs[0]);
+						node.setStatementNodeOnTrue((BlockNode)objs[0]);
 					}else{
 						if(objs[2] instanceof StatementNode){
 							//TODO: AST accept only BlockNodes
@@ -384,7 +384,7 @@ public class ReduceImpl {
 					AssignmentNodeImpl assignNode = new AssignmentNodeImpl();
 					assignNode.setLeftValue((IdentifierNode) objs[0]);
 					assignNode.getLeftValue().setParentNode(assignNode);
-					assignNode.setRightValue((StatementNode) objs[2]); // [1] is
+					assignNode.setRightValue((ExpressionNode) objs[2]); // [1] is
 																		// the
 																		// "="
 																		// token
@@ -562,10 +562,6 @@ public class ReduceImpl {
 		return null;
 	}
 
-	private ReduceAction ReduceAction() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	/**
 	 * Inserts the {@link DeclarationNode} into the block and its {@link SymbolTable} safely.
@@ -573,7 +569,7 @@ public class ReduceImpl {
 	 * @param block
 	 * @param decl
 	 */
-	protected static void insertDecl(BlockNode block, DeclarationNode decl, final ReportLog reportLog) throws ParserException {
+	private static void insertDecl(BlockNode block, DeclarationNode decl, final ReportLog reportLog) throws ParserException {
 		SymbolTable symbolTable = block.getSymbolTable();
 		// TODO M2: Shadowing allowed???
 		if (symbolTable.isDeclaredInCurrentScope(decl.getIdentifier())) {
