@@ -74,10 +74,24 @@ public class RealTokenImpl implements RealToken {
 	 */
 	@Override
 	public Double getDoubleValue() {
-		if (Double.parseDouble(this.value) > Double.MAX_VALUE) {
-			return Double.MAX_VALUE;
-		} else {
-			return Double.parseDouble(this.value);
+		try {
+			Double doubleValue;
+			if (this.value.contains("e") || this.value.contains("E")) {
+				String[] doubleValueParts = this.value.split("(e|E)");
+				doubleValue = Double.parseDouble(doubleValueParts[0])
+						* Math.pow(10, Double.parseDouble(doubleValueParts[1]));
+			} else {
+				doubleValue = Double.parseDouble(this.value);
+			}
+
+			if (doubleValue < -Double.MAX_VALUE
+					|| doubleValue > Double.MAX_VALUE) {
+				return null;
+			} else {
+				return doubleValue;
+			}
+		} catch (Exception e) {
+			return null;
 		}
 	}
 

@@ -92,9 +92,10 @@ public class LexerImpl implements Lexer {
 	 * @return {@link TokenType} of the input {@link String}
 	 */
 	private TokenType matchToken(String nextToken) {
-		if (nextToken.matches("[0-9]+((e|E)-?[0-9]+)?")) {
+		if (nextToken.matches("(\\+|-)?[0-9]+((e|E)(\\+|-)?[0-9]+)?")) {
 			return TokenType.NUM;
-		} else if (nextToken.matches("[0-9]+\\.[0-9]+((e|E)-?[0-9]+)?")) {
+		} else if (nextToken
+				.matches("(\\+|-)?[0-9]+\\.[0-9]+((e|E)(\\+|-)?[0-9]+)?")) {
 			return TokenType.REAL;
 		} else if (nextToken.matches("\\\"(?:[^\\\"\\\\]+|\\\\.)*\\\"")) {
 			return TokenType.STRING;

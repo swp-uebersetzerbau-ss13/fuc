@@ -26,8 +26,13 @@ public class Constants {
 	public static final String LONGSTRING3 = "123E2";
 	public static final String LONGSTRING4 = "123e-2";
 	public static final String LONGSTRING5 = "123E-2";
+	public static final String LONGSTRING6 = "-123";
+	public static final String LONGSTRING7 = "-123e2";
+	public static final String LONGSTRING8 = "-123E2";
+	public static final String LONGSTRING9 = "-123e-2";
+	public static final String LONGSTRING10 = "-123E+2";
 	public static final String LONGSTRINGOUTOFRANGE1 = "9223372036854775808";
-	public static final String LONGSTRINGOUTOFRANGE2 = "1e-9223372036854775809";
+	public static final String LONGSTRINGOUTOFRANGE2 = "-9223372036854775809";
 
 	/* real types */
 	public static final String DOUBLESTRING1 = "123.123";
@@ -35,8 +40,13 @@ public class Constants {
 	public static final String DOUBLESTRING3 = "123.123E2";
 	public static final String DOUBLESTRING4 = "123.123e-2";
 	public static final String DOUBLESTRING5 = "123.123E-2";
+	public static final String DOUBLESTRING6 = "-123.123";
+	public static final String DOUBLESTRING7 = "-123.123e2";
+	public static final String DOUBLESTRING8 = "-123.123E2";
+	public static final String DOUBLESTRING9 = "-123.123e-2";
+	public static final String DOUBLESTRING10 = "-123.123E+2";
 	public static final String DOUBLESTRINGOUTOFRANGE1 = "1.797694e+308";
-	public static final String DOUBLESTRINGOUTOFRANGE2 = "1e-9223372036854775809";
+	public static final String DOUBLESTRINGOUTOFRANGE2 = "-1.797694e+309";
 
 	/* bracket types */
 	public static final String LEFT_PARAN = "(";
