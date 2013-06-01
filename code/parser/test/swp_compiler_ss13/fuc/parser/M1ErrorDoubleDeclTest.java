@@ -4,7 +4,7 @@ import static org.junit.Assert.fail;
 
 import java.io.ByteArrayInputStream;
 
-import lexer.LexerImpl;
+import swp_compiler_ss13.fuc.lexer.LexerImpl;
 
 import org.apache.log4j.BasicConfigurator;
 import org.junit.Assert;
