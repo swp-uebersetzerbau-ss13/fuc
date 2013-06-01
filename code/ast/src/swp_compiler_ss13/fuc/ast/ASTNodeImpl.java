@@ -59,4 +59,14 @@ public abstract class ASTNodeImpl implements ASTNode {
 			coverage.add(toke);
 		}
 	}
+	
+	/**
+	 * Gets a list of Token and set the coverage.
+	 * Only used in parser module, not implemented in 
+	 * ast interface.
+	 * @param token
+	 */
+	public void setCoverage(List<Token> tokenList){
+		coverage.addAll(tokenList);
+	}
 }
