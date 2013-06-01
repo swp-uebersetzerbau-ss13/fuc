@@ -1,5 +1,6 @@
 package swp_compiler_ss13.fuc.gui.ast;
 
+import java.util.Collections;
 import java.util.List;
 
 import swp_compiler_ss13.common.ast.AST;
@@ -23,7 +24,10 @@ public class AST_Model extends AbstractModel {
 
 	@Override
 	public boolean setAST(AST ast) {
-		setNode(ast.getRootNode());
+		if (ast == null && node == null || ast != null && ast.getRootNode() == node) {
+			return false;
+		}
+		setNode(ast == null ? null : ast.getRootNode());
 		return true;
 	}
 
@@ -36,7 +40,7 @@ public class AST_Model extends AbstractModel {
 	}
 
 	public List<ASTNode> getChildren() {
-		return node.getChildren();
+		return node == null ? Collections.<ASTNode> emptyList() : node.getChildren();
 	}
 
 }

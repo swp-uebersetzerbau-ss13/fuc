@@ -45,11 +45,13 @@ public class AST_View extends JLayeredPane implements View {
 
 	public AST_View setNode(ASTNode node) {
 		removeAll();
-		JComponent label = getNodeComponent(node);
-		label.setToolTipText(node.getNodeType().name());
-		add(label, AST_LayoutManager.BUTTON, BUTTON_LAYER);
-		if (!node.getChildren().isEmpty()) {
-			label.addMouseListener(new ClickListener());
+		if (node != null) {
+			JComponent label = getNodeComponent(node);
+			label.setToolTipText(node.getNodeType().name());
+			add(label, AST_LayoutManager.BUTTON, BUTTON_LAYER);
+			if (!node.getChildren().isEmpty()) {
+				label.addMouseListener(new ClickListener());
+			}
 		}
 		arrows.setVisible(false);
 		return this;
@@ -134,11 +136,20 @@ public class AST_View extends JLayeredPane implements View {
 		}
 	}
 
+	public void recalculateLayout() {
+		getParent().validate();
+	}
+
 	private class ClickListener extends MouseAdapter {
 		@Override
 		public void mouseClicked(MouseEvent e) {
 			controller.viewStateChanged();
 		}
+	}
+
+	@Override
+	public String getName() {
+		return "AST";
 	}
 
 	@Override
