@@ -2,12 +2,17 @@ package swp_compiler_ss13.fuc.backend;
 
 import swp_compiler_ss13.common.backend.BackendException;
 import swp_compiler_ss13.common.backend.Quadruple;
-import swp_compiler_ss13.common.types.Type;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Locale;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+
+import static swp_compiler_ss13.common.types.Type.*;
+import static swp_compiler_ss13.common.types.Type.Kind.BOOLEAN;
 
 /**
  * This class allows for the generation of an LLVM IR module.
@@ -122,7 +127,7 @@ public class Module
 	 * @param type the type from the three address code
 	 * @return the corresponding LLVM IR type
 	 */
-	private String getIRType(Type.Kind type)
+	private String getIRType(Kind type)
 	{
 		String irType = "";
 		switch(type)
@@ -162,6 +167,7 @@ public class Module
 
 		switch(operator)
 		{
+			/* Arithmetic */
 			case ADD_LONG:
 				irInst = "add";
 				break;
@@ -186,6 +192,47 @@ public class Module
 			case DIV_DOUBLE:
 				irInst = "fdiv";
 				break;
+
+			/* Boolean Arithmetic */
+			case OR_BOOLEAN:
+				irInst = "or";
+				break;
+			case AND_BOOLEAN:
+				irInst = "and";
+				break;
+
+			/* Comparisons */
+			case COMPARE_LONG_E:
+				irInst = " icmp eq";
+				break;
+			case COMPARE_LONG_G:
+				irInst = " icmp sgt";
+			break;
+			case COMPARE_LONG_L:
+				irInst = " icmp slt";
+				break;
+			case COMPARE_LONG_GE:
+				irInst = " icmp sge";
+			break;
+			case COMPARE_LONG_LE:
+				irInst = " icmp sle";
+			break;
+
+			case COMPARE_DOUBLE_E:
+				irInst = " fcmp oeq";
+			break;
+			case COMPARE_DOUBLE_G:
+				irInst = " fcmp ogt";
+			break;
+			case COMPARE_DOUBLE_L:
+				irInst = " fcmp olt";
+			break;
+			case COMPARE_DOUBLE_GE:
+				irInst = " fcmp oge";
+			break;
+			case COMPARE_DOUBLE_LE:
+				irInst = " fcmp ole";
+			break;
 		}
 
 		return irInst;
@@ -235,6 +282,38 @@ public class Module
 		}
 	}
 
+	private static Pattern toIRString_ReplacePattern = Pattern.compile("[^a-zA-Z0-9üÜöÖäÄ]");
+
+	public static String toIRString(String str)
+	{
+		String irString = str;
+
+		if(str.charAt(0) == '#')
+		{
+			irString = "#\"";
+
+			str = str.substring(2, str.length() - 1);
+			Matcher m = Module.toIRString_ReplacePattern.matcher(str);
+
+			int pos = 0;
+			while(m.find())
+			{
+				irString += str.substring(pos, m.end() - 1);
+				pos = m.end();
+
+				System.err.println(str.charAt(pos - 1));
+				irString += "\\" + String.format(
+					(Locale) null,
+					"%x",
+					(int) str.charAt(pos - 1));
+			}
+
+			irString += "\\00\"";
+		}
+
+		return irString;
+	}
+
 	/**
 	 * Generates a new string literal from a <code>String</code>
 	 * value and returns its id (i.e. its position in the
@@ -245,7 +324,9 @@ public class Module
 	 */
 	private Integer addStringLiteral(String literal)
 	{
-		int length = literal.length() - 2;
+		int length = literal.substring(1, literal.length() - 1)
+			.replaceAll("\\\\[a-fA-f0-9][a-fA-f0-9]","_")
+			.replaceAll("[üÜöÖäÄ]","__").length();
 		int id = stringLiterals.size();
 		stringLiterals.add(length);
 
@@ -265,8 +346,9 @@ public class Module
 	 *
 	 * @param variable the variable's name
 	 * @param literalID the string literal's id
+	 * @return the used "use identifier" for variable
 	 */
-	private void addLoadStringLiteral(String variable, int literalID) throws BackendException {
+	private String addLoadStringLiteral(String variable, int literalID) throws BackendException {
 		String variableIdentifier = "%" + variable;
 		String variableUseIdentifier = getUseIdentifierForVariable(variable);
 		String literalIdentifier = getStringLiteralIdentifier(literalID);
@@ -274,6 +356,7 @@ public class Module
 
 		gen(variableUseIdentifier + " = getelementptr " + literalType + "* " + literalIdentifier + ", i64 0, i64 0");
 		gen("store i8* " + variableUseIdentifier + ", i8** " + variableIdentifier);
+		return variableUseIdentifier;
 	}
 
 	/**
@@ -283,7 +366,7 @@ public class Module
 	 * @param variable the new variable's name
 	 * @return the variable's identifier
 	 */
-	private String addNewVariable(Type.Kind type, String variable)
+	private String addNewVariable(Kind type, String variable)
 	{
 		String irType = getIRType(type);
 		String variableIdentifier = "%" + variable;
@@ -301,7 +384,7 @@ public class Module
 	 * @param variable the new variable's name
 	 * @param initializer the new variable's initial value
 	 */
-	public void addPrimitiveDeclare(Type.Kind type, String variable, String initializer) throws BackendException {
+	public void addPrimitiveDeclare(Kind type, String variable, String initializer) throws BackendException {
 		addNewVariable(type, variable);
 
 		if(!initializer.equals(Quadruple.EmptyArgument))
@@ -320,7 +403,7 @@ public class Module
 	 * @param dst the destination variable's name
 	 * @param src the source constant or the source variable's name
 	 */
-	public void addPrimitiveAssign(Type.Kind type, String dst, String src) throws BackendException {
+	public void addPrimitiveAssign(Kind type, String dst, String src) throws BackendException {
 		boolean constantSrc = false;
 		if(src.charAt(0) == '#')
 		{
@@ -333,7 +416,7 @@ public class Module
 
 		if(constantSrc)
 		{
-			if(type == Type.Kind.STRING)
+			if(type == Kind.STRING)
 			{
 				int id = addStringLiteral(src);
 				addLoadStringLiteral(dst, id);
@@ -362,19 +445,19 @@ public class Module
 	 * @param dstType the destination variable's type
 	 * @param dst the destination variable's name
 	 */
-	public void addPrimitiveConversion(Type.Kind srcType, String src, Type.Kind dstType, String dst) throws BackendException {
+	public void addPrimitiveConversion(Kind srcType, String src, Kind dstType, String dst) throws BackendException {
 		String srcUseIdentifier = getUseIdentifierForVariable(src);
 		String dstUseIdentifier = getUseIdentifierForVariable(dst);
 		String srcIdentifier = "%" + src;
 		String dstIdentifier = "%" + dst;
 
-		if((srcType == Type.Kind.LONG) && (dstType == Type.Kind.DOUBLE))
+		if((srcType == Kind.LONG) && (dstType == Kind.DOUBLE))
 		{
 			gen(srcUseIdentifier + " = load i64* " + srcIdentifier);
 			gen(dstUseIdentifier + " = sitofp i64 " + srcUseIdentifier + " to double");
 			gen("store double " + dstUseIdentifier + ", double* " + dstIdentifier);
 		}
-		else if((srcType == Type.Kind.DOUBLE) && (dstType == Type.Kind.LONG))
+		else if((srcType == Kind.DOUBLE) && (dstType == Kind.LONG))
 		{
 			gen(srcUseIdentifier + " = load double* " + srcIdentifier);
 			gen(dstUseIdentifier + " = fptosi double " + srcUseIdentifier + " to i64");
@@ -394,7 +477,7 @@ public class Module
 	 * @param rhs the constant or name of the variable on the right hand side
 	 * @param dst the destination variable's name
 	 */
-	public void addPrimitiveBinaryInstruction(Quadruple.Operator op, Type.Kind type, String lhs, String rhs, String dst) throws BackendException {
+	public void addPrimitiveBinaryInstruction(Quadruple.Operator op, Kind type, String lhs, String rhs, String dst) throws BackendException {
 		String irType = getIRType(type);
 		String irInst = getIRBinaryInstruction(op);
 
@@ -427,6 +510,31 @@ public class Module
 		gen("store " + irType + " " + dstUseIdentifier + ", " + irType + "* " + dstIdentifier);
 	}
 
+	public void addBooleanNot(String source, String destination) throws BackendException {
+
+		String irType = getIRType(BOOLEAN);
+
+		/* source (ir boolean) is #1 or #0 constant */
+		if(source.charAt(0) == '#')
+		{
+			source = source.substring(1);
+		}
+		/* source is identifier */
+		else
+		{
+			String sourceIdentifier = "%" + source;
+			source = getUseIdentifierForVariable(source);
+			gen(source + " = load " + irType + "* " + sourceIdentifier);
+		}
+
+		String dstUseIdentifier = getUseIdentifierForVariable(destination);
+		String dstIdentifier = "%" + destination;
+
+		gen(dstUseIdentifier + " = " + "sub " + irType + " 1, " + source);
+		gen("store " + irType + " " + dstUseIdentifier + ", " + irType + "* " + dstIdentifier);
+	}
+
+
 	/**
 	 * Adds the return instruction for the
 	 * main method.
@@ -446,4 +554,69 @@ public class Module
 			gen("ret i64 " + valueUseIdentifier);
 		}
 	}
+
+	public void addLabel(String name){
+		gen(name+":");
+	}
+
+	public void addBranch(String target1, String target2, String condition) throws BackendException {
+		/* conditional branch */
+		if (!target2.equals(Quadruple.EmptyArgument)){
+			String conditionUseIdentifier = getUseIdentifierForVariable(condition);
+			gen(conditionUseIdentifier + " = load " + "i8" + "* %" + condition);
+			gen(conditionUseIdentifier + ".cond = trunc i8 " + conditionUseIdentifier + " to i1");
+			gen("br i1 " + conditionUseIdentifier + ".cond, label %" + target1 + ", label %"+ target2);
+		}
+		else {
+			gen("br label %" + target1);
+		}
+	}
+
+	public void addPrint(String value, Kind type) throws BackendException {
+		String irType = getIRType(type);
+		boolean constantSrc = false;
+
+		/* value is constant */
+		if(value.charAt(0) == '#')
+		{
+			value = value.substring(1);
+			constantSrc = true;
+		}
+		/* value is identifier */
+		else
+		{
+			String valueIdentifier = "%" + value;
+			value = getUseIdentifierForVariable(value);
+			gen(value + " = load " + irType + "* " + valueIdentifier);
+		}
+
+		String formatUseIdentifier = getUseIdentifierForVariable(".format.string");
+
+		switch (type) {
+			case BOOLEAN:
+				gen("call void (i8)* @print_boolean(" + irType + " " + value + ")");
+				break;
+			case LONG:
+				gen(formatUseIdentifier + " = getelementptr [5 x i8]* @.string_format_long, i64 0, i64 0");
+				gen("call i32 (i8*, ...)* @printf(i8* " + formatUseIdentifier + ", " + irType + " " + value + ")");
+				break;
+			case DOUBLE:
+				gen(formatUseIdentifier + " = getelementptr [4 x i8]* @.string_format_double, i64 0, i64 0");
+				gen("call i32 (i8*, ...)* @printf(i8* " + formatUseIdentifier + ", " + irType + " " + value + ")");
+				break;
+			case STRING:
+				if(constantSrc)
+				{
+					int id = addStringLiteral(value);
+					value = addLoadStringLiteral(".tmp.string", id);
+				}
+
+				gen(formatUseIdentifier + " = getelementptr [4 x i8]* @.string_format_string, i64 0, i64 0");
+				gen("call i32 (i8*, ...)* @printf(i8* " + formatUseIdentifier + ", " + irType + " " + value + ")");
+				break;
+		}
+	}
+
+
+
 }

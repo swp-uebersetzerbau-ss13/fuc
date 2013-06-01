@@ -12,7 +12,7 @@ import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.M1.sem;
 
 import java.io.ByteArrayInputStream;
 
-import lexer.LexerImpl;
+import swp_compiler_ss13.fuc.lexer.LexerImpl;
 
 import static org.junit.Assert.assertNotNull;
 
