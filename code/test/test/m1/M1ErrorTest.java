@@ -4,7 +4,7 @@ import junit.extensions.PA;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-import swp_compiler_ss13.common.lexer.LexerImpl;
+import swp_compiler_ss13.fuc.lexer.LexerImpl;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
