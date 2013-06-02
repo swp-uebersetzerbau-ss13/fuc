@@ -1,4 +1,4 @@
-package m1;
+package swp_compiler_ss13.fuc.test.m1;
 
 import junit.extensions.PA;
 import org.apache.log4j.Level;
@@ -51,6 +51,19 @@ public class M1ErrorTest {
 		this.expected = expected;
 	}
 
+	@BeforeClass
+	public static void setUpBeforeClass() throws Exception {
+		Logger.getRootLogger().setLevel(Level.ERROR);
+
+	}
+
+	@Before
+	public void setUp() throws Exception {
+		lexer = new LexerImpl();
+		parser = new ParserImpl();
+		errlog = new ReportLogImpl();
+	}
+
 	@Parameterized.Parameters(name = "{index}: {0}")
 	public static Collection<Object[]> data() {
 
@@ -90,19 +103,6 @@ public class M1ErrorTest {
 				{ "multipleMinusENotation", multipleMinusENotation, "Found undefined token '10e----1'!" },
 				{ "multiplePlusesInExp", multiplePlusesInExp, "Found undefined token '++'!" },
 				{ "undefReturn", undefReturn, "NotInitializedException" } });
-	}
-
-	@BeforeClass
-	public static void setUpBeforeClass() throws Exception {
-		Logger.getRootLogger().setLevel(Level.ERROR);
-
-	}
-
-	@Before
-	public void setUp() throws Exception {
-		lexer = new LexerImpl();
-		parser = new ParserImpl();
-		errlog = new ReportLogImpl();
 	}
 
 

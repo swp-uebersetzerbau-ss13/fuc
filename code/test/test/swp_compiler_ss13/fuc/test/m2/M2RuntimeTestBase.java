@@ -1,6 +1,5 @@
-package m2;
+package swp_compiler_ss13.fuc.test.m2;
 
-import junit.extensions.PA;
 import lexer.LexerImpl;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -10,10 +9,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.backend.Backend;
 import swp_compiler_ss13.common.backend.BackendException;
-import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.ir.IntermediateCodeGenerator;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 import swp_compiler_ss13.common.lexer.Lexer;
@@ -23,14 +20,11 @@ import swp_compiler_ss13.fuc.backend.TACExecutor;
 import swp_compiler_ss13.fuc.ir.IntermediateCodeGeneratorImpl;
 import swp_compiler_ss13.fuc.parser.ParserImpl;
 import swp_compiler_ss13.fuc.parser.errorHandling.ReportLogImpl;
+import swp_compiler_ss13.fuc.test.base.RuntimeTestBase;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
@@ -43,22 +37,22 @@ import static org.junit.Assert.assertEquals;
  * @author Jens V. Fischer
  */
 @RunWith(value = Parameterized.class)
-public class M2RuntimeTest {
+public class M2RuntimeTestBase extends RuntimeTestBase {
 
-	private static boolean m2Implemented = false;
+	private static boolean m2Implemented = true;
 
 	private static Lexer lexer;
 	private static Parser parser;
 	private static IntermediateCodeGenerator irgen;
 	private static Backend backend;
 	private static ReportLogImpl errlog;
-	private static Logger logger = Logger.getLogger(M2RuntimeTest.class);
+	private static Logger logger = Logger.getLogger(M2RuntimeTestBase.class);
 
 	private String prog;
 	private int expectedExitcode;
 	private String expectedOutput;
 
-	public M2RuntimeTest(String progName, String prog, int expectedExitcode, String expectedOutput) {
+	public M2RuntimeTestBase(String progName, String prog, int expectedExitcode, String expectedOutput) {
 		this.prog = prog;
 		this.expectedExitcode = expectedExitcode;
 		this.expectedOutput = expectedOutput;
@@ -73,12 +67,20 @@ public class M2RuntimeTest {
 			logger.warn("M2RuntimeTests are ignored, because m2Implemented is set to false.");
 		}
 
-		/*
-		 * only run tests if m2Implemented is set to true and
-		 * lli (dynamic compiler from LLVM) is found
-		 */
-		Assume.assumeTrue(m2Implemented && checkForLLIInstallation());
+		/* only run tests if m2Implemented is set to true */
+		Assume.assumeTrue(m2Implemented);
 
+		/* only run tests if lli (dynamic compiler from LLVM) is found */
+		Assume.assumeTrue(checkForLLIInstallation());
+	}
+
+	@Before
+	public void setUp() throws Exception {
+		lexer = new LexerImpl();
+		parser = new ParserImpl();
+		irgen = new IntermediateCodeGeneratorImpl();
+		backend = new LLVMBackend();
+		errlog = new ReportLogImpl();
 	}
 
 	@Parameterized.Parameters(name = "{index}: {0}")
@@ -156,15 +158,6 @@ public class M2RuntimeTest {
 						"jagÄrEttString\"" }});
 	}
 
-	@Before
-	public void setUp() throws Exception {
-		lexer = new LexerImpl();
-		parser = new ParserImpl();
-		irgen = new IntermediateCodeGeneratorImpl();
-		backend = new LLVMBackend();
-		errlog = new ReportLogImpl();
-	}
-
 	@Test
 	public void runtimeTest() throws IOException, InterruptedException, BackendException, IntermediateCodeGeneratorException {
 		TACExecutor.ExecutionResult res = compileAndExecute(this.prog);
@@ -172,47 +165,4 @@ public class M2RuntimeTest {
 		assertEquals(this.expectedOutput, res.output);
 	}
 
-
-
-	/*
-	 * Check if lli is correctly installed.
-	 */
-	private static boolean checkForLLIInstallation() {
-
-		Level level = Logger.getRootLogger().getLevel();
-
-		Logger.getRootLogger().setLevel(Level.FATAL);
-		boolean hasLLI;
-		try {
-			PA.invokeMethod(TACExecutor.class, "tryToStartLLI()");
-			hasLLI = true;
-		} catch (Exception e) {
-			hasLLI = false;
-		}
-
-		Logger.getRootLogger().setLevel(level);
-
-		if (!hasLLI) {
-			logger.warn("Runtime tests are ignored, because of missing LLVM lli installation.");
-			String infoMsg = "If you have LLVM installed you might need to check your $PATH: " +
-					"Intellij IDEA: Run -> Edit Configurations -> Environment variables; " +
-					"Eclipse: Run Configurations -> Environment; " +
-					"Shell: Check $PATH";
-			logger.info(infoMsg);
-		}
-		return hasLLI;
-	}
-
-
-	private TACExecutor.ExecutionResult compileAndExecute(String prog) throws BackendException,
-			IntermediateCodeGeneratorException, IOException, InterruptedException {
-		lexer.setSourceStream(new ByteArrayInputStream(prog.getBytes("UTF-8")));
-		parser.setLexer(lexer);
-		parser.setReportLog(errlog);
-		AST ast = parser.getParsedAST();
-		List<Quadruple> tac = irgen.generateIntermediateCode(ast);
-		Map<String, InputStream> targets = backend.generateTargetCode("", tac);
-		InputStream irCode = targets.get(".ll");
-		return TACExecutor.runIR(irCode);
-	}
 }

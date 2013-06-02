@@ -18,7 +18,7 @@ import swp_compiler_ss13.common.backend.Quadruple;
 /**
  * Runtime tests for the LLVMBackend
  */
-public class RuntimeTest {
+public class BackendRuntimeTest {
 
 	private static LLVMBackend backend;
 	private static ArrayList<Quadruple> tac;
@@ -30,7 +30,7 @@ public class RuntimeTest {
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 
-		logger = Logger.getLogger(RuntimeTest.class);
+		logger = Logger.getLogger(BackendRuntimeTest.class);
 
 		/* only run tests if lli (dynamic compiler from LLVM) is found */
 		Assume.assumeTrue(checkForLLIInstallation());
