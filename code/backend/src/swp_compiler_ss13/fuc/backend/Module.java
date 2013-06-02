@@ -563,6 +563,19 @@ public class Module
 		if(rhs.charAt(0) == '#')
 		{
 			rhs = rhs.substring(1);
+
+			if((op == Quadruple.Operator.DIV_LONG) &&
+			   (Long.valueOf(rhs).equals(Long.valueOf(0))))
+			{
+				throw new BackendException("Division by zero");
+			}
+
+			if((op == Quadruple.Operator.DIV_DOUBLE) &&
+			   ((Double.valueOf(rhs).equals(Double.valueOf(0.0))) ||
+			    (Double.valueOf(rhs).equals(Double.valueOf(-0.0)))))
+			{
+				throw new BackendException("Division by zero");
+			}
 		}
 		else
 		{
