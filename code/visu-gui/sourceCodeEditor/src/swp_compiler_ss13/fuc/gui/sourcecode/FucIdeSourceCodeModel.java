@@ -18,8 +18,9 @@ public class FucIdeSourceCodeModel extends AbstractModel {
 	}
 
 	@Override
-	public void setSourceCode(String sourceCode) {
+	public boolean setSourceCode(String sourceCode) {
 		this.sourcecode = sourceCode;
+		return true;
 	}
 
 }

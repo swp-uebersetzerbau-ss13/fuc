@@ -3,8 +3,10 @@ package swp_compiler_ss13.fuc.gui.sourcecode;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.GridLayout;
+import java.awt.event.KeyEvent;
 
 import javax.swing.JComponent;
+import javax.swing.JMenu;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
 import javax.swing.SpringLayout;
@@ -41,8 +43,6 @@ public class FucIdeSourceCodeView extends JPanel implements View {
 		this.txtpnLinenumbers.setBackground(new Color(211, 211, 211));
 		sl_scrollablePanel.putConstraint(SpringLayout.SOUTH, this.txtpnLinenumbers, 0, SpringLayout.SOUTH,
 				scrollablePanel);
-		this.txtpnLinenumbers
-				.setText("001\n002\n003\n004\n005\n006\n007\n008\n009\n010\n011\n012\n013\n014\n015\n016\n017");
 		sl_scrollablePanel.putConstraint(SpringLayout.NORTH, this.txtpnLinenumbers, 0, SpringLayout.NORTH,
 				scrollablePanel);
 		sl_scrollablePanel.putConstraint(SpringLayout.WEST, this.txtpnLinenumbers, 0, SpringLayout.WEST,
@@ -80,6 +80,8 @@ public class FucIdeSourceCodeView extends JPanel implements View {
 
 	@Override
 	public void initComponents(IDE ide) {
-
+		JMenu fileMenu = new JMenu("File");
+		fileMenu.setMnemonic(KeyEvent.VK_F);
+		ide.addMenu(fileMenu, Position.SOURCE_CODE, true);
 	}
 }

@@ -7,6 +7,9 @@ import swp_compiler_ss13.common.ir.IntermediateCodeGenerator;
 import swp_compiler_ss13.common.lexer.Lexer;
 import swp_compiler_ss13.common.parser.Parser;
 import swp_compiler_ss13.common.semanticAnalysis.SemanticAnalyser;
+import swp_compiler_ss13.fuc.gui.ide.mvc.Controller;
+
+import com.sun.istack.internal.logging.Logger;
 
 /**
  * The FUC IDE Controllre
@@ -23,6 +26,8 @@ public class FucIdeController {
 	 * The view
 	 */
 	private FucIdeView view;
+
+	private static Logger logger = Logger.getLogger(FucIdeController.class);
 
 	/**
 	 * Instantiate a new instance of the controller
@@ -94,6 +99,22 @@ public class FucIdeController {
 					.format("No implementation for %s was found in the classpath.\nThe compiler will not work.",
 							Backend.class);
 			new FucIdeCriticalError(this.view, error, false);
+		}
+
+		List<Controller> cl = this.model.getGUIControllers();
+		for (Controller c : cl) {
+			logger.info("Initializing gui component " + c.getClass().getName());
+			c.init(this.model);
+			boolean notify = false;
+			notify = notify || c.getModel().setSourceCode("");
+			notify = notify || c.getModel().setTokens(null);
+			notify = notify || c.getModel().setAST(null);
+			notify = notify || c.getModel().setTAC(null);
+			notify = notify || c.getModel().setTargetCode(null);
+			if (notify) {
+				logger.info("notifying the controller " + c.getClass().getName() + " about model changes");
+				c.notifyModelChanged();
+			}
 		}
 	}
 

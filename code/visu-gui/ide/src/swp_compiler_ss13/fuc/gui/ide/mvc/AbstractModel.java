@@ -20,34 +20,39 @@ public abstract class AbstractModel implements Model {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setSourceCode(String sourceCode) {
+	public boolean setSourceCode(String sourceCode) {
+		return false;
 	};
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setTokens(List<Token> tokens) {
+	public boolean setTokens(List<Token> tokens) {
+		return false;
 	};
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setAST(AST ast) {
+	public boolean setAST(AST ast) {
+		return false;
 	};
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setTAC(List<Quadruple> tac) {
+	public boolean setTAC(List<Quadruple> tac) {
+		return false;
 	};
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setTargetCode(Map<String, InputStream> target) {
+	public boolean setTargetCode(Map<String, InputStream> target) {
+		return false;
 	};
 }

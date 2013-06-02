@@ -27,38 +27,48 @@ public interface Model {
 	 * 
 	 * @param sourceCode
 	 *            the source code
+	 * @return return true if the new value is used. true will trigger a
+	 *         notifyModelChanged on the controller. return false otherwise.
 	 */
-	public void setSourceCode(String sourceCode);
+	public boolean setSourceCode(String sourceCode);
 
 	/**
 	 * Set the token list
 	 * 
 	 * @param tokens
 	 *            the tokens
+	 * @return return true if the new value is used. true will trigger a
+	 *         notifyModelChanged on the controller. return false otherwise.
 	 */
-	public void setTokens(List<Token> tokens);
+	public boolean setTokens(List<Token> tokens);
 
 	/**
 	 * Set the ast
 	 * 
 	 * @param ast
 	 *            the ast
+	 * @return return true if the new value is used. true will trigger a
+	 *         notifyModelChanged on the controller. return false otherwise.
 	 */
-	public void setAST(AST ast);
+	public boolean setAST(AST ast);
 
 	/**
 	 * Set the tac
 	 * 
 	 * @param tac
 	 *            the tac
+	 * @return return true if the new value is used. true will trigger a
+	 *         notifyModelChanged on the controller. return false otherwise.
 	 */
-	public void setTAC(List<Quadruple> tac);
+	public boolean setTAC(List<Quadruple> tac);
 
 	/**
 	 * Set the target code
 	 * 
 	 * @param target
 	 *            the target code
+	 * @return return true if the new value is used. true will trigger a
+	 *         notifyModelChanged on the controller. return false otherwise.
 	 */
-	public void setTargetCode(Map<String, InputStream> target);
+	public boolean setTargetCode(Map<String, InputStream> target);
 }

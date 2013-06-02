@@ -17,14 +17,12 @@ public class FucIdeSourceCodeController implements Controller {
 
 	@Override
 	public View getView() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.view;
 	}
 
 	@Override
 	public Model getModel() {
-		// TODO Auto-generated method stub
-		return null;
+		return this.model;
 	}
 
 	@Override
@@ -35,8 +33,7 @@ public class FucIdeSourceCodeController implements Controller {
 
 	@Override
 	public void init(IDE ide) {
-		// TODO Auto-generated method stub
-
+		this.view.initComponents(ide);
 	}
 
 }

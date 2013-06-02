@@ -21,6 +21,8 @@ import swp_compiler_ss13.fuc.gui.ide.mvc.Controller;
 import swp_compiler_ss13.fuc.gui.ide.mvc.IDE;
 import swp_compiler_ss13.fuc.gui.ide.mvc.Position;
 
+import com.sun.istack.internal.logging.Logger;
+
 /**
  * FUC IDE Model
  * 
@@ -84,6 +86,11 @@ public class FucIdeModel implements IDE {
 	private List<Controller> controller_instances = new LinkedList<>();
 
 	/**
+	 * The logger
+	 */
+	private static Logger logger = Logger.getLogger(FucIdeModel.class);
+
+	/**
 	 * Initialize the model
 	 * 
 	 * @param controller
@@ -100,19 +107,24 @@ public class FucIdeModel implements IDE {
 	 */
 	private void loadModules() {
 		for (Lexer lexer : ServiceLoader.load(Lexer.class)) {
+			logger.info("Found lexer: " + lexer.getClass().getName());
 			this.lexer_instances.add(lexer);
 		}
-		for (Parser lexer : ServiceLoader.load(Parser.class)) {
-			this.parser_instances.add(lexer);
+		for (Parser parser : ServiceLoader.load(Parser.class)) {
+			logger.info("Found Parser: " + parser.getClass().getName());
+			this.parser_instances.add(parser);
 		}
-		for (SemanticAnalyser lexer : ServiceLoader.load(SemanticAnalyser.class)) {
-			this.semanticAnalyser_instances.add(lexer);
+		for (SemanticAnalyser sa : ServiceLoader.load(SemanticAnalyser.class)) {
+			logger.info("Found SemanticAnalyser: " + sa.getClass().getName());
+			this.semanticAnalyser_instances.add(sa);
 		}
-		for (IntermediateCodeGenerator lexer : ServiceLoader.load(IntermediateCodeGenerator.class)) {
-			this.intermediateCodeGenerator_instances.add(lexer);
+		for (IntermediateCodeGenerator ir : ServiceLoader.load(IntermediateCodeGenerator.class)) {
+			logger.info("Found IntermediateCodeGenerator: " + ir.getClass().getName());
+			this.intermediateCodeGenerator_instances.add(ir);
 		}
-		for (Backend lexer : ServiceLoader.load(Backend.class)) {
-			this.backend_instances.add(lexer);
+		for (Backend backend : ServiceLoader.load(Backend.class)) {
+			logger.info("Found Backend: " + backend.getClass().getName());
+			this.backend_instances.add(backend);
 		}
 	}
 
@@ -121,6 +133,7 @@ public class FucIdeModel implements IDE {
 	 */
 	private void loadVisualisations() {
 		for (Controller controller : ServiceLoader.load(Controller.class)) {
+			logger.info("Found gui controller: " + controller.getClass().getName());
 			this.controller_instances.add(controller);
 		}
 	}
@@ -186,5 +199,14 @@ public class FucIdeModel implements IDE {
 	 */
 	public List<Backend> getBackends() {
 		return this.backend_instances;
+	}
+
+	/**
+	 * Return the list of controller instances
+	 * 
+	 * @return list of controller instances
+	 */
+	public List<Controller> getGUIControllers() {
+		return this.controller_instances;
 	}
 }
