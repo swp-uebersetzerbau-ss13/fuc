@@ -574,8 +574,9 @@ public class Module
 		String dstUseIdentifier = getUseIdentifierForVariable(dst);
 		String dstIdentifier = "%" + dst;
 
-		gen(dstUseIdentifier + " = call " + irResultType + " (" + irArgumentType + ", " + irArgumentType + ")* " +
-		    "@" + irCall + "(" + irArgumentType + " " + lhs + ", " + irArgumentType + " " + rhs + ")");
+		gen(dstUseIdentifier + " = invoke " + irResultType + " (" + irArgumentType + ", " + irArgumentType + ")* " +
+		    "@" + irCall + "(" + irArgumentType + " " + lhs + ", " + irArgumentType + " " + rhs + ") to label " + dstUseIdentifier + ".ok unwind label %UncaughtException");
+		gen(dstUseIdentifier.substring(1, dstUseIdentifier.length()) + ".ok:");
 		gen("store " + irResultType + " " + dstUseIdentifier + ", " + irResultType + "* " + dstIdentifier);
 	}
 

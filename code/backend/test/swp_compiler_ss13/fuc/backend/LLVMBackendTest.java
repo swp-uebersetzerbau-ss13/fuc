@@ -13,6 +13,8 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.*;
+
 /**
  * Tests for LLVMBackend
  */
@@ -21,6 +23,7 @@ public class LLVMBackendTest {
 	private static LLVMBackend backend;
 	private static ArrayList<Quadruple> tac;
 	private static String header;
+	private static String mainFooter;
 
 
 	/* Called before all the tests are started*/
@@ -29,6 +32,7 @@ public class LLVMBackendTest {
 		backend = new LLVMBackend();
 		header = backend.llvm_preamble +
 			"\ndefine i64 @main() {\n";
+		mainFooter = backend.llvm_uncaught + "}\n";
 	}
 
 	/* Called after all the tests have ended */
@@ -47,6 +51,12 @@ public class LLVMBackendTest {
 	public void tearDown() throws Exception {
 	}
 
+	private void expectMain(String mainFunctionCode, String ir)
+	{
+		String expectedCode = header + mainFunctionCode + mainFooter;
+		assertEquals(expectedCode, ir);
+	}
+
 	@Test
 	public void generateTargetCodeTest_DeclareLong() throws IOException, BackendException {
 		tac.add(new Q(
@@ -54,9 +64,8 @@ public class LLVMBackendTest {
 			        Quadruple.EmptyArgument,
 			        Quadruple.EmptyArgument,
 			        "longVariable"));
-		String mainFunctionCode = "  %longVariable = alloca i64\n  ret i64 0\n}\n";
-		String expectedCode = header + mainFunctionCode;
-		assertEquals(expectedCode, generateCodeAsString(tac));
+		String mainFunctionCode = "  %longVariable = alloca i64\n  ret i64 0\n";
+		expectMain(mainFunctionCode, generateCodeAsString(tac));
 
 	}
 
@@ -70,9 +79,8 @@ public class LLVMBackendTest {
 		String mainFunctionCode = ""
 			+ "  %longVariable = alloca i64\n"
 			+ "  store i64 0, i64* %longVariable\n"
-			+ "  ret i64 0\n}\n";
-		String expectedCode = header + mainFunctionCode;
-		assertEquals(expectedCode, generateCodeAsString(tac));
+			+ "  ret i64 0\n";
+		expectMain(mainFunctionCode, generateCodeAsString(tac));
 
 	}
 
@@ -93,9 +101,8 @@ public class LLVMBackendTest {
 			+ "  %longVariable = alloca i64\n"
 			+ "  %init.0 = load i64* %init\n"
 			+ "  store i64 %init.0, i64* %longVariable\n"
-			+ "  ret i64 0\n}\n";
-		String expectedCode = header + mainFunctionCode;
-		assertEquals(expectedCode, generateCodeAsString(tac));
+			+ "  ret i64 0\n";
+		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -105,9 +112,8 @@ public class LLVMBackendTest {
 			        Quadruple.EmptyArgument,
 			        Quadruple.EmptyArgument,
 			        "doubleVariable"));
-		String mainFunctionCode = "  %doubleVariable = alloca double\n  ret i64 0\n}\n";
-		String expectedCode = header + mainFunctionCode;
-		assertEquals(expectedCode, generateCodeAsString(tac));
+		String mainFunctionCode = "  %doubleVariable = alloca double\n  ret i64 0\n";
+		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -120,9 +126,8 @@ public class LLVMBackendTest {
 		String mainFunctionCode = ""
 			+ "  %doubleVariable = alloca double\n"
 			+ "  store double 0.0, double* %doubleVariable\n"
-			+ "  ret i64 0\n}\n";
-		String expectedCode = header + mainFunctionCode;
-		assertEquals(expectedCode, generateCodeAsString(tac));
+			+ "  ret i64 0\n";
+		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -142,9 +147,8 @@ public class LLVMBackendTest {
 			+ "  %doubleVariable = alloca double\n"
 			+ "  %init.0 = load double* %init\n"
 			+ "  store double %init.0, double* %doubleVariable\n"
-			+ "  ret i64 0\n}\n";
-		String expectedCode = header + mainFunctionCode;
-		assertEquals(expectedCode, generateCodeAsString(tac));
+			+ "  ret i64 0\n";
+		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -154,9 +158,8 @@ public class LLVMBackendTest {
 			        Quadruple.EmptyArgument,
 			        Quadruple.EmptyArgument,
 			        "boolVariable"));
-		String mainFunctionCode = "  %boolVariable = alloca i8\n  ret i64 0\n}\n";
-		String expectedCode = header + mainFunctionCode;
-		assertEquals(expectedCode, generateCodeAsString(tac));
+		String mainFunctionCode = "  %boolVariable = alloca i8\n  ret i64 0\n";
+		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -169,9 +172,8 @@ public class LLVMBackendTest {
 		String mainFunctionCode = ""
 			+ "  %booleanVariable = alloca i8\n"
 			+ "  store i8 0, i8* %booleanVariable\n"
-			+ "  ret i64 0\n}\n";
-		String expectedCode = header + mainFunctionCode;
-		assertEquals(expectedCode, generateCodeAsString(tac));
+			+ "  ret i64 0\n";
+		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -184,9 +186,8 @@ public class LLVMBackendTest {
 		String mainFunctionCode = ""
 			+ "  %booleanVariable = alloca i8\n"
 			+ "  store i8 1, i8* %booleanVariable\n"
-			+ "  ret i64 0\n}\n";
-		String expectedCode = header + mainFunctionCode;
-		assertEquals(expectedCode, generateCodeAsString(tac));
+			+ "  ret i64 0\n";
+		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -206,9 +207,8 @@ public class LLVMBackendTest {
 			+ "  %booleanVariable = alloca i8\n"
 			+ "  %init.0 = load i8* %init\n"
 			+ "  store i8 %init.0, i8* %booleanVariable\n"
-			+ "  ret i64 0\n}\n";
-		String expectedCode = header + mainFunctionCode;
-		assertEquals(expectedCode, generateCodeAsString(tac));
+			+ "  ret i64 0\n";
+		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -218,9 +218,8 @@ public class LLVMBackendTest {
 			        Quadruple.EmptyArgument,
 			        Quadruple.EmptyArgument,
 			        "stringVariable"));
-		String mainFunctionCode = "  %stringVariable = alloca i8*\n  ret i64 0\n}\n";
-		String expectedCode = header + mainFunctionCode;
-		assertEquals(expectedCode, generateCodeAsString(tac));
+		String mainFunctionCode = "  %stringVariable = alloca i8*\n  ret i64 0\n";
+		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -236,9 +235,8 @@ public class LLVMBackendTest {
 			+ "  store [4 x i8] c\"Foo\\00\", [4 x i8]* %.string_0\n"
 			+ "  %stringVariable.0 = getelementptr [4 x i8]* %.string_0, i64 0, i64 0\n"
 			+ "  store i8* %stringVariable.0, i8** %stringVariable\n"
-			+ "  ret i64 0\n}\n";
-		String expectedCode = header + mainFunctionCode;
-		assertEquals(expectedCode, generateCodeAsString(tac));
+			+ "  ret i64 0\n";
+		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -258,9 +256,8 @@ public class LLVMBackendTest {
 			+ "  %stringVariable = alloca i8*\n"
 			+ "  %init.0 = load i8** %init\n"
 			+ "  store i8* %init.0, i8** %stringVariable\n"
-			+ "  ret i64 0\n}\n";
-		String expectedCode = header + mainFunctionCode;
-		assertEquals(expectedCode, generateCodeAsString(tac));
+			+ "  ret i64 0\n";
+		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
 	/* Conversion */
@@ -288,9 +285,8 @@ public class LLVMBackendTest {
 			+ "  %longVariable.0 = load i64* %longVariable\n"
 			+ "  %doubleVariable.0 = sitofp i64 %longVariable.0 to double\n"
 			+ "  store double %doubleVariable.0, double* %doubleVariable\n"
-			+ "  ret i64 0\n}\n";
-		String expectedCode = header + mainFunctionCode;
-		assertEquals(expectedCode, generateCodeAsString(tac));
+			+ "  ret i64 0\n";
+		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -316,9 +312,8 @@ public class LLVMBackendTest {
 			+ "  %doubleVariable.0 = load double* %doubleVariable\n"
 			+ "  %longVariable.0 = fptosi double %doubleVariable.0 to i64\n"
 			+ "  store i64 %longVariable.0, i64* %longVariable\n"
-			+ "  ret i64 0\n}\n";
-		String expectedCode = header + mainFunctionCode;
-		assertEquals(expectedCode, generateCodeAsString(tac));
+			+ "  ret i64 0\n";
+		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
 
@@ -339,9 +334,8 @@ public class LLVMBackendTest {
 		String mainFunctionCode = ""
 			+ "  %longVariable = alloca i64\n"
 			+ "  store i64 0, i64* %longVariable\n"
-			+ "  ret i64 0\n}\n";
-		String expectedCode = header + mainFunctionCode;
-		assertEquals(expectedCode, generateCodeAsString(tac));
+			+ "  ret i64 0\n";
+		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -366,9 +360,8 @@ public class LLVMBackendTest {
 			+ "  %longVariable = alloca i64\n"
 			+ "  %init.0 = load i64* %init\n"
 			+ "  store i64 %init.0, i64* %longVariable\n"
-			+ "  ret i64 0\n}\n";
-		String expectedCode = header + mainFunctionCode;
-		assertEquals(expectedCode, generateCodeAsString(tac));
+			+ "  ret i64 0\n";
+		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -386,9 +379,8 @@ public class LLVMBackendTest {
 		String mainFunctionCode = ""
 			+ "  %doubleVariable = alloca double\n"
 			+ "  store double 0.0, double* %doubleVariable\n"
-			+ "  ret i64 0\n}\n";
-		String expectedCode = header + mainFunctionCode;
-		assertEquals(expectedCode, generateCodeAsString(tac));
+			+ "  ret i64 0\n";
+		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -413,9 +405,8 @@ public class LLVMBackendTest {
 			+ "  %doubleVariable = alloca double\n"
 			+ "  %init.0 = load double* %init\n"
 			+ "  store double %init.0, double* %doubleVariable\n"
-			+ "  ret i64 0\n}\n";
-		String expectedCode = header + mainFunctionCode;
-		assertEquals(expectedCode, generateCodeAsString(tac));
+			+ "  ret i64 0\n";
+		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -433,9 +424,8 @@ public class LLVMBackendTest {
 		String mainFunctionCode = ""
 			+ "  %booleanVariable = alloca i8\n"
 			+ "  store i8 0, i8* %booleanVariable\n"
-			+ "  ret i64 0\n}\n";
-		String expectedCode = header + mainFunctionCode;
-		assertEquals(expectedCode, generateCodeAsString(tac));
+			+ "  ret i64 0\n";
+		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -453,9 +443,8 @@ public class LLVMBackendTest {
 		String mainFunctionCode = ""
 			+ "  %booleanVariable = alloca i8\n"
 			+ "  store i8 1, i8* %booleanVariable\n"
-			+ "  ret i64 0\n}\n";
-		String expectedCode = header + mainFunctionCode;
-		assertEquals(expectedCode, generateCodeAsString(tac));
+			+ "  ret i64 0\n";
+		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -480,9 +469,8 @@ public class LLVMBackendTest {
 			+ "  %booleanVariable = alloca i8\n"
 			+ "  %init.0 = load i8* %init\n"
 			+ "  store i8 %init.0, i8* %booleanVariable\n"
-			+ "  ret i64 0\n}\n";
-		String expectedCode = header + mainFunctionCode;
-		assertEquals(expectedCode, generateCodeAsString(tac));
+			+ "  ret i64 0\n";
+		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -503,9 +491,8 @@ public class LLVMBackendTest {
 			+ "  store [5 x i8] c\"\\00Foo\\00\", [5 x i8]* %.string_0\n"
 			+ "  %stringVariable.0 = getelementptr [5 x i8]* %.string_0, i64 0, i64 0\n"
 			+ "  store i8* %stringVariable.0, i8** %stringVariable\n"
-			+ "  ret i64 0\n}\n";
-		String expectedCode = header + mainFunctionCode;
-		assertEquals(expectedCode, generateCodeAsString(tac));
+			+ "  ret i64 0\n";
+		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -530,9 +517,8 @@ public class LLVMBackendTest {
 			+ "  %stringVariable = alloca i8*\n"
 			+ "  %init.0 = load i8** %init\n"
 			+ "  store i8* %init.0, i8** %stringVariable\n"
-			+ "  ret i64 0\n}\n";
-		String expectedCode = header + mainFunctionCode;
-		assertEquals(expectedCode, generateCodeAsString(tac));
+			+ "  ret i64 0\n";
+		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
 	/* Control flow */
@@ -545,9 +531,8 @@ public class LLVMBackendTest {
 			        Quadruple.EmptyArgument,
 			        Quadruple.EmptyArgument));
 		String mainFunctionCode = ""
-			+ "  ret i64 1\n}\n";
-		String expectedCode = header + mainFunctionCode;
-		assertEquals(expectedCode, generateCodeAsString(tac));
+			+ "  ret i64 1\n";
+		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -566,9 +551,8 @@ public class LLVMBackendTest {
 			+ "  %res = alloca i64\n"
 			+ "  store i64 1, i64* %res\n"
 			+ "  %res.0 = load i64* %res\n"
-			+ "  ret i64 %res.0\n}\n";
-		String expectedCode = header + mainFunctionCode;
-		assertEquals(expectedCode, generateCodeAsString(tac));
+			+ "  ret i64 %res.0\n";
+		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
 	@Test (expected = BackendException.class)
@@ -588,9 +572,8 @@ public class LLVMBackendTest {
 				+ "  %longVariable = alloca i64\n"
 				+ "  %init.0 = load i64* %init\n"
 				+ "  store i64 %init.0, i64* %longVariable\n"
-				+ "  ret i64 0\n}\n";
-		String expectedCode = header + mainFunctionCode;
-		assertEquals(expectedCode, generateCodeAsString(tac));
+				+ "  ret i64 0\n";
+		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
 
@@ -607,10 +590,8 @@ public class LLVMBackendTest {
 				"  %result = alloca i64\n" +
 				"  %result.0 = add i64 23, 42\n" +
 				"  store i64 %result.0, i64* %result\n" +
-				"  ret i64 0\n" +
-				"}\n";
-		String expectedCode = header + mainFunctionCode;
-		assertEquals(expectedCode, generateCodeAsString(tac));
+				"  ret i64 0\n";
+		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -627,10 +608,8 @@ public class LLVMBackendTest {
 				"  %longVar2.0 = load i64* %longVar2\n" +
 				"  %result.0 = add i64 %longVar1.0, %longVar2.0\n" +
 				"  store i64 %result.0, i64* %result\n" +
-				"  ret i64 0\n" +
-				"}\n";
-        String expectedCode = header + mainFunctionCode;
-		assertEquals(expectedCode, generateCodeAsString(tac));
+				"  ret i64 0\n";
+        expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -641,10 +620,8 @@ public class LLVMBackendTest {
 				+ "  %result = alloca double\n"
 				+ "  %result.0 = fadd double 23.0, 42.0\n"
 				+ "  store double %result.0, double* %result\n"
-				+ "  ret i64 0\n"
-				+ "}\n";
-		String expectedCode = header + mainFunctionCode;
-		assertEquals(expectedCode, generateCodeAsString(tac));
+				+ "  ret i64 0\n";
+		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -661,10 +638,8 @@ public class LLVMBackendTest {
 				"  %doubleVar2.0 = load double* %doubleVar2\n" +
 				"  %result.0 = fadd double %doubleVar1.0, %doubleVar2.0\n" +
 				"  store double %result.0, double* %result\n" +
-				"  ret i64 0\n" +
-				"}\n";
-		String expectedCode = header + mainFunctionCode;
-		assertEquals(expectedCode, generateCodeAsString(tac));
+				"  ret i64 0\n";
+		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
 	/* Sub */
@@ -677,10 +652,8 @@ public class LLVMBackendTest {
 				"  %result = alloca i64\n" +
 				"  %result.0 = sub i64 23, 42\n" +
 				"  store i64 %result.0, i64* %result\n" +
-				"  ret i64 0\n" +
-				"}\n";
-		String expectedCode = header + mainFunctionCode;
-		assertEquals(expectedCode, generateCodeAsString(tac));
+				"  ret i64 0\n";
+		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -697,10 +670,8 @@ public class LLVMBackendTest {
 				"  %longVar2.0 = load i64* %longVar2\n" +
 				"  %result.0 = sub i64 %longVar1.0, %longVar2.0\n" +
 				"  store i64 %result.0, i64* %result\n" +
-				"  ret i64 0\n" +
-				"}\n";
-		String expectedCode = header + mainFunctionCode;
-		assertEquals(expectedCode, generateCodeAsString(tac));
+				"  ret i64 0\n";
+		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -711,10 +682,8 @@ public class LLVMBackendTest {
 				+ "  %result = alloca double\n"
 				+ "  %result.0 = fsub double 23.0, 42.0\n"
 				+ "  store double %result.0, double* %result\n"
-				+ "  ret i64 0\n"
-				+ "}\n";
-		String expectedCode = header + mainFunctionCode;
-		assertEquals(expectedCode, generateCodeAsString(tac));
+				+ "  ret i64 0\n";
+		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -731,10 +700,8 @@ public class LLVMBackendTest {
 				"  %doubleVar2.0 = load double* %doubleVar2\n" +
 				"  %result.0 = fsub double %doubleVar1.0, %doubleVar2.0\n" +
 				"  store double %result.0, double* %result\n" +
-				"  ret i64 0\n" +
-				"}\n";
-		String expectedCode = header + mainFunctionCode;
-		assertEquals(expectedCode, generateCodeAsString(tac));
+				"  ret i64 0\n";
+		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
 	/* Multiplication */
@@ -747,10 +714,8 @@ public class LLVMBackendTest {
 				"  %result = alloca i64\n" +
 				"  %result.0 = mul i64 23, 42\n" +
 				"  store i64 %result.0, i64* %result\n" +
-				"  ret i64 0\n" +
-				"}\n";
-		String expectedCode = header + mainFunctionCode;
-		assertEquals(expectedCode, generateCodeAsString(tac));
+				"  ret i64 0\n";
+		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -767,10 +732,8 @@ public class LLVMBackendTest {
 				"  %longVar2.0 = load i64* %longVar2\n" +
 				"  %result.0 = mul i64 %longVar1.0, %longVar2.0\n" +
 				"  store i64 %result.0, i64* %result\n" +
-				"  ret i64 0\n" +
-				"}\n";
-		String expectedCode = header + mainFunctionCode;
-		assertEquals(expectedCode, generateCodeAsString(tac));
+				"  ret i64 0\n";
+		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -781,10 +744,8 @@ public class LLVMBackendTest {
 				+ "  %result = alloca double\n"
 				+ "  %result.0 = fmul double 23.0, 42.0\n"
 				+ "  store double %result.0, double* %result\n"
-				+ "  ret i64 0\n"
-				+ "}\n";
-		String expectedCode = header + mainFunctionCode;
-		assertEquals(expectedCode, generateCodeAsString(tac));
+				+ "  ret i64 0\n";
+		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -801,10 +762,8 @@ public class LLVMBackendTest {
 				"  %doubleVar2.0 = load double* %doubleVar2\n" +
 				"  %result.0 = fmul double %doubleVar1.0, %doubleVar2.0\n" +
 				"  store double %result.0, double* %result\n" +
-				"  ret i64 0\n" +
-				"}\n";
-		String expectedCode = header + mainFunctionCode;
-		assertEquals(expectedCode, generateCodeAsString(tac));
+				"  ret i64 0\n";
+		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
 	/* Division */
@@ -815,12 +774,11 @@ public class LLVMBackendTest {
 		tac.add(new Q(Quadruple.Operator.DIV_LONG, "#23", "#42", "result"));
 		String mainFunctionCode = "" +
 				"  %result = alloca i64\n" +
-				"  %result.0 = call i64 (i64, i64)* @div_long(i64 23, i64 42)\n" +
+				"  %result.0 = invoke i64 (i64, i64)* @div_long(i64 23, i64 42) to label %result.0.ok unwind label %UncaughtException\n" +
+				"  result.0.ok:\n" +
 				"  store i64 %result.0, i64* %result\n" +
-				"  ret i64 0\n" +
-				"}\n";
-		String expectedCode = header + mainFunctionCode;
-		assertEquals(expectedCode, generateCodeAsString(tac));
+				"  ret i64 0\n";
+		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -835,12 +793,11 @@ public class LLVMBackendTest {
 				"  %result = alloca i64\n" +
 				"  %longVar1.0 = load i64* %longVar1\n" +
 				"  %longVar2.0 = load i64* %longVar2\n" +
-				"  %result.0 = call i64 (i64, i64)* @div_long(i64 %longVar1.0, i64 %longVar2.0)\n" +
+				"  %result.0 = invoke i64 (i64, i64)* @div_long(i64 %longVar1.0, i64 %longVar2.0) to label %result.0.ok unwind label %UncaughtException\n" +
+				"  result.0.ok:\n" +
 				"  store i64 %result.0, i64* %result\n" +
-				"  ret i64 0\n" +
-				"}\n";
-		String expectedCode = header + mainFunctionCode;
-		assertEquals(expectedCode, generateCodeAsString(tac));
+				"  ret i64 0\n";
+		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -849,12 +806,11 @@ public class LLVMBackendTest {
 		tac.add(new Q(Quadruple.Operator.DIV_DOUBLE, "#23.0", "#42.0", "result"));
 		String mainFunctionCode = ""
 				+ "  %result = alloca double\n"
-				+ "  %result.0 = call double (double, double)* @div_double(double 23.0, double 42.0)\n"
+				+ "  %result.0 = invoke double (double, double)* @div_double(double 23.0, double 42.0) to label %result.0.ok unwind label %UncaughtException\n"
+				+ "  result.0.ok:\n"
 				+ "  store double %result.0, double* %result\n"
-				+ "  ret i64 0\n"
-				+ "}\n";
-		String expectedCode = header + mainFunctionCode;
-		assertEquals(expectedCode, generateCodeAsString(tac));
+				+ "  ret i64 0\n";
+		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
 	@Test
@@ -869,12 +825,11 @@ public class LLVMBackendTest {
 				"  %result = alloca double\n" +
 				"  %doubleVar1.0 = load double* %doubleVar1\n" +
 				"  %doubleVar2.0 = load double* %doubleVar2\n" +
-				"  %result.0 = call double (double, double)* @div_double(double %doubleVar1.0, double %doubleVar2.0)\n" +
+				"  %result.0 = invoke double (double, double)* @div_double(double %doubleVar1.0, double %doubleVar2.0) to label %result.0.ok unwind label %UncaughtException\n" +
+				"  result.0.ok:\n" +
 				"  store double %result.0, double* %result\n" +
-				"  ret i64 0\n" +
-				"}\n";
-		String expectedCode = header + mainFunctionCode;
-		assertEquals(expectedCode, generateCodeAsString(tac));
+				"  ret i64 0\n";
+		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
 	/* Util */
