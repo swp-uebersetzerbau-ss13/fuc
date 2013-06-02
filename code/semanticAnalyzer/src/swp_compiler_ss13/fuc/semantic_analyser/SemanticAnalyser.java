@@ -22,7 +22,7 @@ import swp_compiler_ss13.common.ast.nodes.unary.ReturnNode;
 import swp_compiler_ss13.common.parser.ReportLog;
 import swp_compiler_ss13.common.parser.SymbolTable;
 
-public class SemanticAnalyser {
+public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalysis.SemanticAnalyser {
 
 	private static Logger logger = Logger.getLogger(SemanticAnalyser.class);
 
@@ -50,16 +50,16 @@ public class SemanticAnalyser {
 	private static final String IS_INITIALIZED = "1";
 	private static final String NO_ATTRIBUTE_VALUE = "no Value";
 
-	private final ReportLog errorLog;
+	private ReportLog errorLog;
 	private final Map<ASTNode, Map<Attribute, String>> attributes;
 	private final Map<SymbolTable, Set<String>> initializations;
 
-	public SemanticAnalyser(ReportLog log) {
+	public SemanticAnalyser() {
 		this.attributes = new HashMap<>();
 		this.initializations = new HashMap<>();
-		this.errorLog = log;
 	}
 
+	@Override
 	public AST analyse(AST ast) {
 		this.traverseAstNode(ast.getRootNode(), ast.getRootSymbolTable());
 		return ast;
@@ -217,5 +217,10 @@ public class SemanticAnalyser {
 			this.attributes.put(node, new HashMap<Attribute, String>());
 		}
 		this.attributes.get(node).put(attribute, value);
+	}
+
+	@Override
+	public void setReportLog(ReportLog log) {
+		this.errorLog = log;
 	}
 }

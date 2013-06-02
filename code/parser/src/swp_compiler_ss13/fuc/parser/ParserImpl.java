@@ -48,20 +48,19 @@ public class ParserImpl implements Parser {
 		LRParser lrParser = new LRParser();
 		LexerWrapper lexWrapper = new LexerWrapper(this.lexer, grammar);
 		AST ast = null;
-		try{
+		try {
 			ast = lrParser.parse(lexWrapper, this.reportLog, table);
-		}catch(DoubleIdentifierException e){
+		} catch (DoubleIdentifierException e) {
 			return null;
-		}catch(ParserException e){
+		} catch (ParserException e) {
 			return null;
 		}
-		
-			// Call semantic analysis
-			// TODO Fix dependency cycle caused by ReportLogImpl + Error!!!
-			SemanticAnalyser analyzer = new SemanticAnalyser(this.reportLog);
-			ast = analyzer.analyse(ast);
-		
-		
+
+		// Call semantic analysis
+		// TODO Fix dependency cycle caused by ReportLogImpl + Error!!!
+		SemanticAnalyser analyzer = new SemanticAnalyser();
+		analyzer.setReportLog(this.reportLog);
+		ast = analyzer.analyse(ast);
 
 		return ast;
 	}

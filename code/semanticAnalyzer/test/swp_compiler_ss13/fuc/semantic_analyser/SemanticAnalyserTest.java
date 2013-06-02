@@ -50,7 +50,8 @@ public class SemanticAnalyserTest {
 	@Before
 	public void setUp() {
 		this.log = new ReportLogImpl();
-		this.analyzer = new SemanticAnalyser(this.log);
+		this.analyzer = new SemanticAnalyser();
+		this.analyzer.setReportLog(this.log);
 	}
 
 	@After

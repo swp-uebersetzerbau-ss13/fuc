@@ -161,9 +161,9 @@
 		</jar>
 		
 		<!-- create the SemanticAnalyzer package -->
-		<echo message="swp_compiler_ss13.fuc.semantic_analyser.SemanticAnalyser" file="${dist.dir}/temp/swp_compiler_ss13.common.semantic_analyser.SemanticAnalyser" />
+		<echo message="swp_compiler_ss13.fuc.semantic_analyser.SemanticAnalyser" file="${dist.dir}/temp/swp_compiler_ss13.common.semanticAnalysis.SemanticAnalyser" />
 		<jar destfile="${dist.dir}/FUC-Semantic-Analyser.jar" basedir="${semanticAnalyzer.dir}/${bin.dir}">
-			<zipfileset dir="${dist.dir}/temp" includes="swp_compiler_ss13.common.semantic_analyser.SemanticAnalyser" fullpath="META-INF/services/swp_compiler_ss13.common.semantic_analyser.SemanticAnalyser" />
+			<zipfileset dir="${dist.dir}/temp" includes="swp_compiler_ss13.common.semanticAnalysis.SemanticAnalyser" fullpath="META-INF/services/swp_compiler_ss13.common.semanticAnalysis.SemanticAnalyser" />
 		</jar>
 		
 		<!-- create the AST Infix Visu -->
