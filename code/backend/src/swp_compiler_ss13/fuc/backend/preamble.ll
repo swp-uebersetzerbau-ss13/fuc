@@ -11,18 +11,32 @@ declare i8* @calloc(i32,i32)
 ;; C++ standard library functions
 declare i8* @__cxa_allocate_exception(i32)
 declare void @__cxa_throw(i8*,i8*,i8*)
+declare i32 @__gxx_personality_v0(...)
+declare i32 @llvm.eh.typeid.for(i8*) nounwind readnone
+declare i8* @__cxa_begin_catch(i8*)
+declare void @__cxa_end_catch()
 
 ;; C++ variable needed to create valid C++ exceptions
 @_ZTVN10__cxxabiv117__class_type_infoE = external global i8*
 
 ;; List of standard exceptions
 
+@.exception.Uncaught.format = constant [55 x i8] c"Program terminated by uncaught exception of type '%s'\0A\00"
+
 ;;; Division by zero
-%struct.exception.DivisionByZero = type { i8 }
 @.exception.DivisionByZero.name = constant [24 x i8] c"DivisionByZeroException\00"
-@.exception.DivisionByZero.type = constant { i8*, i8* } {
+%.exception.DivisionByZero.type.ir = type { i8 }
+@.exception.DivisionByZero.type.cpp = constant { i8*, i8* } {
   i8* bitcast (i8** getelementptr inbounds (i8** @_ZTVN10__cxxabiv117__class_type_infoE, i64 2) to i8*),
   i8* getelementptr inbounds ([24 x i8]* @.exception.DivisionByZero.name, i32 0, i32 0) }
+
+;;; Array out of bounds
+@.exception.ArrayOutOfBounds.name = constant [26 x i8] c"ArrayOutOfBoundsException\00"
+%.exception.ArrayOutOfBounds.type.ir = type { i8*, i32, i32 }
+@.exception.ArrayOutOfBounds.type.cpp = constant { i8*, i8* } {
+  i8* bitcast (i8** getelementptr inbounds (i8** @_ZTVN10__cxxabiv117__class_type_infoE, i64 2) to i8*),
+  i8* getelementptr inbounds ([26 x i8]* @.exception.ArrayOutOfBounds.name, i32 0, i32 0) }
+@.exception.ArrayOutOfBounds.format = constant [46 x i8] c"Array address: %p\0AArray length: %d\0AIndex: %d\0A\00"
 
 ; Standard functions
 
@@ -93,9 +107,9 @@ define i64 @div_long(i64,i64) {
     %result = sdiv i64 %0, %1
     ret i64 %result
   Zero:
-    %exception.content = alloca %struct.exception.DivisionByZero
+    %exception.content = alloca %.exception.DivisionByZero.type.ir
     %exception.instance = call i8* @__cxa_allocate_exception(i32 1)
-    call void @__cxa_throw(i8* %exception.instance, i8* bitcast ({ i8*, i8* }* @.exception.DivisionByZero.type to i8*), i8* null) noreturn
+    call void @__cxa_throw(i8* %exception.instance, i8* bitcast ({ i8*, i8* }* @.exception.DivisionByZero.type.cpp to i8*), i8* null) noreturn
     unreachable
 }
 
@@ -107,8 +121,8 @@ define double @div_double(double,double) {
     %result = fdiv double %0, %1
     ret double %result
   Zero:
-    %exception.content = alloca %struct.exception.DivisionByZero
+    %exception.content = alloca %.exception.DivisionByZero.type.ir
     %exception.instance = call i8* @__cxa_allocate_exception(i32 1)
-    call void @__cxa_throw(i8* %exception.instance, i8* bitcast ({ i8*, i8* }* @.exception.DivisionByZero.type to i8*), i8* null) noreturn
+    call void @__cxa_throw(i8* %exception.instance, i8* bitcast ({ i8*, i8* }* @.exception.DivisionByZero.type.cpp to i8*), i8* null) noreturn
     unreachable
 }

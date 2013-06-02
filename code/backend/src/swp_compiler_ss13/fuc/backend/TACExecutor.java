@@ -31,7 +31,7 @@ public class TACExecutor
 	 * @throws IOException if <code>lli</code> is not found
 	 */
 	private static Process tryToStartLLI() throws IOException {
-		ProcessBuilder pb = new ProcessBuilder("lli", "-");
+		ProcessBuilder pb = new ProcessBuilder("lli", "-jit-enable-eh", "-");
 		pb.redirectErrorStream(true);
 		Process p = null;
 		try {

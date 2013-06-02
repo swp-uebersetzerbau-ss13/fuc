@@ -23,6 +23,7 @@ import java.util.Map;
 public class LLVMBackend implements Backend
 {
 	public final String llvm_preamble;
+	public final String llvm_uncaught;
 
 	public LLVMBackend() {
 		StringBuilder out = new StringBuilder();
@@ -39,6 +40,21 @@ public class LLVMBackend implements Backend
 		catch(IOException e) { }
 
 		this.llvm_preamble = out.toString();
+
+		out = new StringBuilder();
+
+		try {
+			BufferedReader reader = new BufferedReader(
+				new InputStreamReader(
+					this.getClass().getResourceAsStream("uncaught.ll")));
+			String line;
+			while((line = reader.readLine()) != null) {
+				out.append("  " + line + "\n");
+			}
+		}
+		catch(IOException e) { }
+
+		this.llvm_uncaught = "\n" + out.toString();
 	}
 
 	/**
@@ -336,6 +352,9 @@ public class LLVMBackend implements Backend
 		{
 			out.println("  ret i64 0");
 		}
+
+		/* Write handler for uncaught exceptions */
+		out.print(this.llvm_uncaught);
 
 		/* Write end for main function */
 		out.println("}");
