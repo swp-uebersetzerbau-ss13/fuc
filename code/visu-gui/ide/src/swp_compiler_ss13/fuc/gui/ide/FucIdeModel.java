@@ -209,4 +209,16 @@ public class FucIdeModel implements IDE {
 	public List<Controller> getGUIControllers() {
 		return this.controller_instances;
 	}
+
+	public void addTab(Controller c) {
+		this.tabs.add(new FucIdeTab(c, c.getView().getComponent(), c.getView().getName(), c.getView().getPosition()));
+	}
+
+	public List<FucIdeTab> getTabs() {
+		return this.tabs;
+	}
+
+	public List<FucIdeMenu> getMenus() {
+		return this.menus;
+	}
 }

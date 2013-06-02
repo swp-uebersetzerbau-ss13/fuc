@@ -84,4 +84,9 @@ public class FucIdeSourceCodeView extends JPanel implements View {
 		fileMenu.setMnemonic(KeyEvent.VK_F);
 		ide.addMenu(fileMenu, Position.SOURCE_CODE, true);
 	}
+
+	@Override
+	public String getName() {
+		return "Source Code";
+	}
 }

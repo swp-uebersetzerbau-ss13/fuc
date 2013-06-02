@@ -2,6 +2,7 @@ package swp_compiler_ss13.fuc.gui.ide.data;
 
 import javax.swing.JComponent;
 
+import swp_compiler_ss13.fuc.gui.ide.mvc.Controller;
 import swp_compiler_ss13.fuc.gui.ide.mvc.Position;
 
 /**
@@ -10,11 +11,7 @@ import swp_compiler_ss13.fuc.gui.ide.mvc.Position;
  * @author "Frank Zechert"
  * @version 1
  */
-public class FucIdeTab {
-	/**
-	 * Whether this menu is always visible
-	 */
-	private boolean alwaysVisible;
+public class FucIdeTab implements Comparable<FucIdeTab> {
 	/**
 	 * The position to display this item at
 	 */
@@ -23,37 +20,32 @@ public class FucIdeTab {
 	 * The menu to display
 	 */
 	private JComponent component;
+	/**
+	 * The controller
+	 */
+	private Controller controller;
+	/**
+	 * The name
+	 */
+	private String name;
 
 	/**
-	 * The constructor
+	 * Create a new instance
 	 * 
-	 * @param alwaysVisible
-	 *            whether this menu is always visible
-	 * @param position
-	 *            the position to display this item at
+	 * @param c
+	 *            controller
 	 * @param component
-	 *            the component to display
+	 *            gui component
+	 * @param name
+	 *            name
+	 * @param position
+	 *            position
 	 */
-	public FucIdeTab(boolean alwaysVisible, Position position, JComponent component) {
-		super();
-		this.alwaysVisible = alwaysVisible;
-		this.position = position;
+	public FucIdeTab(Controller c, JComponent component, String name, Position position) {
 		this.component = component;
-	}
-
-	/**
-	 * @return the alwaysVisible
-	 */
-	public boolean isAlwaysVisible() {
-		return this.alwaysVisible;
-	}
-
-	/**
-	 * @param alwaysVisible
-	 *            the alwaysVisible to set
-	 */
-	public void setAlwaysVisible(boolean alwaysVisible) {
-		this.alwaysVisible = alwaysVisible;
+		this.controller = c;
+		this.name = name;
+		this.position = position;
 	}
 
 	/**
@@ -74,7 +66,7 @@ public class FucIdeTab {
 	/**
 	 * @return the component
 	 */
-	public JComponent getMenu() {
+	public JComponent getComponent() {
 		return this.component;
 	}
 
@@ -82,7 +74,50 @@ public class FucIdeTab {
 	 * @param component
 	 *            the component to set
 	 */
-	public void setMenu(JComponent component) {
+	public void setComponent(JComponent component) {
 		this.component = component;
+	}
+
+	/**
+	 * @return the controller
+	 */
+	public Controller getController() {
+		return this.controller;
+	}
+
+	/**
+	 * @param controller
+	 *            the controller to set
+	 */
+	public void setController(Controller controller) {
+		this.controller = controller;
+	}
+
+	/**
+	 * @return the name
+	 */
+	public String getName() {
+		return this.name;
+	}
+
+	/**
+	 * @param name
+	 *            the name to set
+	 */
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	@Override
+	public int compareTo(FucIdeTab other) {
+		int myPos = this.position.ordinal();
+		int otherPos = other.position.ordinal();
+		if (myPos < otherPos) {
+			return -1;
+		}
+		if (myPos > otherPos) {
+			return 1;
+		}
+		return this.name.compareTo(other.name);
 	}
 }

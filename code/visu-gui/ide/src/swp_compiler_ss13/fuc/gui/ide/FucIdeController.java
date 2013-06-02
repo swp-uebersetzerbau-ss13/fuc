@@ -1,5 +1,6 @@
 package swp_compiler_ss13.fuc.gui.ide;
 
+import java.util.Arrays;
 import java.util.List;
 
 import swp_compiler_ss13.common.backend.Backend;
@@ -7,6 +8,8 @@ import swp_compiler_ss13.common.ir.IntermediateCodeGenerator;
 import swp_compiler_ss13.common.lexer.Lexer;
 import swp_compiler_ss13.common.parser.Parser;
 import swp_compiler_ss13.common.semanticAnalysis.SemanticAnalyser;
+import swp_compiler_ss13.fuc.gui.ide.data.FucIdeMenu;
+import swp_compiler_ss13.fuc.gui.ide.data.FucIdeTab;
 import swp_compiler_ss13.fuc.gui.ide.mvc.Controller;
 
 import com.sun.istack.internal.logging.Logger;
@@ -115,11 +118,19 @@ public class FucIdeController {
 				logger.info("notifying the controller " + c.getClass().getName() + " about model changes");
 				c.notifyModelChanged();
 			}
+			this.model.addTab(c);
+			this.notifyModelTab();
 		}
 	}
 
 	public void notifyModelAddedMenu() {
+		FucIdeMenu[] menus = this.model.getMenus().toArray(new FucIdeMenu[] {});
+		Arrays.sort(menus);
 
+		this.view.clearMenus();
+		for (FucIdeMenu menu : menus) {
+			this.view.addMenu(menu);
+		}
 	}
 
 	public void notifyModelAddedButton() {
@@ -128,6 +139,17 @@ public class FucIdeController {
 
 	public void notifyModelAddedLabel() {
 
+	}
+
+	public void notifyModelTab() {
+		FucIdeTab[] tabs = this.model.getTabs().toArray(new FucIdeTab[] {});
+		Arrays.sort(tabs);
+
+		this.view.clearTabs();
+		for (FucIdeTab tab : tabs) {
+			logger.info("adding tab " + tab.getName());
+			this.view.addTab(tab.getName(), tab.getComponent());
+		}
 	}
 
 	public static void main(String[] args) {

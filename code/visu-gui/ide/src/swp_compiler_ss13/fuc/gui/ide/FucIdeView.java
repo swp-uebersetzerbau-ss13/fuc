@@ -3,16 +3,18 @@ package swp_compiler_ss13.fuc.gui.ide;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
-import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -31,6 +33,7 @@ import swp_compiler_ss13.common.ir.IntermediateCodeGenerator;
 import swp_compiler_ss13.common.lexer.Lexer;
 import swp_compiler_ss13.common.parser.Parser;
 import swp_compiler_ss13.common.semanticAnalysis.SemanticAnalyser;
+import swp_compiler_ss13.fuc.gui.ide.data.FucIdeMenu;
 
 public class FucIdeView extends JFrame {
 	private JPanel contentPane;
@@ -63,6 +66,10 @@ public class FucIdeView extends JFrame {
 	private ButtonGroup semanticGroup = new ButtonGroup();
 	private ButtonGroup irgenGroup = new ButtonGroup();
 	private ButtonGroup backendGroup = new ButtonGroup();
+
+	private List<JMenu> customMenus = new LinkedList<>();
+	private JPanel panel;
+	private JPanel panel_1;
 
 	/**
 	 * Create the frame.
@@ -125,15 +132,21 @@ public class FucIdeView extends JFrame {
 		this.setContentPane(this.contentPane);
 		this.contentPane.setLayout(new BorderLayout(0, 0));
 
+		this.panel = new JPanel();
+		this.contentPane.add(this.panel, BorderLayout.NORTH);
+		this.panel.setLayout(new BorderLayout(0, 0));
+
 		this.buttonPanel = new JPanel();
-		this.contentPane.add(this.buttonPanel, BorderLayout.NORTH);
+		this.panel.add(this.buttonPanel);
 		this.buttonPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 
 		this.runButton = new JButton("run");
-		this.runButton.setMargin(new Insets(2, 2, 2, 2));
 		this.runButton
 				.setIcon(new ImageIcon(FucIdeView.class.getResource("/swp_compiler_ss13/fuc/gui/ide/assets/run.png")));
 		this.buttonPanel.add(this.runButton);
+
+		this.panel_1 = new JPanel();
+		this.panel.add(this.panel_1, BorderLayout.SOUTH);
 
 		this.splitPane = new JSplitPane();
 		this.splitPane.setOneTouchExpandable(true);
@@ -210,4 +223,23 @@ public class FucIdeView extends JFrame {
 		}
 	}
 
+	public void clearTabs() {
+		this.componentTabs.removeAll();
+	}
+
+	public void addTab(String name, JComponent c) {
+		this.componentTabs.add(name, c);
+	}
+
+	public void clearMenus() {
+		for (JMenu m : this.customMenus) {
+			this.menuBar.remove(m);
+		}
+		this.customMenus.clear();
+	}
+
+	public void addMenu(FucIdeMenu menu) {
+		this.menuBar.add(menu.getMenu());
+		this.customMenus.add(menu.getMenu());
+	}
 }
