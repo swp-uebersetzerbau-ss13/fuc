@@ -82,6 +82,15 @@ public class RuntimeTest {
 	}
 
 	@Test
+	public void divisionThroughZero() throws IOException, BackendException, InterruptedException {
+		tac.add(new Q(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
+		tac.add(new Q(Quadruple.Operator.DIV_LONG, "#23", "#0", "result"));
+
+		ExecutionResult res = TACExecutor.runIR(generateCode(tac));
+		assertEquals("Program terminated by uncaught exception of type 'DivisionByZeroException'\n", res.output);
+	}
+
+	@Test
 	public void notBooleanTest() throws InterruptedException, BackendException, IOException {
 
 		out.println("DECLARE_BOOLEAN|!|!|b");
@@ -126,7 +135,6 @@ public class RuntimeTest {
 		out.println("PRINT_STRING|s|!|!");
 
 		assertEquals(0, runTAC().exitCode);
-
 	}
 
 
