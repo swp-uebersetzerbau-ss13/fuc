@@ -8,7 +8,7 @@ import java.awt.LayoutManager;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AST_LayoutManager implements LayoutManager {
+class AST_LayoutManager implements LayoutManager {
 
 	public static final String BUTTON = "fuc.visualisation.ast.BUTTON";
 	public static final String CHILDREN = "fuc.visualisation.ast.CHILDREN";
@@ -106,7 +106,7 @@ public class AST_LayoutManager implements LayoutManager {
 					arrowsLeft = x + dim.width / 2;
 				}
 				arrowsRight = x + dim.width / 2;
-				arrows.addPoint(buttonMiddle - arrowsLeft + 2, 0, arrowsRight - arrowsLeft + 2, y
+				arrows.addArrow(buttonMiddle - arrowsLeft + 2, 0, arrowsRight - arrowsLeft + 2, y
 						- buttonBottom);
 				x += dim.width + HGAP;
 			}

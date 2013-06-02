@@ -6,6 +6,11 @@ import swp_compiler_ss13.fuc.gui.ide.mvc.IDE;
 import swp_compiler_ss13.fuc.gui.ide.mvc.Model;
 import swp_compiler_ss13.fuc.gui.ide.mvc.View;
 
+/**
+ * 
+ * @author "Eduard Wolf"
+ * 
+ */
 public class AST_Controller implements Controller {
 
 	private final AST_Model model;

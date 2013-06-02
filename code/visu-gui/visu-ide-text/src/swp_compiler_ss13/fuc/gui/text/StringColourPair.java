@@ -2,6 +2,10 @@ package swp_compiler_ss13.fuc.gui.text;
 
 import java.awt.Color;
 
+/**
+ * @author "Eduard Wolf"
+ *
+ */
 public class StringColourPair {
 
 	private String text;
@@ -17,11 +21,17 @@ public class StringColourPair {
 	}
 
 	public StringColourPair setText(String text) {
+		if (text == null) {
+			text = "";
+		}
 		this.text = text;
 		return this;
 	}
 
 	public StringColourPair setColor(ColorWrapper color) {
+		if (color == null) {
+			color = DefaultColorWrapper.BLACK;
+		}
 		this.color = color;
 		return this;
 	}

@@ -18,6 +18,13 @@ import swp_compiler_ss13.fuc.gui.ide.mvc.IDE;
 import swp_compiler_ss13.fuc.gui.ide.mvc.Position;
 import swp_compiler_ss13.fuc.gui.ide.mvc.View;
 
+/**
+ * 
+ * View of {@link IDE} to display the elements converted from {@link Text_Model}
+ * 
+ * @author "Eduard Wolf"
+ * 
+ */
 public class Text_View implements View {
 
 	private Logger log = Logger.getLogger(Text_View.class);

@@ -23,6 +23,10 @@ import swp_compiler_ss13.fuc.gui.ide.mvc.IDE;
 import swp_compiler_ss13.fuc.gui.ide.mvc.Position;
 import swp_compiler_ss13.fuc.gui.ide.mvc.View;
 
+/**
+ * @author "Eduard Wolf"
+ *
+ */
 public class AST_View extends JLayeredPane implements View {
 
 	private static final long serialVersionUID = 6193040949770147285L;

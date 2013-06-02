@@ -9,7 +9,14 @@ import java.util.List;
 
 import javax.swing.JLabel;
 
-public class Arrow_Panel extends JLabel {
+/**
+ * Component to draw arrows.<br/>
+ * The points can be set by {@link #addArrow}.
+ * 
+ * @author "Eduard Wolf"
+ * 
+ */
+class Arrow_Panel extends JLabel {
 
 	private static final long serialVersionUID = 2703529835276986317L;
 
@@ -42,7 +49,7 @@ public class Arrow_Panel extends JLabel {
 		}
 	}
 
-	public void addPoint(int x1, int y1, int x2, int y2) {
+	public void addArrow(int x1, int y1, int x2, int y2) {
 		points.add(new int[] { x1,y1,x2,y2 });
 	}
 

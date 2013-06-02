@@ -3,21 +3,32 @@ package swp_compiler_ss13.fuc.gui.text;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.fuc.gui.ide.mvc.Controller;
+import swp_compiler_ss13.fuc.gui.ide.mvc.IDE;
 import swp_compiler_ss13.fuc.gui.ide.mvc.Model;
 
+/**
+ * 
+ * Model of {@link IDE} to convert the <strong>source code</strong>, <strong>
+ * {@link Token}</strong>, the <strong>{@link AST}</strong>, <strong>
+ * {@link Quadruple}</strong> or the <strong>target</strong> to displayable text
+ * in the {@link IDE}
+ * 
+ * @author "Eduard Wolf"
+ * 
+ */
 public abstract class Text_Model implements Model {
 
 	private Text_Controller controller;
 	private List<ModelType> types;
-	private List<StringColourPair> viewInformation;
+	private final Map<ModelType, List<StringColourPair>> viewInformation;
 
 	/**
 	 * @param controller
@@ -28,6 +39,7 @@ public abstract class Text_Model implements Model {
 	public Text_Model(Text_Controller controller, ModelType... types) {
 		this.controller = controller;
 		this.types = Arrays.asList(types);
+		viewInformation = new HashMap<>();
 	}
 
 	/**
@@ -44,7 +56,7 @@ public abstract class Text_Model implements Model {
 	@Override
 	public boolean setSourceCode(String sourceCode) {
 		if (types.contains(ModelType.SOURCE_CODE)) {
-			viewInformation = sourceCodeToViewInformation(sourceCode);
+			viewInformation.put(ModelType.SOURCE_CODE, sourceCodeToViewInformation(sourceCode));
 			return true;
 		} else {
 			return false;
@@ -63,7 +75,7 @@ public abstract class Text_Model implements Model {
 	}
 
 	protected String sourceCodeToString(String sourceCode) {
-		throw new NotImplementedException();
+		throw new UnsupportedOperationException();
 	}
 
 	/**
@@ -72,7 +84,7 @@ public abstract class Text_Model implements Model {
 	@Override
 	public boolean setTokens(List<Token> tokens) {
 		if (types.contains(ModelType.TOKEN)) {
-			viewInformation = tokenToViewInformation(tokens);
+			viewInformation.put(ModelType.TOKEN, tokenToViewInformation(tokens));
 			return true;
 		} else {
 			return false;
@@ -112,7 +124,7 @@ public abstract class Text_Model implements Model {
 	}
 
 	protected String tokenToString(Token token) {
-		throw new NotImplementedException();
+		throw new UnsupportedOperationException();
 	}
 
 	/**
@@ -121,7 +133,7 @@ public abstract class Text_Model implements Model {
 	@Override
 	public boolean setAST(AST ast) {
 		if (types.contains(ModelType.AST)) {
-			viewInformation = astToViewInformation(ast);
+			viewInformation.put(ModelType.AST, astToViewInformation(ast));
 			return true;
 		} else {
 			return false;
@@ -140,7 +152,7 @@ public abstract class Text_Model implements Model {
 	}
 
 	protected String astToString(AST ast) {
-		throw new NotImplementedException();
+		throw new UnsupportedOperationException();
 	}
 
 	/**
@@ -149,7 +161,7 @@ public abstract class Text_Model implements Model {
 	@Override
 	public boolean setTAC(List<Quadruple> tac) {
 		if (types.contains(ModelType.TAC)) {
-			viewInformation = tacToViewInformation(tac);
+			viewInformation.put(ModelType.TAC, tacToViewInformation(tac));
 			return true;
 		} else {
 			return false;
@@ -189,7 +201,7 @@ public abstract class Text_Model implements Model {
 	}
 
 	protected String tacToString(Quadruple tac) {
-		throw new NotImplementedException();
+		throw new UnsupportedOperationException();
 	}
 
 	/**
@@ -198,7 +210,7 @@ public abstract class Text_Model implements Model {
 	@Override
 	public boolean setTargetCode(Map<String, InputStream> target) {
 		if (types.contains(ModelType.TARGET)) {
-			viewInformation = targetToViewInformation(target);
+			viewInformation.put(ModelType.TARGET, targetToViewInformation(target));
 			return true;
 		} else {
 			return false;
@@ -217,11 +229,14 @@ public abstract class Text_Model implements Model {
 	}
 
 	protected String targetToString(Map<String, InputStream> target) {
-		throw new NotImplementedException();
+		throw new UnsupportedOperationException();
 	}
 
-	public List<StringColourPair> getViewInformation() {
-		return viewInformation;
+	public List<StringColourPair> getViewInformation(ModelType type) {
+		if (type == null) {
+			throw new NullPointerException("type cannot be null");
+		}
+		return viewInformation.get(type);
 	}
 
 	protected enum ModelType {
