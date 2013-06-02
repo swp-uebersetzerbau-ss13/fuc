@@ -31,11 +31,11 @@ public class RuntimeTest {
 	public static void setUpBeforeClass() throws Exception {
 
 		logger = Logger.getLogger(RuntimeTest.class);
-		
+
 		/* only run tests if lli (dynamic compiler from LLVM) is found */
 		Assume.assumeTrue(checkForLLIInstallation());
-		
-		backend = new LLVMBackend();				 
+
+		backend = new LLVMBackend();
 	}
 
 	/* Called before every test */
@@ -84,7 +84,8 @@ public class RuntimeTest {
 	@Test
 	public void divisionThroughZero() throws IOException, BackendException, InterruptedException {
 		tac.add(new Q(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
-		tac.add(new Q(Quadruple.Operator.DIV_LONG, "#23", "#0", "result"));
+		tac.add(new Q(Quadruple.Operator.DECLARE_LONG, "#0", Quadruple.EmptyArgument, "l"));
+		tac.add(new Q(Quadruple.Operator.DIV_LONG, "#23", "l", "result"));
 
 		ExecutionResult res = TACExecutor.runIR(generateCode(tac));
 		assertEquals("Program terminated by uncaught exception of type 'DivisionByZeroException'\n", res.output);
