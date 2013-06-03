@@ -372,6 +372,24 @@
 			<zipfileset dir="${visu.gui.ide.dir}/${src.dir}" prefix="src" />
 			<zipfileset dir="${visu.gui.ide.dir}/${doc.dir}" prefix="doc" />
 		</jar>
+		
+		<!-- create the visu-gui-ide-text package -->
+		<jar destfile="${dist.dir}/Fuc-Gui-Ide-Text.jar" update="true">
+			<zipfileset dir="${visu.gui.ide.text.dir}/${src.dir}" prefix="src" />
+			<zipfileset dir="${visu.gui.ide.text.dir}/${doc.dir}" prefix="doc" />
+		</jar>
+		
+		<!-- create the visu-gui-ide-ast package -->
+		<jar destfile="${dist.dir}/Fuc-Gui-Ide-Ast.jar" update="true">
+			<zipfileset dir="${visu.gui.ide.ast.dir}/${src.dir}" prefix="src" />
+			<zipfileset dir="${visu.gui.ide.ast.dir}/${doc.dir}" prefix="doc" />
+		</jar>
+		
+		<!-- create the visu-gui-ide-text-token package -->
+		<jar destfile="${dist.dir}/Fuc-Gui-Ide-Text-Token.jar" basedir="${visu.gui.ide.text.token.dir}/${bin.dir}">
+			<zipfileset dir="${visu.gui.ide.text.token.dir}/${src.dir}" prefix="src" />
+			<zipfileset dir="${visu.gui.ide.text.token.dir}/${doc.dir}" prefix="doc" />
+		</jar>
 	</target>
 	
 	<!-- === run without build === -->
