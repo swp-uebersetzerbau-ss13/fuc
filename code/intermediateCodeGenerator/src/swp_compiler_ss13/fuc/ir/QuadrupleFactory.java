@@ -61,6 +61,21 @@ public class QuadrupleFactory {
 		return quadruples;
 	}
 
+	/**
+	 * create a quadruple to represent array_get
+	 * 
+	 * @param type
+	 *            the type of the variable to get
+	 * @param source
+	 *            the source to get
+	 * @param index
+	 *            the index to get
+	 * @param target
+	 *            the target where the reference is stored
+	 * @return the quadruple
+	 * @throws IntermediateCodeGeneratorException
+	 *             something went wring
+	 */
 	public static Quadruple arrayGet(Type type, String source, String index, String target)
 			throws IntermediateCodeGeneratorException {
 		switch (type.getKind()) {
@@ -177,19 +192,55 @@ public class QuadrupleFactory {
 	 *            The value to assign to
 	 * @param to
 	 *            The variable to hold the assigned value
+	 * @param fromIndex
+	 *            The index of the array to assign from. null for no array
+	 * @param toIndex
+	 *            The index of the array to assign to. null for no array
 	 * @return The tac quadruple
 	 * @throws IntermediateCodeGeneratorException
 	 *             something went wrong.
 	 */
-	public static Quadruple assign(Type typeOfid, String from, String to) throws IntermediateCodeGeneratorException {
-		switch (typeOfid.getKind()) {
-		case DOUBLE:
-			return new QuadrupleImpl(Operator.ASSIGN_DOUBLE, from, Quadruple.EmptyArgument, to);
-		case LONG:
-			return new QuadrupleImpl(Operator.ASSIGN_LONG, from, Quadruple.EmptyArgument, to);
-		default:
+	public static List<Quadruple> assign(Type typeOfid, String from, String to, Integer fromIndex, Integer toIndex)
+			throws IntermediateCodeGeneratorException {
+
+		List<Quadruple> quadruples = new LinkedList<>();
+		if (toIndex != null && fromIndex != null) {
 			throw new IntermediateCodeGeneratorException("Unsupport assignment type");
+		} else if (toIndex != null) {
+			switch (typeOfid.getKind()) {
+			case DOUBLE:
+				quadruples.add(new QuadrupleImpl(Operator.ARRAY_SET_DOUBLE, to, "#" + toIndex, from));
+				break;
+			case LONG:
+				quadruples.add(new QuadrupleImpl(Operator.ARRAY_SET_LONG, to, "#" + toIndex, from));
+				break;
+			default:
+				throw new IntermediateCodeGeneratorException("Unsupport assignment type");
+			}
+		} else if (fromIndex != null) {
+			switch (typeOfid.getKind()) {
+			case DOUBLE:
+				quadruples.add(new QuadrupleImpl(Operator.ARRAY_GET_DOUBLE, from, "#" + fromIndex, to));
+				break;
+			case LONG:
+				quadruples.add(new QuadrupleImpl(Operator.ARRAY_GET_LONG, from, "#" + fromIndex, to));
+				break;
+			default:
+				throw new IntermediateCodeGeneratorException("Unsupport assignment type");
+			}
+		} else {
+			switch (typeOfid.getKind()) {
+			case DOUBLE:
+				quadruples.add(new QuadrupleImpl(Operator.ASSIGN_DOUBLE, from, Quadruple.EmptyArgument, to));
+				break;
+			case LONG:
+				quadruples.add(new QuadrupleImpl(Operator.ASSIGN_LONG, from, Quadruple.EmptyArgument, to));
+				break;
+			default:
+				throw new IntermediateCodeGeneratorException("Unsupport assignment type");
+			}
 		}
+		return quadruples;
 	}
 
 	/**
