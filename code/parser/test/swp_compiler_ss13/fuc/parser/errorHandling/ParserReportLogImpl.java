@@ -1,13 +1,25 @@
 package swp_compiler_ss13.fuc.parser.errorHandling;
 
-import swp_compiler_ss13.common.parser.ReportLog;
+import java.util.List;
+
+import swp_compiler_ss13.common.lexer.Token;
+import swp_compiler_ss13.common.report.ReportLog;
+import swp_compiler_ss13.common.report.ReportType;
 
 public class ParserReportLogImpl implements ReportLog{
 
+
 	@Override
-	public void reportError(String text, Integer line, Integer column,
+	public void reportWarning(ReportType type, List<Token> tokens,
 			String message) {
-		System.err.println(text + " : l:" + line + " c:" + " " + message);
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void reportError(ReportType type, List<Token> tokens, String message) {
+		System.out.println(message);
+		
 	}
 
 }

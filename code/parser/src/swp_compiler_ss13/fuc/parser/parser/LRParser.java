@@ -1,5 +1,6 @@
 package swp_compiler_ss13.fuc.parser.parser;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
@@ -8,8 +9,10 @@ import org.apache.log4j.Logger;
 
 import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
+import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
-import swp_compiler_ss13.common.parser.ReportLog;
+import swp_compiler_ss13.common.report.ReportLog;
+import swp_compiler_ss13.common.report.ReportType;
 import swp_compiler_ss13.fuc.ast.ASTImpl;
 import swp_compiler_ss13.fuc.parser.grammar.Production;
 import swp_compiler_ss13.fuc.parser.grammar.TokenEx;
@@ -55,8 +58,10 @@ public class LRParser {
 			TokenType tokenType = token.getTokenType();
 			switch (tokenType) {
 			case NOT_A_TOKEN:
-				reportLog.reportError(token.getValue(), token.getLine(),
-						token.getColumn(), "Found undefined token '" + token.getValue() + "'!");
+				List<Token> list = new ArrayList<Token>();
+				list.add(token);
+				reportLog.reportError(ReportType.UNDEFINED, list,
+						"Found undefined token '" + token.getValue() + "'!");
 				throw new ParserException("undefined Token found");
 
 			case COMMENT:
@@ -124,7 +129,9 @@ public class LRParser {
 				LRParserState newState = table.getGotoTable().get(parserStack.peek(),
 						prod.getLHS());
 				if (newState.isErrorState()) {
-					reportLog.reportError(token.getValue(), token.getLine(), token.getColumn(), "");
+					List<Token> list = new ArrayList<Token>();
+					list.add(token);
+					reportLog.reportError(ReportType.UNDEFINED, list, "");
 					throw new ParserException("Error state occurred");
 				}
 				parserStack.push(newState);
@@ -133,8 +140,9 @@ public class LRParser {
 
 			case ACCEPT: {
 				if (tokenType != TokenType.EOF) {
-					reportLog.reportError(token.getValue(), token.getLine(),
-							token.getColumn(), "");
+					List<Token> list = new ArrayList<Token>();
+					list.add(token);
+					reportLog.reportError(ReportType.UNRECOGNIZED_TOKEN, list,"");
 					throw new ParserException("End of File expected!");
 				} else {
 					BlockNode programBlock = (BlockNode) valueStack.pop();
@@ -145,8 +153,9 @@ public class LRParser {
 
 			case ERROR: {
 				Error error = (Error) action;
-				reportLog.reportError(token.getValue(), token.getLine(),
-						token.getColumn(),
+				List<Token> list = new ArrayList<Token>();
+				list.add(token);
+				reportLog.reportError(ReportType.UNDEFINED,list,
 						"An error occurred: " + error.getMsg());
 						throw new ParserException("Get Error State from Actiontable");
 			}

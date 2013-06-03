@@ -1,10 +1,12 @@
 package swp_compiler_ss13.fuc.parser.parser;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import swp_compiler_ss13.common.ast.ASTNode;
 import swp_compiler_ss13.common.ast.nodes.ExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.IdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.StatementNode;
@@ -25,8 +27,9 @@ import swp_compiler_ss13.common.ast.nodes.unary.UnaryExpressionNode.UnaryOperato
 import swp_compiler_ss13.common.lexer.NumToken;
 import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
-import swp_compiler_ss13.common.parser.ReportLog;
 import swp_compiler_ss13.common.parser.SymbolTable;
+import swp_compiler_ss13.common.report.ReportLog;
+import swp_compiler_ss13.common.report.ReportType;
 import swp_compiler_ss13.common.types.Type;
 import swp_compiler_ss13.common.types.derived.ArrayType;
 import swp_compiler_ss13.common.types.primitive.BooleanType;
@@ -152,8 +155,17 @@ public class ReduceImpl {
 				public Object create(Object... objs) throws ParserException  {
 					
 					if(!(objs[0] instanceof DeclarationNode)){
-						reportLog.reportError("No declaration", -1, -1, "there is no Declarationnode found!");
-						throw new ParserException("Declarationnode expected");
+						if(objs[0] instanceof ASTNode){
+							reportLog.reportError(ReportType.UNDEFINED, ((ASTNode)objs[0]).coverage(), "there is no Declarationnode found!");
+							throw new ParserException("Declarationnode expected");
+						}
+						if(objs[0] instanceof Token){
+							List<Token> list = new ArrayList<Token>();
+							list.add((Token)objs[0]);
+							reportLog.reportError(ReportType.UNDEFINED, list, "there is no Declarationnode found!");
+							throw new ParserException("Declarationnode expected");
+
+						}
 					}
 					
 					DeclarationNode decl = (DeclarationNode) objs[0];
@@ -247,26 +259,35 @@ public class ReduceImpl {
 				@Override
 				public Object create(Object... objs) throws ParserException {
 					
-					BranchNode node = new BranchNodeImpl();
+					BranchNodeImpl node = new BranchNodeImpl();
 					
-					if(objs[0] instanceof BlockNode){
-						node.setStatementNodeOnTrue((BlockNode)objs[0]);
-					}else{
-						if(objs[0] instanceof StatementNode){
-							node.setStatementNodeOnTrue((StatementNode)objs[0]);
-						}else{
-							reportLog.reportError("No statement", -1, -1, "theres no statement or blocknode in true case");
-							throw new ParserException("Statement or Blocknode expected");
-						}
-					}
+					Token ifToken = (Token)objs[0];
+					Token leftBranch = (Token)objs[1];
+					node.setCoverage(ifToken,leftBranch);
+					
 					
 					if(objs[2] instanceof AssignmentNode){
-						node.setCondition((AssignmentNode)objs[2]);
+						AssignmentNode condition = (AssignmentNode)objs[2];
+						node.setCondition(condition);
+						node.setCoverage(condition.coverage());
 					}else{
-						reportLog.reportError("No assignment", -1, -1, "theres no assignment as condition");
-						throw new ParserException("Assignment expected");
+						writeReportError(reportLog, objs[2], "Assignment");
 					}
 					
+					Token rightBranch = (Token)objs[3];
+					node.setCoverage(rightBranch);
+					
+					if(objs[4] instanceof BlockNode){
+						node.setStatementNodeOnTrue((BlockNode)objs[4]);
+					}else{
+						if(objs[4] instanceof StatementNode){
+							StatementNode block = (StatementNode)objs[4];
+							node.setStatementNodeOnTrue(block);
+							node.setCoverage(block.coverage());
+						}else{
+							writeReportError(reportLog, objs[4], "Block or Statement");
+						}
+					}
 					//TODO: is false to be set??
 					
 					return node;
@@ -279,39 +300,56 @@ public class ReduceImpl {
 				@Override
 				public Object create(Object... objs) throws ParserException {
 					
-					BranchNode node = new BranchNodeImpl();
+					BranchNodeImpl node = new BranchNodeImpl();
 					
-					if(objs[0] instanceof BlockNode){
-						node.setStatementNodeOnFalse((BlockNode)objs[0]);
+					Token ifToken = (Token)objs[0];
+					Token leftBranch = (Token)objs[1];
+					node.setCoverage(ifToken,leftBranch);
+					
+					if(objs[2] instanceof AssignmentNode){
+						AssignmentNode condition = (AssignmentNode)objs[2];
+						node.setCondition(condition);
+						node.setCoverage(condition.coverage());
 					}else{
-						if(objs[0] instanceof StatementNode){
-							//TODO: AST accept only BlockNodes
+						writeReportError(reportLog, objs[2], "Assignment");
+					}
+					
+					Token rightBranch = (Token)objs[3];
+					node.setCoverage(rightBranch);
+					
+					if(objs[4] instanceof BlockNode){
+						BlockNode block = (BlockNode)objs[4];
+						node.setStatementNodeOnFalse(block);
+						node.setCoverage(block.coverage());
+					}else{
+						if(objs[4] instanceof StatementNode){
+							StatementNode block = (StatementNode)objs[4];
+							node.setStatementNodeOnFalse(block);
+							node.setCoverage(block.coverage());
 						}else{
-							reportLog.reportError("No statement", -1, -1, "theres no statement or blocknode in true case");
-							throw new ParserException("Statement or Blocknode expected");
+							writeReportError(reportLog, objs[4], "Statement or BlockNode");
 						}
 					}
 					
-					if(objs[2] instanceof BlockNode){
-						node.setStatementNodeOnTrue((BlockNode)objs[0]);
-					}else{
-						if(objs[2] instanceof StatementNode){
-							//TODO: AST accept only BlockNodes
-						}else{
-							reportLog.reportError("No statement", -1, -1, "theres no statement or blocknode in true case");
-							throw new ParserException("Statement or Blocknode expected");
-						}
-					}
-					
-					if(objs[4] instanceof AssignmentNode){
-						node.setCondition((AssignmentNode)objs[2]);
-					}else{
-						reportLog.reportError("No assignment", -1, -1, "theres no assignment as condition");
-						throw new ParserException("Assignment expected");
-					}
+					Token elseToken = (Token)objs[5];
+					node.setCoverage(elseToken);
 							
+					if(objs[6] instanceof BlockNode){
+						BlockNode block = (BlockNode)objs[6];
+						node.setStatementNodeOnFalse(block);
+						node.setCoverage(block.coverage());
+					}else{
+						if(objs[6] instanceof StatementNode){
+							StatementNode block = (StatementNode)objs[6];
+							node.setStatementNodeOnFalse(block);
+							node.setCoverage(block.coverage());						
+						}else{
+							writeReportError(reportLog, objs[6], "Block or Statement");
+						}
+					}
 					return node;
 				}
+
 			};
 			
 		case "stmt -> while ( assign ) stmt":
@@ -358,8 +396,7 @@ public class ReduceImpl {
 					if(objs[0] instanceof IdentifierNode){
 						printNode.setRightValue((IdentifierNode)objs[0]);
 					}else{
-						reportLog.reportError("No identifier", -1, -1, "print expect an identifier");
-						throw new ParserException("Identifier expected");
+						writeReportError(reportLog, objs[0], "Identifier");
 					}
 					
 					return printNode;
@@ -486,13 +523,17 @@ public class ReduceImpl {
 			return new ReduceAction() {
 				@Override
 				public Object create(Object... objs) throws ParserException  {
-					// Token token = (Token) objs[0]; // minus
+					Token token = (Token) objs[0]; // minus
 					UnaryExpressionNode unary = (UnaryExpressionNode) objs[1];
 
-					ArithmeticUnaryExpressionNode arithUnary = new ArithmeticUnaryExpressionNodeImpl();
+					ArithmeticUnaryExpressionNodeImpl arithUnary = new ArithmeticUnaryExpressionNodeImpl();
 					arithUnary.setOperator(UnaryOperator.MINUS);
 					arithUnary.setRightValue(unary);
 					unary.setParentNode(arithUnary);
+					
+					arithUnary.setCoverage(token);
+					arithUnary.setCoverage(unary.coverage());
+					
 					return arithUnary;
 				}
 			};
@@ -575,8 +616,7 @@ public class ReduceImpl {
 					Token leftBrace = (Token) objs[1];
 					
 					if(!(objs[2] instanceof NumToken)){
-						reportLog.reportError("No Number", -1, -1, "Array expect a number");
-						throw new ParserException("NumToken expected");
+						writeReportError(reportLog,objs[2],"Number");
 					}
 					NumToken size = (NumToken) objs[2];
 					Token rightBrace = (Token) objs[3];
@@ -674,8 +714,8 @@ public class ReduceImpl {
 		SymbolTable symbolTable = block.getSymbolTable();
 		// TODO M2: Shadowing allowed???
 		if (symbolTable.isDeclaredInCurrentScope(decl.getIdentifier())) {
-			// TODO Add token to Nodes
-			reportLog.reportError(decl.getType() + " " + decl.getIdentifier(), -1, -1, "The variable '" + decl.getIdentifier() + "' of type '" + decl.getType() + "' has been declared twice!");
+			reportLog.reportError(ReportType.DOUBLE_DECLARATION, decl.coverage(), "The variable '" + 
+			decl.getIdentifier() + "' of type '" + decl.getType() + "' has been declared twice!");
 			throw new DoubleIdentifierException("double id exception");
 		}
 		block.addDeclaration(decl);
@@ -743,6 +783,21 @@ public class ReduceImpl {
 		binopImpl.setCoverage(right.coverage());
 		
 		return binop;
+	}
+	
+	private static void writeReportError(final ReportLog reportLog,
+			Object obj,String msg) {
+		if(obj instanceof ASTNode){
+			reportLog.reportError(ReportType.UNDEFINED, ((ASTNode)obj).coverage(), "there is no " + msg + " found!");
+			throw new ParserException(msg +" expected");
+		}
+		if(obj instanceof Token){
+			List<Token> list = new ArrayList<Token>();
+			list.add((Token)obj);
+			reportLog.reportError(ReportType.UNDEFINED, list, "there is no " + msg + " found!");
+			throw new ParserException(msg +" expected");
+
+		}
 	}
 	
 	private static class ReduceStringType extends Type{

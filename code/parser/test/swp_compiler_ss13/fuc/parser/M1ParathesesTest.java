@@ -1,15 +1,19 @@
 package swp_compiler_ss13.fuc.parser;
 
+import static org.junit.Assert.assertNotNull;
 import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.id;
 import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.num;
 import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.t;
-import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.M1.*;
+import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.M1.assignop;
+import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.M1.div;
+import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.M1.lb;
+import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.M1.minus;
+import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.M1.plus;
+import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.M1.rb;
+import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.M1.sem;
+import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.M1.times;
 
 import java.io.ByteArrayInputStream;
-
-import swp_compiler_ss13.fuc.lexer.LexerImpl;
-
-import static org.junit.Assert.assertNotNull;
 
 import org.apache.log4j.BasicConfigurator;
 import org.junit.Test;
@@ -17,7 +21,8 @@ import org.junit.Test;
 import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.lexer.Lexer;
 import swp_compiler_ss13.common.lexer.TokenType;
-import swp_compiler_ss13.common.parser.ReportLog;
+import swp_compiler_ss13.common.report.ReportLog;
+import swp_compiler_ss13.fuc.lexer.LexerImpl;
 import swp_compiler_ss13.fuc.parser.errorHandling.ParserReportLogImpl;
 import swp_compiler_ss13.fuc.parser.generator.ALRGenerator;
 import swp_compiler_ss13.fuc.parser.generator.LR0Generator;
