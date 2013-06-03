@@ -60,4 +60,9 @@ public interface IDE {
 	 *            the source code that should be compiled
 	 */
 	public void setSourceCode(String sourceCode);
+
+	/**
+	 * Run the compiler and update all gui components with new data
+	 */
+	public void run();
 }

@@ -314,4 +314,9 @@ public class FucIdeModel implements IDE {
 		this.sourcecode = sourceCode;
 		this.controller.notifySourceCodeChanged();
 	}
+
+	@Override
+	public void run() {
+		this.controller.onRunPressed();
+	}
 }

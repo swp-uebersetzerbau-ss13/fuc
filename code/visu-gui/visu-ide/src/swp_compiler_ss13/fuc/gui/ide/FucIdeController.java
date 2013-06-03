@@ -24,7 +24,6 @@ import swp_compiler_ss13.common.lexer.Lexer;
 import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.common.parser.Parser;
-import swp_compiler_ss13.common.parser.ReportLog;
 import swp_compiler_ss13.common.semanticAnalysis.SemanticAnalyser;
 import swp_compiler_ss13.fuc.gui.ide.data.FucIdeButton;
 import swp_compiler_ss13.fuc.gui.ide.data.FucIdeMenu;
@@ -77,8 +76,8 @@ public class FucIdeController {
 		new Thread() {
 			@Override
 			public void run() {
-				try {
-					while (true) {
+				while (true) {
+					try {
 						SwingUtilities.invokeAndWait(new Runnable() {
 							@Override
 							public void run() {
@@ -88,9 +87,9 @@ public class FucIdeController {
 						});
 
 						Thread.sleep(500);
+					} catch (InvocationTargetException | InterruptedException e) {
+						// ignore
 					}
-				} catch (InvocationTargetException | InterruptedException e) {
-					new FucIdeCriticalError(FucIdeController.this.view, e, false);
 				}
 			}
 		}.start();
@@ -292,7 +291,7 @@ public class FucIdeController {
 		if (sourceCode == null) {
 			sourceCode = "";
 		}
-		ReportLog log = new ReportLogImpl();
+		ReportLogImpl log = new ReportLogImpl();
 
 		try {
 			// do lexer stuff
@@ -351,6 +350,21 @@ public class FucIdeController {
 
 		} catch (Throwable e) {
 			new FucIdeCriticalError(this.view, e, true);
+		}
+
+		this.view.clearErrorLog();
+		int e = 0;
+		for (swp_compiler_ss13.fuc.parser.errorHandling.Error error : log.getErrors()) {
+			String txt = error.getText();
+			String message = error.getMessage();
+			String col = error.getColumn().toString();
+			String line = error.getLine().toString();
+			String show = message + " (" + txt + ") at line " + line + ":" + col;
+			this.view.addErrorLog(show);
+			e++;
+		}
+		if (e == 0) {
+			this.view.addErrorLog("No errors reported");
 		}
 	}
 

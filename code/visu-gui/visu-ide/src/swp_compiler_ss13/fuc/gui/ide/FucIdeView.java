@@ -1,8 +1,11 @@
 package swp_compiler_ss13.fuc.gui.ide;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -14,11 +17,13 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.ButtonGroup;
+import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -30,6 +35,8 @@ import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
@@ -64,7 +71,6 @@ public class FucIdeView extends JFrame {
 	private JSplitPane splitPane;
 	private JPanel statusPanel;
 	private JPanel consolePanel;
-	private JTabbedPane componentTabs;
 	private JTextPane consoleOutput;
 	private FucIdeController controller;
 	private Map<JRadioButtonMenuItem, Lexer> lexerMenus = new HashMap<>();
@@ -85,6 +91,13 @@ public class FucIdeView extends JFrame {
 	private List<JButton> customButtons = new LinkedList<>();
 	private List<JLabel> customLabels = new LinkedList<>();
 	private JScrollPane scrollPane;
+	private JPanel panel_2;
+	private JSplitPane splitPane_1;
+	private JTabbedPane componentTabs;
+	private JPanel panel_3;
+	private JLabel lblErrorReport;
+	private JScrollPane scrollPane_1;
+	private JList<String> errorReportList;
 
 	/**
 	 * Create the frame.
@@ -106,6 +119,12 @@ public class FucIdeView extends JFrame {
 		this.menuBar.add(this.ideMenu);
 
 		this.aboutMenuItem = new JMenuItem("About");
+		this.aboutMenuItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				new FucIdeAboutView().setVisible(true);
+			}
+		});
 		this.aboutMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, InputEvent.CTRL_MASK));
 		this.aboutMenuItem.setMnemonic(KeyEvent.VK_A);
 		this.ideMenu.add(this.aboutMenuItem);
@@ -114,6 +133,13 @@ public class FucIdeView extends JFrame {
 		this.ideMenu.add(separator);
 
 		this.quitMenuItem = new JMenuItem("Quit");
+		this.quitMenuItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				FucIdeView.this.dispose();
+				System.exit(0);
+			}
+		});
 		this.quitMenuItem.setMnemonic(KeyEvent.VK_Q);
 		this.quitMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4, InputEvent.ALT_MASK));
 		this.ideMenu.add(this.quitMenuItem);
@@ -185,6 +211,9 @@ public class FucIdeView extends JFrame {
 		this.scrollPane.setViewportView(this.consoleOutput);
 		this.consoleOutput.setEditable(false);
 
+		this.splitPane_1 = new JSplitPane();
+		this.splitPane.setLeftComponent(this.splitPane_1);
+
 		this.componentTabs = new JTabbedPane(JTabbedPane.TOP);
 		this.componentTabs.addChangeListener(new ChangeListener() {
 			@Override
@@ -192,7 +221,30 @@ public class FucIdeView extends JFrame {
 				controller.tabChanged();
 			}
 		});
-		this.splitPane.setLeftComponent(this.componentTabs);
+		this.splitPane_1.setLeftComponent(this.componentTabs);
+		this.splitPane_1.setDividerLocation(600);
+
+		this.panel_3 = new JPanel();
+		this.splitPane_1.setRightComponent(this.panel_3);
+		this.panel_3.setLayout(new BorderLayout(5, 5));
+
+		this.lblErrorReport = new JLabel("Error Report");
+		this.lblErrorReport.setFont(new Font("Dialog", Font.BOLD, 18));
+		this.lblErrorReport.setVerticalAlignment(SwingConstants.BOTTOM);
+		this.lblErrorReport.setPreferredSize(new Dimension(87, 25));
+		this.lblErrorReport.setHorizontalAlignment(SwingConstants.CENTER);
+		this.lblErrorReport.setHorizontalTextPosition(SwingConstants.CENTER);
+		this.panel_3.add(this.lblErrorReport, BorderLayout.NORTH);
+		DefaultListModel<String> lm = new DefaultListModel<String>();
+		lm.addElement("No errors reported");
+
+		this.scrollPane_1 = new JScrollPane();
+		this.panel_3.add(this.scrollPane_1, BorderLayout.CENTER);
+
+		this.errorReportList = new JList<String>();
+		this.errorReportList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		this.errorReportList.setModel(lm);
+		this.scrollPane_1.setViewportView(this.errorReportList);
 		this.splitPane.setDividerLocation(400);
 
 		this.statusPanel = new JPanel();
@@ -200,6 +252,14 @@ public class FucIdeView extends JFrame {
 		FlowLayout flowLayout = (FlowLayout) this.statusPanel.getLayout();
 		flowLayout.setAlignment(FlowLayout.RIGHT);
 		this.contentPane.add(this.statusPanel, BorderLayout.SOUTH);
+
+		this.panel_2 = new JPanel();
+		this.contentPane.add(this.panel_2, BorderLayout.EAST);
+
+		this.setBounds(new Rectangle(0, 0, 800, 600));
+		this.setSize(new Dimension(800, 600));
+
+		this.setLocationRelativeTo(null);
 	}
 
 	public void addComponentRadioMenuItem(final Lexer lexer) {
@@ -362,5 +422,13 @@ public class FucIdeView extends JFrame {
 			throw new RuntimeException(e);
 		}
 		this.consoleOutput.setCaretPosition(doc.getLength() - 1);
+	}
+
+	public void clearErrorLog() {
+		this.errorReportList.setModel(new DefaultListModel<String>());
+	}
+
+	public void addErrorLog(String msg) {
+		((DefaultListModel<String>) this.errorReportList.getModel()).addElement(msg);
 	}
 }
