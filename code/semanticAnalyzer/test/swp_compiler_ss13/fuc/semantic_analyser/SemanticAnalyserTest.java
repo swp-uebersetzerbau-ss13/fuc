@@ -1,6 +1,6 @@
 package swp_compiler_ss13.fuc.semantic_analyser;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.After;
@@ -29,6 +29,7 @@ import swp_compiler_ss13.fuc.ast.DeclarationNodeImpl;
 import swp_compiler_ss13.fuc.ast.LiteralNodeImpl;
 import swp_compiler_ss13.fuc.ast.ReturnNodeImpl;
 import swp_compiler_ss13.fuc.parser.errorHandling.ReportLogImpl;
+import swp_compiler_ss13.fuc.symbolTable.SymbolTableImpl;
 
 public class SemanticAnalyserTest {
 
@@ -48,14 +49,14 @@ public class SemanticAnalyserTest {
 
 	@Before
 	public void setUp() {
-		log = new ReportLogImpl();
-		analyzer = new SemanticAnalyser(log);
+		this.log = new ReportLogImpl();
+		this.analyzer = new SemanticAnalyser(this.log);
 	}
 
 	@After
 	public void tearDown() {
-		analyzer = null;
-		log = null;
+		this.analyzer = null;
+		this.log = null;
 	}
 
 	/**
@@ -65,7 +66,7 @@ public class SemanticAnalyserTest {
 	 */
 	@Test
 	public void testInitialization() {
-		SymbolTable symbolTable = new TestSymbolTable();
+		SymbolTable symbolTable = new SymbolTableImpl();
 		symbolTable.insert("spam", new LongType());
 		DeclarationNode declaration = new DeclarationNodeImpl();
 		declaration.setIdentifier("spam");
@@ -79,9 +80,8 @@ public class SemanticAnalyserTest {
 		blockNode.setSymbolTable(symbolTable);
 		AST ast = new ASTImpl();
 		ast.setRootNode(blockNode);
-		analyzer.analyse(ast);
-		assertTrue(log.hasErrors());
-		// TODO report log contains error
+		this.analyzer.analyse(ast);
+		assertTrue(this.log.hasErrors());
 	}
 
 	/**
@@ -99,7 +99,7 @@ public class SemanticAnalyserTest {
 	 */
 	@Test
 	public void testAddProg() {
-		SymbolTable symbolTable = new TestSymbolTable();
+		SymbolTable symbolTable = new SymbolTableImpl();
 		symbolTable.insert("l", new LongType());
 
 		DeclarationNode declaration = new DeclarationNodeImpl();
@@ -178,8 +178,8 @@ public class SemanticAnalyserTest {
 		AST ast = new ASTImpl();
 		ast.setRootNode(blockNode);
 
-		analyzer.analyse(ast);
-		assertTrue(!log.hasErrors());
+		this.analyzer.analyse(ast);
+		assertFalse(this.log.hasErrors());
 	}
 
 	/**
@@ -190,7 +190,7 @@ public class SemanticAnalyserTest {
 	 */
 	@Test
 	public void parathesesProg() {
-		SymbolTable symbolTable = new TestSymbolTable();
+		SymbolTable symbolTable = new SymbolTableImpl();
 		symbolTable.insert("l", new LongType());
 
 		DeclarationNode declaration = new DeclarationNodeImpl();
@@ -255,8 +255,8 @@ public class SemanticAnalyserTest {
 		AST ast = new ASTImpl();
 		ast.setRootNode(blockNode);
 
-		analyzer.analyse(ast);
-		assertTrue(!log.hasErrors());
+		this.analyzer.analyse(ast);
+		assertFalse(this.log.hasErrors());
 	}
 
 	/**
@@ -267,7 +267,7 @@ public class SemanticAnalyserTest {
 	 */
 	@Test
 	public void simpleAddProg() {
-		SymbolTable symbolTable = new TestSymbolTable();
+		SymbolTable symbolTable = new SymbolTableImpl();
 		symbolTable.insert("l", new LongType());
 
 		DeclarationNode declaration = new DeclarationNodeImpl();
@@ -300,8 +300,8 @@ public class SemanticAnalyserTest {
 		AST ast = new ASTImpl();
 		ast.setRootNode(blockNode);
 
-		analyzer.analyse(ast);
-		assertTrue(!log.hasErrors());
+		this.analyzer.analyse(ast);
+		assertFalse(this.log.hasErrors());
 	}
 
 	/**
@@ -312,7 +312,7 @@ public class SemanticAnalyserTest {
 	 */
 	@Test
 	public void simpleMulProg() {
-		SymbolTable symbolTable = new TestSymbolTable();
+		SymbolTable symbolTable = new SymbolTableImpl();
 		symbolTable.insert("l", new LongType());
 
 		DeclarationNode declaration = new DeclarationNodeImpl();
@@ -345,8 +345,8 @@ public class SemanticAnalyserTest {
 		AST ast = new ASTImpl();
 		ast.setRootNode(blockNode);
 
-		analyzer.analyse(ast);
-		assertTrue(!log.hasErrors());
+		this.analyzer.analyse(ast);
+		assertFalse(this.log.hasErrors());
 	}
 
 }

@@ -1,50 +1,40 @@
-<project basedir="." name="FUC Compiler" default="run">
-	<!-- === property definitions === -->
-	<property name="src.dir" value="src" />
-	<property name="test.dir" value="test" />
-	<property name="bin.dir" value="bin" />
-	<property name="doc.dir" value="doc" />
-	<property name="lib.dir" value="lib" />
-	<property name="dist.dir" value="dist" />
-	<property name="interfaces.dir" value="common/interfaces" />
-	<property name="etc.dir" value="etc" />
-	<property name="ast.dir" value="ast" />
-	<property name="backend.dir" value="backend" />
-	<property name="controller.dir" value="controller" />
-	<property name="intermediateCodeGenerator.dir" value="intermediateCodeGenerator" />
-	<property name="lexer.dir" value="lexer" />
-	<property name="parser.dir" value="parser" />
-	<property name="semanticAnalyzer.dir" value="semanticAnalyzer" />
-	<property name="symbolTable.dir" value="symbolTable" />
-	<property name="test.dir" value="test" />
-	<property name="service.dir" value="${dist.dir}/serviceloader" />
-	
-	<!-- === clean all === -->
-	<target name="clean-all" description="cleans all projects">
-		<delete dir="${dist.dir}" />
-		<delete dir="${interfaces.dir}/${bin.dir}" />
-		<delete dir="${interfaces.dir}/${doc.dir}" />
-		<delete dir="${ast.dir}/${bin.dir}" />
-		<delete dir="${ast.dir}/${doc.dir}" />
-		<delete dir="${backend.dir}/${bin.dir}" />
-		<delete dir="${backend.dir}/${doc.dir}" />
-		<delete dir="${controller.dir}/${bin.dir}" />
-		<delete dir="${controller.dir}/${doc.dir}" />
-		<delete dir="${intermediateCodeGenerator.dir}/${bin.dir}" />
-		<delete dir="${intermediateCodeGenerator.dir}/${doc.dir}" />
-		<delete dir="${lexer.dir}/${bin.dir}" />
-		<delete dir="${lexer.dir}/${doc.dir}" />
-		<delete dir="${parser.dir}/${bin.dir}" />
-		<delete dir="${parser.dir}/${doc.dir}" />
-		<delete dir="${semanticAnalyzer.dir}/${bin.dir}" />
-		<delete dir="${semanticAnalyzer.dir}/${doc.dir}" />
-		<delete dir="${symbolTable.dir}/${bin.dir}" />
-		<delete dir="${symbolTable.dir}/${doc.dir}" />
-		<delete dir="${test.dir}/${bin.dir}" />
+<project basedir="." name="FUC Compiler" default="help">
+	<!-- === load properties === -->
+	<loadproperties srcFile="build.properties" />
+
+	<!-- === print a help message when called === -->
+	<target name="help" description="print this help message">
+		<java classname="org.apache.tools.ant.Main">
+			<arg value="-p" />
+			<arg value="buildfile" />
+			<arg value="${ant.file}" />
+		</java>
 	</target>
 	
-	<!-- === compile all === -->
-	<target name="build-all" depends="clean-all" description="compile all projects">
+	<!-- === clean all projects === -->
+	<target name="clean" description="clean all projects">
+		<delete dir="${dist.dir}" />
+		<ant antfile="interfaces.xml" dir="." target="clean" inheritall="false" />
+		<ant antfile="build.xml" dir="${ast.dir}" target="clean" inheritall="false" />
+		<ant antfile="build.xml" dir="${backend.dir}" target="clean" inheritall="false" />
+		<ant antfile="build.xml" dir="${controller.dir}" target="clean" inheritall="false" />
+		<ant antfile="build.xml" dir="${intermediateCodeGenerator.dir}" target="clean" inheritall="false" />
+		<ant antfile="build.xml" dir="${lexer.dir}" target="clean" inheritall="false" />
+		<ant antfile="build.xml" dir="${parser.dir}" target="clean" inheritall="false" />
+		<ant antfile="build.xml" dir="${semanticAnalyzer.dir}" target="clean" inheritall="false" />
+		<ant antfile="build.xml" dir="${symbolTable.dir}" target="clean" inheritall="false" />
+		<ant antfile="build.xml" dir="${test.dir}" target="clean" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.ast.xml.dir}" target="clean" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.ast.infix.dir}" target="clean" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.tac.quadruple.dir}" target="clean" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.tac.triple.dir}" target="clean" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.tac.code.dir}" target="clean" inheritall="false" />
+		<ant antfile="build.xml" dir="${errorLog.dir}" target="clean" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.token.dir}" target="clean" inheritall="false" />
+	</target>
+	
+	<!-- === build all projects === -->
+	<target name="build" description="build all projects">
 		<ant antfile="interfaces.xml" dir="." target="build" inheritall="false" />
 		<ant antfile="build.xml" dir="${ast.dir}" target="build" inheritall="false" />
 		<ant antfile="build.xml" dir="${backend.dir}" target="build" inheritall="false" />
@@ -54,10 +44,17 @@
 		<ant antfile="build.xml" dir="${parser.dir}" target="build" inheritall="false" />
 		<ant antfile="build.xml" dir="${semanticAnalyzer.dir}" target="build" inheritall="false" />
 		<ant antfile="build.xml" dir="${symbolTable.dir}" target="build" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.ast.xml.dir}" target="build" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.ast.infix.dir}" target="build" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.tac.quadruple.dir}" target="build" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.tac.triple.dir}" target="build" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.tac.code.dir}" target="build" inheritall="false" />
+		<ant antfile="build.xml" dir="${errorLog.dir}" target="build" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.token.dir}" target="build" inheritall="false" />
 	</target>
 	
-	<!-- === create all javadoc === -->
-	<target name="doc-all" description="create the javadoc for all projects">
+	<!-- === doc all projects === -->
+	<target name="doc" description="generate javadoc for all projects">
 		<ant antfile="interfaces.xml" dir="." target="doc" inheritall="false" />
 		<ant antfile="build.xml" dir="${ast.dir}" target="doc" inheritall="false" />
 		<ant antfile="build.xml" dir="${backend.dir}" target="doc" inheritall="false" />
@@ -67,196 +64,305 @@
 		<ant antfile="build.xml" dir="${parser.dir}" target="doc" inheritall="false" />
 		<ant antfile="build.xml" dir="${semanticAnalyzer.dir}" target="doc" inheritall="false" />
 		<ant antfile="build.xml" dir="${symbolTable.dir}" target="doc" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.ast.xml.dir}" target="doc" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.ast.infix.dir}" target="doc" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.tac.quadruple.dir}" target="doc" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.tac.triple.dir}" target="doc" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.tac.code.dir}" target="doc" inheritall="false" />
+		<ant antfile="build.xml" dir="${errorLog.dir}" target="doc" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.token.dir}" target="doc" inheritall="false" />
 	</target>
 	
-	<!-- === compile all test === -->
-	<target name="build-all-tests" description="compile all junit tests">
-		<ant antfile="build.xml" dir="${ast.dir}" target="build-test" inheritall="false" />
-		<ant antfile="build.xml" dir="${backend.dir}" target="build-test" inheritall="false" />
-		<ant antfile="build.xml" dir="${controller.dir}" target="build-test" inheritall="false" />
-		<ant antfile="build.xml" dir="${intermediateCodeGenerator.dir}" target="build-test" inheritall="false" />
-		<ant antfile="build.xml" dir="${lexer.dir}" target="build-test" inheritall="false" />
-		<ant antfile="build.xml" dir="${parser.dir}" target="build-test" inheritall="false" />
-		<ant antfile="build.xml" dir="${semanticAnalyzer.dir}" target="build-test" inheritall="false" />
-		<ant antfile="build.xml" dir="${symbolTable.dir}" target="build-test" inheritall="false" />
-		<ant antfile="build.xml" dir="${test.dir}" target="build-test" inheritall="false" />
+	<!-- === build all tests === -->
+	<target name="build-tests" description="build all project tests">
+		<ant antfile="build.xml" dir="${ast.dir}" target="build-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${backend.dir}" target="build-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${controller.dir}" target="build-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${intermediateCodeGenerator.dir}" target="build-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${lexer.dir}" target="build-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${parser.dir}" target="build-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${semanticAnalyzer.dir}" target="build-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${symbolTable.dir}" target="build-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${test.dir}" target="build-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.ast.infix.dir}" target="build-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.ast.xml.dir}" target="build-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.tac.quadruple.dir}" target="build-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.tac.triple.dir}" target="build-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.tac.code.dir}" target="build-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${errorLog.dir}" target="build-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.token.dir}" target="build-tests" inheritall="false" />
 	</target>
 	
 	<!-- === run all tests === -->
-	<target name="run-all-tests" description="run all tests">
-		<ant antfile="build.xml" dir="${ast.dir}" target="run-test" inheritall="false" />
-		<ant antfile="build.xml" dir="${backend.dir}" target="run-test" inheritall="false" />
-		<ant antfile="build.xml" dir="${controller.dir}" target="run-test" inheritall="false" />
-		<ant antfile="build.xml" dir="${intermediateCodeGenerator.dir}" target="run-test" inheritall="false" />
-		<ant antfile="build.xml" dir="${lexer.dir}" target="run-test" inheritall="false" />
-		<ant antfile="build.xml" dir="${parser.dir}" target="run-test" inheritall="false" />
-		<ant antfile="build.xml" dir="${semanticAnalyzer.dir}" target="run-test" inheritall="false" />
-		<ant antfile="build.xml" dir="${symbolTable.dir}" target="run-test" inheritall="false" />
-		<ant antfile="build.xml" dir="${test.dir}" target="run-test" inheritall="false" />
+	<target name="run-tests" description="run all tests">
+		<ant antfile="build.xml" dir="${ast.dir}" target="run-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${backend.dir}" target="run-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${controller.dir}" target="run-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${intermediateCodeGenerator.dir}" target="run-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${lexer.dir}" target="run-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${parser.dir}" target="run-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${semanticAnalyzer.dir}" target="run-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${symbolTable.dir}" target="run-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${test.dir}" target="run-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.ast.infix.dir}" target="run-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.ast.xml.dir}" target="run-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.tac.quadruple.dir}" target="run-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.tac.triple.dir}" target="run-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.tac.code.dir}" target="run-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${errorLog.dir}" target="run-tests" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.token.dir}" target="run-tests" inheritall="false" />
 	</target>
 	
-	<!-- === distribute === -->
-	<target name="dist" description="distribute the packages">
-		<!-- check junit tests -->
-		<ant antfile="build.xml" dir="." target="run-all-tests" inheritall="false" />
-		<!-- clean everything -->
-		<ant antfile="build.xml" dir="." target="clean-all" inheritall="false" />
-		<!-- build everything -->
-		<ant antfile="build.xml" dir="." target="build-all" inheritall="false" />
-		<!-- create documentation -->
-		<ant antfile="build.xml" dir="." target="doc-all" inheritall="false" />
+	<!-- === dist === -->
+	<target name="dist" description="distribute the FUC Compiler (minimal)">
+		<!-- Clean everything, we dont want to have the compiled tests in our jars -->
+		<ant antfile="build.xml" dir="." target="clean" inheritall="false" />
+		<!-- Now build everything, so we have the binary files -->
+		<ant antfile="build.xml" dir="." target="build" inheritall="false" />
 		
-		<!-- create the dist dir -->
 		<mkdir dir="${dist.dir}" />
+		<mkdir dir="${dist.dir}/temp" />
+		<!-- create the jars -->
 		
-		<!-- create the dir for service files -->
-		<mkdir dir="${service.dir}" />
-		<mkdir dir="${service.dir}/META-INF" />
-		<mkdir dir="${service.dir}/META-INF/services" />
-
-		<echo 
-			file="${service.dir}/META-INF/services/swp_compiler_ss13.common.lexer.Lexer" 
-			message="lexer.LexerImpl" />
-		<echo 
-			file="${service.dir}/META-INF/services/swp_compiler_ss13.common.parser.Parser" 
-			message="swp_compiler_ss13.fuc.parser.ParserImpl" />
-		<echo 
-			file="${service.dir}/META-INF/services/swp_compiler_ss13.common.ir.IntermediateCodeGenerator" 
-			message="swp_compiler_ss13.fuc.ir.IntermediateCodeGeneratorImpl" />
-		<echo 
-			file="${service.dir}/META-INF/services/swp_compiler_ss13.common.backend.Backend" 
-			message="swp_compiler_ss13.fuc.backend.LLVMBackend" />
-		
-		<!-- create the service files -->
-		
-		<!-- === export log4j properties === -->
-		<jar destfile="${dist.dir}/log4jprops.jar">
-			<fileset file="${etc.dir}/log4j.properties" />
+		<!-- create the AST package -->
+		<echo message="swp_compiler_ss13.fuc.ast.ASTImpl" file="${dist.dir}/temp/swp_compiler_ss13.common.ast.AST" />
+		<jar destfile="${dist.dir}/FUC-AST.jar" basedir="${ast.dir}/${bin.dir}">
+			<zipfileset dir="${dist.dir}/temp" includes="swp_compiler_ss13.common.ast.AST" fullpath="META-INF/services/swp_compiler_ss13.common.ast.AST" />
 		</jar>
 		
-		<!-- === export the ast === -->
-		<jar destfile="${dist.dir}/ast.jar" basedir="${ast.dir}/${bin.dir}">
-			<fileset dir="${ast.dir}">
-				<include name="${doc.dir}/**" />
-				<include name="${src.dir}/**" />
-			</fileset>
+		<!-- create the SymbolTable package -->
+		<jar destfile="${dist.dir}/FUC-SymbolTable.jar" basedir="${symbolTable.dir}/${bin.dir}" />
+		
+		<!-- create the ErrorLog package -->
+		<jar destfile="${dist.dir}/FUC-ErrorLog.jar" basedir="${errorLog.dir}/${bin.dir}" />
+		
+		<!-- create the Backend package -->
+		<echo message="swp_compiler_ss13.fuc.backend.LLVMBackend" file="${dist.dir}/temp/swp_compiler_ss13.common.backend.Backend" />
+		<jar destfile="${dist.dir}/FUC-Backend.jar" basedir="${backend.dir}/${bin.dir}">
+			<zipfileset dir="${dist.dir}/temp" includes="swp_compiler_ss13.common.backend.Backend" fullpath="META-INF/services/swp_compiler_ss13.common.backend.Backend" />
 		</jar>
 		
-		<!-- === export the backend === -->
-		<jar destfile="${dist.dir}/backend.jar" basedir="${backend.dir}/${bin.dir}">
-			<fileset dir="${backend.dir}">
-				<include name="${doc.dir}/**" />
-				<include name="${src.dir}/**" />
-			</fileset>
-			<fileset dir="${service.dir}">
-				<include name="META-INF/services/swp_compiler_ss13.common.backend.Backend" />
-			</fileset>
+		<!-- create the IntermediateCodeGenerator package -->
+		<echo message="swp_compiler_ss13.fuc.ir.IntermediateCodeGeneratorImpl" file="${dist.dir}/temp/swp_compiler_ss13.common.ir.IntermediateCodeGenerator" />
+		<jar destfile="${dist.dir}/FUC-IRGen.jar" basedir="${intermediateCodeGenerator.dir}/${bin.dir}">
+			<zipfileset dir="${dist.dir}/temp" includes="swp_compiler_ss13.common.ir.IntermediateCodeGenerator" fullpath="META-INF/services/swp_compiler_ss13.common.ir.IntermediateCodeGenerator" />
 		</jar>
 		
-		<!-- === export the controller === -->
-		<jar destfile="${dist.dir}/controller.jar" basedir="${controller.dir}/${bin.dir}">
-			<fileset dir="${controller.dir}">
-				<include name="${doc.dir}/**" />
-				<include name="${src.dir}/**" />
-			</fileset>
+		<!-- create the Lexer package -->
+		<echo message="lexer.LexerImpl" file="${dist.dir}/temp/swp_compiler_ss13.common.lexer.Lexer" />
+		<jar destfile="${dist.dir}/FUC-Lexer.jar" basedir="${lexer.dir}/${bin.dir}">
+			<zipfileset dir="${dist.dir}/temp" includes="swp_compiler_ss13.common.lexer.Lexer" fullpath="META-INF/services/swp_compiler_ss13.common.lexer.Lexer" />
 		</jar>
 		
-		<!-- === export the interfaces === -->
-		<jar destfile="${dist.dir}/interfaces.jar" basedir="${interfaces.dir}/${bin.dir}">
-			<fileset dir="${interfaces.dir}">
-				<include name="${doc.dir}/**" />
-				<include name="${src.dir}/**" />
-			</fileset>
+		<!-- create the Parser package -->
+		<echo message="swp_compiler_ss13.fuc.parser.ParserImpl" file="${dist.dir}/temp/swp_compiler_ss13.common.parser.Parser" />
+		<jar destfile="${dist.dir}/FUC-Parser.jar" basedir="${parser.dir}/${bin.dir}">
+			<zipfileset dir="${dist.dir}/temp" includes="swp_compiler_ss13.common.parser.Parser" fullpath="META-INF/services/swp_compiler_ss13.common.parser.Parser" />
 		</jar>
+		
+		<!-- create the SemanticAnalyzer package -->
+		<echo message="swp_compiler_ss13.fuc.semantic_analyser.SemanticAnalyser" file="${dist.dir}/temp/swp_compiler_ss13.common.semantic_analyser.SemanticAnalyser" />
+		<jar destfile="${dist.dir}/FUC-Semantic-Analyser.jar" basedir="${semanticAnalyzer.dir}/${bin.dir}">
+			<zipfileset dir="${dist.dir}/temp" includes="swp_compiler_ss13.common.semantic_analyser.SemanticAnalyser" fullpath="META-INF/services/swp_compiler_ss13.common.semantic_analyser.SemanticAnalyser" />
+		</jar>
+		
+		<!-- create the AST Infix Visu -->
+		<echo message="swp_compiler_ss13.fuc.ast.visualization.ASTInfixVisualization" file="${dist.dir}/temp/swp_compiler_ss13.common.visualization.ASTVisualization" />
+		<jar destfile="${dist.dir}/FUC-VISU-AST-Infix.jar" basedir="${visu.ast.infix.dir}/${bin.dir}">
+			<zipfileset dir="${dist.dir}/temp" includes="swp_compiler_ss13.common.visualization.ASTVisualization" fullpath="META-INF/services/swp_compiler_ss13.common.visualization.ASTVisualization" />
+		</jar>
+		
+		<!-- create the AST XML Visu -->
+		<echo message="swp_compiler_ss13.fuc.ast.visualization.ASTXMLVisualization" file="${dist.dir}/temp/swp_compiler_ss13.common.visualization.ASTVisualization" />
+		<jar destfile="${dist.dir}/FUC-VISU-AST-XML.jar" basedir="${visu.ast.xml.dir}/${bin.dir}">
+			<zipfileset dir="${dist.dir}/temp" includes="swp_compiler_ss13.common.visualization.ASTVisualization" fullpath="META-INF/services/swp_compiler_ss13.common.visualization.ASTVisualization" />
+		</jar>
+		
+		<!-- create the TAC Quadruple Visu -->
+		<echo message="swp_compiler_ss13.fuc.ir.visualization.TACConsoleVisualizationQuadruple" file="${dist.dir}/temp/swp_compiler_ss13.common.visualization.TACVisualization" />
+		<jar destfile="${dist.dir}/FUC-VISU-TAC-Quadruple.jar" basedir="${visu.tac.quadruple.dir}/${bin.dir}">
+			<zipfileset dir="${dist.dir}/temp" includes="swp_compiler_ss13.common.visualization.TACVisualization" fullpath="META-INF/services/swp_compiler_ss13.common.visualization.TACVisualization" />
+		</jar>
+		
+		<!-- create the TAC Triple Visu -->
+		<echo message="swp_compiler_ss13.fuc.ir.visualization.TACConsoleVisualizationTriple" file="${dist.dir}/temp/swp_compiler_ss13.common.visualization.TACVisualization" />
+		<jar destfile="${dist.dir}/FUC-VISU-TAC-Triple.jar" basedir="${visu.tac.triple.dir}/${bin.dir}">
+			<zipfileset dir="${dist.dir}/temp" includes="swp_compiler_ss13.common.visualization.TACVisualization" fullpath="META-INF/services/swp_compiler_ss13.common.visualization.TACVisualization" />
+		</jar>
+		
+		<!-- create the TAC Code Visu -->
+		<echo message="swp_compiler_ss13.fuc.ir.visualization.TACConsoleVisualizationCode" file="${dist.dir}/temp/swp_compiler_ss13.common.visualization.TACVisualization" />
+		<jar destfile="${dist.dir}/FUC-VISU-TAC-Code.jar" basedir="${visu.tac.code.dir}/${bin.dir}">
+			<zipfileset dir="${dist.dir}/temp" includes="swp_compiler_ss13.common.visualization.TACVisualization" fullpath="META-INF/services/swp_compiler_ss13.common.visualization.TACVisualization" />
+		</jar>
+		
+		<!-- create the TokenStream Visu -->
+		<echo message="swp_compiler_ss13.fuc.token.visualization.TokenStreamVisualizationImpl" file="${dist.dir}/temp/swp_compiler_ss13.common.visualization.TokenStreamVisualization" />
+		<jar destfile="${dist.dir}/FUC-VISU-TokenStream.jar" basedir="${visu.token.dir}/${bin.dir}">
+			<zipfileset dir="${dist.dir}/temp" includes="swp_compiler_ss13.common.visualization.TokenStreamVisualization" fullpath="META-INF/services/swp_compiler_ss13.common.visualization.TokenStreamVisualization" />
+		</jar>
+		
+		<!-- create the Controller package -->
+		<jar destfile="${dist.dir}/FUC-Controller.jar" basedir="${controller.dir}/${bin.dir}" />
+		
+		<!-- create the interface package -->
+		<jar destfile="${dist.dir}/Common-Interfaces.jar" basedir="${interfaces.dir}/${bin.dir}" />
+		
+		<delete dir="${dist.dir}/temp" />
+		
+		<copy todir="${dist.dir}/${lib.dir}" >  
+			<fileset dir="${lib.dir}" includes="**/*.jar"/>  
+		</copy>
+	</target>
 	
-		<!-- === export the intermediateCodeGenerator === -->
-		<jar destfile="${dist.dir}/intermediateCodeGenerator.jar" basedir="${intermediateCodeGenerator.dir}/${bin.dir}">
-			<fileset dir="${intermediateCodeGenerator.dir}">
-				<include name="${doc.dir}/**" />
-				<include name="${src.dir}/**" />
-			</fileset>
-			<fileset dir="${service.dir}">
-				<include name="META-INF/services/swp_compiler_ss13.common.ir.IntermediateCodeGenerator" />
-			</fileset>
+	
+	<!-- === dist full === -->
+	<target name="dist-full" depends="dist" description="distribute the FUC Compiler with source code and javadoc">
+		
+		<!-- Create the javadoc for all projects -->
+		<ant antfile="build.xml" dir="." target="doc" inheritall="false" />
+		
+		<!-- create the AST package -->
+		<jar destfile="${dist.dir}/FUC-AST.jar" update="true">
+			<zipfileset dir="${ast.dir}/${src.dir}" prefix="src" />
+			<zipfileset dir="${ast.dir}/${test.dir}" prefix="test" />
+			<zipfileset dir="${ast.dir}/${doc.dir}" prefix="doc" />
 		</jar>
 		
-		<!-- === export the lexer === -->
-		<jar destfile="${dist.dir}/lexer.jar" basedir="${lexer.dir}/${bin.dir}">
-			<fileset dir="${lexer.dir}">
-				<include name="${doc.dir}/**" />
-				<include name="${src.dir}/**" />
-			</fileset>
-			<fileset dir="${service.dir}">
-				<include name="META-INF/services/swp_compiler_ss13.common.lexer.Lexer" />
-			</fileset>
+		<!-- create the SymbolTable package -->
+		<jar destfile="${dist.dir}/FUC-SymbolTable.jar" update="true">
+			<zipfileset dir="${symbolTable.dir}/${src.dir}" prefix="src" />
+			<zipfileset dir="${symbolTable.dir}/${test.dir}" prefix="test" />
+			<zipfileset dir="${symbolTable.dir}/${doc.dir}" prefix="doc" />
 		</jar>
 		
-		<!-- === export the parser and semantic analyzer === -->
-		<mkdir dir="${dist.dir}/combinedParserSemanticAnalyzer" />
-		<copy todir="${dist.dir}/combinedParserSemanticAnalyzer">
-			<fileset dir="${parser.dir}/${bin.dir}" />
-		</copy>
-		<copy todir="${dist.dir}/combinedParserSemanticAnalyzer">
-			<fileset dir="${semanticAnalyzer.dir}/${bin.dir}" />
-		</copy>
-		<mkdir dir="${dist.dir}/${doc.dir}" />
-		<javadoc
-	    	access="private"
-	    	author="true"
-	    	destdir="${dist.dir}/${doc.dir}"
-	    	doctitle="Parser"
-	    	nodeprecated="false"
-	    	nodeprecatedlist="false"
-	    	noindex="false"
-	    	nonavbar="false"
-	    	notree="false"
-	    	source="1.7"
-	    	splitindex="true"
-	    	use="true"
-	    	version="true"
-	    	linksource="true">
+		<!-- create the ErrorLog package -->
+		<jar destfile="${dist.dir}/FUC-ErrorLog.jar" update="true">
+			<zipfileset dir="${errorLog.dir}/${src.dir}" prefix="src" />
+			<zipfileset dir="${errorLog.dir}/${test.dir}" prefix="test" />
+			<zipfileset dir="${errorLog.dir}/${doc.dir}" prefix="doc" />
+		</jar>
+		
+		<!-- create the Backend package -->
+		<jar destfile="${dist.dir}/FUC-Backend.jar" update="true">
+			<zipfileset dir="${backend.dir}/${src.dir}" prefix="src" />
+			<zipfileset dir="${backend.dir}/${test.dir}" prefix="test" />
+			<zipfileset dir="${backend.dir}/${doc.dir}" prefix="doc" />
+		</jar>
+		
+		<!-- create the IntermediateCodeGenerator package -->
+		<jar destfile="${dist.dir}/FUC-IRGen.jar" update="true">
+			<zipfileset dir="${intermediateCodeGenerator.dir}/${src.dir}" prefix="src" />
+			<zipfileset dir="${intermediateCodeGenerator.dir}/${test.dir}" prefix="test" />
+			<zipfileset dir="${intermediateCodeGenerator.dir}/${doc.dir}" prefix="doc" />
+		</jar>
+		
+		<!-- create the Lexer package -->
+		<jar destfile="${dist.dir}/FUC-Lexer.jar" update="true">
+			<zipfileset dir="${lexer.dir}/${src.dir}" prefix="src" />
+			<zipfileset dir="${lexer.dir}/${test.dir}" prefix="test" />
+			<zipfileset dir="${lexer.dir}/${doc.dir}" prefix="doc" />
+		</jar>
+		
+		<!-- create the Parser package -->
+		<jar destfile="${dist.dir}/FUC-Parser.jar" update="true">
+			<zipfileset dir="${parser.dir}/${src.dir}" prefix="src" />
+			<zipfileset dir="${parser.dir}/${test.dir}" prefix="test" />
+			<zipfileset dir="${parser.dir}/${doc.dir}" prefix="doc-parser" />
+		</jar>
+		
+		<!-- create the SemanticAnalyzer package -->
+		<jar destfile="${dist.dir}/FUC-Semantic-Analyser.jar" update="true">
+			<zipfileset dir="${semanticAnalyzer.dir}/${src.dir}" prefix="src" />
+			<zipfileset dir="${semanticAnalyzer.dir}/${test.dir}" prefix="test" />
+			<zipfileset dir="${semanticAnalyzer.dir}/${doc.dir}" prefix="doc-semanticAnalyzer" />
+		</jar>
+		
+		<!-- create the Controller package -->
+		<jar destfile="${dist.dir}/FUC-Controller.jar" update="true">
+			<zipfileset dir="${controller.dir}/${src.dir}" prefix="src" />
+			<zipfileset dir="${controller.dir}/${test.dir}" prefix="test" />
+			<zipfileset dir="${controller.dir}/${doc.dir}" prefix="doc" />
+		</jar>
+		
+		<!-- create the interface package -->
+		<jar destfile="${dist.dir}/Common-Interfaces.jar" update="true">
+			<zipfileset dir="${interfaces.dir}/${src.dir}" prefix="src" />
+			<zipfileset dir="${interfaces.dir}/${test.dir}" prefix="test" />
+			<zipfileset dir="${interfaces.dir}/${doc.dir}" prefix="doc" />
+		</jar>
+		
+		<!-- create the ast infix visu package -->
+		<jar destfile="${dist.dir}/FUC-VISU-AST-Infix.jar" update="true">
+			<zipfileset dir="${visu.ast.infix.dir}/${src.dir}" prefix="src" />
+			<zipfileset dir="${visu.ast.infix.dir}/${test.dir}" prefix="test" />
+			<zipfileset dir="${visu.ast.infix.dir}/${doc.dir}" prefix="doc" />
+		</jar>
+		
+		<!-- create the ast xml visu package -->
+		<jar destfile="${dist.dir}/FUC-VISU-AST-XML.jar" update="true">
+			<zipfileset dir="${visu.ast.xml.dir}/${src.dir}" prefix="src" />
+			<zipfileset dir="${visu.ast.xml.dir}/${test.dir}" prefix="test" />
+			<zipfileset dir="${visu.ast.xml.dir}/${doc.dir}" prefix="doc" />
+		</jar>
+		
+		
+		<!-- create the TAC Quadruple Visu -->
+		<jar destfile="${dist.dir}/FUC-VISU-TAC-Quadruple.jar" update="true">
+			<zipfileset dir="${visu.tac.quadruple.dir}/${src.dir}" prefix="src" />
+			<zipfileset dir="${visu.tac.quadruple.dir}/${test.dir}" prefix="test" />
+			<zipfileset dir="${visu.tac.quadruple.dir}/${doc.dir}" prefix="doc" />
+		</jar>
+		
+		<!-- create the TAC Triple Visu -->
+		<jar destfile="${dist.dir}/FUC-VISU-TAC-Triple.jar" update="true">
+			<zipfileset dir="${visu.tac.triple.dir}/${src.dir}" prefix="src" />
+			<zipfileset dir="${visu.tac.triple.dir}/${test.dir}" prefix="test" />
+			<zipfileset dir="${visu.tac.triple.dir}/${doc.dir}" prefix="doc" />
+		</jar>
+		
+		<!-- create the TAC Code Visu -->
+		<jar destfile="${dist.dir}/FUC-VISU-TAC-Code.jar" update="true">
+			<zipfileset dir="${visu.tac.code.dir}/${src.dir}" prefix="src" />
+			<zipfileset dir="${visu.tac.code.dir}/${test.dir}" prefix="test" />
+			<zipfileset dir="${visu.tac.code.dir}/${doc.dir}" prefix="doc" />
+		</jar>
+		
+		<!-- create the Token Stream Visu -->
+		<jar destfile="${dist.dir}/FUC-VISU-TokenStream.jar" update="true">
+			<zipfileset dir="${visu.token.dir}/${src.dir}" prefix="src" />
+			<zipfileset dir="${visu.token.dir}/${test.dir}" prefix="test" />
+			<zipfileset dir="${visu.token.dir}/${doc.dir}" prefix="doc" />
+		</jar>
+	</target>
+	
+	<!-- === run without build === -->
+	<target name="run-without-build"  description="execute the FUC Controller without distributing the code (faster but only works if dist directory already exists)">
+		<condition property="source.file.set" else="false">
+    		<isset property="source.file"/>
+	    </condition>
+		<fail message="you need to set the source file with -Dsource.file=&lt;filename&gt;" unless="${source.file.set}" />
+		<java classname="controller.Controller" fork="yes">
 			<classpath>
-				<pathelement location="${interfaces.dir}/${bin.dir}" />
-				<pathelement location="${parser.dir}/${bin.dir}" />
-				<pathelement location="${semanticAnalyzer.dir}/${bin.dir}" />
-				<pathelement location="${etc.dir}" />
-				<pathelement location="${lib.dir}/log4j-1.2.17.jar" />
+				<fileset dir="${dist.dir}">
+					<include name="**/*.jar" />
+				</fileset>			
 			</classpath>
-			<sourcepath>
-				<pathelement location="${semanticAnalyzer.dir}/${src.dir}" />
-				<pathelement location="${parser.dir}/${src.dir}" />
-			</sourcepath>
-		</javadoc>
-		<jar destfile="${dist.dir}/parser.jar" basedir="${dist.dir}/combinedParserSemanticAnalyzer">
-			<fileset dir="${parser.dir}">
-				<include name="${src.dir}/**" />
-			</fileset>
-			<fileset dir="${semanticAnalyzer.dir}">
-				<include name="${src.dir}/**" />
-			</fileset>
-			<fileset dir="${dist.dir}">
-				<include name="${doc.dir}/**" />
-			</fileset>
-			<fileset dir="${service.dir}">
-				<include name="META-INF/services/swp_compiler_ss13.common.parser.Parser" />
-			</fileset>
-		</jar>
-		<delete dir="${dist.dir}/combinedParserSemanticAnalyzer" />
-		<delete dir="${dist.dir}/${doc.dir}" />
-		
-		<!-- === export the symbolTable === -->
-		<jar destfile="${dist.dir}/symbolTable.jar" basedir="${symbolTable.dir}/${bin.dir}">
-			<fileset dir="${symbolTable.dir}">
-				<include name="${doc.dir}/**" />
-				<include name="${src.dir}/**" />
-			</fileset>
-		</jar>
-		
-		<!-- remove the service dir -->
-		<delete dir="${service.dir}" />
+			<arg value="${source.file}" />
+		</java>
 	</target>
 	
 	<!-- === run === -->
-	<target name="run" depends="build-all" description="default run, equals build-all target">
+	<target name="run" depends="dist, run-without-build"  description="build everything and execute the FUC Controller" />
+	
+	<!-- === update log4j props === -->
+	<target name="update-log4j-props" description="update the log4jsettings. Call this when you change /etc/log4j.properties">
+		<zip destfile="${lib.dir}/log4jprops.jar">
+			<fileset dir="${etc.dir}">
+				<include name="log4j.properties" />
+			</fileset>
+		</zip>
+		<echo message="New log4j settings have been written to /lib" />
+		<echo message="Please call dist or dist-full to update the log4j settings inside of the ${dist.dir} directory" />
 	</target>
 </project>

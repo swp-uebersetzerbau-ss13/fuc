@@ -1,0 +1,81 @@
+Protokoll Sitzung 23.05.2013
+
+0. Rückblick Milestone 1
+1. Check TODOs
+2. Tests/Qualitätsmanagement
+3. Aufteilung Gruppen
+4. Semantische Analyse
+5. Behandlung von Laufzeitfehlern
+6. Visualisierung
+7. Zeitplan
+8. TODOs
+
+0. Rückblick Milestone 1
+- mangelndes Zeitmanagement/Qualitätsmanagement
+- Kommunikationsprobleme
+
+1. Check TODOs
+- FEHLEND: Git-Hooks (Sven) -> WICHTIG!!!
+
+2. Tests/Qualitätsmanagement
+- unzureichende Unittests
+- frühere Deadlines (ab dann nur noch Testen/Bugfixing)
+- min. 1 Woche vor Abgabe Deadline
+- Verantwortliche für Gesamttests: Sven und Frank
+- Gruppe ohne Status-Bericht werden durch Sven nachgefragt
+
+3. Aufteilung Gruppen
+- Moderiertes Gespräch in Parser-Gruppe
+
+4. Semantische Analyse
+- Erstellung eines Interfaces
+- Einbau in Controller
+- Umbau AST, sodass jede Node den ganzen Token beinhaltet
+- Bedingungen nur aus booleschen Ausdrücken
+- Parser oder AST anpassen bzgl. Blöcke (Kommunikation mit anderer Gruppe)
+
+5. Behandlung von Laufzeitfehlern
+- Einbau von Array-Checks bei Zugriff über Variable im Backend
+
+6. Visualisierung
+- grafische Interfaces?
+  -> unterschiedlich für Kommandozeile oder GUI
+  -> KEINE austauschbare Visualisierung
+  -> JPanel wird für jede grafische Visualisierung genutzt
+  -> Swing wird genutzt
+- Token
+- AST
+- TAC
+- LR-0
+- LLVM-IR
+
+7. Zeitplan
+- wöchentliche Festlegung von Aufgaben zur besseren Nachverfolgung
+
+- Backend: Milestone 2 (bis auf Arrays)
+  (vorläufig):
+- 06.06.2013: Sprachfeatures
+- 13.06.2013: Visualisierungselemente
+- 16.06.2013: Codefreeze
+- 27.06.2013: Abgabe Milestone 2
+
+8. TODOs
+- Sven: Git-Hooks(!!!)
+- Deadline-Zeitpunkt (?)
+- Thomas: Namespaces bei Lexer anpassen
+- Parser/AST: Anpassung von Blöcken; Kommunikation mit anderer Gruppe
+- Backend: Fehlermeldung bzgl. fehlerhafter Zugriff auf Arrays
+- Controller/Parser: Reportlog wird ausgelagert in eigenes Projekt
+- 30.05.2013: Alle: Entwurf von Visualisierungselementen in jeweiligen Gruppen(genauere Idee, evt. Beispiel)
+- 24.05.2013: E-Mail bzgl. anstehender Aufgaben an Sven
+
+Mögliche Vorträge:
+Statische Codeanalyse
+Refactoring Tools
+CI
+Deployment
+GIT Best Practices
+GIT Internals
+Implementierung von Eclipse-Plugins
+Design-Patterns
+Weitergehende Opitimierungstechniken

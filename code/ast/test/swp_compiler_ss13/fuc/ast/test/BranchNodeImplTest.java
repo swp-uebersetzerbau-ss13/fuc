@@ -11,6 +11,7 @@ import org.junit.Test;
 import swp_compiler_ss13.common.ast.ASTNode;
 import swp_compiler_ss13.common.ast.ASTNode.ASTNodeType;
 import swp_compiler_ss13.common.ast.nodes.ExpressionNode;
+import swp_compiler_ss13.common.ast.nodes.StatementNode;
 import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
 import swp_compiler_ss13.common.ast.nodes.ternary.BranchNode;
 import swp_compiler_ss13.fuc.ast.BasicIdentifierNodeImpl;
@@ -77,18 +78,18 @@ public class BranchNodeImplTest {
 		this.node.setCondition(new BasicIdentifierNodeImpl());
 		assertEquals(1, this.node.getChildren().size());
 
-		this.node.setBlockNodeOnTrue(new BlockNodeImpl());
+		this.node.setStatementNodeOnTrue(new BlockNodeImpl());
 		assertEquals(2, this.node.getChildren().size());
 
-		this.node.setBlockNodeOnFalse(new BlockNodeImpl());
+		this.node.setStatementNodeOnFalse(new BlockNodeImpl());
 		assertEquals(3, this.node.getChildren().size());
 
 		BlockNode blockNode = new BlockNodeImpl();
 		blockNode.addDeclaration(new DeclarationNodeImpl());
 		blockNode.addStatement(new BlockNodeImpl());
-		this.node.setBlockNodeOnFalse(blockNode);
+		this.node.setStatementNodeOnFalse(blockNode);
 		assertEquals(3, this.node.getChildren().size());
-		this.node.setBlockNodeOnTrue(blockNode);
+		this.node.setStatementNodeOnTrue(blockNode);
 		assertEquals(3, this.node.getChildren().size());
 	}
 
@@ -129,12 +130,12 @@ public class BranchNodeImplTest {
 	@Test
 	public void testSetBlockNodeOnTrue() {
 		try {
-			this.node.setBlockNodeOnTrue(null);
+			this.node.setStatementNodeOnTrue(null);
 			fail("Expected IllegalArgumentException was not thrown!");
 		} catch (IllegalArgumentException x) {
 		}
 		BlockNode blockNode = new BlockNodeImpl();
-		this.node.setBlockNodeOnTrue(blockNode);
+		this.node.setStatementNodeOnTrue(blockNode);
 
 		assertSame(blockNode, PA.getValue(this.node, "trueBlock"));
 	}
@@ -144,13 +145,13 @@ public class BranchNodeImplTest {
 	 */
 	@Test
 	public void testGetBlockNodeOnTrue() {
-		BlockNode actualValue = this.node.getBlockNodeOnTrue();
+		StatementNode actualValue = this.node.getStatementNodeOnTrue();
 		assertEquals(null, actualValue);
 
 		BlockNode blockTestValue = new BlockNodeImpl();
 		PA.setValue(this.node, "trueBlock", blockTestValue);
 
-		actualValue = this.node.getBlockNodeOnTrue();
+		actualValue = this.node.getStatementNodeOnTrue();
 		assertSame(blockTestValue, actualValue);
 	}
 
@@ -160,12 +161,12 @@ public class BranchNodeImplTest {
 	@Test
 	public void testSetBlockNodeOnFalse() {
 		try {
-			this.node.setBlockNodeOnFalse(null);
+			this.node.setStatementNodeOnFalse(null);
 			fail("Expected IllegalArgumentException was not thrown!");
 		} catch (IllegalArgumentException x) {
 		}
 		BlockNode blockNode = new BlockNodeImpl();
-		this.node.setBlockNodeOnFalse(blockNode);
+		this.node.setStatementNodeOnFalse(blockNode);
 
 		assertSame(blockNode, PA.getValue(this.node, "falseBlock"));
 	}
@@ -175,13 +176,13 @@ public class BranchNodeImplTest {
 	 */
 	@Test
 	public void testGetBlockNodeOnFalse() {
-		BlockNode actualValue = this.node.getBlockNodeOnFalse();
+		StatementNode actualValue = this.node.getStatementNodeOnFalse();
 		assertEquals(null, actualValue);
 
 		BlockNode blockTestValue = new BlockNodeImpl();
 		PA.setValue(this.node, "falseBlock", blockTestValue);
 
-		actualValue = this.node.getBlockNodeOnFalse();
+		actualValue = this.node.getStatementNodeOnFalse();
 		assertSame(blockTestValue, actualValue);
 	}
 

@@ -1,0 +1,22 @@
+#!/bin/sh
+
+set -e
+set -u
+
+cd "$(dirname "$0")"
+
+# a helper function to set the classpath
+#  prints all arguments as a : separated string
+dotify () {
+	first="true"
+	for i in "$@"; do
+		if $($first); then
+			printf "%s" "$i"
+			first="false"
+		else
+			printf ":%s" "$i"
+		fi
+	done
+}
+
+java -cp $(dotify dist/*.jar dist/lib/*.jar) controller.Controller -l OFF "$@"

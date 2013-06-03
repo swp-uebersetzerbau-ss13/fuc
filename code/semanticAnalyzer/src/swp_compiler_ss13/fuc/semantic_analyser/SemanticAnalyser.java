@@ -55,13 +55,13 @@ public class SemanticAnalyser {
 	private final Map<SymbolTable, Set<String>> initializations;
 
 	public SemanticAnalyser(ReportLog log) {
-		attributes = new HashMap<>();
-		initializations = new HashMap<>();
-		errorLog = log;
+		this.attributes = new HashMap<>();
+		this.initializations = new HashMap<>();
+		this.errorLog = log;
 	}
 
 	public AST analyse(AST ast) {
-		traverseAstNode(ast.getRootNode(), ast.getRootSymbolTable());
+		this.traverseAstNode(ast.getRootNode(), ast.getRootSymbolTable());
 		return ast;
 	}
 
@@ -69,17 +69,17 @@ public class SemanticAnalyser {
 		switch (node.getNodeType()) {
 		case BasicIdentifierNode:
 			logger.trace("handle BasicIdentifierNode");
-			handleNode((BasicIdentifierNode) node, table);
+			this.handleNode((BasicIdentifierNode) node, table);
 			break;
 		case BreakNode:
 			break;
 		case LiteralNode:
 			logger.trace("handle LiteralNode");
-			handleNode((LiteralNode) node, table);
+			this.handleNode((LiteralNode) node, table);
 			break;
 		case ArithmeticUnaryExpressionNode:
 			logger.trace("handle ArithmeticUnaryExpressionNode");
-			handleNode((ArithmeticUnaryExpressionNode) node, table);
+			this.handleNode((ArithmeticUnaryExpressionNode) node, table);
 			break;
 		case ArrayIdentifierNode:
 			break;
@@ -91,17 +91,17 @@ public class SemanticAnalyser {
 			break;
 		case ReturnNode:
 			logger.trace("handle ReturnNode");
-			handleNode((ReturnNode) node, table);
+			this.handleNode((ReturnNode) node, table);
 			break;
 		case StructIdentifierNode:
 			break;
 		case ArithmeticBinaryExpressionNode:
 			logger.trace("handle ArithmeticBinaryExpressionNode");
-			handleNode((ArithmeticBinaryExpressionNode) node, table);
+			this.handleNode((ArithmeticBinaryExpressionNode) node, table);
 			break;
 		case AssignmentNode:
 			logger.trace("handle AssignmentNode");
-			handleNode((AssignmentNode) node, table);
+			this.handleNode((AssignmentNode) node, table);
 			break;
 		case DoWhileNode:
 			break;
@@ -115,107 +115,96 @@ public class SemanticAnalyser {
 			break;
 		case BlockNode:
 			logger.trace("handle BlockNode");
-			handleNode((BlockNode) node);
+			this.handleNode((BlockNode) node);
 			break;
-
 		default:
-			errorLog.reportError("", -1, -1, "unknown ASTNodeType");
-			break;
+			throw new IllegalArgumentException("unknown ASTNodeType");
 		}
 	}
 
 	protected void handleNode(LiteralNode node, SymbolTable table) {
-		setAttribute(node, Attribute.INITIALIZATION_STATUS, IS_INITIALIZED);
+		this.setAttribute(node, Attribute.INITIALIZATION_STATUS, IS_INITIALIZED);
 	}
 
 	protected void handleNode(ArithmeticBinaryExpressionNode node, SymbolTable table) {
 		ExpressionNode expression = node.getLeftValue();
-		traverseAstNode(expression, table);
-		checkInitialization(expression);
+		this.traverseAstNode(expression, table);
+		this.checkInitialization(expression);
 		expression = node.getRightValue();
-		traverseAstNode(expression, table);
-		checkInitialization(expression);
-		setAttribute(node, Attribute.INITIALIZATION_STATUS, IS_INITIALIZED);
+		this.traverseAstNode(expression, table);
+		this.checkInitialization(expression);
+		this.setAttribute(node, Attribute.INITIALIZATION_STATUS, IS_INITIALIZED);
 	}
 
 	protected void handleNode(ArithmeticUnaryExpressionNode node, SymbolTable table) {
 		ExpressionNode expression = node.getRightValue();
-		traverseAstNode(expression, table);
-		checkInitialization(expression);
-		setAttribute(node, Attribute.INITIALIZATION_STATUS, IS_INITIALIZED);
+		this.traverseAstNode(expression, table);
+		this.checkInitialization(expression);
+		this.setAttribute(node, Attribute.INITIALIZATION_STATUS, IS_INITIALIZED);
 	}
 
 	protected void handleNode(BlockNode node) {
 		SymbolTable newTable = node.getSymbolTable();
 		for (StatementNode child : node.getStatementList()) {
-			traverseAstNode(child, newTable);
+			this.traverseAstNode(child, newTable);
 		}
 	}
 
 	protected void handleNode(AssignmentNode node, SymbolTable table) {
-		traverseAstNode(node.getLeftValue(), table);
-		traverseAstNode(node.getRightValue(), table);
-		addIdentifier(table, getAttribute(node.getLeftValue(), Attribute.IDENTIFIER));
+		this.traverseAstNode(node.getLeftValue(), table);
+		this.traverseAstNode(node.getRightValue(), table);
+		this.addIdentifier(table, this.getAttribute(node.getLeftValue(), Attribute.IDENTIFIER));
+		this.setAttribute(node, Attribute.INITIALIZATION_STATUS, IS_INITIALIZED);
 	}
 
 	protected void handleNode(BasicIdentifierNode node, SymbolTable table) {
-		setAttribute(node, Attribute.IDENTIFIER, node.getIdentifier());
-		setAttribute(
-				node,
-				Attribute.INITIALIZATION_STATUS,
-				isInitialized(getIdentifierSymboltable(table, node.getIdentifier()), node.getIdentifier()) ? IS_INITIALIZED
-						: IS_NOT_INITIALIZED);
+		this.setAttribute(node, Attribute.IDENTIFIER, node.getIdentifier());
+		this.setAttribute(node, Attribute.INITIALIZATION_STATUS, this.isInitialized(
+				table.getDeclaringSymbolTable(node.getIdentifier()), node.getIdentifier()) ? IS_INITIALIZED
+				: IS_NOT_INITIALIZED);
 	}
 
 	protected void handleNode(ReturnNode node, SymbolTable table) {
 		IdentifierNode identifier = node.getRightValue();
-		traverseAstNode(identifier, table);
-		checkInitialization(identifier);
+		this.traverseAstNode(identifier, table);
+		this.checkInitialization(identifier);
 	}
 
 	private void checkInitialization(ExpressionNode identifier) {
-		switch (getAttribute(identifier, Attribute.INITIALIZATION_STATUS)) {
+		switch (this.getAttribute(identifier, Attribute.INITIALIZATION_STATUS)) {
 		case IS_NOT_INITIALIZED:
-			logger.debug(String.format("Identifier: %s is not initialized", identifier));
-			errorLog.reportError("", -1, -1, "Variable" + getAttribute(identifier, Attribute.IDENTIFIER)
-					+ " is not initialized");
+			this.errorLog.reportError("Variable " + this.getAttribute(identifier, Attribute.IDENTIFIER)
+					+ " is not initialized", -1, -1, "NotInitializedException");
 			break;
 		case IS_INITIALIZED:
 			break;
 		default:
-			IllegalStateException e = new IllegalStateException("child node has no initialization information");
+			IllegalStateException e = new IllegalStateException(
+					"child node has no initialization information");
 			logger.error("couldn't check initialization of node", e);
 			throw e;
 		}
 	}
 
 	private boolean isInitialized(SymbolTable table, String identifier) {
-		SymbolTable declarationTable = getIdentifierSymboltable(table, identifier);
-		Set<String> identifiers = initializations.get(declarationTable);
+		SymbolTable declarationTable = table.getDeclaringSymbolTable(identifier);
+		Set<String> identifiers = this.initializations.get(declarationTable);
 		if (identifiers == null) {
 			return false;
 		}
 		return identifiers.contains(identifier);
 	}
 
-	protected SymbolTable getIdentifierSymboltable(SymbolTable childTable, String identifier) {
-		SymbolTable parentTable = childTable;
-		while (!parentTable.isDeclared(identifier)) {
-			parentTable = parentTable.getParentSymbolTable();
-		}
-		return parentTable;
-	}
-
 	protected void addIdentifier(SymbolTable table, String identifier) {
-		SymbolTable declarationTable = getIdentifierSymboltable(table, identifier);
-		if (initializations.get(declarationTable) == null) {
-			initializations.put(declarationTable, new HashSet<String>());
+		SymbolTable declarationTable = table.getDeclaringSymbolTable(identifier);
+		if (this.initializations.get(declarationTable) == null) {
+			this.initializations.put(declarationTable, new HashSet<String>());
 		}
-		initializations.get(declarationTable).add(identifier);
+		this.initializations.get(declarationTable).add(identifier);
 	}
 
 	protected String getAttribute(ASTNode node, Attribute attribute) {
-		Map<Attribute, String> nodeMap = attributes.get(node);
+		Map<Attribute, String> nodeMap = this.attributes.get(node);
 		if (nodeMap == null) {
 			return NO_ATTRIBUTE_VALUE;
 		}
@@ -224,9 +213,9 @@ public class SemanticAnalyser {
 	}
 
 	protected void setAttribute(ASTNode node, Attribute attribute, String value) {
-		if (attributes.get(node) == null) {
-			attributes.put(node, new HashMap<Attribute, String>());
+		if (this.attributes.get(node) == null) {
+			this.attributes.put(node, new HashMap<Attribute, String>());
 		}
-		attributes.get(node).put(attribute, value);
+		this.attributes.get(node).put(attribute, value);
 	}
 }

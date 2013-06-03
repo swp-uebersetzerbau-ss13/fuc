@@ -1,0 +1,31 @@
+<project>
+
+	<path id="classpath">
+		<pathelement location="${bin.dir}" />
+        <pathelement location="../${interfaces.dir}/${bin.dir}" />
+        <pathelement location="../${ast.dir}/${bin.dir}" />
+        <pathelement location="../${parser.dir}/${bin.dir}" />
+        <pathelement location="../${symbolTable.dir}/${bin.dir}" />
+        <pathelement location="../${semanticAnalyzer.dir}/${bin.dir}" />
+        <pathelement location="../${intermediateCodeGenerator.dir}/${bin.dir}" />
+        <pathelement location="../${backend.dir}/${bin.dir}" />
+		<pathelement location="../${lib.dir}/log4j-1.2.17.jar" />
+	</path>
+
+	<path id="sourcepath-test">
+		<path refid="sourcepath" />
+		<pathelement location="${test.dir}" />
+        <pathelement location="../${lexer.dir}/${src.dir}" />
+        <pathelement location="../${errorLog.dir}/${src.dir}" />
+	</path>
+
+	<path id="classpath-test">
+		<path refid="classpath" />
+        <pathelement location="../${errorLog.dir}/${bin.dir}" />
+        <pathelement location="../${lexer.dir}/${bin.dir}" />
+		<pathelement location="../${lib.dir}/hamcrest-core-1.3.jar" />
+		<pathelement location="../${lib.dir}/junit-4.11.jar" />
+        <pathelement location="../${lib.dir}/log4jprops.jar" />
+		<pathelement location="../${lib.dir}/privilegedaccessor-1.2.1.jar" />
+	</path>
+</project>

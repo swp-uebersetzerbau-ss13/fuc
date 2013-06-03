@@ -1,0 +1,61 @@
+Protokoll Sitzung 30.05.2013
+
+1. Check TODOs
+2. Termin für die Abgabe
+3. GUI
+4. Parser
+5. Neues ReportLog
+6. Strigs
+7. AST Erweiterung
+8. TODOs
+
+
+1. Check TODOs
+- Datei doc/precommit mit Anleitung für pre commit hook
+  kein Zwang
+- Namespace bei Lexer ist nicht angepasst worden
+- report log ist eigenes Projekt mit eiegener JAR
+
+
+2. Termin für die Abgabe
+- In zwei Wochen 17.6.13 12:00 Uhr
+- 13.6.13 MS2 Vortrag
+- CodeFreeze für Pflichtanforderungen 6.6.13
+- Tests müssen am 6.6.13 da sein
+
+
+3. GUI
+- AST wird als Baumstruktur visualisiert (Eduard)
+- AST Knoten farbig markieren.
+- TAC Visualisierung wird wie bei der Consolenausgabe gebaut, Keywords highlighten
+- Target Code wird als Text ausgegeben mit highlighting. Optional mit LLVM Visualisierer
+- Eduard ansprechpartner für alles Visualisierungsbelange
+
+
+4. Parser
+- Samuel verschwunden?!
+- Implementiert coverage
+
+
+5. Neues ReportLog
+- wird durch SemanticAnalyzer Gruppe implementiert.
+
+
+6. Strings
+- Strings in der Quellsprache werden escaped (C-Style)
+- Strings im TAC werden in keiner Form escaped
+
+
+7. AST
+- Erweiterung des AST vorschlagen. Attribute im AST zur Visualisierung (nicht mehr für M2)
+ 
+
+8. TODOs
+- Namespace für Lexer anpassen
+- AST Änderungen bzgl. inheritance wird von IR Gen Gruppe angepasst.
+- AST Neue Funktionen (coverage etc) wird durch Parser implementiert.
+- Email an Fuc Liste mit neuen Terminen schicken.
+- JUnit Tests schreiben
+- Weitere Programmbeispiele schreiben
+- Nachdenken über Laufzeitfehler im Backend
+- Wer ist für das auflösen von escapes in der source language verantwortlich (wahrscheinlich lexer)
