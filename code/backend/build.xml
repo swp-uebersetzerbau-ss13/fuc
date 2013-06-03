@@ -95,7 +95,7 @@
 				</classpath>
 				<batchtest todir="${test.results.dir}">
 					<fileset dir="${test.dir}">
-						<include name="**/*Test.java" />
+						<include name="**/*TestSuite.java" />
 					</fileset>
 				</batchtest>
 				<formatter type="xml" />
