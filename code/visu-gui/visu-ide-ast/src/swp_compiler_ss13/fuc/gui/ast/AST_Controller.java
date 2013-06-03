@@ -17,30 +17,30 @@ public class AST_Controller implements Controller {
 	private final AST_View view;
 
 	public AST_Controller() {
-		model = new AST_Model(this);
-		view = new AST_View(this);
+		this.model = new AST_Model(this);
+		this.view = new AST_View(this);
 	}
 
 	@Override
 	public View getView() {
-		return view;
+		return this.view;
 	}
 
 	@Override
 	public Model getModel() {
-		return model;
+		return this.model;
 	}
 
 	@Override
 	public void notifyModelChanged() {
-		notifyModelChangedWithoutLayoutChange();
-		view.recalculateLayout();
+		this.notifyModelChangedWithoutLayoutChange();
+		this.view.recalculateLayout();
 	}
 
 	protected void notifyModelChangedWithoutLayoutChange() {
-		view.setNode(model.getNode());
+		this.view.setNode(this.model.getNode());
 		AST_Controller ast_Controller;
-		for (ASTNode node : model.getChildren()) {
+		for (ASTNode node : this.model.getChildren()) {
 			ast_Controller = new AST_Controller();
 			ast_Controller.model.setNode(node);
 			ast_Controller.notifyModelChangedWithoutLayoutChange();
@@ -49,11 +49,11 @@ public class AST_Controller implements Controller {
 
 	@Override
 	public void init(IDE ide) {
-		view.initComponents(ide);
+		this.view.initComponents(ide);
 	}
 
 	public void viewStateChanged() {
-		view.changeChildState();
+		this.view.changeChildState();
 	}
 
 }

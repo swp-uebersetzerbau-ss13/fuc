@@ -1,5 +1,6 @@
 package swp_compiler_ss13.fuc.gui.ide;
 
+import java.awt.Component;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.StringWriter;
@@ -385,5 +386,9 @@ public class FucIdeController {
 				c.notifyModelChanged();
 			}
 		}
+	}
+
+	public Component getView() {
+		return this.view;
 	}
 }

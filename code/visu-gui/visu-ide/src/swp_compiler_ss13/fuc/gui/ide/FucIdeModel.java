@@ -2,6 +2,7 @@ package swp_compiler_ss13.fuc.gui.ide;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
 
 import javax.swing.JButton;
@@ -146,9 +147,14 @@ public class FucIdeModel implements IDE {
 	 * Load all visualisation components
 	 */
 	private void loadVisualisations() {
-		for (Controller controller : ServiceLoader.load(Controller.class)) {
-			logger.info("Found gui controller: " + controller.getClass().getName());
-			this.controller_instances.add(controller);
+
+		try {
+			for (Controller controller : ServiceLoader.load(Controller.class)) {
+				logger.info("Found gui controller: " + controller.getClass().getName());
+				this.controller_instances.add(controller);
+			}
+		} catch (ServiceConfigurationError e) {
+			new FucIdeCriticalError(this.controller.getView(), e, false);
 		}
 	}
 

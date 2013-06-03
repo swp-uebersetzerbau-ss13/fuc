@@ -37,8 +37,8 @@ public class Text_View implements View {
 	public Text_View(Controller controller, Position position) {
 		this.controller = controller;
 		this.position = position;
-		contentPanel = new JPanel();
-		panel = new JScrollPane(contentPanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+		this.contentPanel = new JPanel();
+		this.panel = new JScrollPane(this.contentPanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
 				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 	}
 
@@ -47,7 +47,7 @@ public class Text_View implements View {
 	 */
 	@Override
 	public JComponent getComponent() {
-		return panel;
+		return this.panel;
 	}
 
 	/**
@@ -55,7 +55,7 @@ public class Text_View implements View {
 	 */
 	@Override
 	public String getName() {
-		return position.name();
+		return this.position.name();
 	}
 
 	/**
@@ -63,7 +63,7 @@ public class Text_View implements View {
 	 */
 	@Override
 	public Position getPosition() {
-		return position;
+		return this.position;
 	}
 
 	/**
@@ -71,11 +71,11 @@ public class Text_View implements View {
 	 */
 	@Override
 	public Controller getController() {
-		return controller;
+		return this.controller;
 	}
 
 	public void setViewInformation(List<StringColourPair> viewInformation) {
-		contentPanel.removeAll();
+		this.contentPanel.removeAll();
 		JTextPane area = new JTextPane();
 		SimpleAttributeSet attrs;
 		Document document = area.getDocument();
@@ -85,16 +85,17 @@ public class Text_View implements View {
 			try {
 				document.insertString(document.getLength(), pair.getText(), attrs);
 			} catch (BadLocationException e) {
-				log.error("Error while adding text to View component", e);
+				this.log.error("Error while adding text to View component", e);
 			}
 		}
-		contentPanel.add(area);
+		this.contentPanel.add(area);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void initComponents(IDE ide) {}
+	public void initComponents(IDE ide) {
+	}
 
 }

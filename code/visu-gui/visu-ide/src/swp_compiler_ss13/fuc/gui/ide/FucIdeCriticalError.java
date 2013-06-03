@@ -43,7 +43,7 @@ public class FucIdeCriticalError {
 		message.append(e.toString() + "\n");
 		message.append(e.getMessage() + "\n");
 		Throwable t = e;
-		while (t.getCause() != null)
+		while (t.getCause() != null && message.length() < 400)
 		{
 			message.append("caused by: " + t.toString() + "\n");
 		}
