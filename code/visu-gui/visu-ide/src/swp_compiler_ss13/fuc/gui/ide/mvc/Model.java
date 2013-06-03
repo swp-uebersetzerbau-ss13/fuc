@@ -27,8 +27,8 @@ public interface Model {
 	 * 
 	 * @param sourceCode
 	 *            the source code
-	 * @return <code>true</code> - model changes<br/>
-	 *         <code>false</code> - model doesn't changes
+	 * @return return true if the new value is used. true will trigger a
+	 *         notifyModelChanged on the controller. return false otherwise.
 	 */
 	public boolean setSourceCode(String sourceCode);
 
@@ -37,8 +37,8 @@ public interface Model {
 	 * 
 	 * @param tokens
 	 *            the tokens
-	 * @return <code>true</code> - model changes<br/>
-	 *         <code>false</code> - model doesn't changes
+	 * @return return true if the new value is used. true will trigger a
+	 *         notifyModelChanged on the controller. return false otherwise.
 	 */
 	public boolean setTokens(List<Token> tokens);
 
@@ -47,8 +47,8 @@ public interface Model {
 	 * 
 	 * @param ast
 	 *            the ast
-	 * @return <code>true</code> - model changes<br/>
-	 *         <code>false</code> - model doesn't changes
+	 * @return return true if the new value is used. true will trigger a
+	 *         notifyModelChanged on the controller. return false otherwise.
 	 */
 	public boolean setAST(AST ast);
 
@@ -57,8 +57,8 @@ public interface Model {
 	 * 
 	 * @param tac
 	 *            the tac
-	 * @return <code>true</code> - model changes<br/>
-	 *         <code>false</code> - model doesn't changes
+	 * @return return true if the new value is used. true will trigger a
+	 *         notifyModelChanged on the controller. return false otherwise.
 	 */
 	public boolean setTAC(List<Quadruple> tac);
 
@@ -67,8 +67,8 @@ public interface Model {
 	 * 
 	 * @param target
 	 *            the target code
-	 * @return <code>true</code> - model changes<br/>
-	 *         <code>false</code> - model doesn't changes
+	 * @return return true if the new value is used. true will trigger a
+	 *         notifyModelChanged on the controller. return false otherwise.
 	 */
 	public boolean setTargetCode(Map<String, InputStream> target);
 }

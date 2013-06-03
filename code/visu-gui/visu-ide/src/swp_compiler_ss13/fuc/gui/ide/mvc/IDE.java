@@ -52,4 +52,12 @@ public interface IDE {
 	 *            visible (the tab is actvie)
 	 */
 	public void addStatusLabel(JLabel label, Position position, boolean displayAlways);
+
+	/**
+	 * Set the source code that is used for the compiler
+	 * 
+	 * @param sourceCode
+	 *            the source code that should be compiled
+	 */
+	public void setSourceCode(String sourceCode);
 }
