@@ -132,7 +132,7 @@ public class TACExecutor
 		while((line = in.readLine()) != null)
 		{
 			String[] tupleFields = line.split("\\|");
-			Quadruple q = new Q(Quadruple.Operator.valueOf(tupleFields[0]),
+			Quadruple q = new QuadrupleImpl(Quadruple.Operator.valueOf(tupleFields[0]),
 					tupleFields[1],
 					tupleFields[2],
 					tupleFields[3]);
@@ -199,35 +199,6 @@ public class TACExecutor
 		}
 	}
 
-
-	/**
-	 * A bare-bones implementation of the
-	 * <code>Quadruple</code> interface used to format
-	 * the text-style TAC to <code>Quadruple</code>-TAC
-	 *
-	 */
-	private static class Q implements Quadruple
-	{
-		private Operator operator;
-		private String argument1;
-		private String argument2;
-		private String result;
-
-		public Q(Operator o, String a1, String a2, String r)
-		{
-			operator = o;
-			argument1 = a1;
-			argument2 = a2;
-			result = r;
-		}
-
-		public String toString() { return "(" + String.valueOf(operator) + "|" + argument1  + "|" + argument2 + "|" + result + ")"; }
-
-		public Operator getOperator() { return operator; }
-		public String getArgument1() { return argument1; }
-		public String getArgument2() { return argument2; }
-		public String getResult() { return result; }
-	}
 
 	/**
 	 * The result of executing LLVM IR Code. The result consists of the output

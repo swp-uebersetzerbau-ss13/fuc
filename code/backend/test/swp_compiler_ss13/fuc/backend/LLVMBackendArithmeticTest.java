@@ -13,7 +13,7 @@ public class LLVMBackendArithmeticTest extends LLVMBackendTest {
 
 	@Test
 	public void generateTargetCodeTest_Return_Const() throws IOException, BackendException {
-		tac.add(new Q(
+		tac.add(new QuadrupleImpl(
 			        Quadruple.Operator.RETURN,
 			        "#1",
 			        Quadruple.EmptyArgument,
@@ -25,12 +25,12 @@ public class LLVMBackendArithmeticTest extends LLVMBackendTest {
 
 	@Test
 	public void generateTargetCodeTest_Return_Var() throws IOException, BackendException {
-		tac.add(new Q(
+		tac.add(new QuadrupleImpl(
 			        Quadruple.Operator.DECLARE_LONG,
 			        "#1",
 			        Quadruple.EmptyArgument,
 			        "res"));
-		tac.add(new Q(
+		tac.add(new QuadrupleImpl(
 			        Quadruple.Operator.RETURN,
 			        "res",
 			        Quadruple.EmptyArgument,
@@ -45,12 +45,12 @@ public class LLVMBackendArithmeticTest extends LLVMBackendTest {
 
 	@Test (expected = BackendException.class)
 	public void generateTargetCodeTest_AssignWithoutDeclaration() throws IOException, BackendException {
-		tac.add(new Q(
+		tac.add(new QuadrupleImpl(
 				Quadruple.Operator.DECLARE_LONG,
 				Quadruple.EmptyArgument,
 				Quadruple.EmptyArgument,
 				"longVariable"));
-		tac.add(new Q(
+		tac.add(new QuadrupleImpl(
 				Quadruple.Operator.ASSIGN_LONG,
 				"init",
 				Quadruple.EmptyArgument,
@@ -71,8 +71,8 @@ public class LLVMBackendArithmeticTest extends LLVMBackendTest {
 
 	@Test
 	public void generateTargetCodeTest_AddLong_Const() throws IOException, BackendException {
-		tac.add(new Q(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
-		tac.add(new Q(Quadruple.Operator.ADD_LONG, "#23", "#42", "result"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.ADD_LONG, "#23", "#42", "result"));
 		String mainFunctionCode = "" +
 				"  %result = alloca i64\n" +
 				"  %result.0 = add i64 23, 42\n" +
@@ -84,10 +84,10 @@ public class LLVMBackendArithmeticTest extends LLVMBackendTest {
 
 	@Test
 	public void generateTargetCodeTest_AddLong_Var() throws IOException, BackendException {
-		tac.add(new Q(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "longVar1"));
-		tac.add(new Q(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "longVar2"));
-		tac.add(new Q(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
-		tac.add(new Q(Quadruple.Operator.ADD_LONG, "longVar1", "longVar2", "result"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "longVar1"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "longVar2"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.ADD_LONG, "longVar1", "longVar2", "result"));
 		String mainFunctionCode = "" +
 				"  %longVar1 = alloca i64\n" +
 				"  %longVar2 = alloca i64\n" +
@@ -102,8 +102,8 @@ public class LLVMBackendArithmeticTest extends LLVMBackendTest {
 
 	@Test
 	public void generateTargetCodeTest_AddDouble_Const() throws IOException, BackendException {
-		tac.add(new Q(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
-		tac.add(new Q(Quadruple.Operator.ADD_DOUBLE, "#23.0", "#42.0", "result"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.ADD_DOUBLE, "#23.0", "#42.0", "result"));
 		String mainFunctionCode = ""
 				+ "  %result = alloca double\n"
 				+ "  %result.0 = fadd double 23.0, 42.0\n"
@@ -114,10 +114,10 @@ public class LLVMBackendArithmeticTest extends LLVMBackendTest {
 
 	@Test
 	public void generateTargetCodeTest_AddDouble_Var() throws IOException, BackendException {
-		tac.add(new Q(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "doubleVar1"));
-		tac.add(new Q(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "doubleVar2"));
-		tac.add(new Q(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
-		tac.add(new Q(Quadruple.Operator.ADD_DOUBLE, "doubleVar1", "doubleVar2", "result"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "doubleVar1"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "doubleVar2"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.ADD_DOUBLE, "doubleVar1", "doubleVar2", "result"));
 		String mainFunctionCode = "" +
 				"  %doubleVar1 = alloca double\n" +
 				"  %doubleVar2 = alloca double\n" +
@@ -134,8 +134,8 @@ public class LLVMBackendArithmeticTest extends LLVMBackendTest {
 
 	@Test
 	public void generateTargetCodeTest_SubLong_Const() throws IOException, BackendException {
-		tac.add(new Q(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
-		tac.add(new Q(Quadruple.Operator.SUB_LONG, "#23", "#42", "result"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.SUB_LONG, "#23", "#42", "result"));
 		String mainFunctionCode = "" +
 				"  %result = alloca i64\n" +
 				"  %result.0 = sub i64 23, 42\n" +
@@ -146,10 +146,10 @@ public class LLVMBackendArithmeticTest extends LLVMBackendTest {
 
 	@Test
 	public void generateTargetCodeTest_SubLong_Var() throws IOException, BackendException {
-		tac.add(new Q(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "longVar1"));
-		tac.add(new Q(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "longVar2"));
-		tac.add(new Q(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
-		tac.add(new Q(Quadruple.Operator.SUB_LONG, "longVar1", "longVar2", "result"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "longVar1"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "longVar2"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.SUB_LONG, "longVar1", "longVar2", "result"));
 		String mainFunctionCode = "" +
 				"  %longVar1 = alloca i64\n" +
 				"  %longVar2 = alloca i64\n" +
@@ -164,8 +164,8 @@ public class LLVMBackendArithmeticTest extends LLVMBackendTest {
 
 	@Test
 	public void generateTargetCodeTest_SubDouble_Const() throws IOException, BackendException {
-		tac.add(new Q(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
-		tac.add(new Q(Quadruple.Operator.SUB_DOUBLE, "#23.0", "#42.0", "result"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.SUB_DOUBLE, "#23.0", "#42.0", "result"));
 		String mainFunctionCode = ""
 				+ "  %result = alloca double\n"
 				+ "  %result.0 = fsub double 23.0, 42.0\n"
@@ -176,10 +176,10 @@ public class LLVMBackendArithmeticTest extends LLVMBackendTest {
 
 	@Test
 	public void generateTargetCodeTest_SubDouble_Var() throws IOException, BackendException {
-		tac.add(new Q(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "doubleVar1"));
-		tac.add(new Q(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "doubleVar2"));
-		tac.add(new Q(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
-		tac.add(new Q(Quadruple.Operator.SUB_DOUBLE, "doubleVar1", "doubleVar2", "result"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "doubleVar1"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "doubleVar2"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.SUB_DOUBLE, "doubleVar1", "doubleVar2", "result"));
 		String mainFunctionCode = "" +
 				"  %doubleVar1 = alloca double\n" +
 				"  %doubleVar2 = alloca double\n" +
@@ -196,8 +196,8 @@ public class LLVMBackendArithmeticTest extends LLVMBackendTest {
 
 	@Test
 	public void generateTargetCodeTest_MulLong_Const() throws IOException, BackendException {
-		tac.add(new Q(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
-		tac.add(new Q(Quadruple.Operator.MUL_LONG, "#23", "#42", "result"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.MUL_LONG, "#23", "#42", "result"));
 		String mainFunctionCode = "" +
 				"  %result = alloca i64\n" +
 				"  %result.0 = mul i64 23, 42\n" +
@@ -208,10 +208,10 @@ public class LLVMBackendArithmeticTest extends LLVMBackendTest {
 
 	@Test
 	public void generateTargetCodeTest_MulLong_Var() throws IOException, BackendException {
-		tac.add(new Q(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "longVar1"));
-		tac.add(new Q(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "longVar2"));
-		tac.add(new Q(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
-		tac.add(new Q(Quadruple.Operator.MUL_LONG, "longVar1", "longVar2", "result"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "longVar1"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "longVar2"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.MUL_LONG, "longVar1", "longVar2", "result"));
 		String mainFunctionCode = "" +
 				"  %longVar1 = alloca i64\n" +
 				"  %longVar2 = alloca i64\n" +
@@ -226,8 +226,8 @@ public class LLVMBackendArithmeticTest extends LLVMBackendTest {
 
 	@Test
 	public void generateTargetCodeTest_MulDouble_Const() throws IOException, BackendException {
-		tac.add(new Q(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
-		tac.add(new Q(Quadruple.Operator.MUL_DOUBLE, "#23.0", "#42.0", "result"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.MUL_DOUBLE, "#23.0", "#42.0", "result"));
 		String mainFunctionCode = ""
 				+ "  %result = alloca double\n"
 				+ "  %result.0 = fmul double 23.0, 42.0\n"
@@ -238,10 +238,10 @@ public class LLVMBackendArithmeticTest extends LLVMBackendTest {
 
 	@Test
 	public void generateTargetCodeTest_MulDouble_Var() throws IOException, BackendException {
-		tac.add(new Q(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "doubleVar1"));
-		tac.add(new Q(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "doubleVar2"));
-		tac.add(new Q(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
-		tac.add(new Q(Quadruple.Operator.MUL_DOUBLE, "doubleVar1", "doubleVar2", "result"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "doubleVar1"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "doubleVar2"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.MUL_DOUBLE, "doubleVar1", "doubleVar2", "result"));
 		String mainFunctionCode = "" +
 				"  %doubleVar1 = alloca double\n" +
 				"  %doubleVar2 = alloca double\n" +
@@ -258,8 +258,8 @@ public class LLVMBackendArithmeticTest extends LLVMBackendTest {
 
 	@Test
 	public void generateTargetCodeTest_DivLong_Const() throws IOException, BackendException {
-		tac.add(new Q(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
-		tac.add(new Q(Quadruple.Operator.DIV_LONG, "#23", "#42", "result"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.DIV_LONG, "#23", "#42", "result"));
 		String mainFunctionCode = "" +
 				"  %result = alloca i64\n" +
 				"  %result.0 = invoke i64 (i64, i64)* @div_long(i64 23, i64 42) to label %result.0.ok unwind label %UncaughtException\n" +
@@ -271,10 +271,10 @@ public class LLVMBackendArithmeticTest extends LLVMBackendTest {
 
 	@Test
 	public void generateTargetCodeTest_DivLong_Var() throws IOException, BackendException {
-		tac.add(new Q(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "longVar1"));
-		tac.add(new Q(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "longVar2"));
-		tac.add(new Q(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
-		tac.add(new Q(Quadruple.Operator.DIV_LONG, "longVar1", "longVar2", "result"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "longVar1"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "longVar2"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.DIV_LONG, "longVar1", "longVar2", "result"));
 		String mainFunctionCode = "" +
 				"  %longVar1 = alloca i64\n" +
 				"  %longVar2 = alloca i64\n" +
@@ -290,8 +290,8 @@ public class LLVMBackendArithmeticTest extends LLVMBackendTest {
 
 	@Test
 	public void generateTargetCodeTest_DivDouble_Const() throws IOException, BackendException {
-		tac.add(new Q(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
-		tac.add(new Q(Quadruple.Operator.DIV_DOUBLE, "#23.0", "#42.0", "result"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.DIV_DOUBLE, "#23.0", "#42.0", "result"));
 		String mainFunctionCode = ""
 				+ "  %result = alloca double\n"
 				+ "  %result.0 = invoke double (double, double)* @div_double(double 23.0, double 42.0) to label %result.0.ok unwind label %UncaughtException\n"
@@ -303,10 +303,10 @@ public class LLVMBackendArithmeticTest extends LLVMBackendTest {
 
 	@Test
 	public void generateTargetCodeTest_DivDouble_Var() throws IOException, BackendException {
-		tac.add(new Q(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "doubleVar1"));
-		tac.add(new Q(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "doubleVar2"));
-		tac.add(new Q(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
-		tac.add(new Q(Quadruple.Operator.DIV_DOUBLE, "doubleVar1", "doubleVar2", "result"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "doubleVar1"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "doubleVar2"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.DIV_DOUBLE, "doubleVar1", "doubleVar2", "result"));
 		String mainFunctionCode = "" +
 				"  %doubleVar1 = alloca double\n" +
 				"  %doubleVar2 = alloca double\n" +

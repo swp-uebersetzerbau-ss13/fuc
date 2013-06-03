@@ -15,7 +15,7 @@ import static org.junit.Assert.assertEquals;
 
 
 /**
- * Tests for LLVMBackend
+ * Base Class LLVMBackend Backend Tests
  */
 public class LLVMBackendTest {
 
@@ -68,34 +68,5 @@ public class LLVMBackendTest {
 	{
 		String expectedCode = header + mainFunctionCode + mainFooter;
 		assertEquals(expectedCode, ir);
-	}
-
-	/**
-	 * A bare-bones implementation of the
-	 * <code>Quadruple</code> interface used to
-	 * generate the left hand side for several
-	 * of the above test cases.
-	 */
-	static class Q implements Quadruple
-	{
-		private Operator operator;
-		private String argument1;
-		private String argument2;
-		private String result;
-
-		public Q(Operator o, String a1, String a2, String r)
-		{
-			operator = o;
-			argument1 = a1;
-			argument2 = a2;
-			result = r;
-		}
-
-		public String toString() { return "(" + String.valueOf(operator) + "|" + argument1  + "|" + argument2 + "|" + result + ")"; }
-
-		public Operator getOperator() { return operator; }
-		public String getArgument1() { return argument1; }
-		public String getArgument2() { return argument2; }
-		public String getResult() { return result; }
 	}
 }

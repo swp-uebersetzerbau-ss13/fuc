@@ -13,7 +13,7 @@ public class LLVMBackendControlAndIOTest extends LLVMBackendTest {
 
 	@Test
 	public void generateTargetCodeTest_Return_Const() throws IOException, BackendException {
-		tac.add(new Q(
+		tac.add(new QuadrupleImpl(
 			        Quadruple.Operator.RETURN,
 			        "#1",
 			        Quadruple.EmptyArgument,
@@ -25,12 +25,12 @@ public class LLVMBackendControlAndIOTest extends LLVMBackendTest {
 
 	@Test
 	public void generateTargetCodeTest_Return_Var() throws IOException, BackendException {
-		tac.add(new Q(
+		tac.add(new QuadrupleImpl(
 			        Quadruple.Operator.DECLARE_LONG,
 			        "#1",
 			        Quadruple.EmptyArgument,
 			        "res"));
-		tac.add(new Q(
+		tac.add(new QuadrupleImpl(
 			        Quadruple.Operator.RETURN,
 			        "res",
 			        Quadruple.EmptyArgument,

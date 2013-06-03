@@ -14,12 +14,12 @@ public class LLVMBackendAssignTest extends LLVMBackendTest {
 
 	@Test
 	public void generateTargetCodeTest_AssignLong_Const() throws IOException, BackendException {
-		tac.add(new Q(
+		tac.add(new QuadrupleImpl(
 			        Quadruple.Operator.DECLARE_LONG,
 			        Quadruple.EmptyArgument,
 			        Quadruple.EmptyArgument,
 			        "longVariable"));
-		tac.add(new Q(
+		tac.add(new QuadrupleImpl(
 			        Quadruple.Operator.ASSIGN_LONG,
 			        "#0",
 			        Quadruple.EmptyArgument,
@@ -33,17 +33,17 @@ public class LLVMBackendAssignTest extends LLVMBackendTest {
 
 	@Test
 	public void generateTargetCodeTest_AssignLong_Var() throws IOException, BackendException {
-		tac.add(new Q(
+		tac.add(new QuadrupleImpl(
 			        Quadruple.Operator.DECLARE_LONG,
 			        Quadruple.EmptyArgument,
 			        Quadruple.EmptyArgument,
 			        "init"));
-		tac.add(new Q(
+		tac.add(new QuadrupleImpl(
 			        Quadruple.Operator.DECLARE_LONG,
 			        Quadruple.EmptyArgument,
 			        Quadruple.EmptyArgument,
 			        "longVariable"));
-		tac.add(new Q(
+		tac.add(new QuadrupleImpl(
 			        Quadruple.Operator.ASSIGN_LONG,
 			        "init",
 			        Quadruple.EmptyArgument,
@@ -59,12 +59,12 @@ public class LLVMBackendAssignTest extends LLVMBackendTest {
 
 	@Test
 	public void generateTargetCodeTest_AssignDouble_Const() throws IOException, BackendException {
-		tac.add(new Q(
+		tac.add(new QuadrupleImpl(
 			        Quadruple.Operator.DECLARE_DOUBLE,
 			        Quadruple.EmptyArgument,
 			        Quadruple.EmptyArgument,
 			        "doubleVariable"));
-		tac.add(new Q(
+		tac.add(new QuadrupleImpl(
 			        Quadruple.Operator.ASSIGN_DOUBLE,
 			        "#0.0",
 			        Quadruple.EmptyArgument,
@@ -78,17 +78,17 @@ public class LLVMBackendAssignTest extends LLVMBackendTest {
 
 	@Test
 	public void generateTargetCodeTest_AssignDouble_Var() throws IOException, BackendException {
-		tac.add(new Q(
+		tac.add(new QuadrupleImpl(
 			        Quadruple.Operator.DECLARE_DOUBLE,
 			        Quadruple.EmptyArgument,
 			        Quadruple.EmptyArgument,
 			        "init"));
-		tac.add(new Q(
+		tac.add(new QuadrupleImpl(
 			        Quadruple.Operator.DECLARE_DOUBLE,
 			        Quadruple.EmptyArgument,
 			        Quadruple.EmptyArgument,
 			        "doubleVariable"));
-		tac.add(new Q(
+		tac.add(new QuadrupleImpl(
 			        Quadruple.Operator.ASSIGN_DOUBLE,
 			        "init",
 			        Quadruple.EmptyArgument,
@@ -104,12 +104,12 @@ public class LLVMBackendAssignTest extends LLVMBackendTest {
 
 	@Test
 	public void generateTargetCodeTest_AssignBoolean_Const_False() throws IOException, BackendException {
-		tac.add(new Q(
+		tac.add(new QuadrupleImpl(
 			        Quadruple.Operator.DECLARE_BOOLEAN,
 			        Quadruple.EmptyArgument,
 			        Quadruple.EmptyArgument,
 			        "booleanVariable"));
-		tac.add(new Q(
+		tac.add(new QuadrupleImpl(
 			        Quadruple.Operator.ASSIGN_BOOLEAN,
 			        "#FALSE",
 			        Quadruple.EmptyArgument,
@@ -123,12 +123,12 @@ public class LLVMBackendAssignTest extends LLVMBackendTest {
 
 	@Test
 	public void generateTargetCodeTest_AssignBoolean_Const_True() throws IOException, BackendException {
-		tac.add(new Q(
+		tac.add(new QuadrupleImpl(
 			        Quadruple.Operator.DECLARE_BOOLEAN,
 			        Quadruple.EmptyArgument,
 			        Quadruple.EmptyArgument,
 			        "booleanVariable"));
-		tac.add(new Q(
+		tac.add(new QuadrupleImpl(
 			        Quadruple.Operator.ASSIGN_BOOLEAN,
 			        "#TRUE",
 			        Quadruple.EmptyArgument,
@@ -142,17 +142,17 @@ public class LLVMBackendAssignTest extends LLVMBackendTest {
 
 	@Test
 	public void generateTargetCodeTest_AssignBoolean_Var() throws IOException, BackendException {
-		tac.add(new Q(
+		tac.add(new QuadrupleImpl(
 			        Quadruple.Operator.DECLARE_BOOLEAN,
 			        Quadruple.EmptyArgument,
 			        Quadruple.EmptyArgument,
 			        "init"));
-		tac.add(new Q(
+		tac.add(new QuadrupleImpl(
 			        Quadruple.Operator.DECLARE_BOOLEAN,
 			        Quadruple.EmptyArgument,
 			        Quadruple.EmptyArgument,
 			        "booleanVariable"));
-		tac.add(new Q(
+		tac.add(new QuadrupleImpl(
 			        Quadruple.Operator.ASSIGN_BOOLEAN,
 			        "init",
 			        Quadruple.EmptyArgument,
@@ -168,12 +168,12 @@ public class LLVMBackendAssignTest extends LLVMBackendTest {
 
 	@Test
 	public void generateTargetCodeTest_AssignString_Const() throws IOException, BackendException {
-		tac.add(new Q(
+		tac.add(new QuadrupleImpl(
 			        Quadruple.Operator.DECLARE_STRING,
 			        Quadruple.EmptyArgument,
 			        Quadruple.EmptyArgument,
 			        "stringVariable"));
-		tac.add(new Q(
+		tac.add(new QuadrupleImpl(
 			        Quadruple.Operator.ASSIGN_STRING,
 			        "#\"\\0Foo\"",
 			        Quadruple.EmptyArgument,
@@ -190,17 +190,17 @@ public class LLVMBackendAssignTest extends LLVMBackendTest {
 
 	@Test
 	public void generateTargetCodeTest_AssignString_Var() throws IOException, BackendException {
-		tac.add(new Q(
+		tac.add(new QuadrupleImpl(
 			        Quadruple.Operator.DECLARE_STRING,
 			        Quadruple.EmptyArgument,
 			        Quadruple.EmptyArgument,
 			        "init"));
-		tac.add(new Q(
+		tac.add(new QuadrupleImpl(
 			        Quadruple.Operator.DECLARE_STRING,
 			        Quadruple.EmptyArgument,
 			        Quadruple.EmptyArgument,
 			        "stringVariable"));
-		tac.add(new Q(
+		tac.add(new QuadrupleImpl(
 			        Quadruple.Operator.ASSIGN_STRING,
 			        "init",
 			        Quadruple.EmptyArgument,
@@ -218,7 +218,7 @@ public class LLVMBackendAssignTest extends LLVMBackendTest {
 
 	@Test
 	public void generateTargetCodeTest_Return_Const() throws IOException, BackendException {
-		tac.add(new Q(
+		tac.add(new QuadrupleImpl(
 			        Quadruple.Operator.RETURN,
 			        "#1",
 			        Quadruple.EmptyArgument,
@@ -230,12 +230,12 @@ public class LLVMBackendAssignTest extends LLVMBackendTest {
 
 	@Test
 	public void generateTargetCodeTest_Return_Var() throws IOException, BackendException {
-		tac.add(new Q(
+		tac.add(new QuadrupleImpl(
 			        Quadruple.Operator.DECLARE_LONG,
 			        "#1",
 			        Quadruple.EmptyArgument,
 			        "res"));
-		tac.add(new Q(
+		tac.add(new QuadrupleImpl(
 			        Quadruple.Operator.RETURN,
 			        "res",
 			        Quadruple.EmptyArgument,
@@ -250,12 +250,12 @@ public class LLVMBackendAssignTest extends LLVMBackendTest {
 
 	@Test (expected = BackendException.class)
 	public void generateTargetCodeTest_AssignWithoutDeclaration() throws IOException, BackendException {
-		tac.add(new Q(
+		tac.add(new QuadrupleImpl(
 				Quadruple.Operator.DECLARE_LONG,
 				Quadruple.EmptyArgument,
 				Quadruple.EmptyArgument,
 				"longVariable"));
-		tac.add(new Q(
+		tac.add(new QuadrupleImpl(
 				Quadruple.Operator.ASSIGN_LONG,
 				"init",
 				Quadruple.EmptyArgument,
