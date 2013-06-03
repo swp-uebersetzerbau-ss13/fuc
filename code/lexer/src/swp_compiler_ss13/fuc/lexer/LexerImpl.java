@@ -50,37 +50,44 @@ public class LexerImpl implements Lexer {
 
 	@Override
 	public Token getNextToken() {
-		String actualTokenValue = this.abstractToken();
-		TokenType actualTokenType = this.matchToken(actualTokenValue);
-
-		switch (actualTokenType.name()) {
-		case "NUM":
-			this.actualToken = new NumTokenImpl(actualTokenValue,
-					actualTokenType, this.actualLine, this.actualColumn);
-			break;
-		case "REAL":
-			this.actualToken = new RealTokenImpl(actualTokenValue,
-					actualTokenType, this.actualLine, this.actualColumn);
-			break;
-		case "TRUE":
-			this.actualToken = new BoolTokenImpl(actualTokenValue,
-					actualTokenType, this.actualLine, this.actualColumn);
-			break;
-		case "FALSE":
-			this.actualToken = new BoolTokenImpl(actualTokenValue,
-					actualTokenType, this.actualLine, this.actualColumn);
-			break;
-		default:
-			this.actualToken = new TokenImpl(actualTokenValue, actualTokenType,
-					this.actualLine, this.actualColumn);
-			break;
-		}
-
-		if (actualTokenValue.length() == 0) {
-			// skip empty line
-			return this.getNextToken();
+		if (!this.convertedLines.isEmpty()) {
+			// if input is not empty then tokenize
+			String actualTokenValue = this.abstractToken();
+			TokenType actualTokenType = this.matchToken(actualTokenValue);
+	
+			switch (actualTokenType.name()) {
+			case "NUM":
+				this.actualToken = new NumTokenImpl(actualTokenValue,
+						actualTokenType, this.actualLine, this.actualColumn);
+				break;
+			case "REAL":
+				this.actualToken = new RealTokenImpl(actualTokenValue,
+						actualTokenType, this.actualLine, this.actualColumn);
+				break;
+			case "TRUE":
+				this.actualToken = new BoolTokenImpl(actualTokenValue,
+						actualTokenType, this.actualLine, this.actualColumn);
+				break;
+			case "FALSE":
+				this.actualToken = new BoolTokenImpl(actualTokenValue,
+						actualTokenType, this.actualLine, this.actualColumn);
+				break;
+			default:
+				this.actualToken = new TokenImpl(actualTokenValue, actualTokenType,
+						this.actualLine, this.actualColumn);
+				break;
+			}
+	
+			if (actualTokenValue.length() == 0) {
+				// skip empty line
+				return this.getNextToken();
+			} else {
+				return this.actualToken;
+			}
 		} else {
-			return this.actualToken;
+			// else return eof
+			return new TokenImpl("$", TokenType.EOF,
+					this.actualLine, this.actualColumn);
 		}
 	}
 
