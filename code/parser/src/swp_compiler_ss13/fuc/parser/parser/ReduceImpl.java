@@ -83,7 +83,12 @@ public class ReduceImpl {
 					Object left = objs[0]; // Should be NO_VALUE or BlockNode
 					Object right = objs[1]; // Should be NO_VALUE or BlockNode
 
-					return joinBlocks(left, right, reportLog);
+					BlockNodeImpl block = joinBlocks(left, right, reportLog);
+					
+					block.setCoverage(((BlockNode)left).coverage());
+					block.setCoverage(((BlockNode)right).coverage());
+					
+					return block;
 				}
 			};
 
@@ -94,7 +99,18 @@ public class ReduceImpl {
 					Object left = objs[1]; // Should be NO_VALUE or BlockNode
 					Object right = objs[2]; // Should be NO_VALUE or BlockNode
 					
-					return joinBlocks(left, right, reportLog);
+					BlockNodeImpl block = joinBlocks(left, right, reportLog);
+					
+					Token leftBranch = (Token)objs[0];
+					block.setCoverage(leftBranch);
+					
+					block.setCoverage(((BlockNode)left).coverage());
+					block.setCoverage(((BlockNode)right).coverage());
+					
+					Token rightBranch = (Token)objs[3];
+					block.setCoverage(rightBranch);
+										
+					return block;
 				}
 			};
 
@@ -405,24 +421,51 @@ public class ReduceImpl {
 			
 		case "loc -> loc [ assign ]":
 			// TODO m2
+			
 			break;
 
 		case "loc -> id":
 			return new ReduceAction() {
 				@Override
 				public Object create(Object... objs) throws ParserException  {
-					BasicIdentifierNode identifierNode = new BasicIdentifierNodeImpl();
+					BasicIdentifierNodeImpl identifierNode = new BasicIdentifierNodeImpl();
 					Token token = (Token) objs[0];
 					if (token.getTokenType() == TokenType.ID) {
 						identifierNode.setIdentifier(token.getValue());
 					} else {
 						log.error("Wrong TokenType in ReduceAction \"loc -> id\"");
-						return null;
+						throw new ParserException("Wrong TokenType in ReduceAction \"loc -> id\"");
 					}
+					
+					identifierNode.setCoverage(token);
 					return identifierNode;
 				}
 			};
 		case "loc -> loc.id":
+			return new ReduceAction() {
+				@Override
+				public Object create(Object... objs) throws ParserException  {
+
+					BasicIdentifierNodeImpl identifierNode = new BasicIdentifierNodeImpl();
+					
+					if(!(objs[0] instanceof IdentifierNode)){
+						writeReportError(reportLog, objs[0], "Identifier");
+					}
+					
+					Token dot = (Token) objs[1];
+					
+					Token token = (Token) objs[2];
+					if (token.getTokenType() == TokenType.ID) {
+						identifierNode.setIdentifier(token.getValue());
+					} else {
+						log.error("Wrong TokenType in ReduceAction \"loc -> id\"");
+						throw new ParserException("Wrong TokenType in ReduceAction \"loc -> id\"");
+					}
+					
+					identifierNode.setCoverage(token);
+					return identifierNode;
+				}
+			};
 		case "assign -> loc = assign":
 			return new ReduceAction() {
 				@Override
@@ -723,18 +766,16 @@ public class ReduceImpl {
 		decl.setParentNode(block);
 	}
 
-	private static Object joinBlocks(Object left, Object right, ReportLog reportLog) throws ParserException{
-		BlockNode newBlock = new BlockNodeImpl();
+	private static BlockNodeImpl joinBlocks(Object left, Object right, ReportLog reportLog) throws ParserException{
+		BlockNodeImpl newBlock = new BlockNodeImpl();
 		newBlock.setSymbolTable(new SymbolTableImpl());
 		
-		BlockNodeImpl newBlockImpl = (BlockNodeImpl)newBlock;
 		// Handle left
 		if (!left.equals(NO_VALUE)) {
 			BlockNode declsBlock = (BlockNode) left;
 			for (DeclarationNode decl : declsBlock.getDeclarationList()) {
 				insertDecl(newBlock, decl, reportLog);
 				decl.setParentNode(newBlock);
-				newBlockImpl.setCoverage(decl.coverage());
 			}
 		}
 
@@ -744,13 +785,8 @@ public class ReduceImpl {
 			for (StatementNode stmt : stmtsBlock.getStatementList()) {
 				newBlock.addStatement(stmt);
 				stmt.setParentNode(newBlock);
-				newBlockImpl.setCoverage(stmt.coverage());
 			}
 		}
-		
-		
-		
-		
 		
 		return newBlock;
 	}
