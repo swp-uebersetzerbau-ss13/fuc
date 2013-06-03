@@ -116,4 +116,62 @@ public class LLVMBackendControlAndIOTest extends LLVMBackendTest {
 	}
 
 
+	@Test
+	public void generateTargetCodeTest_PrintLong() throws IOException, BackendException {
+		tac.add(new QuadrupleImpl(Operator.DECLARE_LONG, "#2", EmptyArgument, "l1"));
+		tac.add(new QuadrupleImpl(Operator.PRINT_LONG, "l1", EmptyArgument, EmptyArgument));
+		String mainFunctionCode = "" +
+				"  %l1 = alloca i64\n" +
+				"  store i64 2, i64* %l1\n" +
+				"  %l1.0 = load i64* %l1\n" +
+				"  %.tmp.0 = call i8* (i64)* @ltoa(i64 %l1.0)\n" +
+				"  call i32 (i8*, ...)* @printf(i8* %.tmp.0)\n" +
+				"  ret i64 0\n";
+		expectMain(mainFunctionCode, generateCodeAsString(tac));
+	}
+
+	@Test
+	public void generateTargetCodeTest_PrintDouble() throws IOException, BackendException {
+		tac.add(new QuadrupleImpl(Operator.DECLARE_DOUBLE, "#2.0", EmptyArgument, "d1"));
+		tac.add(new QuadrupleImpl(Operator.PRINT_DOUBLE, "d1", EmptyArgument, EmptyArgument));
+		String mainFunctionCode = "" +
+				"  %d1 = alloca double\n" +
+				"  store double 2.0, double* %d1\n" +
+				"  %d1.0 = load double* %d1\n" +
+				"  %.tmp.0 = call i8* (double)* @dtoa(double %d1.0)\n" +
+				"  call i32 (i8*, ...)* @printf(i8* %.tmp.0)\n" +
+				"  ret i64 0\n";
+		expectMain(mainFunctionCode, generateCodeAsString(tac));
+	}
+
+	@Test
+	public void generateTargetCodeTest_PrintBoolean() throws IOException, BackendException {
+		tac.add(new QuadrupleImpl(Operator.DECLARE_BOOLEAN, "#2.0", EmptyArgument, "b1"));
+		tac.add(new QuadrupleImpl(Operator.PRINT_BOOLEAN, "b1", EmptyArgument, EmptyArgument));
+		String mainFunctionCode = "" +
+				"  %b1 = alloca i8\n" +
+				"  store i8 2.0, i8* %b1\n" +
+				"  %b1.0 = load i8* %b1\n" +
+				"  %.tmp.0 = call i8* (i8)* @btoa(i8 %b1.0)\n" +
+				"  call i32 (i8*, ...)* @printf(i8* %.tmp.0)\n" +
+				"  ret i64 0\n";
+		expectMain(mainFunctionCode, generateCodeAsString(tac));
+	}
+
+	@Test
+	public void generateTargetCodeTest_PrintString() throws IOException, BackendException {
+		tac.add(new QuadrupleImpl(Operator.DECLARE_STRING, "#\"bla\"", EmptyArgument, "s1"));
+		tac.add(new QuadrupleImpl(Operator.PRINT_STRING, "s1", EmptyArgument, EmptyArgument));
+		String mainFunctionCode = "" +
+				"  %s1 = alloca i8*\n" +
+				"  %.string_0 = alloca [4 x i8]\n" +
+				"  store [4 x i8] c\"bla\\00\", [4 x i8]* %.string_0\n" +
+				"  %s1.0 = getelementptr [4 x i8]* %.string_0, i64 0, i64 0\n" +
+				"  store i8* %s1.0, i8** %s1\n" +
+				"  %s1.1 = load i8** %s1\n" +
+				"  call i32 (i8*, ...)* @printf(i8* %s1.1)\n" +
+				"  ret i64 0\n";
+		expectMain(mainFunctionCode, generateCodeAsString(tac));
+	}
+
 }
