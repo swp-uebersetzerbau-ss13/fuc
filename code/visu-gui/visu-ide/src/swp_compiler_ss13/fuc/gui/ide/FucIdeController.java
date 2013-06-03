@@ -70,7 +70,7 @@ public class FucIdeController {
 		final StringWriter consoleWriter = new StringWriter();
 		WriterAppender appender = new WriterAppender(new PatternLayout("%d{ISO8601} %p - %m%n"), consoleWriter);
 		appender.setName("GUI_APPENDER");
-		appender.setThreshold(org.apache.log4j.Level.INFO);
+		appender.setThreshold(org.apache.log4j.Level.DEBUG);
 		Logger.getRootLogger().addAppender(appender);
 
 		new Thread() {
