@@ -31,7 +31,7 @@ import swp_compiler_ss13.fuc.symbolTable.SymbolTableImpl;
 // TODO add missing tests and adjust existing to interface modifications
 public class M1Tests {
 
-	private SemanticAnalyser analyzer;
+	private SemanticAnalyser analyser;
 	private ReportLogImpl log;
 	
 	public M1Tests() {
@@ -40,12 +40,12 @@ public class M1Tests {
 	@Before
 	public void setUp() {
 		this.log = new ReportLogImpl();
-		this.analyzer = new SemanticAnalyser(this.log);
+		this.analyser = new SemanticAnalyser(this.log);
 	}
 
 	@After
 	public void tearDown() {
-		this.analyzer = null;
+		this.analyser = null;
 		this.log = null;
 	}
 
@@ -70,7 +70,7 @@ public class M1Tests {
 		blockNode.setSymbolTable(symbolTable);
 		AST ast = new ASTImpl();
 		ast.setRootNode(blockNode);
-		this.analyzer.analyse(ast);
+		this.analyser.analyse(ast);
 		assertFalse(this.log.hasErrors());
 	}
 
@@ -168,7 +168,7 @@ public class M1Tests {
 		AST ast = new ASTImpl();
 		ast.setRootNode(blockNode);
 
-		this.analyzer.analyse(ast);
+		this.analyser.analyse(ast);
 		assertFalse(this.log.hasErrors());
 	}
 
@@ -245,7 +245,7 @@ public class M1Tests {
 		AST ast = new ASTImpl();
 		ast.setRootNode(blockNode);
 
-		this.analyzer.analyse(ast);
+		this.analyser.analyse(ast);
 		assertFalse(this.log.hasErrors());
 	}
 
@@ -290,7 +290,7 @@ public class M1Tests {
 		AST ast = new ASTImpl();
 		ast.setRootNode(blockNode);
 
-		this.analyzer.analyse(ast);
+		this.analyser.analyse(ast);
 		assertFalse(this.log.hasErrors());
 	}
 
@@ -335,7 +335,7 @@ public class M1Tests {
 		AST ast = new ASTImpl();
 		ast.setRootNode(blockNode);
 
-		this.analyzer.analyse(ast);
+		this.analyser.analyse(ast);
 		assertFalse(this.log.hasErrors());
 	}
 

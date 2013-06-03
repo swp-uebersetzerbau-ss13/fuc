@@ -42,7 +42,7 @@ import swp_compiler_ss13.fuc.symbolTable.SymbolTableImpl;
 // TODO refine ASTs
 public class M2Tests {
 
-	private SemanticAnalyser analyzer;
+	private SemanticAnalyser analyser;
 	private ReportLogImpl log;
 	
 	public M2Tests() {
@@ -51,12 +51,12 @@ public class M2Tests {
 	@Before
 	public void setUp() {
 		log = new ReportLogImpl();
-		analyzer = new SemanticAnalyser(this.log);
+		analyser = new SemanticAnalyser(this.log);
 	}
 
 	@After
 	public void tearDown() {
-		analyzer = null;
+		analyser = null;
 		log = null;
 	}
 	
@@ -154,7 +154,7 @@ public class M2Tests {
 		AST ast = new ASTImpl();
 		ast.setRootNode(blockNode);
 		
-		analyzer.analyse(ast);
+		analyser.analyse(ast);
 		
 		assertFalse(log.hasErrors());
 	}
@@ -278,7 +278,7 @@ public class M2Tests {
 		AST ast = new ASTImpl();
 		ast.setRootNode(blockNode);
 		
-		analyzer.analyse(ast);
+		analyser.analyse(ast);
 		
 		assertFalse(log.hasErrors());
 	}
