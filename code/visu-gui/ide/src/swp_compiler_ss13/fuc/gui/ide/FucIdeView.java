@@ -4,6 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.util.HashMap;
@@ -16,24 +18,34 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
+import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
+import javax.swing.border.BevelBorder;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
 
 import swp_compiler_ss13.common.backend.Backend;
 import swp_compiler_ss13.common.ir.IntermediateCodeGenerator;
 import swp_compiler_ss13.common.lexer.Lexer;
 import swp_compiler_ss13.common.parser.Parser;
 import swp_compiler_ss13.common.semanticAnalysis.SemanticAnalyser;
+import swp_compiler_ss13.fuc.gui.ide.data.FucIdeButton;
 import swp_compiler_ss13.fuc.gui.ide.data.FucIdeMenu;
+import swp_compiler_ss13.fuc.gui.ide.data.FucIdeStatusLabel;
+import swp_compiler_ss13.fuc.gui.ide.data.FucIdeTab;
 
 public class FucIdeView extends JFrame {
 	private JPanel contentPane;
@@ -70,11 +82,14 @@ public class FucIdeView extends JFrame {
 	private List<JMenu> customMenus = new LinkedList<>();
 	private JPanel panel;
 	private JPanel panel_1;
+	private List<JButton> customButtons = new LinkedList<>();
+	private List<JLabel> customLabels = new LinkedList<>();
+	private JScrollPane scrollPane;
 
 	/**
 	 * Create the frame.
 	 */
-	public FucIdeView(FucIdeController controller) {
+	public FucIdeView(final FucIdeController controller) {
 		this.controller = controller;
 
 		this.setTitle("FUC Compiler IDE");
@@ -138,9 +153,15 @@ public class FucIdeView extends JFrame {
 
 		this.buttonPanel = new JPanel();
 		this.panel.add(this.buttonPanel);
-		this.buttonPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		this.buttonPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
 
 		this.runButton = new JButton("run");
+		this.runButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				controller.onRunPressed();
+			}
+		});
 		this.runButton
 				.setIcon(new ImageIcon(FucIdeView.class.getResource("/swp_compiler_ss13/fuc/gui/ide/assets/run.png")));
 		this.buttonPanel.add(this.runButton);
@@ -157,18 +178,31 @@ public class FucIdeView extends JFrame {
 		this.splitPane.setRightComponent(this.consolePanel);
 		this.consolePanel.setLayout(new GridLayout(1, 1, 0, 0));
 
+		this.scrollPane = new JScrollPane();
+		this.consolePanel.add(this.scrollPane);
+
 		this.consoleOutput = new JTextPane();
-		this.consolePanel.add(this.consoleOutput);
+		this.scrollPane.setViewportView(this.consoleOutput);
+		this.consoleOutput.setEditable(false);
 
 		this.componentTabs = new JTabbedPane(JTabbedPane.TOP);
+		this.componentTabs.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent arg0) {
+				controller.tabChanged();
+			}
+		});
 		this.splitPane.setLeftComponent(this.componentTabs);
-		this.splitPane.setDividerLocation(200);
+		this.splitPane.setDividerLocation(400);
 
 		this.statusPanel = new JPanel();
+		this.statusPanel.setBorder(new BevelBorder(BevelBorder.RAISED, null, null, null, null));
+		FlowLayout flowLayout = (FlowLayout) this.statusPanel.getLayout();
+		flowLayout.setAlignment(FlowLayout.RIGHT);
 		this.contentPane.add(this.statusPanel, BorderLayout.SOUTH);
 	}
 
-	public void addComponentRadioMenuItem(Lexer lexer) {
+	public void addComponentRadioMenuItem(final Lexer lexer) {
 		String name = lexer.getClass().getName();
 		JRadioButtonMenuItem jrb = new JRadioButtonMenuItem(name);
 		this.lexerMenus.put(jrb, lexer);
@@ -176,10 +210,18 @@ public class FucIdeView extends JFrame {
 		this.lexerGroup.add(jrb);
 		if (this.lexerMenus.size() == 1) {
 			jrb.setSelected(true);
+			this.controller.onLexerSelected(lexer);
 		}
+		jrb.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				FucIdeView.this.controller.onLexerSelected(lexer);
+			}
+		});
 	}
 
-	public void addComponentRadioMenuItem(Parser parser) {
+	public void addComponentRadioMenuItem(final Parser parser) {
 		String name = parser.getClass().getName();
 		JRadioButtonMenuItem jrb = new JRadioButtonMenuItem(name);
 		this.parserMenus.put(jrb, parser);
@@ -187,10 +229,18 @@ public class FucIdeView extends JFrame {
 		this.parserGroup.add(jrb);
 		if (this.parserMenus.size() == 1) {
 			jrb.setSelected(true);
+			this.controller.onParserSelected(parser);
 		}
+		jrb.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				FucIdeView.this.controller.onParserSelected(parser);
+			}
+		});
 	}
 
-	public void addComponentRadioMenuItem(SemanticAnalyser analyzer) {
+	public void addComponentRadioMenuItem(final SemanticAnalyser analyzer) {
 		String name = analyzer.getClass().getName();
 		JRadioButtonMenuItem jrb = new JRadioButtonMenuItem(name);
 		this.semanticAnalysisMenus.put(jrb, analyzer);
@@ -198,10 +248,18 @@ public class FucIdeView extends JFrame {
 		this.semanticGroup.add(jrb);
 		if (this.semanticAnalysisMenus.size() == 1) {
 			jrb.setSelected(true);
+			this.controller.onAnalyzerSelected(analyzer);
 		}
+		jrb.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				FucIdeView.this.controller.onAnalyzerSelected(analyzer);
+			}
+		});
 	}
 
-	public void addComponentRadioMenuItem(IntermediateCodeGenerator irgen) {
+	public void addComponentRadioMenuItem(final IntermediateCodeGenerator irgen) {
 		String name = irgen.getClass().getName();
 		JRadioButtonMenuItem jrb = new JRadioButtonMenuItem(name);
 		this.irgenMenus.put(jrb, irgen);
@@ -209,10 +267,18 @@ public class FucIdeView extends JFrame {
 		this.irgenGroup.add(jrb);
 		if (this.irgenMenus.size() == 1) {
 			jrb.setSelected(true);
+			this.controller.onIRGSelected(irgen);
 		}
+		jrb.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				FucIdeView.this.controller.onIRGSelected(irgen);
+			}
+		});
 	}
 
-	public void addComponentRadioMenuItem(Backend backend) {
+	public void addComponentRadioMenuItem(final Backend backend) {
 		String name = backend.getClass().getName();
 		JRadioButtonMenuItem jrb = new JRadioButtonMenuItem(name);
 		this.backendMenus.put(jrb, backend);
@@ -220,7 +286,15 @@ public class FucIdeView extends JFrame {
 		this.backendGroup.add(jrb);
 		if (this.backendMenus.size() == 1) {
 			jrb.setSelected(true);
+			this.controller.onBackendSelected(backend);
 		}
+		jrb.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				FucIdeView.this.controller.onBackendSelected(backend);
+			}
+		});
 	}
 
 	public void clearTabs() {
@@ -229,6 +303,7 @@ public class FucIdeView extends JFrame {
 
 	public void addTab(String name, JComponent c) {
 		this.componentTabs.add(name, c);
+
 	}
 
 	public void clearMenus() {
@@ -241,5 +316,51 @@ public class FucIdeView extends JFrame {
 	public void addMenu(FucIdeMenu menu) {
 		this.menuBar.add(menu.getMenu());
 		this.customMenus.add(menu.getMenu());
+	}
+
+	public void clearButtons() {
+		for (JButton b : this.customButtons) {
+			this.buttonPanel.remove(b);
+		}
+		this.customButtons.clear();
+	}
+
+	public void addButton(FucIdeButton button) {
+		this.buttonPanel.add(button.getButton());
+		this.customButtons.add(button.getButton());
+	}
+
+	public void clearLabels() {
+		for (JLabel l : this.customLabels) {
+			this.statusPanel.remove(l);
+		}
+		this.customLabels.clear();
+	}
+
+	public void addLabel(FucIdeStatusLabel label) {
+		this.statusPanel.add(label.getLabel());
+		this.customLabels.add(label.getLabel());
+	}
+
+	public boolean isFirstTab(FucIdeTab t) {
+		return this.componentTabs.getComponentAt(0) == t.getComponent();
+	}
+
+	public boolean isCurrentTab(FucIdeTab t) {
+		return this.componentTabs.getSelectedComponent() == t.getComponent();
+	}
+
+	public void showFirstTab() {
+		this.componentTabs.setSelectedIndex(0);
+	}
+
+	public void updateTextPane(String valueOf) {
+		Document doc = this.consoleOutput.getDocument();
+		try {
+			doc.insertString(doc.getLength(), valueOf, null);
+		} catch (BadLocationException e) {
+			throw new RuntimeException(e);
+		}
+		this.consoleOutput.setCaretPosition(doc.getLength() - 1);
 	}
 }

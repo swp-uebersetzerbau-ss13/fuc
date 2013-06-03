@@ -8,20 +8,20 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 
+import org.apache.log4j.Logger;
+
 import swp_compiler_ss13.common.backend.Backend;
 import swp_compiler_ss13.common.ir.IntermediateCodeGenerator;
 import swp_compiler_ss13.common.lexer.Lexer;
 import swp_compiler_ss13.common.parser.Parser;
 import swp_compiler_ss13.common.semanticAnalysis.SemanticAnalyser;
-import swp_compiler_ss13.fuc.gui.ide.data.FucIdeButtons;
+import swp_compiler_ss13.fuc.gui.ide.data.FucIdeButton;
 import swp_compiler_ss13.fuc.gui.ide.data.FucIdeMenu;
 import swp_compiler_ss13.fuc.gui.ide.data.FucIdeStatusLabel;
 import swp_compiler_ss13.fuc.gui.ide.data.FucIdeTab;
 import swp_compiler_ss13.fuc.gui.ide.mvc.Controller;
 import swp_compiler_ss13.fuc.gui.ide.mvc.IDE;
 import swp_compiler_ss13.fuc.gui.ide.mvc.Position;
-
-import com.sun.istack.internal.logging.Logger;
 
 /**
  * FUC IDE Model
@@ -78,7 +78,7 @@ public class FucIdeModel implements IDE {
 	/**
 	 * List of buttons
 	 */
-	private List<FucIdeButtons> buttons = new LinkedList<>();
+	private List<FucIdeButton> buttons = new LinkedList<>();
 
 	/**
 	 * All gui component controller instances
@@ -89,6 +89,20 @@ public class FucIdeModel implements IDE {
 	 * The logger
 	 */
 	private static Logger logger = Logger.getLogger(FucIdeModel.class);
+
+	private FucIdeTab activeTab = null;
+
+	private Lexer activeLexer;
+
+	private Parser activeParser;
+
+	private SemanticAnalyser activeAnalyzer;
+
+	private IntermediateCodeGenerator activeIRG;
+
+	private Backend activeBackend;
+
+	private String sourcecode;
 
 	/**
 	 * Initialize the model
@@ -146,7 +160,7 @@ public class FucIdeModel implements IDE {
 
 	@Override
 	public void addButton(JButton button, Position position, boolean displayAlways) {
-		this.buttons.add(new FucIdeButtons(displayAlways, position, button));
+		this.buttons.add(new FucIdeButton(displayAlways, position, button));
 		this.controller.notifyModelAddedButton();
 	}
 
@@ -220,5 +234,78 @@ public class FucIdeModel implements IDE {
 
 	public List<FucIdeMenu> getMenus() {
 		return this.menus;
+	}
+
+	public List<FucIdeButton> getButtons() {
+		return this.buttons;
+	}
+
+	public List<FucIdeStatusLabel> getLabels() {
+		return this.labels;
+	}
+
+	public FucIdeTab getActiveTab() {
+		return this.activeTab;
+	}
+
+	public void setActiveTab(FucIdeTab tab) {
+		this.activeTab = tab;
+	}
+
+	public Position getActivePosition() {
+		if (this.activeTab == null) {
+			return null;
+		}
+		return this.activeTab.getPosition();
+	}
+
+	public void setActiveLexer(Lexer lexer) {
+		this.activeLexer = lexer;
+	}
+
+	public void setActiveParser(Parser parser) {
+		this.activeParser = parser;
+	}
+
+	public void setActiveAnalyzer(SemanticAnalyser analyzer) {
+		this.activeAnalyzer = analyzer;
+	}
+
+	public void setActiveIRG(IntermediateCodeGenerator irgen) {
+		this.activeIRG = irgen;
+	}
+
+	public void setActiveBackend(Backend backend) {
+		this.activeBackend = backend;
+	}
+
+	public Lexer getActiveLexer() {
+		return this.activeLexer;
+	}
+
+	public Parser getActiveParser() {
+		return this.activeParser;
+	}
+
+	public SemanticAnalyser getActiveAnalyzer() {
+		return this.activeAnalyzer;
+	}
+
+	public IntermediateCodeGenerator getActiveIRG() {
+		return this.activeIRG;
+	}
+
+	public Backend getActiveBackend() {
+		return this.activeBackend;
+	}
+
+	public String getSourceCode() {
+		return this.sourcecode;
+	}
+
+	@Override
+	public void setSourceCode(String sourceCode) {
+		this.sourcecode = sourceCode;
+		this.controller.notifySourceCodeChanged();
 	}
 }

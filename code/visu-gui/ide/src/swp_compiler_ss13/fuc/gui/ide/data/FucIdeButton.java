@@ -10,7 +10,7 @@ import swp_compiler_ss13.fuc.gui.ide.mvc.Position;
  * @author "Frank Zechert"
  * @version 1
  */
-public class FucIdeButtons {
+public class FucIdeButton implements Comparable<FucIdeButton> {
 	/**
 	 * Whether this menu is always visible
 	 */
@@ -34,7 +34,7 @@ public class FucIdeButtons {
 	 * @param button
 	 *            the button to display
 	 */
-	public FucIdeButtons(boolean alwaysVisible, Position position, JButton button) {
+	public FucIdeButton(boolean alwaysVisible, Position position, JButton button) {
 		super();
 		this.alwaysVisible = alwaysVisible;
 		this.position = position;
@@ -74,7 +74,7 @@ public class FucIdeButtons {
 	/**
 	 * @return the button
 	 */
-	public JButton getMenu() {
+	public JButton getButton() {
 		return this.button;
 	}
 
@@ -84,5 +84,16 @@ public class FucIdeButtons {
 	 */
 	public void setMenu(JButton button) {
 		this.button = button;
+	}
+
+	@Override
+	public int compareTo(FucIdeButton arg0) {
+		if (this.position.ordinal() < arg0.position.ordinal()) {
+			return -1;
+		}
+		if (this.position.ordinal() > arg0.position.ordinal()) {
+			return 1;
+		}
+		return this.button.getText().compareTo(arg0.button.getText());
 	}
 }

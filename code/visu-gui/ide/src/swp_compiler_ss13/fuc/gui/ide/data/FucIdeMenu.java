@@ -10,7 +10,7 @@ import swp_compiler_ss13.fuc.gui.ide.mvc.Position;
  * @author "Frank Zechert"
  * @version 1
  */
-public class FucIdeMenu {
+public class FucIdeMenu implements Comparable<FucIdeMenu> {
 	/**
 	 * Whether this menu is always visible
 	 */
@@ -84,5 +84,17 @@ public class FucIdeMenu {
 	 */
 	public void setMenu(JMenu menu) {
 		this.menu = menu;
+	}
+
+	@Override
+	public int compareTo(FucIdeMenu arg0) {
+
+		if (this.position.ordinal() < arg0.position.ordinal()) {
+			return -1;
+		}
+		if (this.position.ordinal() > arg0.position.ordinal()) {
+			return 1;
+		}
+		return this.menu.getText().compareTo(arg0.menu.getText());
 	}
 }

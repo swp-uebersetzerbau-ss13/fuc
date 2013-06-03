@@ -5,7 +5,9 @@ import java.awt.Cursor;
 import java.awt.GridLayout;
 import java.awt.event.KeyEvent;
 
+import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
@@ -83,6 +85,8 @@ public class FucIdeSourceCodeView extends JPanel implements View {
 		JMenu fileMenu = new JMenu("File");
 		fileMenu.setMnemonic(KeyEvent.VK_F);
 		ide.addMenu(fileMenu, Position.SOURCE_CODE, true);
+		ide.addButton(new JButton("test"), Position.LAST, false);
+		ide.addStatusLabel(new JLabel("test complete"), Position.SOURCE_CODE, true);
 	}
 
 	@Override

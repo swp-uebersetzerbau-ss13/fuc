@@ -10,7 +10,7 @@ import swp_compiler_ss13.fuc.gui.ide.mvc.Position;
  * @author "Frank Zechert"
  * @version 1
  */
-public class FucIdeStatusLabel {
+public class FucIdeStatusLabel implements Comparable<FucIdeStatusLabel> {
 	/**
 	 * Whether this menu is always visible
 	 */
@@ -74,7 +74,7 @@ public class FucIdeStatusLabel {
 	/**
 	 * @return the component
 	 */
-	public JLabel getMenu() {
+	public JLabel getLabel() {
 		return this.label;
 	}
 
@@ -84,5 +84,16 @@ public class FucIdeStatusLabel {
 	 */
 	public void setMenu(JLabel label) {
 		this.label = label;
+	}
+
+	@Override
+	public int compareTo(FucIdeStatusLabel arg0) {
+		if (this.position.ordinal() < arg0.position.ordinal()) {
+			return -1;
+		}
+		if (this.position.ordinal() > arg0.position.ordinal()) {
+			return 1;
+		}
+		return this.label.getText().compareTo(arg0.label.getText());
 	}
 }

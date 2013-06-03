@@ -1,18 +1,37 @@
 package swp_compiler_ss13.fuc.gui.ide;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
+import javax.swing.SwingUtilities;
+
+import org.apache.log4j.Logger;
+import org.apache.log4j.PatternLayout;
+import org.apache.log4j.WriterAppender;
+
+import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.backend.Backend;
+import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.ir.IntermediateCodeGenerator;
 import swp_compiler_ss13.common.lexer.Lexer;
+import swp_compiler_ss13.common.lexer.Token;
+import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.common.parser.Parser;
+import swp_compiler_ss13.common.parser.ReportLog;
 import swp_compiler_ss13.common.semanticAnalysis.SemanticAnalyser;
+import swp_compiler_ss13.fuc.gui.ide.data.FucIdeButton;
 import swp_compiler_ss13.fuc.gui.ide.data.FucIdeMenu;
+import swp_compiler_ss13.fuc.gui.ide.data.FucIdeStatusLabel;
 import swp_compiler_ss13.fuc.gui.ide.data.FucIdeTab;
 import swp_compiler_ss13.fuc.gui.ide.mvc.Controller;
-
-import com.sun.istack.internal.logging.Logger;
+import swp_compiler_ss13.fuc.gui.ide.mvc.Position;
+import swp_compiler_ss13.fuc.parser.errorHandling.ReportLogImpl;
 
 /**
  * The FUC IDE Controllre
@@ -36,12 +55,50 @@ public class FucIdeController {
 	 * Instantiate a new instance of the controller
 	 */
 	public FucIdeController() {
+
+		this.redirectSystemStreams();
 		this.model = new FucIdeModel(this);
 		this.view = new FucIdeView(this);
 
 		this.initComponents();
+		this.setUpInitialState();
 
 		this.view.setVisible(true);
+	}
+
+	private void redirectSystemStreams() {
+		final StringWriter consoleWriter = new StringWriter();
+		WriterAppender appender = new WriterAppender(new PatternLayout("%d{ISO8601} %p - %m%n"), consoleWriter);
+		appender.setName("GUI_APPENDER");
+		appender.setThreshold(org.apache.log4j.Level.INFO);
+		Logger.getRootLogger().addAppender(appender);
+
+		new Thread() {
+			@Override
+			public void run() {
+				try {
+					while (true) {
+						SwingUtilities.invokeAndWait(new Runnable() {
+							@Override
+							public void run() {
+								FucIdeController.this.updateTextPane(consoleWriter.toString());
+								consoleWriter.getBuffer().setLength(0);
+							}
+						});
+
+						Thread.sleep(500);
+					}
+				} catch (InvocationTargetException | InterruptedException e) {
+					new FucIdeCriticalError(FucIdeController.this.view, e, false);
+				}
+			}
+		}.start();
+	}
+
+	protected void updateTextPane(String valueOf) {
+		if (this.view != null) {
+			this.view.updateTextPane(valueOf);
+		}
 	}
 
 	/**
@@ -134,11 +191,23 @@ public class FucIdeController {
 	}
 
 	public void notifyModelAddedButton() {
+		FucIdeButton[] buttons = this.model.getButtons().toArray(new FucIdeButton[] {});
+		Arrays.sort(buttons);
 
+		this.view.clearButtons();
+		for (FucIdeButton button : buttons) {
+			this.view.addButton(button);
+		}
 	}
 
 	public void notifyModelAddedLabel() {
+		FucIdeStatusLabel[] labels = this.model.getLabels().toArray(new FucIdeStatusLabel[] {});
+		Arrays.sort(labels);
 
+		this.view.clearLabels();
+		for (FucIdeStatusLabel label : labels) {
+			this.view.addLabel(label);
+		}
 	}
 
 	public void notifyModelTab() {
@@ -152,7 +221,169 @@ public class FucIdeController {
 		}
 	}
 
+	private void setUpInitialState() {
+		for (FucIdeTab t : this.model.getTabs()) {
+			if (this.view.isFirstTab(t)) {
+				this.updateStatus(t.getPosition());
+				this.view.showFirstTab();
+				break;
+			}
+		}
+	}
+
+	private void updateStatus(Position position) {
+		logger.info("Showing the tab for position " + position);
+		FucIdeMenu[] menus = this.model.getMenus().toArray(new FucIdeMenu[] {});
+		Arrays.sort(menus);
+
+		this.view.clearMenus();
+		for (FucIdeMenu menu : menus) {
+			if (menu.isAlwaysVisible() || menu.getPosition() == position) {
+				this.view.addMenu(menu);
+				break;
+			}
+		}
+
+		FucIdeButton[] buttons = this.model.getButtons().toArray(new FucIdeButton[] {});
+		Arrays.sort(buttons);
+
+		this.view.clearButtons();
+		for (FucIdeButton button : buttons) {
+			if (button.isAlwaysVisible() || button.getPosition() == position) {
+				this.view.addButton(button);
+			}
+		}
+
+		FucIdeStatusLabel[] labels = this.model.getLabels().toArray(new FucIdeStatusLabel[] {});
+		Arrays.sort(labels);
+
+		this.view.clearLabels();
+		for (FucIdeStatusLabel label : labels) {
+			if (label.isAlwaysVisible() || label.getPosition() == position) {
+				this.view.addLabel(label);
+			}
+		}
+
+	}
+
+	public void tabChanged() {
+		for (FucIdeTab t : this.model.getTabs()) {
+			if (this.view.isCurrentTab(t)) {
+				this.model.setActiveTab(t);
+				this.updateStatus(t.getPosition());
+				break;
+			}
+		}
+	}
+
 	public static void main(String[] args) {
 		new FucIdeController();
+	}
+
+	public void onRunPressed() {
+		Lexer lexer = this.model.getActiveLexer();
+		Parser parser = this.model.getActiveParser();
+		SemanticAnalyser analyzer = this.model.getActiveAnalyzer();
+		IntermediateCodeGenerator irgen = this.model.getActiveIRG();
+		Backend backend = this.model.getActiveBackend();
+
+		String sourceCode = this.model.getSourceCode();
+		if (sourceCode == null) {
+			sourceCode = "";
+		}
+		ReportLog log = new ReportLogImpl();
+
+		try {
+			// do lexer stuff
+			lexer = lexer.getClass().newInstance();
+
+			lexer.setSourceStream(new ByteArrayInputStream(sourceCode.getBytes()));
+			List<Token> tokens = new LinkedList<>();
+			while (true) {
+				Token t = lexer.getNextToken();
+				if (t.getTokenType() == TokenType.EOF) {
+					break;
+				}
+				tokens.add(t);
+			}
+			for (Controller c : this.model.getGUIControllers()) {
+				if (c.getModel().setTokens(tokens)) {
+					c.notifyModelChanged();
+				}
+			}
+
+			// do parser stuff
+			lexer = lexer.getClass().newInstance();
+			lexer.setSourceStream(new ByteArrayInputStream(sourceCode.getBytes()));
+			parser = parser.getClass().newInstance();
+			parser.setLexer(lexer);
+			parser.setReportLog(log);
+			AST ast = parser.getParsedAST();
+			for (Controller c : this.model.getGUIControllers()) {
+				if (c.getModel().setAST(ast)) {
+					c.notifyModelChanged();
+				}
+			}
+
+			// do analyzer stuff
+			analyzer = analyzer.getClass().newInstance();
+			analyzer.setReportLog(log);
+			AST checkedAST = analyzer.analyse(ast);
+
+			// do irgen stuff
+			irgen = irgen.getClass().newInstance();
+			List<Quadruple> tac = irgen.generateIntermediateCode(checkedAST);
+			for (Controller c : this.model.getGUIControllers()) {
+				if (c.getModel().setTAC(tac)) {
+					c.notifyModelChanged();
+				}
+			}
+
+			// do backend stuff
+			backend = backend.getClass().newInstance();
+			Map<String, InputStream> target = backend.generateTargetCode("Program", tac);
+			for (Controller c : this.model.getGUIControllers()) {
+				if (c.getModel().setTargetCode(target)) {
+					c.notifyModelChanged();
+				}
+			}
+
+		} catch (Throwable e) {
+			new FucIdeCriticalError(this.view, e, true);
+		}
+	}
+
+	public void onLexerSelected(Lexer lexer) {
+		logger.info("Lexer component active: " + lexer.getClass().getName());
+		this.model.setActiveLexer(lexer);
+	}
+
+	public void onParserSelected(Parser parser) {
+		logger.info("Parser component active: " + parser.getClass().getName());
+		this.model.setActiveParser(parser);
+	}
+
+	public void onAnalyzerSelected(SemanticAnalyser analyzer) {
+		logger.info("SemanticAnalyzer component active: " + analyzer.getClass().getName());
+		this.model.setActiveAnalyzer(analyzer);
+	}
+
+	public void onIRGSelected(IntermediateCodeGenerator irgen) {
+		logger.info("IntermediateCodeGenerator component active: " + irgen.getClass().getName());
+		this.model.setActiveIRG(irgen);
+	}
+
+	public void onBackendSelected(Backend backend) {
+		logger.info("Backend component active: " + backend.getClass().getName());
+		this.model.setActiveBackend(backend);
+	}
+
+	public void notifySourceCodeChanged() {
+		logger.info("Source code was changed");
+		for (Controller c : this.model.getGUIControllers()) {
+			if (c.getModel().setSourceCode(this.model.getSourceCode())) {
+				c.notifyModelChanged();
+			}
+		}
 	}
 }
