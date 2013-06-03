@@ -22,12 +22,46 @@ import java.util.Map;
  */
 public class LLVMBackend implements Backend
 {
+	/**
+	 * Contains the preamble for any generated
+	 * LLVM IR program; this preamble contains
+	 * declarations of stdlib C functions used
+	 * (e.g. printf for output to stdout),
+	 * declarations of the external C++ functions
+	 * used for runtime exceptions, the list
+	 * of currently implemented (custom) exceptions
+	 * and LLVM IR functions used by generated LLVM
+	 * IR code for various other purposes, such
+	 * as conversion functions and functions
+	 * used to safely envelop volatile LLVM IR
+	 * instructions that may lead to segfaults
+	 * for bad arguments, throwing exceptions instead.
+	 *
+	 */
 	public final String llvm_preamble;
+	/**
+	 * Contains the default catch for all thrown exceptions,
+	 * so that instead of crashing with verbosity dependent
+	 * on both the operating system and the respective
+	 * implementation of the C++ standard library, information
+	 * about the exception causing the program crash is
+	 * given in a uniform fashion.
+	 * This is achieved by appending the code for this
+	 * default catch to the main function after it has been
+	 * generated.
+	 *
+	 */
 	public final String llvm_uncaught;
 
+	/**
+	 * Creates a new <code>LLVMBackend</code> instance
+	 * and sets up all necessary variables.
+	 *
+	 */
 	public LLVMBackend() {
+		/* Load the preamble containing
+		   functionality used in generated IR code */
 		StringBuilder out = new StringBuilder();
-
 		try {
 			BufferedReader reader = new BufferedReader(
 				new InputStreamReader(
@@ -41,8 +75,9 @@ public class LLVMBackend implements Backend
 
 		this.llvm_preamble = out.toString();
 
+		/* Load the exception handler for uncaught
+		   exceptions. */
 		out = new StringBuilder();
-
 		try {
 			BufferedReader reader = new BufferedReader(
 				new InputStreamReader(

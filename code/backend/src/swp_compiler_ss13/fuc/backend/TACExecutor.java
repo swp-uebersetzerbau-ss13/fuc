@@ -23,6 +23,10 @@ import org.apache.log4j.Logger;
 public class TACExecutor
 {
 
+	/**
+	 * The logger used to output information.
+	 *
+	 */
 	private static Logger logger = Logger.getLogger(TACExecutor.class);
 
 	/**

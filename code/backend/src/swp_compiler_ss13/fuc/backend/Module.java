@@ -241,6 +241,13 @@ public class Module
 		return irInst;
 	}
 
+	/**
+	 * Gets the LLVM IR function residing in the preamble
+	 * for a binary TAC operator.
+	 *
+	 * @param operator the binary TAC operator
+	 * @return the corresponding LLVM IR function
+	 */
 	private String getIRBinaryCall(Quadruple.Operator operator) {
 		String irCall = "";
 
@@ -265,6 +272,7 @@ public class Module
 	 *
 	 * @param variable the variable's name
 	 * @return a free use identifier for the variable
+	 * @exception BackendException if an error occurs
 	 */
 	private String getUseIdentifierForVariable(String variable) throws BackendException {
 		int ssa_suffix = 0;
@@ -302,8 +310,24 @@ public class Module
 		}
 	}
 
+	/**
+	 * The <code>Pattern</code> used to identify special
+	 * characters in a string that need to be replaced
+	 * with \XY to conform to LLVM IR standards, where
+	 * XY is the corresponding hexadecimal value, respectively.
+	 *
+	 */
 	private static Pattern toIRString_ReplacePattern = Pattern.compile("[^a-zA-Z0-9üÜöÖäÄ]");
 
+	/**
+	 * Convert a three adress code string
+	 * to a LLVM IR string.
+	 * All other public functions expect strings
+	 * to be in the LLVM IR format.
+	 *
+	 * @param str a TAC string
+	 * @return the converted LLVM IR string
+	 */
 	public static String toIRString(String str)
 	{
 		String irString = str;
@@ -376,6 +400,7 @@ public class Module
 	 * @param variable the variable's name
 	 * @param literalID the string literal's id
 	 * @return the used "use identifier" for variable
+	 * @exception BackendException if an error occurs
 	 */
 	private String addLoadStringLiteral(String variable, int literalID) throws BackendException {
 		String variableIdentifier = "%" + variable;
@@ -412,6 +437,7 @@ public class Module
 	 * @param type the new variable's type
 	 * @param variable the new variable's name
 	 * @param initializer the new variable's initial value
+	 * @exception BackendException if an error occurs
 	 */
 	public void addPrimitiveDeclare(Kind type, String variable, String initializer) throws BackendException {
 		addNewVariable(type, variable);
@@ -431,6 +457,7 @@ public class Module
 	 * @param type the type of the assignment
 	 * @param dst the destination variable's name
 	 * @param src the source constant or the source variable's name
+	 * @exception BackendException if an error occurs
 	 */
 	public void addPrimitiveAssign(Kind type, String dst, String src) throws BackendException {
 		boolean constantSrc = false;
@@ -473,8 +500,12 @@ public class Module
 	 * @param src the source variable's name
 	 * @param dstType the destination variable's type
 	 * @param dst the destination variable's name
+	 * @exception BackendException if an error occurs
 	 */
-	public void addPrimitiveConversion(Kind srcType, String src, Kind dstType, String dst) throws BackendException {
+	public void addPrimitiveConversion(Kind srcType,
+	                                   String src,
+	                                   Kind dstType,
+	                                   String dst) throws BackendException {
 		String srcUseIdentifier = getUseIdentifierForVariable(src);
 		String dstUseIdentifier = getUseIdentifierForVariable(dst);
 		String srcIdentifier = "%" + src;
@@ -495,7 +526,7 @@ public class Module
 	}
 
 	/**
-	 * Adds a genric binary operation of two sources - each can
+	 * Adds a generic binary operation of two sources - each can
 	 * either be a constant or a variable - the result
 	 * of which will be stored in a variable (<code>dst</code>).
 	 * All types must be identical.
@@ -505,8 +536,13 @@ public class Module
 	 * @param lhs the constant or name of the variable on the left hand side
 	 * @param rhs the constant or name of the variable on the right hand side
 	 * @param dst the destination variable's name
+	 * @exception BackendException if an error occurs
 	 */
-	public void addPrimitiveBinaryInstruction(Quadruple.Operator op, Kind type, String lhs, String rhs, String dst) throws BackendException {
+	public void addPrimitiveBinaryInstruction(Quadruple.Operator op,
+	                                          Kind type,
+	                                          String lhs,
+	                                          String rhs,
+	                                          String dst) throws BackendException {
 		String irType = getIRType(type);
 		String irInst = getIRBinaryInstruction(op);
 
@@ -539,6 +575,21 @@ public class Module
 		gen("store " + irType + " " + dstUseIdentifier + ", " + irType + "* " + dstIdentifier);
 	}
 
+	/**
+	 * Adds a call to a argument-homogenous binary functions
+	 * where each argument can either be a constant or a variable;
+	 * the result of the function will be stored in a variable (<code>dst</code>).
+	 * Argument types must both be equal, but may differ
+	 * from the result type.
+	 *
+	 * @param op the binary operation to add
+	 * @param resultType the type of the binary operation's result
+	 * @param argumentType the type of the binary operation's arguments
+	 * @param lhs the constant or name of the variable on the left hand side
+	 * @param rhs the constant or name of the variable on the right hand side
+	 * @param dst the destination variable's name
+	 * @exception BackendException if an error occurs
+	 */
 	public void addPrimitiveBinaryCall(Quadruple.Operator op,
 	                                   Kind resultType,
 	                                   Kind argumentType,
@@ -593,6 +644,15 @@ public class Module
 		gen("store " + irResultType + " " + dstUseIdentifier + ", " + irResultType + "* " + dstIdentifier);
 	}
 
+	/**
+	 * Adds a binary not operation, where the source
+	 * may be either a constant, or a variable, whereas
+	 * the result must be a variable.
+	 *
+	 * @param source the constant or name of the variable to be negated
+	 * @param destination the destination variable's name
+	 * @exception BackendException if an error occurs
+	 */
 	public void addBooleanNot(String source, String destination) throws BackendException {
 
 		String irType = getIRType(BOOLEAN);
@@ -623,6 +683,7 @@ public class Module
 	 * main method.
 	 *
 	 * @param value the value to return (exit code)
+	 * @exception BackendException if an error occurs
 	 */
 	public void addMainReturn(String value) throws BackendException {
 		if(value.charAt(0) == '#')
@@ -638,10 +699,32 @@ public class Module
 		}
 	}
 
+	/**
+	 * Adds a label which may be the target of
+	 * branching instructions.
+	 *
+	 * @param name the label's name, must be unique in the program
+	 */
 	public void addLabel(String name){
 		gen(name+":");
 	}
 
+	/**
+	 * Adds a branching instruction, which may either
+	 * be unconditional (e.g. branch immediately) or
+	 * depend on a boolean variable 'condition' (e.g. branch to
+	 * one of two target labels depening on the boolean
+	 * variable's value at runtime).
+	 *
+	 * @param target1 target label for unconditional branch, target
+	 *                for the condition being true for conditional branch
+	 * @param target2 <code>Quadruple.EmptyArgument</code> for unconditional
+	 *                branch, target for the condition being false for
+	 *                the conditional branch
+	 * @param condition <code>Quadruple.EmptyArgument</code> for unconditional
+	 *                  branch, the condition being tested for conditional branch
+	 * @exception BackendException if an error occurs
+	 */
 	public void addBranch(String target1, String target2, String condition) throws BackendException {
 		/* conditional branch */
 		if (!target2.equals(Quadruple.EmptyArgument)){
@@ -655,6 +738,15 @@ public class Module
 		}
 	}
 
+	/**
+	 * Adds a call to the printf function for
+	 * the value, which may be either a constant
+	 * or the name of a variable.
+	 *
+	 * @param value the value to be printed
+	 * @param type the type of the value (boolean, long, double, string)
+	 * @exception BackendException if an error occurs
+	 */
 	public void addPrint(String value, Kind type) throws BackendException {
 		String irType = getIRType(type);
 		boolean constantSrc = false;
@@ -707,7 +799,4 @@ public class Module
 
 		gen("call i32 (i8*, ...)* @printf(i8* " + temporaryIdentifier + ")");
 	}
-
-
-
 }
