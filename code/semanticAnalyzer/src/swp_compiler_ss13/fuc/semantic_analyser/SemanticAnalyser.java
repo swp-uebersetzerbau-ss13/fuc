@@ -365,14 +365,15 @@ public class SemanticAnalyser {
 		
 		if (hasAttribute(node.getLeftValue(), Attribute.TYPE_CHECK, TYPE_MISMATCH) ||
 			hasAttribute(node.getRightValue(), Attribute.TYPE_CHECK, TYPE_MISMATCH)) {
-			setAttribute(node, Attribute.TYPE, TYPE_MISMATCH);
+			setAttribute(node, Attribute.TYPE_CHECK, TYPE_MISMATCH);
 		} else if (getType(node.getLeftValue()) != getType(node.getRightValue())) {
-			setAttribute(node, Attribute.TYPE, TYPE_MISMATCH);
+			setAttribute(node, Attribute.TYPE_CHECK, TYPE_MISMATCH);
 			errorLog.reportError(ReportType.TYPE_MISMATCH, node.coverage(),
 				"Expected " + getType(node.getLeftValue()).name() +
 				" found " + getType(node.getRightValue()).name());
 		} else {
 			markIdentifierAsInitialized(table, getAttribute(node.getLeftValue(), Attribute.IDENTIFIER));
+			setAttribute(node, Attribute.TYPE, getAttribute(node.getLeftValue(), Attribute.TYPE));
 		}
 	}
 
@@ -438,7 +439,7 @@ public class SemanticAnalyser {
 	}
 
 	protected void setAttribute(ASTNode node, Attribute attribute, String value) {
-		if (this.attributes.get(node) == null) {
+		if (!this.attributes.containsKey(node)) {
 			this.attributes.put(node, new HashMap<Attribute, String>());
 		}
 		this.attributes.get(node).put(attribute, value);
