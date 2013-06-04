@@ -289,7 +289,7 @@ public class M2Tests {
 	 * # true<br/>
 	 * # 18121313223<br/>
 	 * # -2.323e-99<br/>
-	 * # jagÄrEttString"<br/>
+	 * # jagÃ„rEttString"<br/>
 	 * <br/>
 	 * long l;<br/>
 	 * double d;<br/>
@@ -299,7 +299,7 @@ public class M2Tests {
 	 * b = true;<br/>
 	 * l = 18121313223;<br/>
 	 * d = -23.23e-100;<br/>
-	 * s = "jagÄrEttString\"\n"; # c-like escaping in strings<br/>
+	 * s = "jagÃ„rEttString\"\n"; # c-like escaping in strings<br/>
 	 * <br/>
 	 * print b; print "\n";<br/>
 	 * print l; print "\n"; # print one digit left of the radix point<br/>
