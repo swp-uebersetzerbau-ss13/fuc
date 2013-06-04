@@ -31,30 +31,31 @@ public class AdditionalSymbolTest {
 	}
 
 	/**
-	 * Test for matching of semicolons and EOF
+	 * Test for matching of semicolon, comment and EOF
 	 */
 	@Test
 	public void matchingSemicolonAndEOFTest() {
-		TokenType tokenType = (TokenType) PA.invokeMethod(this.lexer,
-				"matchToken(java.lang.String)", Constants.SEMICOLON);
-		assertEquals(TokenType.SEMICOLON, tokenType);
-		tokenType = (TokenType) PA.invokeMethod(this.lexer,
-				"matchToken(java.lang.String)", "$");
-		assertEquals(TokenType.EOF, tokenType);
+		PA.setValue(this.lexer, "actualTokenValue", Constants.SEMICOLON);
+		PA.invokeMethod(this.lexer, "matchToken()");
+		assertEquals(TokenType.SEMICOLON,
+				PA.getValue(this.lexer, "actualTokenType"));
+
+		/*
+		 * FIXME: PA.invokeMethode() throws IllegalArgumentException
+		 * 
+		 * PA.setValue(this.lexer, "actualTokenValue", Constants.COMMENT +
+		 * Constants.COMMENT_EXAMPLE); PA.invokeMethod(this.lexer,
+		 * "matchToken()"); assertEquals(TokenType.COMMENT,
+		 * PA.getValue(this.lexer, "actualTokenType"));
+		 */
+
+		PA.setValue(this.lexer, "actualTokenValue", Constants.EOF);
+		PA.invokeMethod(this.lexer, "matchToken()");
+		assertEquals(TokenType.EOF, PA.getValue(this.lexer, "actualTokenType"));
 	}
 
 	/**
-	 * Test for matching of comments FIXME: value of comment
-	 */
-	@Test
-	public void matchingCommentsTest() {
-		TokenType tokenType = (TokenType) PA.invokeMethod(this.lexer,
-				"matchToken(java.lang.String)", Constants.COMMENT);
-		assertEquals(TokenType.COMMENT, tokenType);
-	}
-
-	/**
-	 * Test for tokenizing of semicolons, comments and EOF
+	 * Test for tokenizing of semicolons, comments and EOF with an empty line
 	 * 
 	 * @throws UnsupportedEncodingException
 	 *             : UTF-8 encoding not supported
@@ -62,8 +63,8 @@ public class AdditionalSymbolTest {
 	@Test
 	public void simpleTokenizingOfSymbolsTest()
 			throws UnsupportedEncodingException {
-		String simpleSymbolString = Constants.ID1 + Constants.SEMICOLON + " "
-				+ Constants.COMMENT + " " + Constants.COMMENT_EXAMPLE;
+		String simpleSymbolString = Constants.ID1 + Constants.SEMICOLON
+				+ "\n\n" + Constants.COMMENT + " " + Constants.COMMENT_EXAMPLE;
 
 		this.lexer.setSourceStream(new ByteArrayInputStream(simpleSymbolString
 				.getBytes("UTF-8")));
@@ -84,13 +85,19 @@ public class AdditionalSymbolTest {
 		assertEquals(Constants.COMMENT + " " + Constants.COMMENT_EXAMPLE,
 				token.getValue());
 		assertEquals(TokenType.COMMENT, token.getTokenType());
-		assertEquals(1, token.getLine().intValue());
-		assertEquals(5, token.getColumn().intValue());
+		assertEquals(3, token.getLine().intValue());
+		assertEquals(1, token.getColumn().intValue());
 
 		token = this.lexer.getNextToken();
 		assertEquals("$", token.getValue());
 		assertEquals(TokenType.EOF, token.getTokenType());
-		assertEquals(2, token.getLine().intValue());
+		assertEquals(4, token.getLine().intValue());
+		assertEquals(1, token.getColumn().intValue());
+
+		token = this.lexer.getNextToken();
+		assertEquals("$", token.getValue());
+		assertEquals(TokenType.EOF, token.getTokenType());
+		assertEquals(4, token.getLine().intValue());
 		assertEquals(1, token.getColumn().intValue());
 	}
 }

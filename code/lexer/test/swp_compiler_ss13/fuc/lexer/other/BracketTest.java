@@ -35,29 +35,35 @@ public class BracketTest {
 	 */
 	@Test
 	public void matchingBracketTypesTest() {
-		TokenType tokenType = (TokenType) PA.invokeMethod(this.lexer,
-				"matchToken(java.lang.String)", Constants.LEFT_PARAN);
-		assertEquals(TokenType.LEFT_PARAN, tokenType);
+		PA.setValue(this.lexer, "actualTokenValue", Constants.LEFT_PARAN);
+		PA.invokeMethod(this.lexer, "matchToken()");
+		assertEquals(TokenType.LEFT_PARAN,
+				PA.getValue(this.lexer, "actualTokenType"));
 
-		tokenType = (TokenType) PA.invokeMethod(this.lexer,
-				"matchToken(java.lang.String)", Constants.RIGHT_PARAN);
-		assertEquals(TokenType.RIGHT_PARAN, tokenType);
+		PA.setValue(this.lexer, "actualTokenValue", Constants.RIGHT_PARAN);
+		PA.invokeMethod(this.lexer, "matchToken()");
+		assertEquals(TokenType.RIGHT_PARAN,
+				PA.getValue(this.lexer, "actualTokenType"));
 
-		tokenType = (TokenType) PA.invokeMethod(this.lexer,
-				"matchToken(java.lang.String)", Constants.LEFT_BRACE);
-		assertEquals(TokenType.LEFT_BRACE, tokenType);
+		PA.setValue(this.lexer, "actualTokenValue", Constants.LEFT_BRACE);
+		PA.invokeMethod(this.lexer, "matchToken()");
+		assertEquals(TokenType.LEFT_BRACE,
+				PA.getValue(this.lexer, "actualTokenType"));
 
-		tokenType = (TokenType) PA.invokeMethod(this.lexer,
-				"matchToken(java.lang.String)", Constants.RIGHT_BRACE);
-		assertEquals(TokenType.RIGHT_BRACE, tokenType);
+		PA.setValue(this.lexer, "actualTokenValue", Constants.RIGHT_BRACE);
+		PA.invokeMethod(this.lexer, "matchToken()");
+		assertEquals(TokenType.RIGHT_BRACE,
+				PA.getValue(this.lexer, "actualTokenType"));
 
-		tokenType = (TokenType) PA.invokeMethod(this.lexer,
-				"matchToken(java.lang.String)", Constants.LEFT_BRACKET);
-		assertEquals(TokenType.LEFT_BRACKET, tokenType);
+		PA.setValue(this.lexer, "actualTokenValue", Constants.LEFT_BRACKET);
+		PA.invokeMethod(this.lexer, "matchToken()");
+		assertEquals(TokenType.LEFT_BRACKET,
+				PA.getValue(this.lexer, "actualTokenType"));
 
-		tokenType = (TokenType) PA.invokeMethod(this.lexer,
-				"matchToken(java.lang.String)", Constants.RIGHT_BRACKET);
-		assertEquals(TokenType.RIGHT_BRACKET, tokenType);
+		PA.setValue(this.lexer, "actualTokenValue", Constants.RIGHT_BRACKET);
+		PA.invokeMethod(this.lexer, "matchToken()");
+		assertEquals(TokenType.RIGHT_BRACKET,
+				PA.getValue(this.lexer, "actualTokenType"));
 	}
 
 	/**

@@ -30,13 +30,13 @@ public class IDTest {
 	 */
 	@Test
 	public void matchingIDsTest() {
-		TokenType tokenType = (TokenType) PA.invokeMethod(this.lexer,
-				"matchToken(java.lang.String)", Constants.ID1);
-		assertEquals(TokenType.ID, tokenType);
+		PA.setValue(this.lexer, "actualTokenValue", Constants.ID1);
+		PA.invokeMethod(this.lexer, "matchToken()");
+		assertEquals(TokenType.ID, PA.getValue(this.lexer, "actualTokenType"));
 
-		tokenType = (TokenType) PA.invokeMethod(this.lexer,
-				"matchToken(java.lang.String)", Constants.ID2);
-		assertEquals(TokenType.ID, tokenType);
+		PA.setValue(this.lexer, "actualTokenValue", Constants.ID2);
+		PA.invokeMethod(this.lexer, "matchToken()");
+		assertEquals(TokenType.ID, PA.getValue(this.lexer, "actualTokenType"));
 	}
 
 	/**

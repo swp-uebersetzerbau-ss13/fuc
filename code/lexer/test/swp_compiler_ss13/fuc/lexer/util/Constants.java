@@ -76,6 +76,7 @@ public class Constants {
 	public static final String SEMICOLON = ";";
 	public static final String COMMENT = "#";
 	public static final String COMMENT_EXAMPLE = "a simple comment";
+	public static final String EOF = "$";
 
 	/* type symbols */
 	public static final String LONGSYMBOL = "long";
