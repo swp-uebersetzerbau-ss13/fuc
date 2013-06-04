@@ -8,7 +8,7 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(Suite.class)
 @SuiteClasses({ ArithmeticExpressionTests.class, AssignmentTests.class,
 		BranchTests.class, LogicExpressionTests.class, LoopTests.class,
-		OtherTests.class })
+		OtherTests.class, M1Tests.class, M2Tests.class })
 public class SemanticAnalyserTestSuite {
 
 }
