@@ -272,9 +272,9 @@ public class LLVMBackendArithmeticTest extends LLVMBackendTest {
 		tac.add(new QuadrupleImpl(Operator.DECLARE_BOOLEAN, EmptyArgument, EmptyArgument, "res"));
 		tac.add(new QuadrupleImpl(Operator.NOT_BOOLEAN, "#FALSE", EmptyArgument, "res"));
 			String mainFunctionCode = "" +
-					"  %res = alloca i8\n" +
-					"  %res.0 = sub i8 1, 0\n" +
-					"  store i8 %res.0, i8* %res\n" +
+					"  %res = alloca i1\n" +
+					"  %res.0 = sub i1 1, 0\n" +
+					"  store i1 %res.0, i1* %res\n" +
 					"  ret i64 0\n";
 			expectMain(mainFunctionCode, generateCodeAsString(tac));
 		}	
@@ -285,12 +285,12 @@ public class LLVMBackendArithmeticTest extends LLVMBackendTest {
 		tac.add(new QuadrupleImpl(Operator.DECLARE_BOOLEAN, EmptyArgument, EmptyArgument, "res"));
 		tac.add(new QuadrupleImpl(Operator.NOT_BOOLEAN, "b", EmptyArgument, "res"));
 		String mainFunctionCode = "" +
-				"  %b = alloca i8\n" +
-				"  store i8 0, i8* %b\n" +
-				"  %res = alloca i8\n" +
-				"  %b.0 = load i8* %b\n" +
-				"  %res.0 = sub i8 1, %b.0\n" +
-				"  store i8 %res.0, i8* %res\n" +
+				"  %b = alloca i1\n" +
+				"  store i1 0, i1* %b\n" +
+				"  %res = alloca i1\n" +
+				"  %b.0 = load i1* %b\n" +
+				"  %res.0 = sub i1 1, %b.0\n" +
+				"  store i1 %res.0, i1* %res\n" +
 				"  ret i64 0\n";
 		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
@@ -300,9 +300,9 @@ public class LLVMBackendArithmeticTest extends LLVMBackendTest {
 		tac.add(new QuadrupleImpl(Operator.DECLARE_BOOLEAN, EmptyArgument, EmptyArgument, "res"));
 		tac.add(new QuadrupleImpl(Operator.OR_BOOLEAN, "#FALSE", "#TRUE", "res"));
 		String mainFunctionCode = "" +
-				"  %res = alloca i8\n" +
-				"  %res.0 = or i8 0, 1\n" +
-				"  store i8 %res.0, i8* %res\n" +
+				"  %res = alloca i1\n" +
+				"  %res.0 = or i1 0, 1\n" +
+				"  store i1 %res.0, i1* %res\n" +
 				"  ret i64 0\n";
 		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
@@ -314,15 +314,15 @@ public class LLVMBackendArithmeticTest extends LLVMBackendTest {
 		tac.add(new QuadrupleImpl(Operator.DECLARE_BOOLEAN, EmptyArgument, EmptyArgument, "res"));
 		tac.add(new QuadrupleImpl(Operator.OR_BOOLEAN, "b1", "b1", "res"));
 		String mainFunctionCode = "" +
-				"  %b1 = alloca i8\n" +
-				"  store i8 0, i8* %b1\n" +
-				"  %b2 = alloca i8\n" +
-				"  store i8 0, i8* %b2\n" +
-				"  %res = alloca i8\n" +
-				"  %b1.0 = load i8* %b1\n" +
-				"  %b1.1 = load i8* %b1\n" +
-				"  %res.0 = or i8 %b1.0, %b1.1\n" +
-				"  store i8 %res.0, i8* %res\n" +
+				"  %b1 = alloca i1\n" +
+				"  store i1 0, i1* %b1\n" +
+				"  %b2 = alloca i1\n" +
+				"  store i1 0, i1* %b2\n" +
+				"  %res = alloca i1\n" +
+				"  %b1.0 = load i1* %b1\n" +
+				"  %b1.1 = load i1* %b1\n" +
+				"  %res.0 = or i1 %b1.0, %b1.1\n" +
+				"  store i1 %res.0, i1* %res\n" +
 				"  ret i64 0\n";
 		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
@@ -332,9 +332,9 @@ public class LLVMBackendArithmeticTest extends LLVMBackendTest {
 		tac.add(new QuadrupleImpl(Operator.DECLARE_BOOLEAN, EmptyArgument, EmptyArgument, "res"));
 		tac.add(new QuadrupleImpl(Operator.AND_BOOLEAN, "#FALSE", "#TRUE", "res"));
 		String mainFunctionCode = "" +
-				"  %res = alloca i8\n" +
-				"  %res.0 = and i8 0, 1\n" +
-				"  store i8 %res.0, i8* %res\n" +
+				"  %res = alloca i1\n" +
+				"  %res.0 = and i1 0, 1\n" +
+				"  store i1 %res.0, i1* %res\n" +
 				"  ret i64 0\n";
 		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
@@ -346,15 +346,15 @@ public class LLVMBackendArithmeticTest extends LLVMBackendTest {
 		tac.add(new QuadrupleImpl(Operator.DECLARE_BOOLEAN, EmptyArgument, EmptyArgument, "res"));
 		tac.add(new QuadrupleImpl(Operator.AND_BOOLEAN, "b1", "b1", "res"));
 		String mainFunctionCode = "" +
-				"  %b1 = alloca i8\n" +
-				"  store i8 0, i8* %b1\n" +
-				"  %b2 = alloca i8\n" +
-				"  store i8 0, i8* %b2\n" +
-				"  %res = alloca i8\n" +
-				"  %b1.0 = load i8* %b1\n" +
-				"  %b1.1 = load i8* %b1\n" +
-				"  %res.0 = and i8 %b1.0, %b1.1\n" +
-				"  store i8 %res.0, i8* %res\n" +
+				"  %b1 = alloca i1\n" +
+				"  store i1 0, i1* %b1\n" +
+				"  %b2 = alloca i1\n" +
+				"  store i1 0, i1* %b2\n" +
+				"  %res = alloca i1\n" +
+				"  %b1.0 = load i1* %b1\n" +
+				"  %b1.1 = load i1* %b1\n" +
+				"  %res.0 = and i1 %b1.0, %b1.1\n" +
+				"  store i1 %res.0, i1* %res\n" +
 				"  ret i64 0\n";
 		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}

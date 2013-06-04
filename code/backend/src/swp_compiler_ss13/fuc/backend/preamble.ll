@@ -69,9 +69,8 @@ define i8* @dtoa(double) {
 ;; Convert a Boolean to a String
 @.string_btoa_false = private unnamed_addr constant [6 x i8] c"false\00"
 @.string_btoa_true = private unnamed_addr constant [5 x i8] c"true\00"
-define i8* @btoa(i8) {
-  %condition = trunc i8 %0 to i1
-  br i1 %condition, label %IfTrue, label %IfFalse
+define i8* @btoa(i1) {
+  br i1 %0, label %IfTrue, label %IfFalse
   IfTrue:
     %true = getelementptr [5 x i8]* @.string_btoa_true, i64 0, i64 0
     %str.true = call i8* (i32,i32)* @calloc(i32 5, i32 1)

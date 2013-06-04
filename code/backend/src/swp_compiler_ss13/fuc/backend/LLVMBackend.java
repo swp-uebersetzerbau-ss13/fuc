@@ -189,6 +189,7 @@ public class LLVMBackend implements Backend
 					m.addPrimitiveBinaryInstruction(
 						q.getOperator(),
 						Type.Kind.LONG,
+						Type.Kind.LONG,
 						q.getArgument1(),
 						q.getArgument2(),
 						q.getResult());
@@ -196,6 +197,7 @@ public class LLVMBackend implements Backend
 				case ADD_DOUBLE:
 					m.addPrimitiveBinaryInstruction(
 						q.getOperator(),
+						Type.Kind.DOUBLE,
 						Type.Kind.DOUBLE,
 						q.getArgument1(),
 						q.getArgument2(),
@@ -205,6 +207,7 @@ public class LLVMBackend implements Backend
 					m.addPrimitiveBinaryInstruction(
 						q.getOperator(),
 						Type.Kind.LONG,
+						Type.Kind.LONG,
 						q.getArgument1(),
 						q.getArgument2(),
 						q.getResult());
@@ -212,6 +215,7 @@ public class LLVMBackend implements Backend
 				case SUB_DOUBLE:
 					m.addPrimitiveBinaryInstruction(
 						q.getOperator(),
+						Type.Kind.DOUBLE,
 						Type.Kind.DOUBLE,
 						q.getArgument1(),
 						q.getArgument2(),
@@ -221,6 +225,7 @@ public class LLVMBackend implements Backend
 					m.addPrimitiveBinaryInstruction(
 						q.getOperator(),
 						Type.Kind.LONG,
+						Type.Kind.LONG,
 						q.getArgument1(),
 						q.getArgument2(),
 						q.getResult());
@@ -228,6 +233,7 @@ public class LLVMBackend implements Backend
 				case MUL_DOUBLE:
 					m.addPrimitiveBinaryInstruction(
 						q.getOperator(),
+						Type.Kind.DOUBLE,
 						Type.Kind.DOUBLE,
 						q.getArgument1(),
 						q.getArgument2(),
@@ -258,6 +264,7 @@ public class LLVMBackend implements Backend
 					m.addPrimitiveBinaryInstruction(
 							q.getOperator(),
 							Type.Kind.BOOLEAN,
+							Type.Kind.BOOLEAN,
 							Module.toIRBoolean(q.getArgument1()),
 							Module.toIRBoolean(q.getArgument2()),
 							q.getResult());
@@ -265,6 +272,7 @@ public class LLVMBackend implements Backend
 				case AND_BOOLEAN:
 					m.addPrimitiveBinaryInstruction(
 							q.getOperator(),
+							Type.Kind.BOOLEAN,
 							Type.Kind.BOOLEAN,
 							Module.toIRBoolean(q.getArgument1()),
 							Module.toIRBoolean(q.getArgument2()),
@@ -275,6 +283,7 @@ public class LLVMBackend implements Backend
 				case COMPARE_LONG_E:
 				m.addPrimitiveBinaryInstruction(
 						q.getOperator(),
+						Type.Kind.BOOLEAN,
 						Type.Kind.LONG,
 						q.getArgument1(),
 						q.getArgument2(),
@@ -284,6 +293,7 @@ public class LLVMBackend implements Backend
 					m.addPrimitiveBinaryInstruction(
 							q.getOperator(),
 							Type.Kind.LONG,
+							Type.Kind.BOOLEAN,
 							q.getArgument1(),
 							q.getArgument2(),
 							q.getResult());
@@ -291,6 +301,7 @@ public class LLVMBackend implements Backend
 				case COMPARE_LONG_L:
 					m.addPrimitiveBinaryInstruction(
 							q.getOperator(),
+							Type.Kind.BOOLEAN,
 							Type.Kind.LONG,
 							q.getArgument1(),
 							q.getArgument2(),
@@ -299,6 +310,7 @@ public class LLVMBackend implements Backend
 				case COMPARE_LONG_GE:
 					m.addPrimitiveBinaryInstruction(
 							q.getOperator(),
+							Type.Kind.BOOLEAN,
 							Type.Kind.LONG,
 							q.getArgument1(),
 							q.getArgument2(),
@@ -307,6 +319,7 @@ public class LLVMBackend implements Backend
 				case COMPARE_LONG_LE:
 					m.addPrimitiveBinaryInstruction(
 							q.getOperator(),
+							Type.Kind.BOOLEAN,
 							Type.Kind.LONG,
 							q.getArgument1(),
 							q.getArgument2(),
@@ -315,6 +328,7 @@ public class LLVMBackend implements Backend
 				case COMPARE_DOUBLE_E:
 					m.addPrimitiveBinaryInstruction(
 							q.getOperator(),
+							Type.Kind.BOOLEAN,
 							Type.Kind.DOUBLE,
 							q.getArgument1(),
 							q.getArgument2(),
@@ -323,6 +337,7 @@ public class LLVMBackend implements Backend
 				case COMPARE_DOUBLE_G:
 					m.addPrimitiveBinaryInstruction(
 							q.getOperator(),
+							Type.Kind.BOOLEAN,
 							Type.Kind.DOUBLE,
 							q.getArgument1(),
 							q.getArgument2(),
@@ -331,6 +346,7 @@ public class LLVMBackend implements Backend
 				case COMPARE_DOUBLE_L:
 					m.addPrimitiveBinaryInstruction(
 							q.getOperator(),
+							Type.Kind.BOOLEAN,
 							Type.Kind.DOUBLE,
 							q.getArgument1(),
 							q.getArgument2(),
@@ -339,6 +355,7 @@ public class LLVMBackend implements Backend
 				case COMPARE_DOUBLE_GE:
 					m.addPrimitiveBinaryInstruction(
 							q.getOperator(),
+							Type.Kind.BOOLEAN,
 							Type.Kind.DOUBLE,
 							q.getArgument1(),
 							q.getArgument2(),
@@ -347,6 +364,7 @@ public class LLVMBackend implements Backend
 				case COMPARE_DOUBLE_LE:
 					m.addPrimitiveBinaryInstruction(
 							q.getOperator(),
+							Type.Kind.BOOLEAN,
 							Type.Kind.DOUBLE,
 							q.getArgument1(),
 							q.getArgument2(),

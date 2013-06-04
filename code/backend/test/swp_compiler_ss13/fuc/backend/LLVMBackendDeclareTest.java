@@ -114,7 +114,7 @@ public class LLVMBackendDeclareTest extends LLVMBackendTest {
 			        Quadruple.EmptyArgument,
 			        Quadruple.EmptyArgument,
 			        "boolVariable"));
-		String mainFunctionCode = "  %boolVariable = alloca i8\n  ret i64 0\n";
+		String mainFunctionCode = "  %boolVariable = alloca i1\n  ret i64 0\n";
 		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
@@ -126,8 +126,8 @@ public class LLVMBackendDeclareTest extends LLVMBackendTest {
 			        Quadruple.EmptyArgument,
 			        "booleanVariable"));
 		String mainFunctionCode = ""
-			+ "  %booleanVariable = alloca i8\n"
-			+ "  store i8 0, i8* %booleanVariable\n"
+			+ "  %booleanVariable = alloca i1\n"
+			+ "  store i1 0, i1* %booleanVariable\n"
 			+ "  ret i64 0\n";
 		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
@@ -140,8 +140,8 @@ public class LLVMBackendDeclareTest extends LLVMBackendTest {
 			        Quadruple.EmptyArgument,
 			        "booleanVariable"));
 		String mainFunctionCode = ""
-			+ "  %booleanVariable = alloca i8\n"
-			+ "  store i8 1, i8* %booleanVariable\n"
+			+ "  %booleanVariable = alloca i1\n"
+			+ "  store i1 1, i1* %booleanVariable\n"
 			+ "  ret i64 0\n";
 		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
@@ -159,10 +159,10 @@ public class LLVMBackendDeclareTest extends LLVMBackendTest {
 			        Quadruple.EmptyArgument,
 			        "booleanVariable"));
 		String mainFunctionCode = ""
-			+ "  %init = alloca i8\n"
-			+ "  %booleanVariable = alloca i8\n"
-			+ "  %init.0 = load i8* %init\n"
-			+ "  store i8 %init.0, i8* %booleanVariable\n"
+			+ "  %init = alloca i1\n"
+			+ "  %booleanVariable = alloca i1\n"
+			+ "  %init.0 = load i1* %init\n"
+			+ "  store i1 %init.0, i1* %booleanVariable\n"
 			+ "  ret i64 0\n";
 		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}

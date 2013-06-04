@@ -145,7 +145,7 @@ public class Module
 				break;
 			case BOOLEAN:
 				/* Booleans are 8bit signed integers */
-				irType = "i8";
+				irType = "i1";
 				break;
 			case STRING:
 				/* Strings are each a pointer to a string literal
@@ -539,11 +539,13 @@ public class Module
 	 * @exception BackendException if an error occurs
 	 */
 	public void addPrimitiveBinaryInstruction(Quadruple.Operator op,
-	                                          Kind type,
+	                                          Kind resultType,
+	                                          Kind argumentType,
 	                                          String lhs,
 	                                          String rhs,
 	                                          String dst) throws BackendException {
-		String irType = getIRType(type);
+		String irArgumentType = getIRType(argumentType);
+		String irResultType = getIRType(resultType);
 		String irInst = getIRBinaryInstruction(op);
 
 		if(lhs.charAt(0) == '#')
@@ -554,7 +556,7 @@ public class Module
 		{
 			String lhsIdentifier = "%" + lhs;
 			lhs = getUseIdentifierForVariable(lhs);
-			gen(lhs + " = load " + irType + "* " + lhsIdentifier);
+			gen(lhs + " = load " + irArgumentType + "* " + lhsIdentifier);
 		}
 
 		if(rhs.charAt(0) == '#')
@@ -565,14 +567,14 @@ public class Module
 		{
 			String rhsIdentifier = "%" + rhs;
 			rhs = getUseIdentifierForVariable(rhs);
-			gen(rhs + " = load " + irType + "* " + rhsIdentifier);
+			gen(rhs + " = load " + irArgumentType + "* " + rhsIdentifier);
 		}
 
 		String dstUseIdentifier = getUseIdentifierForVariable(dst);
 		String dstIdentifier = "%" + dst;
 
-		gen(dstUseIdentifier + " = " + irInst + " " + irType + " " + lhs + ", " + rhs);
-		gen("store " + irType + " " + dstUseIdentifier + ", " + irType + "* " + dstIdentifier);
+		gen(dstUseIdentifier + " = " + irInst + " " + irArgumentType + " " + lhs + ", " + rhs);
+		gen("store " + irResultType + " " + dstUseIdentifier + ", " + irResultType + "* " + dstIdentifier);
 	}
 
 	/**
@@ -728,10 +730,10 @@ public class Module
 	public void addBranch(String target1, String target2, String condition) throws BackendException {
 		/* conditional branch */
 		if (!target2.equals(Quadruple.EmptyArgument)){
+			String irType = getIRType(Kind.BOOLEAN);
 			String conditionUseIdentifier = getUseIdentifierForVariable(condition);
-			gen(conditionUseIdentifier + " = load " + "i8" + "* %" + condition);
-			gen(conditionUseIdentifier + ".cond = trunc i8 " + conditionUseIdentifier + " to i1");
-			gen("br i1 " + conditionUseIdentifier + ".cond, label %" + target1 + ", label %"+ target2);
+			gen(conditionUseIdentifier + " = load " + irType + "* %" + condition);
+			gen("br " + irType + " " + conditionUseIdentifier + ", label %" + target1 + ", label %"+ target2);
 		}
 		else {
 			gen("br label %" + target1);

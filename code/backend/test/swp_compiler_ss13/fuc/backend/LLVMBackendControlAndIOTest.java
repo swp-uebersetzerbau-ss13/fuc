@@ -59,11 +59,10 @@ public class LLVMBackendControlAndIOTest extends LLVMBackendTest {
 		tac.add(new QuadrupleImpl(Operator.BRANCH, "end", EmptyArgument, EmptyArgument));
 		tac.add(new QuadrupleImpl(Operator.LABEL, "end", EmptyArgument, EmptyArgument));
 		String mainFunctionCode = "" +
-				"  %cond = alloca i8\n" +
-				"  store i8 1, i8* %cond\n" +
-				"  %cond.0 = load i8* %cond\n" +
-				"  %cond.0.cond = trunc i8 %cond.0 to i1\n" +
-				"  br i1 %cond.0.cond, label %true, label %false\n" +
+				"  %cond = alloca i1\n" +
+				"  store i1 1, i1* %cond\n" +
+				"  %cond.0 = load i1* %cond\n" +
+				"  br i1 %cond.0, label %true, label %false\n" +
 				"  true:\n" +
 				"  %.string_0 = alloca [12 x i8]\n" +
 				"  store [12 x i8] c\"true\\20branch\\00\", [12 x i8]* %.string_0\n" +
@@ -93,11 +92,10 @@ public class LLVMBackendControlAndIOTest extends LLVMBackendTest {
 		tac.add(new QuadrupleImpl(Operator.BRANCH, "end", EmptyArgument, EmptyArgument));
 		tac.add(new QuadrupleImpl(Operator.LABEL, "end", EmptyArgument, EmptyArgument));
 		String mainFunctionCode = "" +
-				"  %cond = alloca i8\n" +
-				"  store i8 0, i8* %cond\n" +
-				"  %cond.0 = load i8* %cond\n" +
-				"  %cond.0.cond = trunc i8 %cond.0 to i1\n" +
-				"  br i1 %cond.0.cond, label %true, label %false\n" +
+				"  %cond = alloca i1\n" +
+				"  store i1 0, i1* %cond\n" +
+				"  %cond.0 = load i1* %cond\n" +
+				"  br i1 %cond.0, label %true, label %false\n" +
 				"  true:\n" +
 				"  %.string_0 = alloca [12 x i8]\n" +
 				"  store [12 x i8] c\"true\\20branch\\00\", [12 x i8]* %.string_0\n" +
@@ -146,13 +144,13 @@ public class LLVMBackendControlAndIOTest extends LLVMBackendTest {
 
 	@Test
 	public void generateTargetCodeTest_PrintBoolean() throws IOException, BackendException {
-		tac.add(new QuadrupleImpl(Operator.DECLARE_BOOLEAN, "#2.0", EmptyArgument, "b1"));
+		tac.add(new QuadrupleImpl(Operator.DECLARE_BOOLEAN, "#FALSE", EmptyArgument, "b1"));
 		tac.add(new QuadrupleImpl(Operator.PRINT_BOOLEAN, "b1", EmptyArgument, EmptyArgument));
 		String mainFunctionCode = "" +
-				"  %b1 = alloca i8\n" +
-				"  store i8 2.0, i8* %b1\n" +
-				"  %b1.0 = load i8* %b1\n" +
-				"  %.tmp.0 = call i8* (i8)* @btoa(i8 %b1.0)\n" +
+				"  %b1 = alloca i1\n" +
+				"  store i1 0, i1* %b1\n" +
+				"  %b1.0 = load i1* %b1\n" +
+				"  %.tmp.0 = call i8* (i1)* @btoa(i1 %b1.0)\n" +
 				"  call i32 (i8*, ...)* @printf(i8* %.tmp.0)\n" +
 				"  ret i64 0\n";
 		expectMain(mainFunctionCode, generateCodeAsString(tac));
