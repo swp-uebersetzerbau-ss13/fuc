@@ -194,7 +194,7 @@ public class AssignmentTests {
 		// main block
 		SymbolTable symbolTable = new SymbolTableImpl();
 		symbolTable.insert("l", new LongType());
-		symbolTable.insert("b", new LongType());
+		symbolTable.insert("b", new BooleanType());
 
 		BlockNode blockNode = new BlockNodeImpl();
 		blockNode.addDeclaration(declaration_l);
