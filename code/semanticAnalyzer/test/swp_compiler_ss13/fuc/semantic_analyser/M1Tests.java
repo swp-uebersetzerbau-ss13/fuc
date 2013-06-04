@@ -33,7 +33,7 @@ public class M1Tests {
 
 	private SemanticAnalyser analyser;
 	private ReportLogImpl log;
-	
+
 	public M1Tests() {
 	}
 
@@ -56,21 +56,34 @@ public class M1Tests {
 	 */
 	@Test
 	public void testErrorUndefReturnProg() {
-		SymbolTable symbolTable = new SymbolTableImpl();
-		symbolTable.insert("spam", new LongType());
+		// long spam;
 		DeclarationNode declaration = new DeclarationNodeImpl();
 		declaration.setIdentifier("spam");
+		declaration.setType(new LongType());
+
+		// return spam;
 		BasicIdentifierNode identifier = new BasicIdentifierNodeImpl();
 		identifier.setIdentifier("spam");
 		ReturnNode returnNode = new ReturnNodeImpl();
 		returnNode.setRightValue(identifier);
+		identifier.setParentNode(returnNode);
+
+		// main block
+		SymbolTable symbolTable = new SymbolTableImpl();
+		symbolTable.insert("spam", new LongType());
+
 		BlockNode blockNode = new BlockNodeImpl();
 		blockNode.addDeclaration(declaration);
 		blockNode.addStatement(returnNode);
 		blockNode.setSymbolTable(symbolTable);
+		declaration.setParentNode(blockNode);
+		returnNode.setParentNode(blockNode);
+
+		// analyse AST
 		AST ast = new ASTImpl();
 		ast.setRootNode(blockNode);
-		this.analyser.analyse(ast);
+		analyser.analyse(ast);
+
 		assertFalse(this.log.hasErrors());
 	}
 
@@ -89,14 +102,14 @@ public class M1Tests {
 	 */
 	@Test
 	public void testAddProg() {
-		SymbolTable symbolTable = new SymbolTableImpl();
-		symbolTable.insert("l", new LongType());
-
+		// long l;
 		DeclarationNode declaration = new DeclarationNodeImpl();
 		declaration.setIdentifier("l");
+		declaration.setType(new LongType());
 
-		BasicIdentifierNode identifier = new BasicIdentifierNodeImpl();
-		identifier.setIdentifier("l");
+		// l = ...;
+		BasicIdentifierNode identifier_l1 = new BasicIdentifierNodeImpl();
+		identifier_l1.setIdentifier("l");
 
 		LiteralNode literal10 = new LiteralNodeImpl();
 		literal10.setLiteral("10");
@@ -127,121 +140,73 @@ public class M1Tests {
 		add1.setOperator(BinaryOperator.ADDITION);
 		add1.setLeftValue(literal10);
 		add1.setRightValue(literal23_1);
+		literal10.setParentNode(add1);
+		literal23_1.setParentNode(add1);
 		ArithmeticBinaryExpressionNode sub1 = new ArithmeticBinaryExpressionNodeImpl();
 		sub1.setOperator(BinaryOperator.SUBSTRACTION);
 		sub1.setLeftValue(add1);
 		sub1.setRightValue(literal23_2);
+		add1.setParentNode(sub1);
+		literal23_2.setParentNode(sub1);
 		ArithmeticBinaryExpressionNode div1 = new ArithmeticBinaryExpressionNodeImpl();
 		div1.setOperator(BinaryOperator.DIVISION);
 		div1.setLeftValue(literal100);
 		div1.setRightValue(literal2);
+		literal100.setParentNode(div1);
+		literal2.setParentNode(div1);
 		ArithmeticBinaryExpressionNode add2 = new ArithmeticBinaryExpressionNodeImpl();
 		add2.setOperator(BinaryOperator.ADDITION);
 		add2.setLeftValue(sub1);
 		add2.setRightValue(div1);
+		sub1.setParentNode(add2);
+		div1.setParentNode(add2);
 		ArithmeticBinaryExpressionNode add3 = new ArithmeticBinaryExpressionNodeImpl();
 		add3.setOperator(BinaryOperator.ADDITION);
 		add3.setLeftValue(add2);
 		add3.setRightValue(literal30);
+		add2.setParentNode(add3);
+		literal30.setParentNode(add3);
 		ArithmeticBinaryExpressionNode div2 = new ArithmeticBinaryExpressionNodeImpl();
 		div2.setOperator(BinaryOperator.DIVISION);
 		div2.setLeftValue(literal9);
 		div2.setRightValue(literal3);
+		literal9.setParentNode(div2);
+		literal3.setParentNode(div2);
 		ArithmeticBinaryExpressionNode sub2 = new ArithmeticBinaryExpressionNodeImpl();
 		sub2.setOperator(BinaryOperator.SUBSTRACTION);
 		sub2.setLeftValue(add3);
 		sub2.setRightValue(div2);
+		add3.setParentNode(sub2);
+		div2.setParentNode(sub2);
 
 		AssignmentNode assignment = new AssignmentNodeImpl();
-		assignment.setLeftValue(identifier);
+		assignment.setLeftValue(identifier_l1);
 		assignment.setRightValue(sub2);
+		identifier_l1.setParentNode(assignment);
+		sub2.setParentNode(assignment);
+
+		// return l;
+		BasicIdentifierNode identifier_l2 = new BasicIdentifierNodeImpl();
+		identifier_l2.setIdentifier("l");
 
 		ReturnNode returnNode = new ReturnNodeImpl();
-		returnNode.setRightValue(identifier);
+		returnNode.setRightValue(identifier_l2);
+		identifier_l2.setParentNode(returnNode);
 
-		BlockNode blockNode = new BlockNodeImpl();
-		blockNode.addDeclaration(declaration);
-		blockNode.addStatement(assignment);
-		blockNode.addStatement(returnNode);
-		blockNode.setSymbolTable(symbolTable);
-
-		AST ast = new ASTImpl();
-		ast.setRootNode(blockNode);
-
-		this.analyser.analyse(ast);
-		assertFalse(this.log.hasErrors());
-	}
-
-	/**
-	 * # returns 8 or does it?<br/>
-	 * long l;<br/>
-	 * l = ( 3 + 3 ) * 2 - ( l = ( 2 + ( 16 / 8 ) ) );<br/>
-	 * return l;
-	 */
-	@Test
-	public void parathesesProg() {
+		// main block
 		SymbolTable symbolTable = new SymbolTableImpl();
 		symbolTable.insert("l", new LongType());
 
-		DeclarationNode declaration = new DeclarationNodeImpl();
-		declaration.setIdentifier("l");
-
-		BasicIdentifierNode identifier = new BasicIdentifierNodeImpl();
-		identifier.setIdentifier("l");
-
-		LiteralNode literal3 = new LiteralNodeImpl();
-		literal3.setLiteral("3");
-		literal3.setLiteralType(new LongType());
-		LiteralNode literal2 = new LiteralNodeImpl();
-		literal2.setLiteral("2");
-		literal2.setLiteralType(new LongType());
-		LiteralNode literal16 = new LiteralNodeImpl();
-		literal16.setLiteral("16");
-		literal16.setLiteralType(new LongType());
-		LiteralNode literal8 = new LiteralNodeImpl();
-		literal8.setLiteral("8");
-		literal8.setLiteralType(new LongType());
-
-		ArithmeticBinaryExpressionNode div1 = new ArithmeticBinaryExpressionNodeImpl();
-		div1.setOperator(BinaryOperator.DIVISION);
-		div1.setLeftValue(literal16);
-		div1.setRightValue(literal8);
-		ArithmeticBinaryExpressionNode add2 = new ArithmeticBinaryExpressionNodeImpl();
-		add2.setOperator(BinaryOperator.ADDITION);
-		add2.setLeftValue(literal2);
-		add2.setRightValue(div1);
-
-		AssignmentNode assignment2 = new AssignmentNodeImpl();
-		assignment2.setLeftValue(identifier);
-		assignment2.setRightValue(add2);
-
-		ArithmeticBinaryExpressionNode add1 = new ArithmeticBinaryExpressionNodeImpl();
-		add1.setOperator(BinaryOperator.ADDITION);
-		add1.setLeftValue(literal3);
-		add1.setRightValue(literal3);
-		ArithmeticBinaryExpressionNode mul1 = new ArithmeticBinaryExpressionNodeImpl();
-		mul1.setOperator(BinaryOperator.MULTIPLICATION);
-		mul1.setLeftValue(add1);
-		mul1.setRightValue(literal2);
-		ArithmeticBinaryExpressionNode sub1 = new ArithmeticBinaryExpressionNodeImpl();
-		sub1.setOperator(BinaryOperator.SUBSTRACTION);
-		sub1.setLeftValue(mul1);
-		sub1.setRightValue(identifier);
-
-		AssignmentNode assignment = new AssignmentNodeImpl();
-		assignment.setLeftValue(identifier);
-		assignment.setRightValue(sub1);
-
-		ReturnNode returnNode = new ReturnNodeImpl();
-		returnNode.setRightValue(identifier);
-
 		BlockNode blockNode = new BlockNodeImpl();
 		blockNode.addDeclaration(declaration);
-		blockNode.addStatement(assignment2);
 		blockNode.addStatement(assignment);
 		blockNode.addStatement(returnNode);
 		blockNode.setSymbolTable(symbolTable);
+		declaration.setParentNode(blockNode);
+		assignment.setParentNode(blockNode);
+		returnNode.setParentNode(blockNode);
 
+		// analyse AST
 		AST ast = new ASTImpl();
 		ast.setRootNode(blockNode);
 
@@ -257,40 +222,59 @@ public class M1Tests {
 	 */
 	@Test
 	public void simpleAddProg() {
-		SymbolTable symbolTable = new SymbolTableImpl();
-		symbolTable.insert("l", new LongType());
-
+		// long l;
 		DeclarationNode declaration = new DeclarationNodeImpl();
 		declaration.setIdentifier("l");
+		declaration.setType(new LongType());
 
-		BasicIdentifierNode identifier = new BasicIdentifierNodeImpl();
-		identifier.setIdentifier("l");
-
-		LiteralNode literal3 = new LiteralNodeImpl();
-		literal3.setLiteral("3");
+		// l = 3 + 3;
+		BasicIdentifierNode identifier_l1 = new BasicIdentifierNodeImpl();
+		identifier_l1.setIdentifier("l");
+		LiteralNode literal3_1 = new LiteralNodeImpl();
+		literal3_1.setLiteral("3");
+		literal3_1.setLiteralType(new LongType());
+		LiteralNode literal3_2 = new LiteralNodeImpl();
+		literal3_2.setLiteral("3");
+		literal3_2.setLiteralType(new LongType());
 
 		ArithmeticBinaryExpressionNode add = new ArithmeticBinaryExpressionNodeImpl();
 		add.setOperator(BinaryOperator.ADDITION);
-		add.setLeftValue(literal3);
-		add.setRightValue(literal3);
+		add.setLeftValue(literal3_1);
+		add.setRightValue(literal3_2);
+		literal3_1.setParentNode(add);
+		literal3_2.setParentNode(add);
 
 		AssignmentNode assignment = new AssignmentNodeImpl();
-		assignment.setLeftValue(identifier);
+		assignment.setLeftValue(identifier_l1);
 		assignment.setRightValue(add);
+		identifier_l1.setParentNode(assignment);
+		add.setParentNode(assignment);
 
+		// return l;
+		BasicIdentifierNode identifier_l2 = new BasicIdentifierNodeImpl();
+		identifier_l2.setIdentifier("l");
 		ReturnNode returnNode = new ReturnNodeImpl();
-		returnNode.setRightValue(identifier);
+		returnNode.setRightValue(identifier_l2);
+		identifier_l2.setParentNode(returnNode);
+
+		// main block
+		SymbolTable symbolTable = new SymbolTableImpl();
+		symbolTable.insert("l", new LongType());
 
 		BlockNode blockNode = new BlockNodeImpl();
 		blockNode.addDeclaration(declaration);
 		blockNode.addStatement(assignment);
 		blockNode.addStatement(returnNode);
 		blockNode.setSymbolTable(symbolTable);
+		declaration.setParentNode(blockNode);
+		assignment.setParentNode(blockNode);
+		returnNode.setParentNode(blockNode);
 
+		// analyse AST
 		AST ast = new ASTImpl();
 		ast.setRootNode(blockNode);
-
 		this.analyser.analyse(ast);
+
 		assertFalse(this.log.hasErrors());
 	}
 
@@ -302,40 +286,59 @@ public class M1Tests {
 	 */
 	@Test
 	public void simpleMulProg() {
-		SymbolTable symbolTable = new SymbolTableImpl();
-		symbolTable.insert("l", new LongType());
-
+		// long l;
 		DeclarationNode declaration = new DeclarationNodeImpl();
 		declaration.setIdentifier("l");
+		declaration.setType(new LongType());
 
-		BasicIdentifierNode identifier = new BasicIdentifierNodeImpl();
-		identifier.setIdentifier("l");
-
-		LiteralNode literal3 = new LiteralNodeImpl();
-		literal3.setLiteral("3");
+		// l = 3 * 3;
+		BasicIdentifierNode identifier_l1 = new BasicIdentifierNodeImpl();
+		identifier_l1.setIdentifier("l");
+		LiteralNode literal3_1 = new LiteralNodeImpl();
+		literal3_1.setLiteral("3");
+		literal3_1.setLiteralType(new LongType());
+		LiteralNode literal3_2 = new LiteralNodeImpl();
+		literal3_2.setLiteral("3");
+		literal3_2.setLiteralType(new LongType());
 
 		ArithmeticBinaryExpressionNode mul = new ArithmeticBinaryExpressionNodeImpl();
 		mul.setOperator(BinaryOperator.MULTIPLICATION);
-		mul.setLeftValue(literal3);
-		mul.setRightValue(literal3);
+		mul.setLeftValue(literal3_1);
+		mul.setRightValue(literal3_2);
+		literal3_1.setParentNode(mul);
+		literal3_2.setParentNode(mul);
 
 		AssignmentNode assignment = new AssignmentNodeImpl();
-		assignment.setLeftValue(identifier);
+		assignment.setLeftValue(identifier_l1);
 		assignment.setRightValue(mul);
+		identifier_l1.setParentNode(assignment);
+		mul.setParentNode(assignment);
 
+		// return l;
+		BasicIdentifierNode identifier_l2 = new BasicIdentifierNodeImpl();
+		identifier_l2.setIdentifier("l");
 		ReturnNode returnNode = new ReturnNodeImpl();
-		returnNode.setRightValue(identifier);
+		returnNode.setRightValue(identifier_l2);
+		identifier_l2.setParentNode(returnNode);
+
+		// main block
+		SymbolTable symbolTable = new SymbolTableImpl();
+		symbolTable.insert("l", new LongType());
 
 		BlockNode blockNode = new BlockNodeImpl();
 		blockNode.addDeclaration(declaration);
 		blockNode.addStatement(assignment);
 		blockNode.addStatement(returnNode);
 		blockNode.setSymbolTable(symbolTable);
+		declaration.setParentNode(blockNode);
+		assignment.setParentNode(blockNode);
+		returnNode.setParentNode(blockNode);
 
+		// analyse AST
 		AST ast = new ASTImpl();
 		ast.setRootNode(blockNode);
-
 		this.analyser.analyse(ast);
+
 		assertFalse(this.log.hasErrors());
 	}
 
