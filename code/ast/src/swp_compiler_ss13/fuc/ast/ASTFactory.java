@@ -166,7 +166,9 @@ public class ASTFactory {
 		((BlockNode) this.node).addStatement(ret);
 		ret.setParentNode(this.node);
 		ret.setRightValue(identifier);
-		identifier.setParentNode(ret);
+		if (identifier != null) {
+			identifier.setParentNode(ret);
+		}
 		return ret;
 	}
 
