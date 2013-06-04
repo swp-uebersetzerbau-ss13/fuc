@@ -391,7 +391,7 @@ public class SemanticAnalyser {
 		 * checks
 		 */
 		if (node.getParentNode().getNodeType() != ASTNode.ASTNodeType.AssignmentNode && !initialzed) {
-			System.out.println("No init!");
+			errorLog.reportWarning(ReportType.UNDEFINED, node.coverage(), "May be used without initialization.");
 		}
 	}
 
