@@ -102,6 +102,7 @@ public class BranchTests {
 		
 		BlockNode blockNode = new BlockNodeImpl();
 		blockNode.addDeclaration(declaration_l);
+		blockNode.addStatement(assignment_l1);
 		blockNode.addStatement(branch);
 		blockNode.setSymbolTable(symbolTable);
 		declaration_l.setParentNode(blockNode);
