@@ -62,6 +62,8 @@ public class LoopTests {
 	 */
 	@Test
 	public void testWhileConditionTypeError() {
+		SymbolTable symbolTable = new SymbolTableImpl();
+		
 		// long l;
 		DeclarationNode declaration_l = new DeclarationNodeImpl();
 		declaration_l.setIdentifier("l");
@@ -97,7 +99,7 @@ public class LoopTests {
 		BasicIdentifierNode identifier_l3 = new BasicIdentifierNodeImpl();
 		identifier_l3.setIdentifier("l");
 
-		SymbolTable whileBlockTable = new SymbolTableImpl();
+		SymbolTable whileBlockTable = new SymbolTableImpl(symbolTable);
 		BlockNode whileBlock = new BlockNodeImpl();
 		whileBlock.addStatement(assignment_l2);
 		whileBlock.setSymbolTable(whileBlockTable);
@@ -110,7 +112,6 @@ public class LoopTests {
 		whileBlock.setParentNode(whileNode);
 
 		// main block
-		SymbolTable symbolTable = new SymbolTableImpl();
 		symbolTable.insert("l", new LongType());
 
 		BlockNode blockNode = new BlockNodeImpl();
@@ -141,6 +142,8 @@ public class LoopTests {
 	 */
 	@Test
 	public void testDoWhileConditionTypeError() {
+		SymbolTable symbolTable = new SymbolTableImpl();
+		
 		// long l;
 		DeclarationNode declaration_l = new DeclarationNodeImpl();
 		declaration_l.setIdentifier("l");
@@ -176,7 +179,7 @@ public class LoopTests {
 		BasicIdentifierNode identifier_l3 = new BasicIdentifierNodeImpl();
 		identifier_l3.setIdentifier("l");
 
-		SymbolTable whileBlockTable = new SymbolTableImpl();
+		SymbolTable whileBlockTable = new SymbolTableImpl(symbolTable);
 		BlockNode doWhileBlock = new BlockNodeImpl();
 		doWhileBlock.addStatement(assignment_l2);
 		doWhileBlock.setSymbolTable(whileBlockTable);
@@ -189,7 +192,6 @@ public class LoopTests {
 		doWhileBlock.setParentNode(doWhileNode);
 
 		// main block
-		SymbolTable symbolTable = new SymbolTableImpl();
 		symbolTable.insert("l", new LongType());
 
 		BlockNode blockNode = new BlockNodeImpl();
@@ -217,6 +219,8 @@ public class LoopTests {
 	 */
 	@Test
 	public void testInnerBreak() {
+		SymbolTable symbolTable = new SymbolTableImpl();
+		
 		// while (true){ break;}
 		LiteralNode literal_true = new LiteralNodeImpl();
 		literal_true.setLiteral("true");
@@ -224,7 +228,7 @@ public class LoopTests {
 		
 		BreakNode breakNode = new BreakNodeImpl();
 		
-		SymbolTable whileBlockTable = new SymbolTableImpl();
+		SymbolTable whileBlockTable = new SymbolTableImpl(symbolTable);
 		BlockNode whileBlock = new BlockNodeImpl();
 		whileBlock.addStatement(breakNode);
 		whileBlock.setSymbolTable(whileBlockTable);
@@ -237,8 +241,6 @@ public class LoopTests {
 		whileBlock.setParentNode(whileNode);
 
 		// main block
-		SymbolTable symbolTable = new SymbolTableImpl();
-
 		BlockNode blockNode = new BlockNodeImpl();
 		blockNode.addStatement(whileNode);
 		blockNode.setSymbolTable(symbolTable);
