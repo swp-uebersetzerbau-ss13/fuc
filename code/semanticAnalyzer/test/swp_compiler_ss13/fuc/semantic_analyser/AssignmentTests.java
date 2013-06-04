@@ -90,6 +90,7 @@ public class AssignmentTests {
 		analyser.analyse(ast);
 		
 		// TODO better error check
+		System.out.println(log);
 		assertEquals(log.getErrors().size(), 1);
 	}
 
@@ -156,6 +157,7 @@ public class AssignmentTests {
 		analyser.analyse(ast);
 		
 		// TODO better error check
+		System.out.println(log);
 		assertEquals(log.getErrors().size(), 1);
 	}
 	

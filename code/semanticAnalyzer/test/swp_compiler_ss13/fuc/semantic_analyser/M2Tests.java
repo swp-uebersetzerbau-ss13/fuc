@@ -156,6 +156,7 @@ public class M2Tests {
 		
 		analyser.analyse(ast);
 		
+		System.out.println(log);
 		assertFalse(log.hasErrors());
 	}
 	
@@ -188,6 +189,7 @@ public class M2Tests {
 		symbolTable.insert("b", new BooleanType());
 		symbolTable.insert("c", new BooleanType());
 		symbolTable.insert("l", new LongType());
+		
 		// TODO undo handling bla as identifier or change associated code
 		symbolTable.insert("bla", new StringType(new Long(8)));
 		
@@ -212,15 +214,19 @@ public class M2Tests {
 		LiteralNode literal_4 = new LiteralNodeImpl();
 		literal_4.setLiteral("4");
 		literal_4.setLiteralType(new LongType());
+		
 		LiteralNode literal_5 = new LiteralNodeImpl();
 		literal_5.setLiteral("5");
 		literal_5.setLiteralType(new LongType());
+		
 		LiteralNode literal_bla = new LiteralNodeImpl();
 		literal_bla.setLiteral("bla");
 		literal_bla.setLiteralType(new StringType(new Long(8)));
+		
 		LiteralNode literal_true = new LiteralNodeImpl();
 		literal_true.setLiteral("true");
 		literal_true.setLiteralType(new BooleanType());
+		
 		LiteralNode literal_false = new LiteralNodeImpl();
 		literal_false.setLiteral("false");
 		literal_false.setLiteralType(new BooleanType());
@@ -240,6 +246,7 @@ public class M2Tests {
 		
 		LogicUnaryExpressionNode not_b = new LogicUnaryExpressionNodeImpl();
 		not_b.setOperator(UnaryOperator.LOGICAL_NEGATE);
+		not_b.setRightValue(identifier_b);
 		LogicBinaryExpressionNode c_or_not_b = new LogicBinaryExpressionNodeImpl();
 		c_or_not_b.setOperator(BinaryOperator.LOGICAL_OR);
 		c_or_not_b.setLeftValue(identifier_c);
@@ -280,6 +287,7 @@ public class M2Tests {
 		
 		analyser.analyse(ast);
 		
+		System.out.println(log);
 		assertFalse(log.hasErrors());
 	}
 

@@ -114,6 +114,7 @@ public class BranchTests {
 		analyser.analyse(ast);
 		
 		// TODO better error-check
+		System.out.println(log);
 		assertEquals(log.getErrors().size(), 1);
 	}
 

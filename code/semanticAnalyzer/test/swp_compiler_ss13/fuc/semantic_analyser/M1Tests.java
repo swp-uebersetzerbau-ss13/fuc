@@ -58,19 +58,28 @@ public class M1Tests {
 	public void testErrorUndefReturnProg() {
 		SymbolTable symbolTable = new SymbolTableImpl();
 		symbolTable.insert("spam", new LongType());
+		
 		DeclarationNode declaration = new DeclarationNodeImpl();
 		declaration.setIdentifier("spam");
+		
 		BasicIdentifierNode identifier = new BasicIdentifierNodeImpl();
 		identifier.setIdentifier("spam");
+		
 		ReturnNode returnNode = new ReturnNodeImpl();
 		returnNode.setRightValue(identifier);
+		identifier.setParentNode(returnNode);
+		
 		BlockNode blockNode = new BlockNodeImpl();
 		blockNode.addDeclaration(declaration);
 		blockNode.addStatement(returnNode);
 		blockNode.setSymbolTable(symbolTable);
+		
 		AST ast = new ASTImpl();
 		ast.setRootNode(blockNode);
+		
 		this.analyser.analyse(ast);
+		
+		System.out.println(log);
 		assertFalse(this.log.hasErrors());
 	}
 
@@ -169,6 +178,8 @@ public class M1Tests {
 		ast.setRootNode(blockNode);
 
 		this.analyser.analyse(ast);
+		
+		System.out.println(log);
 		assertFalse(this.log.hasErrors());
 	}
 
@@ -246,6 +257,8 @@ public class M1Tests {
 		ast.setRootNode(blockNode);
 
 		this.analyser.analyse(ast);
+		
+		System.out.println(log);
 		assertFalse(this.log.hasErrors());
 	}
 
@@ -268,6 +281,7 @@ public class M1Tests {
 
 		LiteralNode literal3 = new LiteralNodeImpl();
 		literal3.setLiteral("3");
+		literal3.setLiteralType(new LongType());
 
 		ArithmeticBinaryExpressionNode add = new ArithmeticBinaryExpressionNodeImpl();
 		add.setOperator(BinaryOperator.ADDITION);
@@ -291,6 +305,8 @@ public class M1Tests {
 		ast.setRootNode(blockNode);
 
 		this.analyser.analyse(ast);
+		
+		System.out.println(log);
 		assertFalse(this.log.hasErrors());
 	}
 
@@ -313,6 +329,7 @@ public class M1Tests {
 
 		LiteralNode literal3 = new LiteralNodeImpl();
 		literal3.setLiteral("3");
+		literal3.setLiteralType(new LongType());
 
 		ArithmeticBinaryExpressionNode mul = new ArithmeticBinaryExpressionNodeImpl();
 		mul.setOperator(BinaryOperator.MULTIPLICATION);
@@ -336,6 +353,8 @@ public class M1Tests {
 		ast.setRootNode(blockNode);
 
 		this.analyser.analyse(ast);
+		
+		System.out.println(log);
 		assertFalse(this.log.hasErrors());
 	}
 
