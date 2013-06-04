@@ -30,8 +30,9 @@ import swp_compiler_ss13.common.ast.nodes.unary.ArithmeticUnaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.unary.LogicUnaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ReturnNode;
 import swp_compiler_ss13.common.ast.nodes.unary.UnaryExpressionNode;
-import swp_compiler_ss13.common.parser.ReportLog;
+import swp_compiler_ss13.common.report.ReportLog;
 import swp_compiler_ss13.common.parser.SymbolTable;
+import swp_compiler_ss13.common.report.ReportType;
 import swp_compiler_ss13.common.types.Type;
 
 public class SemanticAnalyser {
@@ -187,7 +188,7 @@ public class SemanticAnalyser {
 	 */
 	protected void checkLoopNode(LoopNode node, SymbolTable table) {
 		if (!hasAttribute(node.getCondition(), Attribute.TYPE, Type.Kind.BOOLEAN.name())) {
-			errorLog.reportError("The condition must be of type bool.", -1, -1, "TypeError");
+			errorLog.reportError(ReportType.TYPE_MISMATCH, node.coverage(), "The condition must be of type bool.");
 		}
 	}
 
@@ -209,7 +210,7 @@ public class SemanticAnalyser {
 
 	protected void handleNode(BreakNode node, SymbolTable table) {
 		if (!hasAttribute(node.getParentNode(), Attribute.CAN_BREAK, CAN_BREAK)) {
-			errorLog.reportError("Break can only be used in a loop.", -1, -1, "BreakOutsideLoop");
+			errorLog.reportError(ReportType.UNDEFINED, node.coverage(), "Break can only be used in a loop.");
 		}
 	}
 
@@ -225,7 +226,7 @@ public class SemanticAnalyser {
 		}
 
 		if (!hasAttribute(node.getCondition(), Attribute.TYPE, Type.Kind.BOOLEAN.name())) {
-			errorLog.reportError("The condition must be of type bool.", -1, -1, "TypeError");
+			errorLog.reportError(ReportType.TYPE_MISMATCH, node.coverage(), "The condition must be of type bool.");
 		}
 	}
 
@@ -254,7 +255,7 @@ public class SemanticAnalyser {
 		} else {
 			if (type == null) {
 				setAttribute(node, Attribute.TYPE_CHECK, TYPE_MISMATCH);
-				errorLog.reportError("Types can not be combined, no LUB.", -1, -1, "TypeError");
+				errorLog.reportError(ReportType.TYPE_MISMATCH, node.coverage(), "Types can not be combined, no LUB.");
 			} else {
 				setAttribute(node, Attribute.TYPE, type.name());
 			}
@@ -283,7 +284,7 @@ public class SemanticAnalyser {
 
 			if (!isNumeric(type) || (type == Type.Kind.STRING && node.getOperator() == BinaryExpressionNode.BinaryOperator.ADDITION)) {
 				setAttribute(node, Attribute.TYPE_CHECK, TYPE_MISMATCH);
-				errorLog.reportError("Operator is not defined for those types", -1, -1, "TypeError");
+				errorLog.reportError(ReportType.TYPE_MISMATCH, node.coverage(), "Operator is not defined for those types");
 			}
 		}
 	}
@@ -294,7 +295,7 @@ public class SemanticAnalyser {
 		if (hasAttribute(node, Attribute.TYPE_CHECK, TYPE_MISMATCH)) {
 			if (!isNumeric(getType(node))) {
 				setAttribute(node, Attribute.TYPE_CHECK, TYPE_MISMATCH);
-				errorLog.reportError("Operation is not defined for ...", -1, -1, "TypeError");
+				errorLog.reportError(ReportType.TYPE_MISMATCH, node.coverage(), "Operation is not defined for ...");
 			}
 		}
 	}
@@ -307,7 +308,7 @@ public class SemanticAnalyser {
 
 			if (!isNumeric(type)) {
 				setAttribute(node, Attribute.TYPE_CHECK, TYPE_MISMATCH);
-				errorLog.reportError("Operator expects numeric operands.", -1, -1, "TypeError");
+				errorLog.reportError(ReportType.TYPE_MISMATCH, node.coverage(), "Operator expects numeric operands.");
 			}
 		}
 	}
@@ -322,7 +323,7 @@ public class SemanticAnalyser {
 		if (!hasAttribute(node, Attribute.TYPE_CHECK, TYPE_MISMATCH)) {
 			if (!isBool(getType(node))) {
 				setAttribute(node, Attribute.TYPE_CHECK, TYPE_MISMATCH);
-				errorLog.reportError("Operator expects boolean operands.", -1, -1, "TypeError");
+				errorLog.reportError(ReportType.TYPE_MISMATCH, node.coverage(), "Operator expects boolean operands.");
 			}
 		}
 	}
@@ -333,7 +334,7 @@ public class SemanticAnalyser {
 		if (!hasAttribute(node, Attribute.TYPE_CHECK, TYPE_MISMATCH)) {
 			if (!isBool(getType(node))) {
 				setAttribute(node, Attribute.TYPE_CHECK, TYPE_MISMATCH);
-				errorLog.reportError("Operator expects boolean operand.", -1, -1, "TypeError");
+				errorLog.reportError(ReportType.TYPE_MISMATCH, node.coverage(), "Operator expects boolean operand.");
 			}
 		}
 	}
@@ -363,8 +364,9 @@ public class SemanticAnalyser {
 			setAttribute(node, Attribute.TYPE, TYPE_MISMATCH);
 		} else if (getType(node.getLeftValue()) != getType(node.getRightValue())) {
 			setAttribute(node, Attribute.TYPE, TYPE_MISMATCH);
-			errorLog.reportError("Expected " + getType(node.getLeftValue()).name() +
-				" found " + getType(node.getRightValue()).name(), -1, -1, "TypeError");
+			errorLog.reportError(ReportType.TYPE_MISMATCH, node.coverage(),
+				"Expected " + getType(node.getLeftValue()).name() +
+				" found " + getType(node.getRightValue()).name());
 		} else {
 			markIdentifierAsInitialized(table, getAttribute(node.getLeftValue(), Attribute.IDENTIFIER));
 		}
@@ -400,7 +402,7 @@ public class SemanticAnalyser {
 			traverseAstNode(identifier, table);
 
 			if (!getAttribute(identifier, Attribute.TYPE).equals(Type.Kind.LONG.name())) {
-				errorLog.reportError("Only variables of type long can be returned.", -1, -1, "TypeError");
+				errorLog.reportError(ReportType.TYPE_MISMATCH, node.coverage(), "Only variables of type long can be returned.");
 			}
 		}
 	}
