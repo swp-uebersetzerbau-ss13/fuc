@@ -48,29 +48,45 @@ public class OtherTests {
 
 	/**
 	 * # error: statement after return<br/>
-	 * return;<br/>
 	 * bool b;
+	 * return;<br/>
+	 * b = true;
 	 */
 	@Test
 	public void testStatmentAfterReturnError() {
-		// return;
-		ReturnNode returnNode = new ReturnNodeImpl();
-
 		// bool b;
 		DeclarationNode declaration_b = new DeclarationNodeImpl();
 		declaration_b.setIdentifier("b");
 		declaration_b.setType(new BooleanType());
+
+		// return;
+		ReturnNode returnNode = new ReturnNodeImpl();
+
+		// b = true;
+		BasicIdentifierNode identifier_b = new BasicIdentifierNodeImpl();
+		identifier_b.setIdentifier("b");
+		LiteralNode literal_true = new LiteralNodeImpl();
+		literal_true.setLiteral("true");
+		literal_true.setLiteralType(new BooleanType());
+
+		AssignmentNode assignment_b = new AssignmentNodeImpl();
+		assignment_b.setLeftValue(identifier_b);
+		assignment_b.setRightValue(literal_true);
+		identifier_b.setParentNode(assignment_b);
+		literal_true.setParentNode(assignment_b);
 
 		// main block
 		SymbolTable symbolTable = new SymbolTableImpl();
 		symbolTable.insert("b", new BooleanType());
 
 		BlockNode blockNode = new BlockNodeImpl();
-		blockNode.addStatement(returnNode);
 		blockNode.addDeclaration(declaration_b);
+		blockNode.addStatement(returnNode);
+		blockNode.addStatement(assignment_b);
 		blockNode.setSymbolTable(symbolTable);
 		declaration_b.setParentNode(blockNode);
 		returnNode.setParentNode(blockNode);
+		assignment_b.setParentNode(blockNode);
 
 		// analyse AST
 		AST ast = new ASTImpl();
@@ -123,8 +139,8 @@ public class OtherTests {
 
 	/**
 	 * # errors: usage of bool as return type;<br/>
-	 * #         statement after return;<br/>
-	 * #         type error in assignment<br/>
+	 * # statement after return;<br/>
+	 * # type error in assignment<br/>
 	 * bool b;<br/>
 	 * return b;<br/>
 	 * b = 1;
@@ -150,13 +166,13 @@ public class OtherTests {
 		LiteralNode literal_1 = new LiteralNodeImpl();
 		literal_1.setLiteral("1");
 		literal_1.setLiteralType(new LongType());
-		
+
 		AssignmentNode assignment_b = new AssignmentNodeImpl();
 		assignment_b.setLeftValue(identifier_b2);
 		assignment_b.setRightValue(literal_1);
 		identifier_b2.setParentNode(assignment_b);
 		literal_1.setParentNode(assignment_b);
-		
+
 		// main block
 		SymbolTable symbolTable = new SymbolTableImpl();
 		symbolTable.insert("b", new BooleanType());
