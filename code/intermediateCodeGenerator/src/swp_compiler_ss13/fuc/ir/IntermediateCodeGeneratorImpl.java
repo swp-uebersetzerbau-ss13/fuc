@@ -14,10 +14,8 @@ import swp_compiler_ss13.common.ast.nodes.IdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.StatementNode;
 import swp_compiler_ss13.common.ast.nodes.binary.ArithmeticBinaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.binary.AssignmentNode;
-import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode.BinaryOperator;
 import swp_compiler_ss13.common.ast.nodes.binary.DoWhileNode;
 import swp_compiler_ss13.common.ast.nodes.binary.LogicBinaryExpressionNode;
-import swp_compiler_ss13.common.ast.nodes.binary.RelationExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.binary.WhileNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.BreakNode;
@@ -182,9 +180,6 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 		case PrintNode:
 			this.processPrintNode((PrintNode) node);
 			break;
-		case RelationExpressionNode:
-			this.processRelationExpressionNode((RelationExpressionNode) node);
-			break;
 		case ReturnNode:
 			this.processReturnNode((ReturnNode) node);
 			break;
@@ -265,89 +260,6 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 		this.callProcessing(right);
 		IntermediateResult intermediateResult = this.intermediateResults.pop();
 		this.irCode.add(QuadrupleFactory.returnNode(intermediateResult.getValue()));
-	}
-
-	/**
-	 * Process a relationexpression node
-	 * 
-	 * @param node
-	 *            the node to process
-	 * @throws IntermediateCodeGeneratorException
-	 *             Something went wrong
-	 */
-	private void processRelationExpressionNode(RelationExpressionNode node) throws IntermediateCodeGeneratorException {
-		BinaryOperator operator = node.getOperator();
-
-		ExpressionNode leftNode = node.getLeftValue();
-		ExpressionNode rightNode = node.getRightValue();
-
-		this.callProcessing(leftNode);
-		this.callProcessing(rightNode);
-
-		IntermediateResult rightResult = this.intermediateResults.pop();
-		IntermediateResult leftResult = this.intermediateResults.pop();
-
-		boolean castNeeded = CastingFactory.isCastNeeded(leftResult, rightResult);
-		String castedleft = leftResult.getValue();
-		String castedright = rightResult.getValue();
-		Type type = leftResult.getType();
-		if (castNeeded) {
-			if (CastingFactory.isNumeric(leftResult) && CastingFactory.isNumeric(rightResult)) {
-				type = new DoubleType();
-				if (leftResult.getType().getKind() == Kind.LONG) {
-					castedleft = this.createAndSaveTemporaryIdentifier(type);
-					this.irCode.add(CastingFactory.createCast(leftResult.getType(), leftResult.getValue(), type,
-							castedleft));
-				}
-				if (rightResult.getType().getKind() == Kind.LONG) {
-					this.irCode.add(CastingFactory.createCast(rightResult.getType(), rightResult.getValue(), type,
-							castedright));
-				}
-			} else {
-				String err = String.format("unsupported types %s %s and %s %s for relation expression",
-						leftResult.getType(), leftResult.getValue(), rightResult.getType(), rightResult.getValue());
-				logger.fatal(err);
-				throw new IntermediateCodeGeneratorException(err);
-			}
-		}
-
-		String result = this.createAndSaveTemporaryIdentifier(type);
-
-		switch (operator) {
-		case EQUAL:
-			this.irCode.add(QuadrupleFactory.relationEqual(castedleft, castedright, result, type));
-			break;
-		case GREATERTHAN:
-			this.irCode.add(QuadrupleFactory.relationGreater(castedleft, castedright, result, type));
-			break;
-		case GREATERTHANEQUAL:
-			this.irCode.add(QuadrupleFactory.relationGreaterEqual(castedleft, castedright, result, type));
-			break;
-		case INEQUAL:
-			String tmp = this.createAndSaveTemporaryIdentifier(new BooleanType());
-			this.irCode.add(QuadrupleFactory.relationEqual(castedleft, castedright, tmp, type));
-			this.irCode.add(QuadrupleFactory.booleanArithmetic(UnaryOperator.LOGICAL_NEGATE, tmp, result));
-			break;
-		case LESSTHAN:
-			this.irCode.add(QuadrupleFactory.relationLess(castedleft, castedright, result, type));
-			break;
-		case LESSTHANEQUAL:
-			this.irCode.add(QuadrupleFactory.relationLessEqual(castedleft, castedright, result, type));
-			break;
-		case ADDITION:
-		case DIVISION:
-		case LOGICAL_AND:
-		case LOGICAL_OR:
-		case MULTIPLICATION:
-		case SUBSTRACTION:
-		default:
-			String err = "BinaryOperator %s is not allowed within a RelationExpressionNode";
-			String errf = String.format(err, operator);
-			logger.fatal(errf);
-			throw new IntermediateCodeGeneratorException(errf);
-		}
-
-		this.intermediateResults.push(new IntermediateResult(result, type));
 	}
 
 	/**
@@ -440,7 +352,7 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 			// Literal of type String needs to be in " and start with a #
 			// Replace all " in the string with \"
 			this.intermediateResults
-					.push(new IntermediateResult("#\"" + literal.replaceAll("\"", "\\\"") + "\"", type));
+					.push(new IntermediateResult("#\"" + literal + "\"", type));
 			break;
 		default:
 			// Literal of other types are not defined yet.
