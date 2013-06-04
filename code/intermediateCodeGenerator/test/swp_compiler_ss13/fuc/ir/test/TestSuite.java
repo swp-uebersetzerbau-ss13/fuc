@@ -19,15 +19,9 @@ import swp_compiler_ss13.fuc.ir.test.ms2.CondTest;
  * @version 1
  */
 @RunWith(Suite.class)
-@SuiteClasses({
-		AddProgTest.class,
-		SimpleAddTest.class,
-		SimpleMulTest.class,
-		ParanthesesTest.class,
-		CastingFactoryTest.class,
-		ArrayTest.class,
-		AssignmentProgTest.class,
-		CondTest.class,
-		IdentifierShadowTest.class })
+@SuiteClasses({ AddProgTest.class, SimpleAddTest.class, SimpleMulTest.class,
+		ParanthesesTest.class, CastingFactoryTest.class, ArrayTest.class,
+		AssignmentProgTest.class, CondTest.class, IdentifierShadowTest.class,
+		CastingTest.class })
 public class TestSuite {
 }
