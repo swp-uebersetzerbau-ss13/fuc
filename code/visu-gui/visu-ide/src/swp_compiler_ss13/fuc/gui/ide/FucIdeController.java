@@ -391,26 +391,29 @@ public class FucIdeController {
 				}
 			}
 
-			// do analyzer stuff
-			analyzer = analyzer.getClass().newInstance();
-			analyzer.setReportLog(log);
-			AST checkedAST = analyzer.analyse(ast);
+			if (ast != null) {
 
-			// do irgen stuff
-			irgen = irgen.getClass().newInstance();
-			List<Quadruple> tac = irgen.generateIntermediateCode(checkedAST);
-			for (Controller c : this.model.getGUIControllers()) {
-				if (c.getModel().setTAC(tac)) {
-					c.notifyModelChanged();
+				// do analyzer stuff
+				analyzer = analyzer.getClass().newInstance();
+				analyzer.setReportLog(log);
+				AST checkedAST = analyzer.analyse(ast);
+
+				// do irgen stuff
+				irgen = irgen.getClass().newInstance();
+				List<Quadruple> tac = irgen.generateIntermediateCode(checkedAST);
+				for (Controller c : this.model.getGUIControllers()) {
+					if (c.getModel().setTAC(tac)) {
+						c.notifyModelChanged();
+					}
 				}
-			}
 
-			// do backend stuff
-			backend = backend.getClass().newInstance();
-			Map<String, InputStream> target = backend.generateTargetCode("Program", tac);
-			for (Controller c : this.model.getGUIControllers()) {
-				if (c.getModel().setTargetCode(target)) {
-					c.notifyModelChanged();
+				// do backend stuff
+				backend = backend.getClass().newInstance();
+				Map<String, InputStream> target = backend.generateTargetCode("Program", tac);
+				for (Controller c : this.model.getGUIControllers()) {
+					if (c.getModel().setTargetCode(target)) {
+						c.notifyModelChanged();
+					}
 				}
 			}
 
