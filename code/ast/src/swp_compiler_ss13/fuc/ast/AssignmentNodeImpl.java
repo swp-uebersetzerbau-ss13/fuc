@@ -76,6 +76,9 @@ public class AssignmentNodeImpl extends ASTNodeImpl implements AssignmentNode {
 			logger.error("The argument identifier can not be null!");
 			throw new IllegalArgumentException("The argument identifier can not be null!");
 		}
+		
+		identifier.setParentNode(this);
+		
 		this.leftNode = identifier;
 	}
 
@@ -93,6 +96,9 @@ public class AssignmentNodeImpl extends ASTNodeImpl implements AssignmentNode {
 			logger.error("The argument identifier can not be null!");
 			throw new IllegalArgumentException("The argument identifier can not be null!");
 		}
+		
+		node.setParentNode(this);
+		
 		this.rightNode = node;
 	}
 
