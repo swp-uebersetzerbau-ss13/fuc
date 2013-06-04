@@ -1,6 +1,7 @@
 package swp_compiler_ss13.fuc.backend;
 
 import static org.junit.Assert.assertEquals;
+import static swp_compiler_ss13.common.backend.Quadruple.EmptyArgument;
 import static swp_compiler_ss13.fuc.backend.TACExecutor.*;
 
 import java.io.*;
@@ -89,6 +90,35 @@ public class BackendRuntimeTest {
 
 		ExecutionResult res = TACExecutor.runIR(generateCode(tac));
 		assertEquals("Program terminated by uncaught exception of type 'DivisionByZeroException'\n", res.output);
+	}
+
+	@Test
+	public void printTest() throws Exception {
+		tac.add(new Q(Quadruple.Operator.PRINT_LONG, "#1", Quadruple.EmptyArgument, Quadruple.EmptyArgument));
+		tac.add(new Q(Quadruple.Operator.PRINT_STRING, "#\"\n\"", Quadruple.EmptyArgument, Quadruple.EmptyArgument));
+		tac.add(new Q(Quadruple.Operator.PRINT_DOUBLE, "#1.0", Quadruple.EmptyArgument, Quadruple.EmptyArgument));
+		tac.add(new Q(Quadruple.Operator.PRINT_STRING, "#\"\n\"", Quadruple.EmptyArgument, Quadruple.EmptyArgument));
+		tac.add(new Q(Quadruple.Operator.PRINT_BOOLEAN, "#TRUE", Quadruple.EmptyArgument, Quadruple.EmptyArgument));
+		tac.add(new Q(Quadruple.Operator.PRINT_STRING, "#\"\n\"", Quadruple.EmptyArgument, Quadruple.EmptyArgument));
+		tac.add(new Q(Quadruple.Operator.PRINT_STRING, "#\"bla\"", Quadruple.EmptyArgument, Quadruple.EmptyArgument));
+
+		ExecutionResult res = TACExecutor.runIR(generateCode(tac));
+		assertEquals("1\n1.000000e+00\ntrue\nbla\n", res.output);
+
+	}
+
+	@Test
+	public void compareTest() throws Exception {
+		tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_BOOLEAN, EmptyArgument, EmptyArgument, "res1"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_BOOLEAN, EmptyArgument, EmptyArgument, "res2"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.COMPARE_LONG_LE, "#23", "#42", "res1"));
+		tac.add(new Q(Quadruple.Operator.PRINT_BOOLEAN, "res1", Quadruple.EmptyArgument, Quadruple.EmptyArgument));
+		tac.add(new Q(Quadruple.Operator.PRINT_STRING, "#\"\n\"", Quadruple.EmptyArgument, Quadruple.EmptyArgument));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.COMPARE_DOUBLE_G, "#23.0", "#42.0", "res2"));
+		tac.add(new Q(Quadruple.Operator.PRINT_BOOLEAN, "res2", Quadruple.EmptyArgument, Quadruple.EmptyArgument));
+
+		ExecutionResult res = TACExecutor.runIR(generateCode(tac));
+		assertEquals("true\nfalse\n", res.output);
 	}
 
 	@Test
