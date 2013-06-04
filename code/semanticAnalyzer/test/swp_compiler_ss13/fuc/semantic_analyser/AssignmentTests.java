@@ -104,17 +104,17 @@ public class AssignmentTests {
 	public void testAssignmentInAssignment() {
 		// long l1; long l2;
 		DeclarationNode declaration_l1 = new DeclarationNodeImpl();
-		declaration_l1.setIdentifier("l");
+		declaration_l1.setIdentifier("l1");
 		declaration_l1.setType(new LongType());
 		DeclarationNode declaration_l2 = new DeclarationNodeImpl();
-		declaration_l2.setIdentifier("l");
+		declaration_l2.setIdentifier("l1");
 		declaration_l2.setType(new LongType());
 
 		// l1 = l2 = 1;
 		BasicIdentifierNode identifier_l1 = new BasicIdentifierNodeImpl();
-		identifier_l1.setIdentifier("l");
+		identifier_l1.setIdentifier("l1");
 		BasicIdentifierNode identifier_l2 = new BasicIdentifierNodeImpl();
-		identifier_l2.setIdentifier("l");
+		identifier_l2.setIdentifier("l2");
 		LiteralNode literal_1 = new LiteralNodeImpl();
 		literal_1.setLiteral("1");
 		literal_1.setLiteralType(new LongType());
