@@ -14,7 +14,10 @@ import swp_compiler_ss13.common.ast.nodes.IdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.StatementNode;
 import swp_compiler_ss13.common.ast.nodes.binary.ArithmeticBinaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.binary.AssignmentNode;
+import swp_compiler_ss13.common.ast.nodes.binary.DoWhileNode;
+import swp_compiler_ss13.common.ast.nodes.binary.WhileNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;
+import swp_compiler_ss13.common.ast.nodes.leaf.BreakNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.LiteralNode;
 import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ArithmeticUnaryExpressionNode;
@@ -43,12 +46,15 @@ public class SemanticAnalyser {
 		 * 
 		 * @see IdentifierNode
 		 */
-		IDENTIFIER
+		IDENTIFIER,
+		
+		CAN_BREAK
 	}
 
 	private static final String IS_NOT_INITIALIZED = "0";
 	private static final String IS_INITIALIZED = "1";
 	private static final String NO_ATTRIBUTE_VALUE = "no Value";
+	private static final String CAN_BREAK = "true";
 
 	private final ReportLog errorLog;
 	private final Map<ASTNode, Map<Attribute, String>> attributes;
@@ -72,6 +78,7 @@ public class SemanticAnalyser {
 			this.handleNode((BasicIdentifierNode) node, table);
 			break;
 		case BreakNode:
+			this.handleNode((BreakNode) node, table);
 			break;
 		case LiteralNode:
 			logger.trace("handle LiteralNode");
@@ -104,12 +111,14 @@ public class SemanticAnalyser {
 			this.handleNode((AssignmentNode) node, table);
 			break;
 		case DoWhileNode:
+			handleNode((DoWhileNode) node, table);
 			break;
 		case LogicBinaryExpressionNode:
 			break;
 		case RelationExpressionNode:
 			break;
 		case WhileNode:
+			handleNode((WhileNode) node, table);
 			break;
 		case BranchNode:
 			break;
@@ -121,9 +130,23 @@ public class SemanticAnalyser {
 			throw new IllegalArgumentException("unknown ASTNodeType");
 		}
 	}
-
+	
 	protected void handleNode(LiteralNode node, SymbolTable table) {
 		this.setAttribute(node, Attribute.INITIALIZATION_STATUS, IS_INITIALIZED);
+	}
+	
+	protected void handleNode(DoWhileNode node, SymbolTable table) {
+		this.setAttribute(node, Attribute.CAN_BREAK, CAN_BREAK);
+	}
+	
+	protected void handleNode(WhileNode node, SymbolTable table) {
+		this.setAttribute(node, Attribute.CAN_BREAK, CAN_BREAK);
+	}
+	
+	protected void handleNode(BreakNode node, SymbolTable table) {
+		if (!getAttribute(node.getParentNode(), Attribute.CAN_BREAK).equals(CAN_BREAK)) {
+			errorLog.reportError("Break can only be used in a loop.", -1, -1, "BreakOutsideLoop");
+		}
 	}
 
 	protected void handleNode(ArithmeticBinaryExpressionNode node, SymbolTable table) {
