@@ -233,6 +233,13 @@ public class LLVMBackendArithmeticTest extends LLVMBackendTest {
 		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
+	@Test (expected = BackendException.class)
+	public void generateTargetCodeTest_DivThroughZero_Long() throws IOException, BackendException {
+		tac.add(new QuadrupleImpl(Operator.DECLARE_LONG, EmptyArgument, EmptyArgument, "result"));
+		tac.add(new QuadrupleImpl(Operator.DIV_LONG, "#23", "#0", "result"));
+		generateCodeAsString(tac);
+	}
+
 	@Test
 	public void generateTargetCodeTest_DivDouble_Const() throws IOException, BackendException {
 		tac.add(new QuadrupleImpl(Operator.DECLARE_DOUBLE, EmptyArgument, EmptyArgument, "result"));
@@ -263,6 +270,13 @@ public class LLVMBackendArithmeticTest extends LLVMBackendTest {
 				"  store double %result.0, double* %result\n" +
 				"  ret i64 0\n";
 		expectMain(mainFunctionCode, generateCodeAsString(tac));
+	}
+
+	@Test (expected = BackendException.class)
+	public void generateTargetCodeTest_DivThroughZero_DOUBLE() throws IOException, BackendException {
+		tac.add(new QuadrupleImpl(Operator.DECLARE_DOUBLE, EmptyArgument, EmptyArgument, "result"));
+		tac.add(new QuadrupleImpl(Operator.DIV_DOUBLE, "#23.0", "#0.0", "result"));
+		generateCodeAsString(tac);
 	}
 
 	/* Boolean Arithmetic */
