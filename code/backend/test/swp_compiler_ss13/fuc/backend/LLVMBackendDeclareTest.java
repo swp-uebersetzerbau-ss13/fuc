@@ -188,7 +188,7 @@ public class LLVMBackendDeclareTest extends LLVMBackendTest {
 		String mainFunctionCode = ""
 			+ "  %stringVariable = alloca i8*\n"
 			+ "  %.string_0 = alloca [4 x i8]\n"
-			+ "  store [4 x i8] c\"Foo\\00\", [4 x i8]* %.string_0\n"
+			+ "  store [4 x i8] [i8 70, i8 111, i8 111, i8 0], [4 x i8]* %.string_0\n"
 			+ "  %stringVariable.0 = getelementptr [4 x i8]* %.string_0, i64 0, i64 0\n"
 			+ "  store i8* %stringVariable.0, i8** %stringVariable\n"
 			+ "  ret i64 0\n";

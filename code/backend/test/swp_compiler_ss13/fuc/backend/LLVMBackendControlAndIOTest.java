@@ -65,13 +65,13 @@ public class LLVMBackendControlAndIOTest extends LLVMBackendTest {
 				"  br i1 %cond.0, label %true, label %false\n" +
 				"  true:\n" +
 				"  %.string_0 = alloca [12 x i8]\n" +
-				"  store [12 x i8] c\"true\\20branch\\00\", [12 x i8]* %.string_0\n" +
+				"  store [12 x i8] [i8 116, i8 114, i8 117, i8 101, i8 32, i8 98, i8 114, i8 97, i8 110, i8 99, i8 104, i8 0], [12 x i8]* %.string_0\n" +
 				"  %.tmp.0 = getelementptr [12 x i8]* %.string_0, i64 0, i64 0\n" +
 				"  call i32 (i8*, ...)* @printf(i8* %.tmp.0)\n" +
 				"  br label %end\n" +
 				"  false:\n" +
 				"  %.string_1 = alloca [13 x i8]\n" +
-				"  store [13 x i8] c\"false\\20branch\\00\", [13 x i8]* %.string_1\n" +
+				"  store [13 x i8] [i8 102, i8 97, i8 108, i8 115, i8 101, i8 32, i8 98, i8 114, i8 97, i8 110, i8 99, i8 104, i8 0], [13 x i8]* %.string_1\n" +
 				"  %.tmp.1 = getelementptr [13 x i8]* %.string_1, i64 0, i64 0\n" +
 				"  call i32 (i8*, ...)* @printf(i8* %.tmp.1)\n" +
 				"  br label %end\n" +
@@ -98,13 +98,13 @@ public class LLVMBackendControlAndIOTest extends LLVMBackendTest {
 				"  br i1 %cond.0, label %true, label %false\n" +
 				"  true:\n" +
 				"  %.string_0 = alloca [12 x i8]\n" +
-				"  store [12 x i8] c\"true\\20branch\\00\", [12 x i8]* %.string_0\n" +
+				"  store [12 x i8] [i8 116, i8 114, i8 117, i8 101, i8 32, i8 98, i8 114, i8 97, i8 110, i8 99, i8 104, i8 0], [12 x i8]* %.string_0\n" +
 				"  %.tmp.0 = getelementptr [12 x i8]* %.string_0, i64 0, i64 0\n" +
 				"  call i32 (i8*, ...)* @printf(i8* %.tmp.0)\n" +
 				"  br label %end\n" +
 				"  false:\n" +
 				"  %.string_1 = alloca [13 x i8]\n" +
-				"  store [13 x i8] c\"false\\20branch\\00\", [13 x i8]* %.string_1\n" +
+				"  store [13 x i8] [i8 102, i8 97, i8 108, i8 115, i8 101, i8 32, i8 98, i8 114, i8 97, i8 110, i8 99, i8 104, i8 0], [13 x i8]* %.string_1\n" +
 				"  %.tmp.1 = getelementptr [13 x i8]* %.string_1, i64 0, i64 0\n" +
 				"  call i32 (i8*, ...)* @printf(i8* %.tmp.1)\n" +
 				"  br label %end\n" +
@@ -163,7 +163,7 @@ public class LLVMBackendControlAndIOTest extends LLVMBackendTest {
 		String mainFunctionCode = "" +
 				"  %s1 = alloca i8*\n" +
 				"  %.string_0 = alloca [4 x i8]\n" +
-				"  store [4 x i8] c\"bla\\00\", [4 x i8]* %.string_0\n" +
+				"  store [4 x i8] [i8 98, i8 108, i8 97, i8 0], [4 x i8]* %.string_0\n" +
 				"  %s1.0 = getelementptr [4 x i8]* %.string_0, i64 0, i64 0\n" +
 				"  store i8* %s1.0, i8** %s1\n" +
 				"  %s1.1 = load i8** %s1\n" +

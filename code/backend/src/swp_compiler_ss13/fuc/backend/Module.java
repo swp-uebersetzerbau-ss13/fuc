@@ -5,6 +5,8 @@ import swp_compiler_ss13.common.backend.Quadruple;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Locale;
@@ -311,15 +313,6 @@ public class Module
 	}
 
 	/**
-	 * The <code>Pattern</code> used to identify special
-	 * characters in a string that need to be replaced
-	 * with \XY to conform to LLVM IR standards, where
-	 * XY is the corresponding hexadecimal value, respectively.
-	 *
-	 */
-	private static Pattern toIRString_ReplacePattern = Pattern.compile("[^a-zA-Z0-9üÜöÖäÄ]");
-
-	/**
 	 * Convert a three adress code string
 	 * to a LLVM IR string.
 	 * All other public functions expect strings
@@ -330,39 +323,14 @@ public class Module
 	 */
 	public static String toIRString(String str)
 	{
-		String irString = str;
+		String irString = "";
 
 		/* Unescape special characters */
-		str = str.replace("\\\"", "\"").
+		irString = str.replace("\\\"", "\"").
 			replace("\\r", "\r").
 			replace("\\n", "\n").
 			replace("\\t", "\t").
 			replace("\\0", "\0");
-
-		if(str.charAt(0) == '#')
-		{
-			irString = "#\"";
-
-			str = str.substring(2, str.length() - 1);
-			Matcher m = Module.toIRString_ReplacePattern.matcher(str);
-
-			int pos = 0;
-			while(m.find())
-			{
-				irString += str.substring(pos, m.end() - 1);
-				pos = m.end();
-
-				System.err.println(str.charAt(pos - 1));
-				irString += "\\" + String.format(
-					(Locale) null,
-					"%02X",
-					(int) str.charAt(pos - 1));
-			}
-
-			irString += str.substring(pos, str.length());
-
-			irString += "\\00\"";
-		}
 
 		return irString;
 	}
@@ -375,11 +343,32 @@ public class Module
 	 * @param literal the string to use
 	 * @return the new string literal's id
 	 */
-	private Integer addStringLiteral(String literal)
+	private Integer addStringLiteral(String literal) throws BackendException
 	{
-		int length = literal.substring(1, literal.length() - 1)
-			.replaceAll("\\\\[a-fA-f0-9][a-fA-f0-9]","_")
-			.replaceAll("[üÜöÖäÄ]","__").length();
+		int length = 0;
+
+		try
+		{
+			literal = literal.substring(1, literal.length() - 1);
+			byte[] utf8 = literal.getBytes("UTF-8");
+			literal = Arrays.toString(utf8).replaceAll("(-?)([0-9]+)(,?)","i8 $1$2$3");
+
+			if(utf8.length > 0)
+			{
+				literal = literal.replace("]",", i8 0]");
+			}
+			else
+			{
+				literal = "[i8 0]";
+			}
+
+			length = utf8.length + 1;
+		}
+		catch(UnsupportedEncodingException e)
+		{
+			throw new BackendException("LLVM backend cannot handle strings without utf8 support");
+		}
+
 		int id = stringLiterals.size();
 		stringLiterals.add(length);
 
@@ -388,7 +377,7 @@ public class Module
 		String identifier = getStringLiteralIdentifier(id);
 
 		gen(identifier + " = alloca " + type);
-		gen("store " + type + " c" + literal + ", " + type + "* " + identifier);
+		gen("store " + type + " " + literal + ", " + type + "* " + identifier);
 
 		return id;
 	}
