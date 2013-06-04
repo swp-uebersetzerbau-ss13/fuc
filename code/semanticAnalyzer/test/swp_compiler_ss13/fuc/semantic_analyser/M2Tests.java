@@ -190,6 +190,7 @@ public class M2Tests {
 
 		ReturnNode returnNode = new ReturnNodeImpl();
 		returnNode.setRightValue(identifier_c4);
+		identifier_c4.setParentNode(returnNode);
 
 		// main block
 		BlockNode blockNode = new BlockNodeImpl();
@@ -203,7 +204,16 @@ public class M2Tests {
 		blockNode.addStatement(assignment_c2);
 		blockNode.addStatement(returnNode);
 		blockNode.setSymbolTable(symbolTable);
-
+		declaration_a.setParentNode(blockNode);
+		declaration_b.setParentNode(blockNode);
+		declaration_c.setParentNode(blockNode);
+		assignment_a1.setParentNode(blockNode);
+		assignment_b1.setParentNode(blockNode);
+		assignment_c1.setParentNode(blockNode);
+		assignment_a2.setParentNode(blockNode);
+		assignment_c2.setParentNode(blockNode);
+		returnNode.setParentNode(blockNode);
+		
 		// analyse AST
 		AST ast = new ASTImpl();
 		ast.setRootNode(blockNode);
@@ -466,7 +476,7 @@ public class M2Tests {
 		literal_long.setLiteral("18121313223");
 		literal_long.setLiteralType(new LongType());
 		LiteralNode literal_double = new LiteralNodeImpl();
-		literal_double.setLiteral("-23.23r-100");
+		literal_double.setLiteral("-23.23e-100");
 		literal_double.setLiteralType(new DoubleType());
 		LiteralNode literal_string = new LiteralNodeImpl();
 		literal_string.setLiteral("jagÄrEttString\"\n");
@@ -487,9 +497,9 @@ public class M2Tests {
 		literal_true.setParentNode(assignment_b);
 		AssignmentNode assignment_l = new AssignmentNodeImpl();
 		assignment_l.setLeftValue(identifier_l1);
-		assignment_l.setRightValue(literal_double);
+		assignment_l.setRightValue(literal_long);
 		identifier_l1.setParentNode(assignment_l);
-		literal_double.setParentNode(assignment_l);
+		literal_long.setParentNode(assignment_l);
 		AssignmentNode assignment_d = new AssignmentNodeImpl();
 		assignment_d.setLeftValue(identifier_d1);
 		assignment_d.setRightValue(literal_double);
