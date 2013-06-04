@@ -332,7 +332,7 @@ public class AssignmentTests {
 
 		// l = 1;
 		BasicIdentifierNode identifier_l = new BasicIdentifierNodeImpl();
-		identifier_l.setIdentifier("b");
+		identifier_l.setIdentifier("l");
 		LiteralNode literal_1_2 = new LiteralNodeImpl();
 		literal_1_2.setLiteral("1");
 		literal_1_2.setLiteralType(new LongType());
@@ -349,6 +349,9 @@ public class AssignmentTests {
 		literal_true.setLiteralType(new BooleanType());
 
 		SymbolTable branchBlockTable = new SymbolTableImpl(symbolTable);
+		branchBlockTable.insert("b", new LongType());
+		branchBlockTable.insert("l", new BooleanType());
+		
 		BlockNode branchBlock = new BlockNodeImpl();
 		branchBlock.addDeclaration(declaration_b2);
 		branchBlock.addDeclaration(declaration_l2);
