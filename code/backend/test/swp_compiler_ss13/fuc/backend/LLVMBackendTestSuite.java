@@ -11,6 +11,7 @@ import org.junit.runners.Suite;
 		LLVMBackendDeclareTest.class,
 		LLVMBackendAssignTest.class,
 		LLVMBackendArithmeticTest.class,
+		LLVMBackendCompareTest.class,
 		LLVMBackendControlAndIOTest.class,
 		ModuleTest.class,
 		BackendRuntimeTest.class
