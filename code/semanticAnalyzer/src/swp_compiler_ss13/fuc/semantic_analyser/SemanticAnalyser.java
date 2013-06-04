@@ -219,7 +219,10 @@ public class SemanticAnalyser {
 	protected void handleNode(BranchNode node, SymbolTable table) {
 		traverseAstNode(node.getCondition(), table);
 		traverseAstNode(node.getStatementNodeOnTrue(), table);
-		traverseAstNode(node.getStatementNodeOnFalse(), table);
+		
+		if (node.getStatementNodeOnFalse() != null) {
+			traverseAstNode(node.getStatementNodeOnFalse(), table);
+		}
 
 		if (!hasAttribute(node.getCondition(), Attribute.TYPE, Type.Kind.BOOLEAN.name())) {
 			errorLog.reportError("The condition must be of type bool.", -1, -1, "TypeError");
