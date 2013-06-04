@@ -81,7 +81,11 @@ public class SemanticAnalyser {
 	}
 
 	public AST analyse(AST ast) {
+		this.attributes.clear();
+		this.initializedIdentifiers.clear();
+		
 		this.traverseAstNode(ast.getRootNode(), ast.getRootSymbolTable());
+		
 		return ast;
 	}
 
