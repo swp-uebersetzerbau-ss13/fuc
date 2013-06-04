@@ -200,8 +200,8 @@ public class SemanticAnalyser {
 
 	protected void handleNode(DoWhileNode node, SymbolTable table) {
 		setAttribute(node, Attribute.CAN_BREAK, CAN_BREAK);
-		traverseAstNode(node.getCondition(), table);
 		traverseAstNode(node.getLoopBody(), table);
+		traverseAstNode(node.getCondition(), table);
 
 		checkLoopNode(node, table);
 	}

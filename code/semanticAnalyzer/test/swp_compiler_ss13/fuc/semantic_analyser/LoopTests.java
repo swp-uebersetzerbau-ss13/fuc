@@ -116,6 +116,7 @@ public class LoopTests {
 
 		BlockNode blockNode = new BlockNodeImpl();
 		blockNode.addDeclaration(declaration_l);
+		blockNode.addStatement(assignment_l1);
 		blockNode.addStatement(whileNode);
 		blockNode.setSymbolTable(symbolTable);
 		declaration_l.setParentNode(blockNode);
@@ -128,6 +129,7 @@ public class LoopTests {
 		analyser.analyse(ast);
 
 		// TODO better error-check
+		System.out.println(log);
 		assertEquals(log.getErrors().size(), 1);
 	}
 
@@ -208,6 +210,7 @@ public class LoopTests {
 		analyser.analyse(ast);
 
 		// TODO better error-check
+		System.out.println(log);
 		assertEquals(log.getErrors().size(), 1);
 	}
 
