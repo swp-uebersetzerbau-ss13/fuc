@@ -37,4 +37,9 @@ public class LogEntry {
 	public ReportType getReportType() {
 		return reportType;
 	}
+
+	@Override
+	public String toString() {
+		return getLogType() + " (" + getReportType() + "): " + getMessage();
+	}
 }

@@ -59,4 +59,20 @@ public class ReportLogImpl implements ReportLog {
 	public List<LogEntry> getEntries() {		
 		return entries;
 	}
+
+	@Override
+	public String toString() {
+		StringBuilder s = new StringBuilder();
+		
+		for (LogEntry e : getEntries()) {
+			s.append(e);
+			s.append("\n");
+		}
+		
+		return s.toString();
+	}
+	
+	public void clear() {
+		entries.clear();
+	}
 }
