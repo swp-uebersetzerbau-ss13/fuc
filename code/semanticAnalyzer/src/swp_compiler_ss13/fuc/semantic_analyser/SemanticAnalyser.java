@@ -59,13 +59,15 @@ public class SemanticAnalyser {
 		 */
 		IDENTIFIER,
 		CAN_BREAK,
-		TYPE_CHECK
+		TYPE_CHECK,
+		CODE_STATE
 	}
 	private static final String IS_NOT_INITIALIZED = "0";
 	private static final String IS_INITIALIZED = "1";
 	private static final String NO_ATTRIBUTE_VALUE = "no Value";
 	private static final String CAN_BREAK = "true";
 	private static final String TYPE_MISMATCH = "type mismatch";
+	private static final String DEAD_CODE = "dead";
 	private final ReportLog errorLog;
 	private final Map<ASTNode, Map<Attribute, String>> attributes;
 	/**
@@ -327,7 +329,7 @@ public class SemanticAnalyser {
 		if (!hasAttribute(node, Attribute.TYPE_CHECK, TYPE_MISMATCH)) {
 			if (!isBool(getType(node))) {
 				setAttribute(node, Attribute.TYPE_CHECK, TYPE_MISMATCH);
-				errorLog.reportError(ReportType.TYPE_MISMATCH, node.coverage(), "Operator expects boolean operands.");
+				errorLog.reportError(ReportType.TYPE_MISMATCH, node.coverage(), "Operator expects boolean operands");
 			}
 		}
 	}
@@ -355,6 +357,10 @@ public class SemanticAnalyser {
 		SymbolTable blockScope = node.getSymbolTable();
 
 		for (StatementNode child : node.getStatementList()) {
+			if (hasAttribute(node, Attribute.CODE_STATE, DEAD_CODE)) {
+				errorLog.reportError(ReportType.UNDEFINED, child.coverage(), "Unreachable statement.");
+			}
+			
 			this.traverseAstNode(child, blockScope);
 		}
 	}
@@ -396,7 +402,7 @@ public class SemanticAnalyser {
 		 * checks
 		 */
 		if (node.getParentNode().getNodeType() != ASTNode.ASTNodeType.AssignmentNode && !initialzed) {
-			errorLog.reportWarning(ReportType.UNDEFINED, node.coverage(), "May be used without initialization.");
+			errorLog.reportWarning(ReportType.UNDEFINED, node.coverage(), "Variable “" + identifier + "” may be used without initialization.");
 		}
 	}
 
@@ -410,6 +416,8 @@ public class SemanticAnalyser {
 				errorLog.reportError(ReportType.TYPE_MISMATCH, node.coverage(), "Only variables of type long can be returned.");
 			}
 		}
+		
+		setAttribute(node.getParentNode(), Attribute.CODE_STATE, DEAD_CODE);
 	}
 
 	private boolean isInitialized(SymbolTable table, String identifier) {
