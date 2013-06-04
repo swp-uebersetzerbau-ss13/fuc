@@ -77,10 +77,10 @@ public class M1ErrorTest {
 				"long bar;\n" +
 				"foo = 3;\n" +
 				"bar = foo ++ 1;";
-		String undefReturn = "" +
-				"# error: id spam is not initialized and returned\n" +
-				"long spam;\n" +
-				"return spam;";
+//		String undefReturn = "" +
+//				"# error: id spam is not initialized and returned\n" +
+//				"long spam;\n" +
+//				"return spam;";
 
 		return Arrays.asList(new Object[][] {
 				/* mask: {testName, progCode, expectedReportLogError} */
@@ -88,8 +88,8 @@ public class M1ErrorTest {
 						"The variable 'i' of type 'LongType' has been declared twice!" },
 				{ "invalidIds", invalidIds, "Found undefined token 'foo$bar'!" },
 				{ "multipleMinusENotation", multipleMinusENotation, "Found undefined token '10e----1'!" },
-				{ "multiplePlusesInExp", multiplePlusesInExp, "Found undefined token '++'!" },
-				{ "undefReturn", undefReturn, "NotInitializedException" } });
+				{ "multiplePlusesInExp", multiplePlusesInExp, "Found undefined token '++'!" } });
+//				{ "undefReturn", undefReturn, "NotInitializedException" } });
 	}
 
 	@BeforeClass

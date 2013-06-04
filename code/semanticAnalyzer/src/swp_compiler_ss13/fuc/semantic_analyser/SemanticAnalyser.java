@@ -24,12 +24,14 @@ import swp_compiler_ss13.common.ast.nodes.unary.ArithmeticUnaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ReturnNode;
 import swp_compiler_ss13.common.parser.ReportLog;
 import swp_compiler_ss13.common.parser.SymbolTable;
+import swp_compiler_ss13.common.types.Type;
 
 public class SemanticAnalyser {
 
 	private static Logger logger = Logger.getLogger(SemanticAnalyser.class);
 
 	enum Attribute {
+
 		/**
 		 * num, basic, array,...
 		 */
@@ -37,25 +39,22 @@ public class SemanticAnalyser {
 		/**
 		 * <code>"1"</code> - identifier is initialized,<br/>
 		 * <code>"0"</code> - identifier is not initialized
-		 * 
+		 *
 		 * @see ExpressionNode
 		 */
 		INITIALIZATION_STATUS,
 		/**
 		 * name of identifier
-		 * 
+		 *
 		 * @see IdentifierNode
 		 */
 		IDENTIFIER,
-		
 		CAN_BREAK
 	}
-
 	private static final String IS_NOT_INITIALIZED = "0";
 	private static final String IS_INITIALIZED = "1";
 	private static final String NO_ATTRIBUTE_VALUE = "no Value";
 	private static final String CAN_BREAK = "true";
-
 	private final ReportLog errorLog;
 	private final Map<ASTNode, Map<Attribute, String>> attributes;
 	private final Map<SymbolTable, Set<String>> initializations;
@@ -73,76 +72,76 @@ public class SemanticAnalyser {
 
 	protected void traverseAstNode(ASTNode node, SymbolTable table) {
 		switch (node.getNodeType()) {
-		case BasicIdentifierNode:
-			logger.trace("handle BasicIdentifierNode");
-			this.handleNode((BasicIdentifierNode) node, table);
-			break;
-		case BreakNode:
-			this.handleNode((BreakNode) node, table);
-			break;
-		case LiteralNode:
-			logger.trace("handle LiteralNode");
-			this.handleNode((LiteralNode) node, table);
-			break;
-		case ArithmeticUnaryExpressionNode:
-			logger.trace("handle ArithmeticUnaryExpressionNode");
-			this.handleNode((ArithmeticUnaryExpressionNode) node, table);
-			break;
-		case ArrayIdentifierNode:
-			break;
-		case DeclarationNode:
-			break;
-		case LogicUnaryExpressionNode:
-			break;
-		case PrintNode:
-			break;
-		case ReturnNode:
-			logger.trace("handle ReturnNode");
-			this.handleNode((ReturnNode) node, table);
-			break;
-		case StructIdentifierNode:
-			break;
-		case ArithmeticBinaryExpressionNode:
-			logger.trace("handle ArithmeticBinaryExpressionNode");
-			this.handleNode((ArithmeticBinaryExpressionNode) node, table);
-			break;
-		case AssignmentNode:
-			logger.trace("handle AssignmentNode");
-			this.handleNode((AssignmentNode) node, table);
-			break;
-		case DoWhileNode:
-			handleNode((DoWhileNode) node, table);
-			break;
-		case LogicBinaryExpressionNode:
-			break;
-		case RelationExpressionNode:
-			break;
-		case WhileNode:
-			handleNode((WhileNode) node, table);
-			break;
-		case BranchNode:
-			break;
-		case BlockNode:
-			logger.trace("handle BlockNode");
-			this.handleNode((BlockNode) node);
-			break;
-		default:
-			throw new IllegalArgumentException("unknown ASTNodeType");
+			case BasicIdentifierNode:
+				logger.trace("handle BasicIdentifierNode");
+				this.handleNode((BasicIdentifierNode) node, table);
+				break;
+			case BreakNode:
+				this.handleNode((BreakNode) node, table);
+				break;
+			case LiteralNode:
+				logger.trace("handle LiteralNode");
+				this.handleNode((LiteralNode) node, table);
+				break;
+			case ArithmeticUnaryExpressionNode:
+				logger.trace("handle ArithmeticUnaryExpressionNode");
+				this.handleNode((ArithmeticUnaryExpressionNode) node, table);
+				break;
+			case ArrayIdentifierNode:
+				break;
+			case DeclarationNode:
+				break;
+			case LogicUnaryExpressionNode:
+				break;
+			case PrintNode:
+				break;
+			case ReturnNode:
+				logger.trace("handle ReturnNode");
+				this.handleNode((ReturnNode) node, table);
+				break;
+			case StructIdentifierNode:
+				break;
+			case ArithmeticBinaryExpressionNode:
+				logger.trace("handle ArithmeticBinaryExpressionNode");
+				this.handleNode((ArithmeticBinaryExpressionNode) node, table);
+				break;
+			case AssignmentNode:
+				logger.trace("handle AssignmentNode");
+				this.handleNode((AssignmentNode) node, table);
+				break;
+			case DoWhileNode:
+				handleNode((DoWhileNode) node, table);
+				break;
+			case LogicBinaryExpressionNode:
+				break;
+			case RelationExpressionNode:
+				break;
+			case WhileNode:
+				handleNode((WhileNode) node, table);
+				break;
+			case BranchNode:
+				break;
+			case BlockNode:
+				logger.trace("handle BlockNode");
+				this.handleNode((BlockNode) node);
+				break;
+			default:
+				throw new IllegalArgumentException("unknown ASTNodeType");
 		}
 	}
-	
+
 	protected void handleNode(LiteralNode node, SymbolTable table) {
 		this.setAttribute(node, Attribute.INITIALIZATION_STATUS, IS_INITIALIZED);
 	}
-	
+
 	protected void handleNode(DoWhileNode node, SymbolTable table) {
 		this.setAttribute(node, Attribute.CAN_BREAK, CAN_BREAK);
 	}
-	
+
 	protected void handleNode(WhileNode node, SymbolTable table) {
 		this.setAttribute(node, Attribute.CAN_BREAK, CAN_BREAK);
 	}
-	
+
 	protected void handleNode(BreakNode node, SymbolTable table) {
 		if (!getAttribute(node.getParentNode(), Attribute.CAN_BREAK).equals(CAN_BREAK)) {
 			errorLog.reportError("Break can only be used in a loop.", -1, -1, "BreakOutsideLoop");
@@ -181,31 +180,40 @@ public class SemanticAnalyser {
 	}
 
 	protected void handleNode(BasicIdentifierNode node, SymbolTable table) {
-		this.setAttribute(node, Attribute.IDENTIFIER, node.getIdentifier());
-		this.setAttribute(node, Attribute.INITIALIZATION_STATUS, this.isInitialized(
-				table.getDeclaringSymbolTable(node.getIdentifier()), node.getIdentifier()) ? IS_INITIALIZED
-				: IS_NOT_INITIALIZED);
+		setAttribute(node, Attribute.IDENTIFIER, node.getIdentifier());
+		setAttribute(node, Attribute.INITIALIZATION_STATUS,
+			isInitialized(table.getDeclaringSymbolTable(node.getIdentifier()), node.getIdentifier())
+			? IS_INITIALIZED : IS_NOT_INITIALIZED);
+
+		setAttribute(node, Attribute.TYPE, table.lookupType(node.getIdentifier()).getKind().name());
 	}
 
 	protected void handleNode(ReturnNode node, SymbolTable table) {
 		IdentifierNode identifier = node.getRightValue();
-		this.traverseAstNode(identifier, table);
-		this.checkInitialization(identifier);
+
+		if (identifier != null) {
+			traverseAstNode(identifier, table);
+			checkInitialization(identifier);
+
+			if (!getAttribute(identifier, Attribute.TYPE).equals(Type.Kind.LONG.name())) {
+				errorLog.reportError("Only variables of type long can be returned.", -1, -1, "TypeError");
+			}
+		}
 	}
 
 	private void checkInitialization(ExpressionNode identifier) {
 		switch (this.getAttribute(identifier, Attribute.INITIALIZATION_STATUS)) {
-		case IS_NOT_INITIALIZED:
-			this.errorLog.reportError("Variable " + this.getAttribute(identifier, Attribute.IDENTIFIER)
-					+ " is not initialized", -1, -1, "NotInitializedException");
-			break;
-		case IS_INITIALIZED:
-			break;
-		default:
-			IllegalStateException e = new IllegalStateException(
+			case IS_NOT_INITIALIZED:
+//				this.errorLog.reportError("Variable " + this.getAttribute(identifier, Attribute.IDENTIFIER)
+//					+ " is not initialized", -1, -1, "NotInitializedException");
+				break;
+			case IS_INITIALIZED:
+				break;
+			default:
+				IllegalStateException e = new IllegalStateException(
 					"child node has no initialization information");
-			logger.error("couldn't check initialization of node", e);
-			throw e;
+				logger.error("couldn't check initialization of node", e);
+				throw e;
 		}
 	}
 
