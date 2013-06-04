@@ -44,7 +44,8 @@ class AST_LayoutManager implements LayoutManager {
 		case ARROWS:
 			if (arrows != null) {
 				throw new IllegalStateException("Layout manager has already an arrow panel");
-			} else if (comp instanceof Arrow_Panel) {
+			} 
+			if (comp instanceof Arrow_Panel) {
 				arrows = (Arrow_Panel) comp;
 				break;
 			} else {
@@ -68,7 +69,7 @@ class AST_LayoutManager implements LayoutManager {
 	@Override
 	public Dimension preferredLayoutSize(Container parent) {
 		Insets insets = parent.getInsets();
-		setSizes(parent);
+		setSizes();
 		return new Dimension(preferredWidth + insets.left + insets.right, preferredHeight
 				+ insets.bottom + insets.top);
 	}
@@ -76,7 +77,7 @@ class AST_LayoutManager implements LayoutManager {
 	@Override
 	public Dimension minimumLayoutSize(Container parent) {
 		Insets insets = parent.getInsets();
-		setSizes(parent);
+		setSizes();
 		return new Dimension(minWidth + insets.left + insets.right, minHeight + insets.bottom
 				+ insets.top);
 	}
@@ -90,7 +91,7 @@ class AST_LayoutManager implements LayoutManager {
 		int arrowsLeft = Integer.MAX_VALUE;
 		int arrowsRight = Integer.MIN_VALUE;
 		if (buttonComponent != null) {
-			setSizes(parent);
+			setSizes();
 			Dimension dim = buttonComponent.getPreferredSize();
 			int buttonBottom = y + dim.height;
 			buttonComponent.setBounds(buttonMiddle - dim.width / 2, y, dim.width, dim.height);
@@ -106,8 +107,10 @@ class AST_LayoutManager implements LayoutManager {
 					arrowsLeft = x + dim.width / 2;
 				}
 				arrowsRight = x + dim.width / 2;
-				arrows.addArrow(buttonMiddle - arrowsLeft + 2, 0, arrowsRight - arrowsLeft + 2, y
-						- buttonBottom);
+				if (arrows != null) {
+					arrows.addArrow(buttonMiddle - arrowsLeft + 2, 0, arrowsRight - arrowsLeft + 2,
+							y - buttonBottom);
+				}
 				x += dim.width + HGAP;
 			}
 			if (arrows != null && arrowsLeft < Integer.MAX_VALUE) {
@@ -118,7 +121,7 @@ class AST_LayoutManager implements LayoutManager {
 		}
 	}
 
-	private void setSizes(Container parent) {
+	private void setSizes() {
 		Dimension dimension = null;
 
 		// Reset preferred/minimum width and height.

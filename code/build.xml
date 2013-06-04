@@ -32,9 +32,11 @@
 		<ant antfile="build.xml" dir="${errorLog.dir}" target="clean" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.token.dir}" target="clean" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.gui.ide.dir}" target="clean" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.gui.ide.source.dir}" target="clean" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.gui.ide.text.dir}" target="clean" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.gui.ide.ast.dir}" target="clean" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.gui.ide.text.token.dir}" target="clean" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.gui.ide.text.tac.dir}" target="clean" inheritall="false" />
 	</target>
 	
 	<!-- === build all projects === -->
@@ -56,9 +58,11 @@
 		<ant antfile="build.xml" dir="${errorLog.dir}" target="build" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.token.dir}" target="build" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.gui.ide.dir}" target="build" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.gui.ide.source.dir}" target="build" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.gui.ide.text.dir}" target="build" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.gui.ide.ast.dir}" target="build" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.gui.ide.text.token.dir}" target="build" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.gui.ide.text.tac.dir}" target="build" inheritall="false" />
 	</target>
 	
 	<!-- === doc all projects === -->
@@ -80,9 +84,11 @@
 		<ant antfile="build.xml" dir="${errorLog.dir}" target="doc" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.token.dir}" target="doc" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.gui.ide.dir}" target="doc" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.gui.ide.source.dir}" target="doc" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.gui.ide.text.dir}" target="doc" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.gui.ide.ast.dir}" target="doc" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.gui.ide.text.token.dir}" target="doc" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.gui.ide.text.tac.dir}" target="doc" inheritall="false" />
 	</target>
 	
 	<!-- === build all tests === -->
@@ -229,9 +235,15 @@
 			<!-- <zipfileset dir="${dist.dir}/temp" includes="swp_compiler_ss13.fuc.gui.ide.mvc.Controller" fullpath="META-INF/services/swp_compiler_ss13.fuc.gui.ide.mvc.Controller" /> -->
 		</jar>
 		
+		<!-- create the visu-gui-ide-source package -->
+		<echo message="swp_compiler_ss13.fuc.gui.sourcecode.SourceCodeController" file="${dist.dir}/temp/swp_compiler_ss13.fuc.gui.ide.mvc.Controller" />
+		<jar destfile="${dist.dir}/Fuc-Gui-Ide-SourceCode.jar" basedir="${visu.gui.ide.source.dir}/${bin.dir}" >
+			<zipfileset dir="${dist.dir}/temp" includes="swp_compiler_ss13.fuc.gui.ide.mvc.Controller" fullpath="META-INF/services/swp_compiler_ss13.fuc.gui.ide.mvc.Controller" />
+		</jar>
+		
 		<!-- create the visu-gui-ide-ast package -->
 		<echo message="swp_compiler_ss13.fuc.gui.ast.AST_Controller" file="${dist.dir}/temp/swp_compiler_ss13.fuc.gui.ide.mvc.Controller" />
-		<jar destfile="${dist.dir}/Fuc-Gui-Ide-Ast.jar" basedir="${visu.gui.ide.ast.dir}/${bin.dir}" >
+		<jar destfile="${dist.dir}/Fuc-Gui-Ide-Ast.jar" basedir="${visu.gui.ide.ast.dir}/${bin.dir}">
 			<zipfileset dir="${dist.dir}/temp" includes="swp_compiler_ss13.fuc.gui.ide.mvc.Controller" fullpath="META-INF/services/swp_compiler_ss13.fuc.gui.ide.mvc.Controller" />
 		</jar>
 		
@@ -240,6 +252,13 @@
 		<jar destfile="${dist.dir}/Fuc-Gui-Ide-Text-Token.jar" basedir="${visu.gui.ide.text.token.dir}/${bin.dir}">
 			<zipfileset dir="${dist.dir}/temp" includes="swp_compiler_ss13.fuc.gui.ide.mvc.Controller" fullpath="META-INF/services/swp_compiler_ss13.fuc.gui.ide.mvc.Controller" />
 		</jar>
+		
+		<!-- create the visu-gui-ide-text-token package -->
+		<echo message="swp_compiler_ss13.fuc.gui.text.tac.TextGUITacVisualizationController" file="${dist.dir}/temp/swp_compiler_ss13.fuc.gui.ide.mvc.Controller" />
+		<jar destfile="${dist.dir}/Fuc-Gui-Ide-Text-Tac.jar" basedir="${visu.gui.ide.text.tac.dir}/${bin.dir}">
+			<zipfileset dir="${dist.dir}/temp" includes="swp_compiler_ss13.fuc.gui.ide.mvc.Controller" fullpath="META-INF/services/swp_compiler_ss13.fuc.gui.ide.mvc.Controller" />
+		</jar>
+		
 		<delete dir="${dist.dir}/temp" />
 		
 		<copy todir="${dist.dir}/${lib.dir}" >  

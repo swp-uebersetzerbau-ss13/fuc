@@ -1,6 +1,9 @@
 package swp_compiler_ss13.fuc.gui.text.token;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import swp_compiler_ss13.common.lexer.Token;
@@ -13,7 +16,7 @@ import swp_compiler_ss13.fuc.gui.text.Text_Model;
 
 /**
  * @author "Eduard Wolf"
- *
+ * 
  */
 public class TextGUITokenVisualizationModel extends Text_Model {
 
@@ -92,18 +95,26 @@ public class TextGUITokenVisualizationModel extends Text_Model {
 	}
 
 	@Override
-	protected StringColourPair tokenToViewInformation(Token token) {
-		if (token == null) {
-			return new StringColourPair();
+	protected List<StringColourPair> tokenToViewInformation(List<Token> tokens) {
+		if (tokens == null) {
+			return new ArrayList<>(Arrays.asList(new StringColourPair()));
 		}
-		String text = "";
-		if (token.getTokenType() == TokenType.NUM || token.getTokenType() == TokenType.REAL
-				|| token.getTokenType() == TokenType.ID) {
-			text += "<" + token.getTokenType() + ", " + token.getValue() + ">\n";
-		} else {
-			text += "<" + token.getValue() + ">\n";
+		List<StringColourPair> result = new ArrayList<>();
+		Integer line = tokens.get(0).getLine();
+		String text;
+		for (Token token : tokens) {
+			text = token.getLine().equals(line) ? "" : "\n";
+			line = token.getLine();
+			if (token.getTokenType() == TokenType.NUM || token.getTokenType() == TokenType.REAL
+					|| token.getTokenType() == TokenType.ID) {
+				text += "<" + token.getTokenType() + ", " + token.getValue() + ">";
+			} else {
+				text += "<" + token.getValue() + ">";
+			}
+			result.add(new StringColourPair().setText(text).setColor(
+					tokenColor.get(token.getTokenType())));
 		}
-		return new StringColourPair().setText(text).setColor(tokenColor.get(token.getTokenType()));
+		return result;
 	}
 
 }
