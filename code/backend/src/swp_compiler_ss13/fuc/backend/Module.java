@@ -521,7 +521,8 @@ public class Module
 	 * All types must be identical.
 	 *
 	 * @param op the binary operation to add
-	 * @param type the type of the binary operation
+	 * @param resultType  the result type of the binary operation
+	 * @param argumentType the argument type of the binary operation
 	 * @param lhs the constant or name of the variable on the left hand side
 	 * @param rhs the constant or name of the variable on the right hand side
 	 * @param dst the destination variable's name
