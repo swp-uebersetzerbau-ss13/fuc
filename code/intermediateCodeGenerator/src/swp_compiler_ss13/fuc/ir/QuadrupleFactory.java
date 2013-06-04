@@ -214,6 +214,12 @@ public class QuadrupleFactory {
 			case LONG:
 				quadruples.add(new QuadrupleImpl(Operator.ARRAY_SET_LONG, to, "#" + toIndex, from));
 				break;
+			case BOOLEAN:
+				quadruples.add(new QuadrupleImpl(Operator.ARRAY_SET_BOOLEAN, to, "#" + toIndex, from));
+				break;
+			case STRING:
+				quadruples.add(new QuadrupleImpl(Operator.ARRAY_SET_STRING, to, "#" + toIndex, from));
+				break;
 			default:
 				throw new IntermediateCodeGeneratorException("Unsupport assignment type");
 			}
@@ -225,6 +231,12 @@ public class QuadrupleFactory {
 			case LONG:
 				quadruples.add(new QuadrupleImpl(Operator.ARRAY_GET_LONG, from, "#" + fromIndex, to));
 				break;
+			case BOOLEAN:
+				quadruples.add(new QuadrupleImpl(Operator.ARRAY_GET_BOOLEAN, from, "#" + fromIndex, to));
+				break;
+			case STRING:
+				quadruples.add(new QuadrupleImpl(Operator.ARRAY_GET_STRING, from, "#" + fromIndex, to));
+				break;
 			default:
 				throw new IntermediateCodeGeneratorException("Unsupport assignment type");
 			}
@@ -235,6 +247,12 @@ public class QuadrupleFactory {
 				break;
 			case LONG:
 				quadruples.add(new QuadrupleImpl(Operator.ASSIGN_LONG, from, Quadruple.EmptyArgument, to));
+				break;
+			case STRING:
+				quadruples.add(new QuadrupleImpl(Operator.ASSIGN_STRING, from, Quadruple.EmptyArgument, to));
+				break;
+			case BOOLEAN:
+				quadruples.add(new QuadrupleImpl(Operator.ASSIGN_BOOLEAN, from, Quadruple.EmptyArgument, to));
 				break;
 			default:
 				throw new IntermediateCodeGeneratorException("Unsupport assignment type");

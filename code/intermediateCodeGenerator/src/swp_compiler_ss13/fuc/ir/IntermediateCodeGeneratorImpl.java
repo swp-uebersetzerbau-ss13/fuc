@@ -434,7 +434,7 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 		case BOOLEAN:
 			// Literal of type Long or Double needs to start with a # to mark it
 			// as a constant
-			this.intermediateResults.push(new IntermediateResult("#" + literal, type));
+			this.intermediateResults.push(new IntermediateResult("#" + literal.toUpperCase(), type));
 			break;
 		case STRING:
 			// Literal of type String needs to be in " and start with a #

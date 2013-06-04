@@ -15,7 +15,7 @@ import swp_compiler_ss13.common.types.primitive.LongType;
 import swp_compiler_ss13.fuc.ast.ASTFactory;
 import swp_compiler_ss13.fuc.ir.IntermediateCodeGeneratorImpl;
 
-public class assignmentProg {
+public class AssignmentProgTest {
 
 	private AST ast;
 
@@ -49,13 +49,13 @@ public class assignmentProg {
 						astf.newBasicIdentifier("c")));
 		astf.addReturn(astf.newBasicIdentifier("c"));
 
-		ast = astf.getAST();
+		this.ast = astf.getAST();
 	}
 
 	@Test
 	public void test() throws IntermediateCodeGeneratorException {
 		IntermediateCodeGeneratorImpl irg = new IntermediateCodeGeneratorImpl();
-		List<Quadruple> irc = irg.generateIntermediateCode(ast);
+		List<Quadruple> irc = irg.generateIntermediateCode(this.ast);
 
 		StringBuilder actual = new StringBuilder();
 		for (Quadruple q : irc) {
@@ -64,7 +64,7 @@ public class assignmentProg {
 		}
 		System.out.println(actual);
 
-		String expected = "" + "DECLARE_LONG|!|!|a)" + "\n"
+		String expected = "" + "(DECLARE_LONG|!|!|a)" + "\n"
 				+ "(DECLARE_LONG|!|!|b)" + "\n" + "(DECLARE_LONG|!|!|c)" + "\n"
 				+ "(ASSIGN_LONG|#4|!|a)" + "\n" + "(ASSIGN_LONG|#3|!|b)" + "\n"
 				+ "(ASSIGN_LONG|#2|!|c)" + "\n" + "(ASSIGN_LONG|#4|!|b)" + "\n"
@@ -73,6 +73,6 @@ public class assignmentProg {
 				+ "(DECLARE_LONG|!|!|tmp1)" + "\n" + "(ADD_LONG|tmp0|c|tmp1)"
 				+ "\n" + "(ASSIGN_LONG|tmp1|!|c)" + "\n" + "(RETURN|c|!|!)"
 				+ "\n";
-		assertEquals(expected, actual);
+		assertEquals(expected, actual.toString());
 	}
 }
