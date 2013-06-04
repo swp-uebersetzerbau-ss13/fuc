@@ -19,8 +19,9 @@ import swp_compiler_ss13.common.ast.nodes.leaf.LiteralNode;
 import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ArithmeticUnaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ReturnNode;
-import swp_compiler_ss13.common.parser.ReportLog;
+import swp_compiler_ss13.common.report.ReportLog;
 import swp_compiler_ss13.common.parser.SymbolTable;
+import swp_compiler_ss13.common.report.ReportType;
 
 public class SemanticAnalyser {
 
@@ -173,8 +174,8 @@ public class SemanticAnalyser {
 	private void checkInitialization(ExpressionNode identifier) {
 		switch (this.getAttribute(identifier, Attribute.INITIALIZATION_STATUS)) {
 		case IS_NOT_INITIALIZED:
-			this.errorLog.reportError("Variable " + this.getAttribute(identifier, Attribute.IDENTIFIER)
-					+ " is not initialized", -1, -1, "NotInitializedException");
+			this.errorLog.reportError(ReportType.UNDEFINED, null, "Variable " + this.getAttribute(identifier, Attribute.IDENTIFIER)
+					+ " is not initialized");
 			break;
 		case IS_INITIALIZED:
 			break;

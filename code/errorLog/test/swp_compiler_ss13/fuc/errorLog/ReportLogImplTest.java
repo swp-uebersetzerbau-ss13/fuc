@@ -1,10 +1,11 @@
-package swp_compiler_ss13.fuc.parser.errorHandling;
+package swp_compiler_ss13.fuc.errorLog;
 
 import static org.junit.Assert.fail;
 
 import java.util.List;
 
 import org.junit.Test;
+import swp_compiler_ss13.common.report.ReportType;
 
 public class ReportLogImplTest {
     /**
@@ -15,7 +16,7 @@ public class ReportLogImplTest {
         System.out.println("reportError");
 		
         ReportLogImpl instance = new ReportLogImpl();
-        instance.reportError("Body of While-Loop", 2, 5, "Assignment expects a lvalue.");
+        instance.reportError(ReportType.UNDEFINED, null, "Assignment expects a lvalue.");
     }
 
     /**
@@ -30,7 +31,7 @@ public class ReportLogImplTest {
 			fail("Exptected: hasErrors = false.");
 		}
 		
-        instance.reportError("Body of While-Loop", 2, 5, "Assignment expects a lvalue.");
+        instance.reportError(ReportType.UNDEFINED, null, "Assignment expects a lvalue.");
 		
 		if (!instance.hasErrors()) {
 			fail("Exptected: hasErrors = true.");
@@ -50,8 +51,8 @@ public class ReportLogImplTest {
 			fail("Exptected: errors.size = 0.");
 		}
 		
-        instance.reportError("Body of While-Loop", 2, 5, "Assignment expects a lvalue.");
-		List<Error> l = instance.getErrors();
+        instance.reportError(ReportType.UNDEFINED, null, "Assignment expects a lvalue.");
+		List<LogEntry> l = instance.getErrors();
 		
 		if (l.size() != 1) {
 			fail("Exptected: errors.size = 1.");
