@@ -325,8 +325,8 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 			break;
 		case INEQUAL:
 			String tmp = this.createAndSaveTemporaryIdentifier(new BooleanType());
-			this.irCode.add(QuadrupleFactory.booleanArithmetic(UnaryOperator.LOGICAL_NEGATE, castedleft, tmp));
-			this.irCode.add(QuadrupleFactory.relationEqual(tmp, castedright, result, type));
+			this.irCode.add(QuadrupleFactory.relationEqual(castedleft, castedright, tmp, type));
+			this.irCode.add(QuadrupleFactory.booleanArithmetic(UnaryOperator.LOGICAL_NEGATE, tmp, result));
 			break;
 		case LESSTHAN:
 			this.irCode.add(QuadrupleFactory.relationLess(castedleft, castedright, result, type));
