@@ -44,6 +44,8 @@ import javax.swing.event.ChangeListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 
+import org.apache.log4j.Logger;
+
 import swp_compiler_ss13.common.backend.Backend;
 import swp_compiler_ss13.common.ir.IntermediateCodeGenerator;
 import swp_compiler_ss13.common.lexer.Lexer;
@@ -98,6 +100,7 @@ public class FucIdeView extends JFrame {
 	private JLabel lblErrorReport;
 	private JScrollPane scrollPane_1;
 	private JList<String> errorReportList;
+	private Logger logger = Logger.getLogger(FucIdeView.class);
 
 	/**
 	 * Create the frame.
@@ -359,10 +362,14 @@ public class FucIdeView extends JFrame {
 
 	public void clearTabs() {
 		this.componentTabs.removeAll();
+		this.componentTabs.revalidate();
+		this.componentTabs.repaint();
 	}
 
 	public void addTab(String name, JComponent c) {
 		this.componentTabs.add(name, c);
+		this.componentTabs.revalidate();
+		this.componentTabs.repaint();
 
 	}
 
@@ -371,23 +378,34 @@ public class FucIdeView extends JFrame {
 			this.menuBar.remove(m);
 		}
 		this.customMenus.clear();
+		this.menuBar.revalidate();
+		this.menuBar.repaint();
 	}
 
 	public void addMenu(FucIdeMenu menu) {
 		this.menuBar.add(menu.getMenu());
 		this.customMenus.add(menu.getMenu());
+		this.menuBar.revalidate();
+		this.menuBar.repaint();
 	}
 
 	public void clearButtons() {
 		for (JButton b : this.customButtons) {
+			this.logger.info("Removing the button " + b.getText());
 			this.buttonPanel.remove(b);
+			b.revalidate();
 		}
 		this.customButtons.clear();
+		this.buttonPanel.revalidate();
+		this.buttonPanel.repaint();
 	}
 
 	public void addButton(FucIdeButton button) {
+		this.logger.info("Adding the button " + button.getButton().getText());
 		this.buttonPanel.add(button.getButton());
 		this.customButtons.add(button.getButton());
+		this.buttonPanel.revalidate();
+		this.buttonPanel.repaint();
 	}
 
 	public void clearLabels() {
@@ -395,15 +413,23 @@ public class FucIdeView extends JFrame {
 			this.statusPanel.remove(l);
 		}
 		this.customLabels.clear();
+		this.statusPanel.revalidate();
+		this.statusPanel.repaint();
 	}
 
 	public void addLabel(FucIdeStatusLabel label) {
 		this.statusPanel.add(label.getLabel());
 		this.customLabels.add(label.getLabel());
+		this.statusPanel.revalidate();
+		this.statusPanel.repaint();
 	}
 
 	public boolean isFirstTab(FucIdeTab t) {
-		return this.componentTabs.getComponentAt(0) == t.getComponent();
+		try {
+			return this.componentTabs.getComponentAt(0) == t.getComponent();
+		} catch (IndexOutOfBoundsException e) {
+			return false;
+		}
 	}
 
 	public boolean isCurrentTab(FucIdeTab t) {
@@ -426,9 +452,11 @@ public class FucIdeView extends JFrame {
 
 	public void clearErrorLog() {
 		this.errorReportList.setModel(new DefaultListModel<String>());
+		this.errorReportList.revalidate();
 	}
 
 	public void addErrorLog(String msg) {
 		((DefaultListModel<String>) this.errorReportList.getModel()).addElement(msg);
+		this.errorReportList.revalidate();
 	}
 }

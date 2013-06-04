@@ -184,19 +184,43 @@ public class FucIdeController {
 		FucIdeMenu[] menus = this.model.getMenus().toArray(new FucIdeMenu[] {});
 		Arrays.sort(menus);
 
-		this.view.clearMenus();
-		for (FucIdeMenu menu : menus) {
-			this.view.addMenu(menu);
+		SwingUtilities.invokeLater(new Runnable() {
+
+			@Override
+			public void run() {
+				FucIdeController.this.view.clearMenus();
+			}
+		});
+		for (final FucIdeMenu menu : menus) {
+
+			SwingUtilities.invokeLater(new Runnable() {
+
+				@Override
+				public void run() {
+					FucIdeController.this.view.addMenu(menu);
+				}
+			});
 		}
 	}
 
 	public void notifyModelAddedButton() {
 		FucIdeButton[] buttons = this.model.getButtons().toArray(new FucIdeButton[] {});
 		Arrays.sort(buttons);
+		SwingUtilities.invokeLater(new Runnable() {
 
-		this.view.clearButtons();
-		for (FucIdeButton button : buttons) {
-			this.view.addButton(button);
+			@Override
+			public void run() {
+				FucIdeController.this.view.clearButtons();
+			}
+		});
+		for (final FucIdeButton button : buttons) {
+			SwingUtilities.invokeLater(new Runnable() {
+
+				@Override
+				public void run() {
+					FucIdeController.this.view.addButton(button);
+				}
+			});
 		}
 	}
 
@@ -204,28 +228,60 @@ public class FucIdeController {
 		FucIdeStatusLabel[] labels = this.model.getLabels().toArray(new FucIdeStatusLabel[] {});
 		Arrays.sort(labels);
 
-		this.view.clearLabels();
-		for (FucIdeStatusLabel label : labels) {
-			this.view.addLabel(label);
+		SwingUtilities.invokeLater(new Runnable() {
+
+			@Override
+			public void run() {
+				FucIdeController.this.view.clearLabels();
+			}
+		});
+		for (final FucIdeStatusLabel label : labels) {
+			SwingUtilities.invokeLater(new Runnable() {
+
+				@Override
+				public void run() {
+					FucIdeController.this.view.addLabel(label);
+				}
+			});
 		}
 	}
 
 	public void notifyModelTab() {
 		FucIdeTab[] tabs = this.model.getTabs().toArray(new FucIdeTab[] {});
 		Arrays.sort(tabs);
+		SwingUtilities.invokeLater(new Runnable() {
 
-		this.view.clearTabs();
-		for (FucIdeTab tab : tabs) {
+			@Override
+			public void run() {
+
+				FucIdeController.this.view.clearTabs();
+			}
+		});
+		for (final FucIdeTab tab : tabs) {
 			logger.info("adding tab " + tab.getName());
-			this.view.addTab(tab.getName(), tab.getComponent());
+			SwingUtilities.invokeLater(new Runnable() {
+
+				@Override
+				public void run() {
+					FucIdeController.this.view.addTab(tab.getName(), tab.getComponent());
+				}
+			});
 		}
+
 	}
 
 	private void setUpInitialState() {
-		for (FucIdeTab t : this.model.getTabs()) {
+		for (final FucIdeTab t : this.model.getTabs()) {
 			if (this.view.isFirstTab(t)) {
-				this.updateStatus(t.getPosition());
-				this.view.showFirstTab();
+				SwingUtilities.invokeLater(new Runnable() {
+
+					@Override
+					public void run() {
+						FucIdeController.this.updateStatus(t.getPosition());
+						FucIdeController.this.view.showFirstTab();
+					}
+
+				});
 				break;
 			}
 		}
@@ -264,16 +320,26 @@ public class FucIdeController {
 			}
 		}
 
+		this.view.invalidate();
+
 	}
 
 	public void tabChanged() {
-		for (FucIdeTab t : this.model.getTabs()) {
+		for (final FucIdeTab t : this.model.getTabs()) {
 			if (this.view.isCurrentTab(t)) {
 				this.model.setActiveTab(t);
-				this.updateStatus(t.getPosition());
+				SwingUtilities.invokeLater(new Runnable() {
+
+					@Override
+					public void run() {
+						FucIdeController.this.updateStatus(t.getPosition());
+					}
+				});
 				break;
 			}
 		}
+
+		this.view.invalidate();
 	}
 
 	public static void main(String[] args) {
@@ -291,7 +357,7 @@ public class FucIdeController {
 		if (sourceCode == null) {
 			sourceCode = "";
 		}
-		ReportLogImpl log = new ReportLogImpl();
+		final ReportLogImpl log = new ReportLogImpl();
 
 		try {
 			// do lexer stuff
@@ -352,20 +418,27 @@ public class FucIdeController {
 			new FucIdeCriticalError(this.view, e, true);
 		}
 
-		this.view.clearErrorLog();
-		int e = 0;
-		for (swp_compiler_ss13.fuc.parser.errorHandling.Error error : log.getErrors()) {
-			String txt = error.getText();
-			String message = error.getMessage();
-			String col = error.getColumn().toString();
-			String line = error.getLine().toString();
-			String show = message + " (" + txt + ") at line " + line + ":" + col;
-			this.view.addErrorLog(show);
-			e++;
-		}
-		if (e == 0) {
-			this.view.addErrorLog("No errors reported");
-		}
+		SwingUtilities.invokeLater(new Runnable() {
+
+			@Override
+			public void run() {
+
+				FucIdeController.this.view.clearErrorLog();
+				int e = 0;
+				for (swp_compiler_ss13.fuc.parser.errorHandling.Error error : log.getErrors()) {
+					String txt = error.getText();
+					String message = error.getMessage();
+					String col = error.getColumn().toString();
+					String line = error.getLine().toString();
+					String show = message + " (" + txt + ") at line " + line + ":" + col;
+					FucIdeController.this.view.addErrorLog(show);
+					e++;
+				}
+				if (e == 0) {
+					FucIdeController.this.view.addErrorLog("No errors reported");
+				}
+			}
+		});
 	}
 
 	public void onLexerSelected(Lexer lexer) {
