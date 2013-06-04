@@ -48,7 +48,10 @@ public class ReturnNodeImpl extends ASTNodeImpl implements ReturnNode {
 	@Override
 	public void setRightValue(IdentifierNode identifier) {
 		this.rightNode = identifier;
-		identifier.setParentNode(this);
+		
+		if (identifier != null) {
+			identifier.setParentNode(this);
+		}
 	}
 
 	@Override
