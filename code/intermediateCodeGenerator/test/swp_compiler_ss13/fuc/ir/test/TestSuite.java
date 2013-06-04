@@ -11,6 +11,7 @@ import swp_compiler_ss13.fuc.ir.test.ms1.SimpleMulTest;
 import swp_compiler_ss13.fuc.ir.test.ms2.ArrayTest;
 import swp_compiler_ss13.fuc.ir.test.ms2.AssignmentProgTest;
 import swp_compiler_ss13.fuc.ir.test.ms2.CondTest;
+import swp_compiler_ss13.fuc.ir.test.ms2.PrintTest;
 
 /**
  * Run all test in ast package
@@ -22,6 +23,7 @@ import swp_compiler_ss13.fuc.ir.test.ms2.CondTest;
 @SuiteClasses({ AddProgTest.class, SimpleAddTest.class, SimpleMulTest.class,
 		ParanthesesTest.class, CastingFactoryTest.class, ArrayTest.class,
 		AssignmentProgTest.class, CondTest.class, IdentifierShadowTest.class,
-		CastingTest.class })
+		CastingTest.class, PrintTest.class, UnaryMinusTest.class,
+		DoubleOperatorTest.class })
 public class TestSuite {
 }

@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
+import junit.extensions.PA;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -14,6 +16,7 @@ import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 import swp_compiler_ss13.common.types.primitive.LongType;
 import swp_compiler_ss13.fuc.ast.ASTFactory;
 import swp_compiler_ss13.fuc.ir.IntermediateCodeGeneratorImpl;
+import swp_compiler_ss13.fuc.symbolTable.SymbolTableImpl;
 
 public class AssignmentProgTest {
 
@@ -21,6 +24,7 @@ public class AssignmentProgTest {
 
 	@Before
 	public void setUp() throws Exception {
+		PA.setValue(SymbolTableImpl.class, "ext", 0);
 		ASTFactory astf = new ASTFactory();
 		astf.addDeclaration("a", new LongType());
 		astf.addDeclaration("b", new LongType());
@@ -49,13 +53,13 @@ public class AssignmentProgTest {
 						astf.newBasicIdentifier("c")));
 		astf.addReturn(astf.newBasicIdentifier("c"));
 
-		this.ast = astf.getAST();
+		ast = astf.getAST();
 	}
 
 	@Test
 	public void test() throws IntermediateCodeGeneratorException {
 		IntermediateCodeGeneratorImpl irg = new IntermediateCodeGeneratorImpl();
-		List<Quadruple> irc = irg.generateIntermediateCode(this.ast);
+		List<Quadruple> irc = irg.generateIntermediateCode(ast);
 
 		StringBuilder actual = new StringBuilder();
 		for (Quadruple q : irc) {
