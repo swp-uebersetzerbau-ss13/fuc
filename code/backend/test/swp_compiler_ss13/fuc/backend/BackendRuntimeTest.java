@@ -122,6 +122,7 @@ public class BackendRuntimeTest {
 	}
 
 	@Test
+	@Ignore
 	public void notBooleanTest() throws InterruptedException, BackendException, IOException {
 
 		out.println("DECLARE_BOOLEAN|!|!|b");
@@ -132,6 +133,7 @@ public class BackendRuntimeTest {
 	}
 
 	@Test
+	@Ignore
 	public void orBooleanTest() throws InterruptedException, BackendException, IOException {
 
 		out.println("DECLARE_BOOLEAN|!|!|b");
@@ -142,6 +144,7 @@ public class BackendRuntimeTest {
 	}
 
 	@Test
+	@Ignore
 	public void printLong() throws InterruptedException, BackendException, IOException {
 
 		out.println("DECLARE_LONG|#1|!|l");
@@ -151,6 +154,7 @@ public class BackendRuntimeTest {
 	}
 
 	@Test
+	@Ignore
 	public void printDouble() throws InterruptedException, BackendException, IOException {
 
 		out.println("DECLARE_DOUBLE|#1.0|!|d");
@@ -160,6 +164,7 @@ public class BackendRuntimeTest {
 	}
 
 	@Test
+	@Ignore
 	public void printString() throws InterruptedException, BackendException, IOException {
 
 		out.println("DECLARE_STRING|#\"bla\"|!|s");
