@@ -12,6 +12,7 @@ import swp_compiler_ss13.common.ast.nodes.IdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.StatementNode;
 import swp_compiler_ss13.common.ast.nodes.binary.AssignmentNode;
 import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode.BinaryOperator;
+import swp_compiler_ss13.common.ast.nodes.binary.LogicBinaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.LiteralNode;
 import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
 import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
@@ -20,6 +21,7 @@ import swp_compiler_ss13.common.ast.nodes.unary.ReturnNode;
 import swp_compiler_ss13.common.ast.nodes.unary.UnaryExpressionNode.UnaryOperator;
 import swp_compiler_ss13.common.lexer.NumToken;
 import swp_compiler_ss13.common.lexer.Token;
+import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.common.parser.SymbolTable;
 import swp_compiler_ss13.common.report.ReportLog;
 import swp_compiler_ss13.common.report.ReportType;
@@ -70,7 +72,7 @@ public class ReduceImpl {
 	 * @param reportLog
 	 * @return
 	 */
-	protected static ReduceAction getReduceAction(Production prod, final ReportLog reportLog) {
+	public static ReduceAction getReduceAction(Production prod, final ReportLog reportLog) {
 		switch (prod.getStringRep()) {
 
 		case "program -> decls stmts":
@@ -185,7 +187,17 @@ public class ReduceImpl {
 					}
 					
 					DeclarationNode decl = (DeclarationNode) objs[0];
+					
+					if(!(objs[1] instanceof Token)){
+						writeReportError(reportLog, objs[1], "Identifier");
+					}
+					
 					Token idToken = (Token) objs[1];
+					
+					if(!(objs[2] instanceof Token || ((Token)objs[2]).getTokenType()!=TokenType.SEMICOLON)){
+						writeReportError(reportLog, objs[2], "Token ;");
+					}
+					
 					Token semicolon = (Token) objs[2];
 					
 					if(decl.getType() instanceof ReduceStringType){
@@ -282,12 +294,12 @@ public class ReduceImpl {
 					node.setCoverage(ifToken,leftBranch);
 					
 					
-					if(objs[2] instanceof AssignmentNode){
-						AssignmentNode condition = (AssignmentNode)objs[2];
+					if(objs[2] instanceof LogicBinaryExpressionNode){
+						LogicBinaryExpressionNode condition = (LogicBinaryExpressionNode)objs[2];
 						node.setCondition(condition);
 						node.setCoverage(condition.coverage());
 					}else{
-						writeReportError(reportLog, objs[2], "Assignment");
+						writeReportError(reportLog, objs[2], "Logical Expression");
 					}
 					
 					Token rightBranch = (Token)objs[3];
@@ -321,12 +333,12 @@ public class ReduceImpl {
 					Token leftBranch = (Token)objs[1];
 					node.setCoverage(ifToken,leftBranch);
 					
-					if(objs[2] instanceof AssignmentNode){
-						AssignmentNode condition = (AssignmentNode)objs[2];
+					if(objs[2] instanceof LogicBinaryExpressionNode){
+						LogicBinaryExpressionNode condition = (LogicBinaryExpressionNode)objs[2];
 						node.setCondition(condition);
 						node.setCoverage(condition.coverage());
 					}else{
-						writeReportError(reportLog, objs[2], "Assignment");
+						writeReportError(reportLog, objs[2], "Logical Expression");
 					}
 					
 					Token rightBranch = (Token)objs[3];
@@ -339,7 +351,7 @@ public class ReduceImpl {
 					}else{
 						if(objs[4] instanceof StatementNode){
 							StatementNode block = (StatementNode)objs[4];
-							node.setStatementNodeOnFalse(block);
+							node.setStatementNodeOnTrue(block);
 							node.setCoverage(block.coverage());
 						}else{
 							writeReportError(reportLog, objs[4], "Statement or BlockNode");
@@ -720,10 +732,11 @@ public class ReduceImpl {
 			return new ReduceAction() {
 				@Override
 				public Object create(Object... objs) throws ParserException  {
-					LiteralNode literal = new LiteralNodeImpl();
+					LiteralNodeImpl literal = new LiteralNodeImpl();
 					Token token = (Token) objs[0];
 					literal.setLiteral(token.getValue());
 					literal.setLiteralType(new LongType());
+					literal.setCoverage(token);
 					return literal;
 				}
 			};
@@ -731,10 +744,11 @@ public class ReduceImpl {
 			return new ReduceAction() {
 				@Override
 				public Object create(Object... objs) throws ParserException  {
-					LiteralNode literal = new LiteralNodeImpl();
+					LiteralNodeImpl literal = new LiteralNodeImpl();
 					Token token = (Token) objs[0];
 					literal.setLiteral(token.getValue());
 					literal.setLiteralType(new DoubleType());
+					literal.setCoverage(token);
 					return literal;
 				}
 			};
@@ -742,10 +756,11 @@ public class ReduceImpl {
 			return new ReduceAction() {
 				@Override
 				public Object create(Object... objs) throws ParserException  {
-					LiteralNode literal = new LiteralNodeImpl();
+					LiteralNodeImpl literal = new LiteralNodeImpl();
 					Token token = (Token) objs[0];
 					literal.setLiteral(token.getValue());
 					literal.setLiteralType(new BooleanType());
+					literal.setCoverage(token);
 					return literal;
 				}
 			};
@@ -753,10 +768,11 @@ public class ReduceImpl {
 			return new ReduceAction() {
 				@Override
 				public Object create(Object... objs) throws ParserException  {
-					LiteralNode literal = new LiteralNodeImpl();
+					LiteralNodeImpl literal = new LiteralNodeImpl();
 					Token token = (Token) objs[0];
 					literal.setLiteral(token.getValue());
 					literal.setLiteralType(new BooleanType());
+					literal.setCoverage(token);
 					return literal;
 				}
 			};
@@ -764,11 +780,12 @@ public class ReduceImpl {
 			return new ReduceAction() {
 				@Override
 				public Object create(Object... objs) throws ParserException  {
-					LiteralNode literal = new LiteralNodeImpl();
+					LiteralNodeImpl literal = new LiteralNodeImpl();
 					Token token = (Token) objs[0];
 					literal.setLiteral(token.getValue());
 					literal.setLiteralType(new StringType((long) token
 							.getValue().length()));
+					literal.setCoverage(token);
 					return literal;
 				}
 
@@ -835,7 +852,7 @@ public class ReduceImpl {
 						return decl;
 					
 					default:
-						writeReportError(reportLog, token, " Basic Type");
+						writeReportError(reportLog, token, "Basic Type");
 						return null;
 					
 					}
