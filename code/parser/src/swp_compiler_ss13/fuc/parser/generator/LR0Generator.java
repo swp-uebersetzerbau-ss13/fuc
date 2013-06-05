@@ -10,6 +10,11 @@ import swp_compiler_ss13.fuc.parser.grammar.Grammar;
 import swp_compiler_ss13.fuc.parser.grammar.Symbol;
 import swp_compiler_ss13.fuc.parser.grammar.Terminal;
 
+/**
+ * Implements {@link #createDFA()} for the creation of LR0 grammars
+ * 
+ * @author Gero
+ */
 public class LR0Generator extends ALRGenerator<LR0Item, LR0State> {
 	// --------------------------------------------------------------------------
 	// --- variables and constants

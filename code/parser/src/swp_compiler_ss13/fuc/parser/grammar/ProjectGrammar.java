@@ -2,6 +2,12 @@ package swp_compiler_ss13.fuc.parser.grammar;
 
 import swp_compiler_ss13.common.lexer.TokenType;
 
+/**
+ * This classes define our grammar as specified in the requirements for the separate milestones
+ * 
+ * @see GrammarSpec
+ * @author Gero
+ */
 public class ProjectGrammar {
 	public static class M1 extends GrammarSpec {
 		public static final Terminal lcb = new Terminal("{",

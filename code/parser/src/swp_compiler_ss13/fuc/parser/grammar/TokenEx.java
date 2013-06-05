@@ -6,7 +6,9 @@ import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
 
 /**
- * Extends {@link Token} by a {@link Terminal}
+ * This class wraps a {@link Token} and adds a {@link Terminal} as specified in
+ * the {@link Grammar}, as the parser internally needs the association
+ * {@link Token} -> {@link Terminal}.
  * 
  * @author Gero
  */
@@ -29,11 +31,18 @@ public class TokenEx implements Token {
 		this.terminal = terminal;
 	}
 
+	/**
+	 * Associates the given {@link Token} with a {@link Terminal} as specified in the {@link Grammar}
+	 * 
+	 * @param token
+	 * @param grammar
+	 * @return
+	 */
 	public static TokenEx createFromToken(Token token, Grammar grammar) {
 		// Handle SpecialTerminals first!
 		if (token.getTokenType() == TokenType.EOF) {
 			return new TokenEx(token, Terminal.EOF);
-		} else if (token.getTokenType() == TokenType.COMMENT){
+		} else if (token.getTokenType() == TokenType.COMMENT) {
 			return new TokenEx(token, null);
 		} else {
 			Terminal terminal = null;
@@ -48,7 +57,8 @@ public class TokenEx implements Token {
 			}
 
 			if (terminal == null) {
-				log.warn("Unable to find a terminal for token: " + tokenToStringFull(token));
+				log.warn("Unable to find a terminal for token: "
+						+ tokenToStringFull(token));
 			}
 			return new TokenEx(token, terminal);
 		}
@@ -85,13 +95,14 @@ public class TokenEx implements Token {
 	public Integer getColumn() {
 		return token.getColumn();
 	}
-	
+
 	public static String tokenToString(Token t) {
 		return t.getValue();
 	}
-	
+
 	public static String tokenToStringFull(Token t) {
-		return "[Token: '" + t.getValue() + "|Type: '" + t.getTokenType() + "'|At: line " + t.getLine() + ", col " + t.getColumn() + "]";
+		return "[Token: '" + t.getValue() + "|Type: '" + t.getTokenType()
+				+ "'|At: line " + t.getLine() + ", col " + t.getColumn() + "]";
 	}
 
 	@Override

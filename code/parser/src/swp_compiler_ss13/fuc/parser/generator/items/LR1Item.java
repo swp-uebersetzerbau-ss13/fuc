@@ -9,6 +9,12 @@ import swp_compiler_ss13.fuc.parser.grammar.Production;
 import swp_compiler_ss13.fuc.parser.grammar.Symbol;
 
 
+/**
+ * This class extends the standard LR(0)-Item by a lookahead for
+ * LR1-grammars /generators
+ * 
+ * @author Gero
+ */
 public class LR1Item implements Item {
    // --------------------------------------------------------------------------
    // --- variables and constants ----------------------------------------------

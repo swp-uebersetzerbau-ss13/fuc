@@ -17,6 +17,14 @@ import swp_compiler_ss13.fuc.parser.grammar.Production;
 import swp_compiler_ss13.fuc.parser.grammar.Symbol;
 
 
+/**
+ * TODO Gero, add comment!
+ * - What should this type do (in one sentence)?
+ * - If not intuitive: A simple example how to use this class
+ * 
+ * @author Gero
+ * 
+ */
 public class LR1State extends ALRState<LR1Item> {
    // --------------------------------------------------------------------------
    // --- variables and constants ----------------------------------------------

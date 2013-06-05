@@ -1,6 +1,11 @@
 package swp_compiler_ss13.fuc.parser.parser.states;
 
 
+/**
+ * Simple class that represents a parser-state by an id
+ * 
+ * @author Gero
+ */
 public class LRParserState {
    // --------------------------------------------------------------------------
    // --- variables and constants ----------------------------------------------

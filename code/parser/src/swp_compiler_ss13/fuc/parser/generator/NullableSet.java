@@ -7,15 +7,18 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import swp_compiler_ss13.fuc.parser.grammar.Grammar;
 import swp_compiler_ss13.fuc.parser.grammar.NonTerminal;
 import swp_compiler_ss13.fuc.parser.grammar.Production;
 import swp_compiler_ss13.fuc.parser.grammar.Symbol;
+import swp_compiler_ss13.fuc.parser.grammar.Terminal;
 import swp_compiler_ss13.fuc.parser.util.It;
 
 
-
 /**
- * Set of non-terminals that can derive the empty string.
+ * All {@link Terminal}s of a {@link Grammar} that can derive {@link Terminal#Epsilon}
+ * 
+ * @author Gero
  */
 public class NullableSet implements Iterable<NonTerminal> {
    // --------------------------------------------------------------------------

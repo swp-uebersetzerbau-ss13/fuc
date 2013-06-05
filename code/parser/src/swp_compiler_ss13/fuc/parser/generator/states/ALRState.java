@@ -5,6 +5,14 @@ import java.util.Collection;
 import swp_compiler_ss13.fuc.parser.generator.GrammarInfo;
 import swp_compiler_ss13.fuc.parser.grammar.Symbol;
 
+/**
+ * The base class for all types of LR-states. Simply extends the {@link AState}
+ * with methods for goto- and closure- calculation.
+ * 
+ * @author Gero
+ * 
+ * @param <I>
+ */
 public abstract class ALRState<I> extends AState<I> {
 
 	public ALRState(Collection<I> items) {

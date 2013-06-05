@@ -16,8 +16,9 @@ import swp_compiler_ss13.fuc.parser.grammar.Terminal;
 
 
 /**
- * This is the set of all terminals that may appear at the beginning
- * of a string derived from the given symbol.
+ * Calculates and caches the follow sets for the given grammar
+ * 
+ * @author Gero
  */
 public final class FirstSets {
    

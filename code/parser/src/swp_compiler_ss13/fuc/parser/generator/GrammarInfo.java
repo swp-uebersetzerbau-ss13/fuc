@@ -13,12 +13,13 @@ import swp_compiler_ss13.fuc.parser.grammar.Production;
 import swp_compiler_ss13.fuc.parser.grammar.Terminal;
 
 
-
 /**
  * This class contains a {@link Grammar} extended by more information,
  * like the set of nullable nonterminals and the FIRST sets.
  * 
- * These values are cached for performance reasons.
+ * These values are cached for performance reasons
+ * 
+ * @author Gero
  */
 public class GrammarInfo {
    // --------------------------------------------------------------------------

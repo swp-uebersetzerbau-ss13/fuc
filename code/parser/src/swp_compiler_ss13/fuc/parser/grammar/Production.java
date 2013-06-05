@@ -21,7 +21,7 @@ public final class Production {
    
    // cache
    private Terminal lastTerminal;
-   private Terminal precTerminal; // save the Terminal with the precedence of this Production
+//   private Terminal precTerminal; // save the Terminal with the precedence of this Production
    private int rhsSizeWoEpsilon;
    private int hashCode;
    
@@ -60,7 +60,7 @@ public final class Production {
          }
       }
       this.lastTerminal = lastTerminal;
-      this.precTerminal = (precTerminal != null) ? precTerminal : lastTerminal;
+//      this.precTerminal = (precTerminal != null) ? precTerminal : lastTerminal;
       
       // hash code
       computeHashcode();

@@ -3,6 +3,14 @@ package swp_compiler_ss13.fuc.parser.generator.automaton;
 import swp_compiler_ss13.fuc.parser.generator.items.LR0Item;
 import swp_compiler_ss13.fuc.parser.grammar.Symbol;
 
+/**
+ * A part of the {@link Dfa} connecting two states of type <S> with a
+ * {@link Symbol}.
+ * 
+ * @author Gero
+ * 
+ * @param <S> The type of the states this edge connects with each other
+ */
 public class DfaEdge<S> {
    // --------------------------------------------------------------------------
    // --- variables and constants ----------------------------------------------
