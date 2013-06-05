@@ -53,13 +53,13 @@ public class ParserImpl implements Parser {
 		}
 		
 		try{
+
 			ast = lrParser.parse(lexWrapper, this.reportLog, table);
-		}catch(DoubleIdentifierException e){
+		} catch (DoubleIdentifierException e) {
 			return null;
-		}catch(ParserException e){
+		} catch (ParserException e) {
 			return null;
 		}
-		
 
 		return ast;
 	}

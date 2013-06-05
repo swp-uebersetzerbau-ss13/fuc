@@ -22,11 +22,46 @@ import java.util.Map;
  */
 public class LLVMBackend implements Backend
 {
+	/**
+	 * Contains the preamble for any generated
+	 * LLVM IR program; this preamble contains
+	 * declarations of stdlib C functions used
+	 * (e.g. printf for output to stdout),
+	 * declarations of the external C++ functions
+	 * used for runtime exceptions, the list
+	 * of currently implemented (custom) exceptions
+	 * and LLVM IR functions used by generated LLVM
+	 * IR code for various other purposes, such
+	 * as conversion functions and functions
+	 * used to safely envelop volatile LLVM IR
+	 * instructions that may lead to segfaults
+	 * for bad arguments, throwing exceptions instead.
+	 *
+	 */
 	public final String llvm_preamble;
+	/**
+	 * Contains the default catch for all thrown exceptions,
+	 * so that instead of crashing with verbosity dependent
+	 * on both the operating system and the respective
+	 * implementation of the C++ standard library, information
+	 * about the exception causing the program crash is
+	 * given in a uniform fashion.
+	 * This is achieved by appending the code for this
+	 * default catch to the main function after it has been
+	 * generated.
+	 *
+	 */
+	public final String llvm_uncaught;
 
+	/**
+	 * Creates a new <code>LLVMBackend</code> instance
+	 * and sets up all necessary variables.
+	 *
+	 */
 	public LLVMBackend() {
+		/* Load the preamble containing
+		   functionality used in generated IR code */
 		StringBuilder out = new StringBuilder();
-
 		try {
 			BufferedReader reader = new BufferedReader(
 				new InputStreamReader(
@@ -39,6 +74,22 @@ public class LLVMBackend implements Backend
 		catch(IOException e) { }
 
 		this.llvm_preamble = out.toString();
+
+		/* Load the exception handler for uncaught
+		   exceptions. */
+		out = new StringBuilder();
+		try {
+			BufferedReader reader = new BufferedReader(
+				new InputStreamReader(
+					this.getClass().getResourceAsStream("uncaught.ll")));
+			String line;
+			while((line = reader.readLine()) != null) {
+				out.append("  " + line + "\n");
+			}
+		}
+		catch(IOException e) { }
+
+		this.llvm_uncaught = "\n" + out.toString();
 	}
 
 	/**
@@ -55,44 +106,11 @@ public class LLVMBackend implements Backend
 
 		Module m = new Module(out);
 
-		/* Write printf format strings for primitive types */
-		out.println("@.string_format_long = private unnamed_addr constant [5 x i8] c\"%ld\\0A\\00\"");
-		out.println("@.string_format_double = private unnamed_addr constant [4 x i8] c\"%e\\0A\\00\"");
-		out.println("@.string_boolean_false = private unnamed_addr constant [7 x i8] c\"false\\0A\\00\"");
-		out.println("@.string_boolean_true = private unnamed_addr constant [6 x i8] c\"true\\0A\\00\"");
-		out.println("@.string_format_string = private unnamed_addr constant [4 x i8] c\"%s\\0A\\00\"");
-		out.println("");
-
-		out.println("define void @print_boolean(i8) {");
-		out.println("  %condition = trunc i8 %0 to i1");
-		out.println("  br i1 %condition, label %IfTrue, label %IfFalse");
-		out.println("  IfTrue:");
-		out.println("    %true = getelementptr [6 x i8]* @.string_boolean_true, i64 0, i64 0");
-		out.println("    call i32 (i8*, ...)* @printf(i8* %true)");
-		out.println("    br label %End");
-		out.println("  IfFalse:");
-		out.println("    %false = getelementptr [7 x i8]* @.string_boolean_false, i64 0, i64 0");
-		out.println("    call i32 (i8*, ...)* @printf(i8* %false)");
-		out.println("    br label %End");
-		out.println("  End:");
-		out.println("  ret void");
-		out.println("}\n");
-
-		/* Write builtin printer function (llvm lib) */
-		out.println("declare i32 @printf(i8* noalias nocapture, ...)");
-		out.println("");
+		/* Write preamble */
+		out.println(this.llvm_preamble);
 
 		/* Write begin for main function */
 		out.println("define i64 @main() {");
-
-		m.addPrimitiveDeclare(
-			Type.Kind.STRING,
-			".tmp.string",
-			Quadruple.EmptyArgument);
-		m.addPrimitiveDeclare(
-			Type.Kind.STRING,
-			".format.string",
-			Quadruple.EmptyArgument);
 
 		for(Quadruple q : tac)
 		{
@@ -171,6 +189,7 @@ public class LLVMBackend implements Backend
 					m.addPrimitiveBinaryInstruction(
 						q.getOperator(),
 						Type.Kind.LONG,
+						Type.Kind.LONG,
 						q.getArgument1(),
 						q.getArgument2(),
 						q.getResult());
@@ -178,6 +197,7 @@ public class LLVMBackend implements Backend
 				case ADD_DOUBLE:
 					m.addPrimitiveBinaryInstruction(
 						q.getOperator(),
+						Type.Kind.DOUBLE,
 						Type.Kind.DOUBLE,
 						q.getArgument1(),
 						q.getArgument2(),
@@ -187,6 +207,7 @@ public class LLVMBackend implements Backend
 					m.addPrimitiveBinaryInstruction(
 						q.getOperator(),
 						Type.Kind.LONG,
+						Type.Kind.LONG,
 						q.getArgument1(),
 						q.getArgument2(),
 						q.getResult());
@@ -194,6 +215,7 @@ public class LLVMBackend implements Backend
 				case SUB_DOUBLE:
 					m.addPrimitiveBinaryInstruction(
 						q.getOperator(),
+						Type.Kind.DOUBLE,
 						Type.Kind.DOUBLE,
 						q.getArgument1(),
 						q.getArgument2(),
@@ -203,6 +225,7 @@ public class LLVMBackend implements Backend
 					m.addPrimitiveBinaryInstruction(
 						q.getOperator(),
 						Type.Kind.LONG,
+						Type.Kind.LONG,
 						q.getArgument1(),
 						q.getArgument2(),
 						q.getResult());
@@ -211,21 +234,24 @@ public class LLVMBackend implements Backend
 					m.addPrimitiveBinaryInstruction(
 						q.getOperator(),
 						Type.Kind.DOUBLE,
+						Type.Kind.DOUBLE,
 						q.getArgument1(),
 						q.getArgument2(),
 						q.getResult());
 					break;
 				case DIV_LONG:
-					m.addPrimitiveBinaryInstruction(
+					m.addPrimitiveBinaryCall(
 						q.getOperator(),
+						Type.Kind.LONG,
 						Type.Kind.LONG,
 						q.getArgument1(),
 						q.getArgument2(),
 						q.getResult());
 					break;
 				case DIV_DOUBLE:
-					m.addPrimitiveBinaryInstruction(
+					m.addPrimitiveBinaryCall(
 						q.getOperator(),
+						Type.Kind.DOUBLE,
 						Type.Kind.DOUBLE,
 						q.getArgument1(),
 						q.getArgument2(),
@@ -238,6 +264,7 @@ public class LLVMBackend implements Backend
 					m.addPrimitiveBinaryInstruction(
 							q.getOperator(),
 							Type.Kind.BOOLEAN,
+							Type.Kind.BOOLEAN,
 							Module.toIRBoolean(q.getArgument1()),
 							Module.toIRBoolean(q.getArgument2()),
 							q.getResult());
@@ -245,6 +272,7 @@ public class LLVMBackend implements Backend
 				case AND_BOOLEAN:
 					m.addPrimitiveBinaryInstruction(
 							q.getOperator(),
+							Type.Kind.BOOLEAN,
 							Type.Kind.BOOLEAN,
 							Module.toIRBoolean(q.getArgument1()),
 							Module.toIRBoolean(q.getArgument2()),
@@ -255,6 +283,7 @@ public class LLVMBackend implements Backend
 				case COMPARE_LONG_E:
 				m.addPrimitiveBinaryInstruction(
 						q.getOperator(),
+						Type.Kind.BOOLEAN,
 						Type.Kind.LONG,
 						q.getArgument1(),
 						q.getArgument2(),
@@ -264,6 +293,7 @@ public class LLVMBackend implements Backend
 					m.addPrimitiveBinaryInstruction(
 							q.getOperator(),
 							Type.Kind.LONG,
+							Type.Kind.BOOLEAN,
 							q.getArgument1(),
 							q.getArgument2(),
 							q.getResult());
@@ -271,6 +301,7 @@ public class LLVMBackend implements Backend
 				case COMPARE_LONG_L:
 					m.addPrimitiveBinaryInstruction(
 							q.getOperator(),
+							Type.Kind.BOOLEAN,
 							Type.Kind.LONG,
 							q.getArgument1(),
 							q.getArgument2(),
@@ -279,6 +310,7 @@ public class LLVMBackend implements Backend
 				case COMPARE_LONG_GE:
 					m.addPrimitiveBinaryInstruction(
 							q.getOperator(),
+							Type.Kind.BOOLEAN,
 							Type.Kind.LONG,
 							q.getArgument1(),
 							q.getArgument2(),
@@ -287,6 +319,7 @@ public class LLVMBackend implements Backend
 				case COMPARE_LONG_LE:
 					m.addPrimitiveBinaryInstruction(
 							q.getOperator(),
+							Type.Kind.BOOLEAN,
 							Type.Kind.LONG,
 							q.getArgument1(),
 							q.getArgument2(),
@@ -295,6 +328,7 @@ public class LLVMBackend implements Backend
 				case COMPARE_DOUBLE_E:
 					m.addPrimitiveBinaryInstruction(
 							q.getOperator(),
+							Type.Kind.BOOLEAN,
 							Type.Kind.DOUBLE,
 							q.getArgument1(),
 							q.getArgument2(),
@@ -303,6 +337,7 @@ public class LLVMBackend implements Backend
 				case COMPARE_DOUBLE_G:
 					m.addPrimitiveBinaryInstruction(
 							q.getOperator(),
+							Type.Kind.BOOLEAN,
 							Type.Kind.DOUBLE,
 							q.getArgument1(),
 							q.getArgument2(),
@@ -311,6 +346,7 @@ public class LLVMBackend implements Backend
 				case COMPARE_DOUBLE_L:
 					m.addPrimitiveBinaryInstruction(
 							q.getOperator(),
+							Type.Kind.BOOLEAN,
 							Type.Kind.DOUBLE,
 							q.getArgument1(),
 							q.getArgument2(),
@@ -319,6 +355,7 @@ public class LLVMBackend implements Backend
 				case COMPARE_DOUBLE_GE:
 					m.addPrimitiveBinaryInstruction(
 							q.getOperator(),
+							Type.Kind.BOOLEAN,
 							Type.Kind.DOUBLE,
 							q.getArgument1(),
 							q.getArgument2(),
@@ -327,6 +364,7 @@ public class LLVMBackend implements Backend
 				case COMPARE_DOUBLE_LE:
 					m.addPrimitiveBinaryInstruction(
 							q.getOperator(),
+							Type.Kind.BOOLEAN,
 							Type.Kind.DOUBLE,
 							q.getArgument1(),
 							q.getArgument2(),
@@ -367,6 +405,9 @@ public class LLVMBackend implements Backend
 		{
 			out.println("  ret i64 0");
 		}
+
+		/* Write handler for uncaught exceptions */
+		out.print(this.llvm_uncaught);
 
 		/* Write end for main function */
 		out.println("}");

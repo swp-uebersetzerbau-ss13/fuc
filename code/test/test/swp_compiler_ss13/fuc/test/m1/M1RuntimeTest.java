@@ -1,12 +1,10 @@
-package m1;
+package swp_compiler_ss13.fuc.test.m1;
 
 import static org.junit.Assert.assertEquals;
 
 import java.io.*;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 
 import junit.extensions.PA;
 import swp_compiler_ss13.fuc.lexer.LexerImpl;
@@ -17,14 +15,9 @@ import org.junit.*;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import swp_compiler_ss13.common.ast.AST;
-import swp_compiler_ss13.common.backend.Backend;
+import swp_compiler_ss13.fuc.test.base.RuntimeTestBase;
 import swp_compiler_ss13.common.backend.BackendException;
-import swp_compiler_ss13.common.backend.Quadruple;
-import swp_compiler_ss13.common.ir.IntermediateCodeGenerator;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
-import swp_compiler_ss13.common.lexer.Lexer;
-import swp_compiler_ss13.common.parser.Parser;
 import swp_compiler_ss13.fuc.backend.LLVMBackend;
 import swp_compiler_ss13.fuc.backend.TACExecutor;
 import swp_compiler_ss13.fuc.ir.IntermediateCodeGeneratorImpl;
@@ -40,14 +33,7 @@ import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
  * @author Jens V. Fischer
  */
 @RunWith(value = Parameterized.class)
-public class M1RuntimeTest {
-
-	private static Lexer lexer;
-	private static Parser parser;
-	private static IntermediateCodeGenerator irgen;
-	private static Backend backend;
-	private static ReportLogImpl errlog;
-	private static Logger logger = Logger.getLogger(M1RuntimeTest.class);
+public class M1RuntimeTest extends RuntimeTestBase {
 
 	private String prog;
 	private int expectedExitCode;
@@ -59,8 +45,20 @@ public class M1RuntimeTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
+
+		Logger.getRootLogger().setLevel(Level.INFO);
+
 		 /* only run tests if lli (dynamic compiler from LLVM) is found */
 		Assume.assumeTrue(checkForLLIInstallation());
+	}
+
+	@Before
+	public void setUp() throws Exception {
+		lexer = new LexerImpl();
+		parser = new ParserImpl();
+		irgen = new IntermediateCodeGeneratorImpl();
+		backend = new LLVMBackend();
+		errlog = new ReportLogImpl();
 	}
 
 	@Parameterized.Parameters(name = "{index}: {0}")
@@ -100,62 +98,10 @@ public class M1RuntimeTest {
 		});
 	}
 
-	@Before
-	public void setUp() throws Exception {
-		lexer = new LexerImpl();
-		parser = new ParserImpl();
-		irgen = new IntermediateCodeGeneratorImpl();
-		backend = new LLVMBackend();
-		errlog = new ReportLogImpl();
-	}
-
-
-
 	@Test
 	public void runtimeTest() throws IOException, InterruptedException, BackendException, IntermediateCodeGeneratorException {
 		TACExecutor.ExecutionResult res = compileAndExecute(this.prog);
 		assertEquals(this.expectedExitCode, res.exitCode);
 	}
 
-
-	/*
-	 * Check if lli is correctly installed.
-	 */
-	private static boolean checkForLLIInstallation() {
-
-		Level level = Logger.getRootLogger().getLevel();
-
-		Logger.getRootLogger().setLevel(Level.FATAL);
-		boolean hasLLI;
-		try {
-			PA.invokeMethod(TACExecutor.class, "tryToStartLLI()");
-			hasLLI = true;
-		} catch (Exception e) {
-			hasLLI = false;
-		}
-
-		Logger.getRootLogger().setLevel(level);
-
-		if (!hasLLI) {
-			logger.warn("Runtime tests are ignored, because of missing LLVM lli installation.");
-			String infoMsg = "If you have LLVM installed you might need to check your $PATH: " +
-					"Intellij IDEA: Run -> Edit Configurations -> Environment variables; " +
-					"Eclipse: Run Configurations -> Environment; " +
-					"Shell: Check $PATH";
-			logger.info(infoMsg);
-		}
-		return hasLLI;
-	}
-
-	private TACExecutor.ExecutionResult compileAndExecute(String prog) throws BackendException,
-			IntermediateCodeGeneratorException, IOException, InterruptedException {
-		lexer.setSourceStream(new ByteArrayInputStream(prog.getBytes("UTF-8")));
-		parser.setLexer(lexer);
-		parser.setReportLog(errlog);
-		AST ast = parser.getParsedAST();
-		List<Quadruple> tac = irgen.generateIntermediateCode(ast);
-		Map<String, InputStream> targets = backend.generateTargetCode("", tac);
-		InputStream irCode = targets.get(".ll");
-		return TACExecutor.runIR(irCode);
-	}
 }

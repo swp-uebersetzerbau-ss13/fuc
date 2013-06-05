@@ -63,9 +63,4 @@ public class ModuleTest {
         String type = (String) PA.invokeMethod(module, "getIRType(swp_compiler_ss13.common.types.Type$Kind)", Type.Kind.DOUBLE);
         assertEquals(type, "double");
     }
-
-    @Test
-    public void Test() {
-    }
-
 }
