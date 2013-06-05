@@ -26,8 +26,8 @@ import swp_compiler_ss13.common.parser.Parser;
 import swp_compiler_ss13.common.visualization.ASTVisualization;
 import swp_compiler_ss13.common.visualization.TACVisualization;
 import swp_compiler_ss13.common.visualization.TokenStreamVisualization;
-import swp_compiler_ss13.fuc.parser.errorHandling.Error;
-import swp_compiler_ss13.fuc.parser.errorHandling.ReportLogImpl;
+import swp_compiler_ss13.fuc.errorLog.LogEntry;
+import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
 
 public class Controller {
 	// the input file, stdin by default
@@ -287,9 +287,8 @@ public class Controller {
 		// in case of parser errors: abort and display errors
 		if (errlog.hasErrors()) {
 			System.err.println("ERROR: compile failed due to errors:");
-			for (Error e : errlog.getErrors()) {
-				System.err.println("(L" + e.getLine() + "," + e.getColumn() + ")" + "\t " + e.getText() + "\t "
-						+ e.getMessage());
+			for (LogEntry e : errlog.getEntries()) {
+				System.err.println(e.getMessage());
 			}
 			System.exit(1);
 		}

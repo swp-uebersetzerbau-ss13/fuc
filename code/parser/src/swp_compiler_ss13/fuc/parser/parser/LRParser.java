@@ -24,8 +24,9 @@ import swp_compiler_ss13.common.ast.nodes.unary.UnaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.unary.UnaryExpressionNode.UnaryOperator;
 import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
-import swp_compiler_ss13.common.parser.ReportLog;
+import swp_compiler_ss13.common.report.ReportLog;
 import swp_compiler_ss13.common.parser.SymbolTable;
+import swp_compiler_ss13.common.report.ReportType;
 import swp_compiler_ss13.common.types.primitive.BooleanType;
 import swp_compiler_ss13.common.types.primitive.DoubleType;
 import swp_compiler_ss13.common.types.primitive.LongType;
@@ -90,8 +91,7 @@ public class LRParser {
 			TokenType tokenType = token.getTokenType();
 			switch (tokenType) {
 			case NOT_A_TOKEN:
-				reportLog.reportError(token.getValue(), token.getLine(),
-						token.getColumn(), "Found undefined token '" + token.getValue() + "'!");
+				reportLog.reportError(ReportType.UNRECOGNIZED_TOKEN, null, token.getValue());
 				throw new ParserException("undefined Token found");
 
 			case COMMENT:
@@ -157,7 +157,7 @@ public class LRParser {
 				LRParserState newState = table.getGotoTable().get(parserStack.peek(),
 						prod.getLHS());
 				if (newState.isErrorState()) {
-					reportLog.reportError(token.getValue(), token.getLine(), token.getColumn(), "");
+					reportLog.reportError(ReportType.UNDEFINED, null, "Error state occurred");
 					throw new ParserException("Error state occurred");
 				}
 				parserStack.push(newState);
@@ -166,8 +166,7 @@ public class LRParser {
 
 			case ACCEPT: {
 				if (tokenType != TokenType.EOF) {
-					reportLog.reportError(token.getValue(), token.getLine(),
-							token.getColumn(), "");
+					reportLog.reportError(ReportType.UNDEFINED, null, "End of File expected!");
 					throw new ParserException("End of File expected!");
 				} else {
 					BlockNode programBlock = (BlockNode) valueStack.pop();
@@ -178,9 +177,7 @@ public class LRParser {
 
 			case ERROR: {
 				Error error = (Error) action;
-				reportLog.reportError(token.getValue(), token.getLine(),
-						token.getColumn(),
-						"An error occurred: " + error.getMsg());
+				reportLog.reportError(ReportType.UNDEFINED, null, error.getMsg());
 				throw new ParserException("Get Error State from Actiontable");
 			}
 			}
@@ -627,9 +624,8 @@ public class LRParser {
 		// TODO M2: Shadowing allowed???
 		if (symbolTable.isDeclared(decl.getIdentifier())) {
 			// TODO Add token to Nodes
-			reportLog.reportError(decl.getType() + " " + decl.getIdentifier(), -1, -1,
-					"The variable '" + decl.getIdentifier() + "' of type '" + decl.getType()
-							+ "' has been declared twice!");
+			reportLog.reportError(ReportType.DOUBLE_DECLARATION,
+					null, decl.getIdentifier() + "' of type '" + decl.getType());
 			throw new DoubleIdentifierException("double id exception");
 		}
 		block.addDeclaration(decl);

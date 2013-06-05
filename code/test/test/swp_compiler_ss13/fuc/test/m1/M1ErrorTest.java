@@ -1,9 +1,10 @@
-package m1;
+package swp_compiler_ss13.fuc.test.m1;
 
 import junit.extensions.PA;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+import swp_compiler_ss13.fuc.errorLog.LogEntry;
 import swp_compiler_ss13.fuc.lexer.LexerImpl;
 import org.junit.*;
 import org.junit.runner.RunWith;
@@ -19,8 +20,7 @@ import swp_compiler_ss13.common.parser.Parser;
 import swp_compiler_ss13.fuc.backend.LLVMBackend;
 import swp_compiler_ss13.fuc.ir.IntermediateCodeGeneratorImpl;
 import swp_compiler_ss13.fuc.parser.ParserImpl;
-import swp_compiler_ss13.fuc.parser.errorHandling.Error;
-import swp_compiler_ss13.fuc.parser.errorHandling.ReportLogImpl;
+import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -49,6 +49,19 @@ public class M1ErrorTest {
 	public M1ErrorTest(String nameOfTestProg, String prog, String expected) {
 		this.prog = prog;
 		this.expected = expected;
+	}
+
+	@BeforeClass
+	public static void setUpBeforeClass() throws Exception {
+		Logger.getRootLogger().setLevel(Level.ERROR);
+
+	}
+
+	@Before
+	public void setUp() throws Exception {
+		lexer = new LexerImpl();
+		parser = new ParserImpl();
+		errlog = new ReportLogImpl();
 	}
 
 	@Parameterized.Parameters(name = "{index}: {0}")
@@ -85,40 +98,27 @@ public class M1ErrorTest {
 		return Arrays.asList(new Object[][] {
 				/* mask: {testName, progCode, expectedReportLogError} */
 				{ "doubleDeclaration", doubleDeclaration,
-						"The variable 'i' of type 'LongType' has been declared twice!" },
-				{ "invalidIds", invalidIds, "Found undefined token 'foo$bar'!" },
-				{ "multipleMinusENotation", multipleMinusENotation, "Found undefined token '10e----1'!" },
-				{ "multiplePlusesInExp", multiplePlusesInExp, "Found undefined token '++'!" },
-				{ "undefReturn", undefReturn, "NotInitializedException" } });
-	}
-
-	@BeforeClass
-	public static void setUpBeforeClass() throws Exception {
-		Logger.getRootLogger().setLevel(Level.ERROR);
-
-	}
-
-	@Before
-	public void setUp() throws Exception {
-		lexer = new LexerImpl();
-		parser = new ParserImpl();
-		errlog = new ReportLogImpl();
+						"ERROR (DOUBLE_DECLARATION): i' of type 'LongType" },
+				{ "invalidIds", invalidIds, "ERROR (UNRECOGNIZED_TOKEN): foo$bar" },
+				{ "multipleMinusENotation", multipleMinusENotation, "ERROR (UNRECOGNIZED_TOKEN): 10e----1" },
+				{ "multiplePlusesInExp", multiplePlusesInExp, "ERROR (UNRECOGNIZED_TOKEN): ++" },
+				{ "undefReturn", undefReturn, "WARNNING (UNDEFINED): Variable “spam” may be used without initialization." } });
 	}
 
 
 	@Test
 	public void errorTest() throws InterruptedException, IOException, IntermediateCodeGeneratorException, BackendException {
-		Error e = compileForError(this.prog).get(0);
-		assertEquals(this.expected, e.getMessage());
+		LogEntry logEntry = compileForError(this.prog).get(0);
+		assertEquals(this.expected, logEntry.toString());
 	}
 
 
-	private List<Error> compileForError(String prog) throws BackendException,
+	private List<LogEntry> compileForError(String prog) throws BackendException,
 			IntermediateCodeGeneratorException, IOException, InterruptedException {
 		lexer.setSourceStream(new ByteArrayInputStream(prog.getBytes("UTF-8")));
 		parser.setLexer(lexer);
 		parser.setReportLog(errlog);
 		AST ast = parser.getParsedAST();
-		return errlog.getErrors();
+		return errlog.getEntries();
 	}
 }

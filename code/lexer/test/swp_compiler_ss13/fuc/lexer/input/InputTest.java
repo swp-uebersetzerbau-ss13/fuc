@@ -14,6 +14,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import swp_compiler_ss13.common.lexer.Token;
+import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.fuc.lexer.LexerImpl;
 
 /**
@@ -70,10 +71,9 @@ public class InputTest {
 	 */
 	@Test
 	public void getStringsFromInputStreamArrayTest() {
-		String tokenString = (String) PA.invokeMethod(this.lexer,
-				"abstractToken()");
+		PA.invokeMethod(this.lexer, "abstractToken()");
 		assertTrue(PA.getValue(this.lexer, "convertedLines") != null);
-		assertEquals("test1", tokenString);
+		assertEquals("test1", PA.getValue(this.lexer, "actualTokenValue"));
 	}
 
 	/**
@@ -115,9 +115,9 @@ public class InputTest {
 	public void readEmptyInputTest() throws UnsupportedEncodingException {
 		this.lexer.setSourceStream(new ByteArrayInputStream(""
 				.getBytes("UTF-8")));
-		// Token token = this.lexer.getNextToken();
-		// assertEquals(TokenType.EOF, token.getTokenType());
-		// assertEquals(1, token.getLine().intValue());
-		// assertEquals(1, token.getColumn().intValue());
+		Token token = this.lexer.getNextToken();
+		assertEquals(TokenType.EOF, token.getTokenType());
+		assertEquals(1, token.getLine().intValue());
+		assertEquals(1, token.getColumn().intValue());
 	}
 }

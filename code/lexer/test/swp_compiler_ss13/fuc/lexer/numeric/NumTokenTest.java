@@ -38,45 +38,45 @@ public class NumTokenTest {
 	 */
 	@Test
 	public void matchingNumTypesTest() {
-		TokenType tokenType = (TokenType) PA.invokeMethod(this.lexer,
-				"matchToken(java.lang.String)", Constants.LONGSTRING1);
-		assertEquals(TokenType.NUM, tokenType);
+		PA.setValue(this.lexer, "actualTokenValue", Constants.LONGSTRING1);
+		PA.invokeMethod(this.lexer, "matchToken()");
+		assertEquals(TokenType.NUM, PA.getValue(this.lexer, "actualTokenType"));
 
-		tokenType = (TokenType) PA.invokeMethod(this.lexer,
-				"matchToken(java.lang.String)", Constants.LONGSTRING2);
-		assertEquals(TokenType.NUM, tokenType);
+		PA.setValue(this.lexer, "actualTokenValue", Constants.LONGSTRING2);
+		PA.invokeMethod(this.lexer, "matchToken()");
+		assertEquals(TokenType.NUM, PA.getValue(this.lexer, "actualTokenType"));
 
-		tokenType = (TokenType) PA.invokeMethod(this.lexer,
-				"matchToken(java.lang.String)", Constants.LONGSTRING3);
-		assertEquals(TokenType.NUM, tokenType);
+		PA.setValue(this.lexer, "actualTokenValue", Constants.LONGSTRING3);
+		PA.invokeMethod(this.lexer, "matchToken()");
+		assertEquals(TokenType.NUM, PA.getValue(this.lexer, "actualTokenType"));
 
-		tokenType = (TokenType) PA.invokeMethod(this.lexer,
-				"matchToken(java.lang.String)", Constants.LONGSTRING4);
-		assertEquals(TokenType.NUM, tokenType);
+		PA.setValue(this.lexer, "actualTokenValue", Constants.LONGSTRING4);
+		PA.invokeMethod(this.lexer, "matchToken()");
+		assertEquals(TokenType.NUM, PA.getValue(this.lexer, "actualTokenType"));
 
-		tokenType = (TokenType) PA.invokeMethod(this.lexer,
-				"matchToken(java.lang.String)", Constants.LONGSTRING5);
-		assertEquals(TokenType.NUM, tokenType);
+		PA.setValue(this.lexer, "actualTokenValue", Constants.LONGSTRING5);
+		PA.invokeMethod(this.lexer, "matchToken()");
+		assertEquals(TokenType.NUM, PA.getValue(this.lexer, "actualTokenType"));
 
-		tokenType = (TokenType) PA.invokeMethod(this.lexer,
-				"matchToken(java.lang.String)", Constants.LONGSTRING6);
-		assertEquals(TokenType.NUM, tokenType);
+		PA.setValue(this.lexer, "actualTokenValue", Constants.LONGSTRING6);
+		PA.invokeMethod(this.lexer, "matchToken()");
+		assertEquals(TokenType.NUM, PA.getValue(this.lexer, "actualTokenType"));
 
-		tokenType = (TokenType) PA.invokeMethod(this.lexer,
-				"matchToken(java.lang.String)", Constants.LONGSTRING7);
-		assertEquals(TokenType.NUM, tokenType);
+		PA.setValue(this.lexer, "actualTokenValue", Constants.LONGSTRING7);
+		PA.invokeMethod(this.lexer, "matchToken()");
+		assertEquals(TokenType.NUM, PA.getValue(this.lexer, "actualTokenType"));
 
-		tokenType = (TokenType) PA.invokeMethod(this.lexer,
-				"matchToken(java.lang.String)", Constants.LONGSTRING8);
-		assertEquals(TokenType.NUM, tokenType);
+		PA.setValue(this.lexer, "actualTokenValue", Constants.LONGSTRING8);
+		PA.invokeMethod(this.lexer, "matchToken()");
+		assertEquals(TokenType.NUM, PA.getValue(this.lexer, "actualTokenType"));
 
-		tokenType = (TokenType) PA.invokeMethod(this.lexer,
-				"matchToken(java.lang.String)", Constants.LONGSTRING9);
-		assertEquals(TokenType.NUM, tokenType);
+		PA.setValue(this.lexer, "actualTokenValue", Constants.LONGSTRING9);
+		PA.invokeMethod(this.lexer, "matchToken()");
+		assertEquals(TokenType.NUM, PA.getValue(this.lexer, "actualTokenType"));
 
-		tokenType = (TokenType) PA.invokeMethod(this.lexer,
-				"matchToken(java.lang.String)", Constants.LONGSTRING10);
-		assertEquals(TokenType.NUM, tokenType);
+		PA.setValue(this.lexer, "actualTokenValue", Constants.LONGSTRING10);
+		PA.invokeMethod(this.lexer, "matchToken()");
+		assertEquals(TokenType.NUM, PA.getValue(this.lexer, "actualTokenType"));
 	}
 
 	/**

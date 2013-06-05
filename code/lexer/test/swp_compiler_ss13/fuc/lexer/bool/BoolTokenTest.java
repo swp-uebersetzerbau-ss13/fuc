@@ -37,13 +37,14 @@ public class BoolTokenTest {
 	 */
 	@Test
 	public void matchingBoolTypesTest() {
-		TokenType tokenType = (TokenType) PA.invokeMethod(this.lexer,
-				"matchToken(java.lang.String)", Constants.TRUESTRING);
-		assertEquals(TokenType.TRUE, tokenType);
+		PA.setValue(this.lexer, "actualTokenValue", Constants.TRUESTRING);
+		PA.invokeMethod(this.lexer, "matchToken()");
+		assertEquals(TokenType.TRUE, PA.getValue(this.lexer, "actualTokenType"));
 
-		tokenType = (TokenType) PA.invokeMethod(this.lexer,
-				"matchToken(java.lang.String)", Constants.FALSESTRING);
-		assertEquals(TokenType.FALSE, tokenType);
+		PA.setValue(this.lexer, "actualTokenValue", Constants.FALSESTRING);
+		PA.invokeMethod(this.lexer, "matchToken()");
+		assertEquals(TokenType.FALSE,
+				PA.getValue(this.lexer, "actualTokenType"));
 	}
 
 	/**

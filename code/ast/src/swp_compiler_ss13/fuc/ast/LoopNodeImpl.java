@@ -68,6 +68,9 @@ public abstract class LoopNodeImpl extends ASTNodeImpl implements LoopNode {
 			logger.error("The argument block can not be null!");
 			throw new IllegalArgumentException("The argument block can not be null!");
 		}
+		
+		block.setParentNode(this);
+		
 		this.body = block;
 	}
 
@@ -85,6 +88,9 @@ public abstract class LoopNodeImpl extends ASTNodeImpl implements LoopNode {
 			logger.error("The argument condition can not be null!");
 			throw new IllegalArgumentException("The argument condition can not be null!");
 		}
+		
+		condition.setParentNode(this);
+		
 		this.condition = condition;
 	}
 

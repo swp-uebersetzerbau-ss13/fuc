@@ -25,13 +25,14 @@ import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.common.parser.Parser;
 import swp_compiler_ss13.common.semanticAnalysis.SemanticAnalyser;
+import swp_compiler_ss13.fuc.errorLog.LogEntry;
+import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
 import swp_compiler_ss13.fuc.gui.ide.data.FucIdeButton;
 import swp_compiler_ss13.fuc.gui.ide.data.FucIdeMenu;
 import swp_compiler_ss13.fuc.gui.ide.data.FucIdeStatusLabel;
 import swp_compiler_ss13.fuc.gui.ide.data.FucIdeTab;
 import swp_compiler_ss13.fuc.gui.ide.mvc.Controller;
 import swp_compiler_ss13.fuc.gui.ide.mvc.Position;
-import swp_compiler_ss13.fuc.parser.errorHandling.ReportLogImpl;
 
 /**
  * The FUC IDE Controllre
@@ -428,13 +429,16 @@ public class FucIdeController {
 
 				FucIdeController.this.view.clearErrorLog();
 				int e = 0;
-				for (swp_compiler_ss13.fuc.parser.errorHandling.Error error : log.getErrors()) {
-					String txt = error.getText();
+				for (LogEntry error : log.getErrors()) {
+					String warnOrError = error.getLogType().toString();
 					String message = error.getMessage();
-					String col = error.getColumn().toString();
-					String line = error.getLine().toString();
-					String show = message + " (" + txt + ") at line " + line + ":" + col;
-					FucIdeController.this.view.addErrorLog(show);
+					String type = error.getReportType().toString();
+					String tokens = (null == error.getTokens()) ? "null" : error.getTokens().toString();
+
+					FucIdeController.this.view.addErrorLog(warnOrError + " - " + type);
+					FucIdeController.this.view.addErrorLog(message);
+					FucIdeController.this.view.addErrorLog(tokens);
+					FucIdeController.this.view.addErrorLog("");
 					e++;
 				}
 				if (e == 0) {

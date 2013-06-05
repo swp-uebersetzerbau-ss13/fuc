@@ -38,45 +38,45 @@ public class RealTokenTest {
 	 */
 	@Test
 	public void matchingRealTypesTest() {
-		TokenType tokenType = (TokenType) PA.invokeMethod(this.lexer,
-				"matchToken(java.lang.String)", Constants.DOUBLESTRING1);
-		assertEquals(TokenType.REAL, tokenType);
+		PA.setValue(this.lexer, "actualTokenValue", Constants.DOUBLESTRING1);
+		PA.invokeMethod(this.lexer, "matchToken()");
+		assertEquals(TokenType.REAL, PA.getValue(this.lexer, "actualTokenType"));
 
-		tokenType = (TokenType) PA.invokeMethod(this.lexer,
-				"matchToken(java.lang.String)", Constants.DOUBLESTRING2);
-		assertEquals(TokenType.REAL, tokenType);
+		PA.setValue(this.lexer, "actualTokenValue", Constants.DOUBLESTRING2);
+		PA.invokeMethod(this.lexer, "matchToken()");
+		assertEquals(TokenType.REAL, PA.getValue(this.lexer, "actualTokenType"));
 
-		tokenType = (TokenType) PA.invokeMethod(this.lexer,
-				"matchToken(java.lang.String)", Constants.DOUBLESTRING3);
-		assertEquals(TokenType.REAL, tokenType);
+		PA.setValue(this.lexer, "actualTokenValue", Constants.DOUBLESTRING3);
+		PA.invokeMethod(this.lexer, "matchToken()");
+		assertEquals(TokenType.REAL, PA.getValue(this.lexer, "actualTokenType"));
 
-		tokenType = (TokenType) PA.invokeMethod(this.lexer,
-				"matchToken(java.lang.String)", Constants.DOUBLESTRING4);
-		assertEquals(TokenType.REAL, tokenType);
+		PA.setValue(this.lexer, "actualTokenValue", Constants.DOUBLESTRING4);
+		PA.invokeMethod(this.lexer, "matchToken()");
+		assertEquals(TokenType.REAL, PA.getValue(this.lexer, "actualTokenType"));
 
-		tokenType = (TokenType) PA.invokeMethod(this.lexer,
-				"matchToken(java.lang.String)", Constants.DOUBLESTRING5);
-		assertEquals(TokenType.REAL, tokenType);
+		PA.setValue(this.lexer, "actualTokenValue", Constants.DOUBLESTRING5);
+		PA.invokeMethod(this.lexer, "matchToken()");
+		assertEquals(TokenType.REAL, PA.getValue(this.lexer, "actualTokenType"));
 
-		tokenType = (TokenType) PA.invokeMethod(this.lexer,
-				"matchToken(java.lang.String)", Constants.DOUBLESTRING6);
-		assertEquals(TokenType.REAL, tokenType);
+		PA.setValue(this.lexer, "actualTokenValue", Constants.DOUBLESTRING6);
+		PA.invokeMethod(this.lexer, "matchToken()");
+		assertEquals(TokenType.REAL, PA.getValue(this.lexer, "actualTokenType"));
 
-		tokenType = (TokenType) PA.invokeMethod(this.lexer,
-				"matchToken(java.lang.String)", Constants.DOUBLESTRING7);
-		assertEquals(TokenType.REAL, tokenType);
+		PA.setValue(this.lexer, "actualTokenValue", Constants.DOUBLESTRING7);
+		PA.invokeMethod(this.lexer, "matchToken()");
+		assertEquals(TokenType.REAL, PA.getValue(this.lexer, "actualTokenType"));
 
-		tokenType = (TokenType) PA.invokeMethod(this.lexer,
-				"matchToken(java.lang.String)", Constants.DOUBLESTRING8);
-		assertEquals(TokenType.REAL, tokenType);
+		PA.setValue(this.lexer, "actualTokenValue", Constants.DOUBLESTRING8);
+		PA.invokeMethod(this.lexer, "matchToken()");
+		assertEquals(TokenType.REAL, PA.getValue(this.lexer, "actualTokenType"));
 
-		tokenType = (TokenType) PA.invokeMethod(this.lexer,
-				"matchToken(java.lang.String)", Constants.DOUBLESTRING9);
-		assertEquals(TokenType.REAL, tokenType);
+		PA.setValue(this.lexer, "actualTokenValue", Constants.DOUBLESTRING9);
+		PA.invokeMethod(this.lexer, "matchToken()");
+		assertEquals(TokenType.REAL, PA.getValue(this.lexer, "actualTokenType"));
 
-		tokenType = (TokenType) PA.invokeMethod(this.lexer,
-				"matchToken(java.lang.String)", Constants.DOUBLESTRING10);
-		assertEquals(TokenType.REAL, tokenType);
+		PA.setValue(this.lexer, "actualTokenValue", Constants.DOUBLESTRING10);
+		PA.invokeMethod(this.lexer, "matchToken()");
+		assertEquals(TokenType.REAL, PA.getValue(this.lexer, "actualTokenType"));
 	}
 
 	/**

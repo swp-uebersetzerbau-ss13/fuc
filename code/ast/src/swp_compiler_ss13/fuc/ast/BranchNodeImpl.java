@@ -79,6 +79,9 @@ public class BranchNodeImpl extends ASTNodeImpl implements BranchNode {
 			logger.error("The argument condition can not be null!");
 			throw new IllegalArgumentException("The argument condition can not be null!");
 		}
+		
+		condition.setParentNode(this);
+		
 		this.condition = condition;
 	}
 
@@ -96,6 +99,9 @@ public class BranchNodeImpl extends ASTNodeImpl implements BranchNode {
 			logger.error("The argument block can not be null!");
 			throw new IllegalArgumentException("The argument block can not be null!");
 		}
+		
+		block.setParentNode(this);
+		
 		this.trueBlock = block;
 	}
 
@@ -113,6 +119,9 @@ public class BranchNodeImpl extends ASTNodeImpl implements BranchNode {
 			logger.error("The argument block can not be null!");
 			throw new IllegalArgumentException("The argument block can not be null!");
 		}
+		
+		block.setParentNode(this);
+		
 		this.falseBlock = block;
 	}
 

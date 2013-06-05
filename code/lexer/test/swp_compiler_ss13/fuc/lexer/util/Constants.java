@@ -76,6 +76,7 @@ public class Constants {
 	public static final String SEMICOLON = ";";
 	public static final String COMMENT = "#";
 	public static final String COMMENT_EXAMPLE = "a simple comment";
+	public static final String EOF = "$";
 
 	/* type symbols */
 	public static final String LONGSYMBOL = "long";
@@ -90,7 +91,9 @@ public class Constants {
 	public static final String NOID2 = "id&";
 
 	/* strings */
-	public static final String STRING1 = "\"Hallo Welt!\"";
-	public static final String STRING2 = "\"\ntest\"";
+	public static final String STRING1 = "\"Ha\\\"llo We\\\"lt!\"";
+	public static final String STRING2 = "\"\\ntest\"";
+	public static final String STRING3 = "\"test;test\"";
+	public static final String STRING4 = "\"test\"test";
 
 }

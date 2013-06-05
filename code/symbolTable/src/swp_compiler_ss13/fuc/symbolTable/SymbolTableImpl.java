@@ -64,7 +64,7 @@ public class SymbolTableImpl implements SymbolTable {
 
 	@Override
 	public Boolean insert(String identifier, Type type) {
-		if (!this.isDeclared(identifier)) {
+		if (!this.isDeclaredInCurrentScope(identifier)) {
 			this.symbolMap.put(identifier, type);
 			return true;
 		}

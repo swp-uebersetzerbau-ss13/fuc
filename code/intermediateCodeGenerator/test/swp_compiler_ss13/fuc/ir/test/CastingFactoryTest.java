@@ -30,7 +30,8 @@ public class CastingFactoryTest {
 	 *             on error
 	 */
 	@Test
-	public void testIsCastNeededTypeType() throws IntermediateCodeGeneratorException {
+	public void testIsCastNeededTypeType()
+			throws IntermediateCodeGeneratorException {
 		BooleanType booleanType = new BooleanType();
 		DoubleType doubleType = new DoubleType();
 		LongType longType = new LongType();
@@ -58,15 +59,18 @@ public class CastingFactoryTest {
 
 		// test special cases
 		try {
-			CastingFactory.isCastNeeded(new DoubleType(), new ArrayType(new LongType(), 0));
+			CastingFactory.isCastNeeded(new DoubleType(), new ArrayType(
+					new LongType(), 0));
 		} catch (IntermediateCodeGeneratorException e) {
 		}
 		try {
-			CastingFactory.isCastNeeded(new ArrayType(new LongType(), 0), new DoubleType());
+			CastingFactory.isCastNeeded(new ArrayType(new LongType(), 0),
+					new DoubleType());
 		} catch (IntermediateCodeGeneratorException e) {
 		}
 		try {
-			CastingFactory.isCastNeeded(new ArrayType(new LongType(), 0), new ArrayType(new LongType(), 0));
+			CastingFactory.isCastNeeded(new ArrayType(new LongType(), 0),
+					new ArrayType(new LongType(), 0));
 		} catch (IntermediateCodeGeneratorException e) {
 		}
 
@@ -82,12 +86,16 @@ public class CastingFactoryTest {
 	 *             on error
 	 */
 	@Test
-	public void testIsCastNeededIntermediateResultIntermediateResult() throws IntermediateCodeGeneratorException {
+	public void testIsCastNeededIntermediateResultIntermediateResult()
+			throws IntermediateCodeGeneratorException {
 
-		IntermediateResult booleanIR = new IntermediateResult("", new BooleanType());
-		IntermediateResult doubleIR = new IntermediateResult("", new DoubleType());
+		IntermediateResult booleanIR = new IntermediateResult("",
+				new BooleanType());
+		IntermediateResult doubleIR = new IntermediateResult("",
+				new DoubleType());
 		IntermediateResult longIR = new IntermediateResult("", new LongType());
-		IntermediateResult stringIR = new IntermediateResult("", new StringType(255L));
+		IntermediateResult stringIR = new IntermediateResult("",
+				new StringType(255L));
 
 		// test same types
 		assertTrue(!CastingFactory.isCastNeeded(booleanIR, booleanIR));
@@ -120,7 +128,8 @@ public class CastingFactoryTest {
 		assertTrue(CastingFactory.isPrimitive(new LongType()));
 		assertTrue(CastingFactory.isPrimitive(new StringType(255L)));
 
-		assertTrue(!CastingFactory.isPrimitive(new ArrayType(new DoubleType(), 0)));
+		assertTrue(!CastingFactory.isPrimitive(new ArrayType(new DoubleType(),
+				0)));
 	}
 
 	/**
@@ -130,30 +139,35 @@ public class CastingFactoryTest {
 	 */
 	@Test
 	public void testCreateCast() throws IntermediateCodeGeneratorException {
-		Quadruple q1 = CastingFactory.createCast(new LongType(), "a", new DoubleType(), "b");
+		Quadruple q1 = CastingFactory.createCast(new LongType(), "a",
+				new DoubleType(), "b");
 		assertEquals(q1.getOperator(), Quadruple.Operator.LONG_TO_DOUBLE);
 		assertEquals(q1.getArgument1(), "a");
 		assertEquals(q1.getArgument2(), Quadruple.EmptyArgument);
 		assertEquals(q1.getResult(), "b");
 
-		Quadruple q2 = CastingFactory.createCast(new DoubleType(), "a", new LongType(), "b");
+		Quadruple q2 = CastingFactory.createCast(new DoubleType(), "a",
+				new LongType(), "b");
 		assertEquals(q2.getOperator(), Quadruple.Operator.DOUBLE_TO_LONG);
 		assertEquals(q2.getArgument1(), "a");
 		assertEquals(q2.getArgument2(), Quadruple.EmptyArgument);
 		assertEquals(q2.getResult(), "b");
 
 		try {
-			CastingFactory.createCast(new DoubleType(), "a", new BooleanType(), "b");
+			CastingFactory.createCast(new DoubleType(), "a", new BooleanType(),
+					"b");
 		} catch (IntermediateCodeGeneratorException e) {
 		}
 
 		try {
-			CastingFactory.createCast(new LongType(), "a", new BooleanType(), "b");
+			CastingFactory.createCast(new LongType(), "a", new BooleanType(),
+					"b");
 		} catch (IntermediateCodeGeneratorException e) {
 		}
 
 		try {
-			CastingFactory.createCast(new StringType(2L), "a", new BooleanType(), "b");
+			CastingFactory.createCast(new StringType(2L), "a",
+					new BooleanType(), "b");
 		} catch (IntermediateCodeGeneratorException e) {
 		}
 	}

@@ -64,6 +64,9 @@ public abstract class BinaryExpressionNodeImpl extends ASTNodeImpl implements Bi
 			logger.error("The argument expr can not be null");
 			throw new IllegalArgumentException("The argument expr can not be null");
 		}
+		
+		expr.setParentNode(this);
+		
 		this.leftExpression = expr;
 	}
 
@@ -81,6 +84,9 @@ public abstract class BinaryExpressionNodeImpl extends ASTNodeImpl implements Bi
 			logger.error("The argument expr can not be null");
 			throw new IllegalArgumentException("The argument expr can not be null");
 		}
+		
+		expr.setParentNode(this);
+		
 		this.rightExpression = expr;
 	}
 

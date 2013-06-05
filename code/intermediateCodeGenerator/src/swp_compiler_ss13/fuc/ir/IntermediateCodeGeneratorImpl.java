@@ -56,7 +56,8 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 	/**
 	 * The Log4J Logger
 	 */
-	private static Logger logger = Logger.getLogger(IntermediateCodeGeneratorImpl.class);
+	private static Logger logger = Logger
+			.getLogger(IntermediateCodeGeneratorImpl.class);
 
 	/**
 	 * Number of the next free label
@@ -110,7 +111,8 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 	}
 
 	@Override
-	public List<Quadruple> generateIntermediateCode(AST ast) throws IntermediateCodeGeneratorException {
+	public List<Quadruple> generateIntermediateCode(AST ast)
+			throws IntermediateCodeGeneratorException {
 		if (ast == null) {
 			logger.fatal("The argument ast in generateIntermediateCode(AST ast) can not be null!");
 			throw new IntermediateCodeGeneratorException(
@@ -136,9 +138,10 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 	 * @throws IntermediateCodeGeneratorException
 	 *             An error occurred
 	 */
-	private void callProcessing(ASTNode node) throws IntermediateCodeGeneratorException {
-		logger.debug("Processing next node: " + node.getNodeType().toString() + " with "
-				+ (node.getNumberOfNodes() - 1) + " subnodes");
+	private void callProcessing(ASTNode node)
+			throws IntermediateCodeGeneratorException {
+		logger.debug("Processing next node: " + node.getNodeType().toString()
+				+ " with " + (node.getNumberOfNodes() - 1) + " subnodes");
 		switch (node.getNodeType()) {
 		case ArithmeticBinaryExpressionNode:
 			this.processArithmeticBinaryExpressionNode((ArithmeticBinaryExpressionNode) node);
@@ -182,9 +185,6 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 		case PrintNode:
 			this.processPrintNode((PrintNode) node);
 			break;
-		case RelationExpressionNode:
-			this.processRelationExpressionNode((RelationExpressionNode) node);
-			break;
 		case ReturnNode:
 			this.processReturnNode((ReturnNode) node);
 			break;
@@ -194,77 +194,13 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 		case WhileNode:
 			this.processWhileNode((WhileNode) node);
 			break;
+		case RelationExpressionNode:
+			this.processRelationExpressionNode((RelationExpressionNode) node);
+			break;
 		default:
-			throw new IntermediateCodeGeneratorException("Unknown node type: " + node.getNodeType().toString());
+			throw new IntermediateCodeGeneratorException("Unknown node type: "
+					+ node.getNodeType().toString());
 		}
-	}
-
-	/**
-	 * Process a block node and generate the needed IR Code
-	 * 
-	 * @param node
-	 *            The block node to process
-	 * @throws IntermediateCodeGeneratorException
-	 *             an error occurred while process the node
-	 */
-	private void processBlockNode(BlockNode node) throws IntermediateCodeGeneratorException {
-		// push current symbol table
-		this.currentSymbolTable.push(node.getSymbolTable());
-
-		// get declarations
-		Iterator<DeclarationNode> declIterator = node.getDeclarationIterator();
-		while (declIterator.hasNext()) {
-			this.callProcessing(declIterator.next());
-		}
-
-		// get statements
-		Iterator<StatementNode> statementIterator = node.getStatementIterator();
-		while (statementIterator.hasNext()) {
-			StatementNode statement = statementIterator.next();
-			this.callProcessing(statement);
-		}
-
-		// pop the symbol scope
-		this.currentSymbolTable.pop();
-	}
-
-	/**
-	 * Process a while node
-	 * 
-	 * @param node
-	 *            the node to process
-	 * @throws IntermediateCodeGeneratorException
-	 *             Something went wrong
-	 */
-	private void processWhileNode(WhileNode node) throws IntermediateCodeGeneratorException {
-		throw new IntermediateCodeGeneratorException(new UnsupportedOperationException());
-	}
-
-	/**
-	 * Process a structidentifier node
-	 * 
-	 * @param node
-	 *            the node to process
-	 * @throws IntermediateCodeGeneratorException
-	 *             Something went wrong
-	 */
-	private void processStructIdentifierNode(StructIdentifierNode node) throws IntermediateCodeGeneratorException {
-		throw new IntermediateCodeGeneratorException(new UnsupportedOperationException());
-	}
-
-	/**
-	 * Process a return node
-	 * 
-	 * @param node
-	 *            the node to process
-	 * @throws IntermediateCodeGeneratorException
-	 *             Something went wrong
-	 */
-	private void processReturnNode(ReturnNode node) throws IntermediateCodeGeneratorException {
-		IdentifierNode right = node.getRightValue();
-		this.callProcessing(right);
-		IntermediateResult intermediateResult = this.intermediateResults.pop();
-		this.irCode.add(QuadrupleFactory.returnNode(intermediateResult.getValue()));
 	}
 
 	/**
@@ -311,7 +247,7 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 			}
 		}
 
-		String result = this.createAndSaveTemporaryIdentifier(type);
+		String result = this.createAndSaveTemporaryIdentifier(new BooleanType());
 
 		switch (operator) {
 		case EQUAL:
@@ -325,8 +261,8 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 			break;
 		case INEQUAL:
 			String tmp = this.createAndSaveTemporaryIdentifier(new BooleanType());
-			this.irCode.add(QuadrupleFactory.booleanArithmetic(UnaryOperator.LOGICAL_NEGATE, castedleft, tmp));
-			this.irCode.add(QuadrupleFactory.relationEqual(tmp, castedright, result, type));
+			this.irCode.add(QuadrupleFactory.relationEqual(castedleft, castedright, tmp, type));
+			this.irCode.add(QuadrupleFactory.booleanArithmetic(UnaryOperator.LOGICAL_NEGATE, tmp, result));
 			break;
 		case LESSTHAN:
 			this.irCode.add(QuadrupleFactory.relationLess(castedleft, castedright, result, type));
@@ -347,7 +283,87 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 			throw new IntermediateCodeGeneratorException(errf);
 		}
 
-		this.intermediateResults.push(new IntermediateResult(result, type));
+		this.intermediateResults.push(new IntermediateResult(result, new BooleanType()));
+	}
+
+	/**
+	 * Process a block node and generate the needed IR Code
+	 * 
+	 * @param node
+	 *            The block node to process
+	 * @throws IntermediateCodeGeneratorException
+	 *             an error occurred while process the node
+	 */
+	private void processBlockNode(BlockNode node)
+			throws IntermediateCodeGeneratorException {
+		// push current symbol table
+		this.currentSymbolTable.push(node.getSymbolTable());
+
+		// get declarations
+		Iterator<DeclarationNode> declIterator = node.getDeclarationIterator();
+		while (declIterator.hasNext()) {
+			this.callProcessing(declIterator.next());
+		}
+
+		// get statements
+		Iterator<StatementNode> statementIterator = node.getStatementIterator();
+		while (statementIterator.hasNext()) {
+			StatementNode statement = statementIterator.next();
+			this.callProcessing(statement);
+		}
+
+		// pop the symbol scope
+		this.currentSymbolTable.pop();
+	}
+
+	/**
+	 * Process a while node
+	 * 
+	 * @param node
+	 *            the node to process
+	 * @throws IntermediateCodeGeneratorException
+	 *             Something went wrong
+	 */
+	private void processWhileNode(WhileNode node)
+			throws IntermediateCodeGeneratorException {
+		throw new IntermediateCodeGeneratorException(
+				new UnsupportedOperationException());
+	}
+
+	/**
+	 * Process a structidentifier node
+	 * 
+	 * @param node
+	 *            the node to process
+	 * @throws IntermediateCodeGeneratorException
+	 *             Something went wrong
+	 */
+	private void processStructIdentifierNode(StructIdentifierNode node)
+			throws IntermediateCodeGeneratorException {
+		throw new IntermediateCodeGeneratorException(
+				new UnsupportedOperationException());
+	}
+
+	/**
+	 * Process a return node
+	 * 
+	 * @param node
+	 *            the node to process
+	 * @throws IntermediateCodeGeneratorException
+	 *             Something went wrong
+	 */
+	private void processReturnNode(ReturnNode node)
+			throws IntermediateCodeGeneratorException {
+		IdentifierNode right = node.getRightValue();
+		if (right != null) {
+			this.callProcessing(right);
+			IntermediateResult intermediateResult = this.intermediateResults.pop();
+			this.irCode.add(QuadrupleFactory.returnNode(intermediateResult
+					.getValue()));
+		} else {
+			this.irCode.add(QuadrupleFactory.returnNode("0"));
+		}
+
 	}
 
 	/**
@@ -358,7 +374,8 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 	 * @throws IntermediateCodeGeneratorException
 	 *             Something went wrong
 	 */
-	private void processPrintNode(PrintNode node) throws IntermediateCodeGeneratorException {
+	private void processPrintNode(PrintNode node)
+			throws IntermediateCodeGeneratorException {
 		this.callProcessing(node.getRightValue());
 		IntermediateResult result = this.intermediateResults.pop();
 		this.irCode.add(QuadrupleFactory.print(result.getValue(), result.getType()));
@@ -378,14 +395,16 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 		IntermediateResult result = this.intermediateResults.pop();
 
 		if (result.getType().getKind() != Kind.BOOLEAN) {
-			String err = "Unary logic operation NOT is not supported for type " + result.getType();
+			String err = "Unary logic operation NOT is not supported for type "
+					+ result.getType();
 			logger.fatal(err);
 			throw new IntermediateCodeGeneratorException(err);
 		}
 
 		String temp = this.createAndSaveTemporaryIdentifier(new BooleanType());
 		this.irCode.add(QuadrupleFactory.unaryNot(result.getValue(), temp));
-		this.intermediateResults.push(new IntermediateResult(temp, new BooleanType()));
+		this.intermediateResults
+				.push(new IntermediateResult(temp, new BooleanType()));
 	}
 
 	/**
@@ -404,17 +423,19 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 		IntermediateResult rightResult = this.intermediateResults.pop();
 		IntermediateResult leftResult = this.intermediateResults.pop();
 
-		if (leftResult.getType().getKind() != Kind.BOOLEAN || rightResult.getType().getKind() != Kind.BOOLEAN) {
-			String err = "Binary logic operation is not supported for " + leftResult.getType() + " and "
-					+ rightResult.getType();
+		if (leftResult.getType().getKind() != Kind.BOOLEAN
+				|| rightResult.getType().getKind() != Kind.BOOLEAN) {
+			String err = "Binary logic operation is not supported for "
+					+ leftResult.getType() + " and " + rightResult.getType();
 			logger.fatal(err);
 			throw new IntermediateCodeGeneratorException(err);
 		}
 
 		String temp = this.createAndSaveTemporaryIdentifier(new BooleanType());
-		this.irCode.add(QuadrupleFactory.booleanArithmetic(node.getOperator(), leftResult.getValue(),
-				rightResult.getValue(), temp));
-		this.intermediateResults.push(new IntermediateResult(temp, new BooleanType()));
+		this.irCode.add(QuadrupleFactory.booleanArithmetic(node.getOperator(),
+				leftResult.getValue(), rightResult.getValue(), temp));
+		this.intermediateResults
+				.push(new IntermediateResult(temp, new BooleanType()));
 	}
 
 	/**
@@ -425,7 +446,8 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 	 * @throws IntermediateCodeGeneratorException
 	 *             Something went wrong
 	 */
-	private void processLiteralNode(LiteralNode node) throws IntermediateCodeGeneratorException {
+	private void processLiteralNode(LiteralNode node)
+			throws IntermediateCodeGeneratorException {
 		String literal = node.getLiteral();
 		Type type = node.getLiteralType();
 		switch (type.getKind()) {
@@ -434,19 +456,56 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 		case BOOLEAN:
 			// Literal of type Long or Double needs to start with a # to mark it
 			// as a constant
-			this.intermediateResults.push(new IntermediateResult("#" + literal, type));
+			this.intermediateResults.push(new IntermediateResult("#"
+					+ literal.toUpperCase(), type));
 			break;
 		case STRING:
 			// Literal of type String needs to be in " and start with a #
 			// Replace all " in the string with \"
-			this.intermediateResults
-					.push(new IntermediateResult("#\"" + literal.replaceAll("\"", "\\\"") + "\"", type));
+			literal = this.escapeString(literal, "\"", "\\\"");
+			literal = this.escapeString(literal, "\n", "\\n");
+			literal = this.escapeString(literal, "\r", "\\r");
+			literal = this.escapeString(literal, "\t", "\\t");
+			literal = this.escapeString(literal, "\0", "\\0");
+			this.intermediateResults.push(new IntermediateResult("#\"" + literal
+					+ "\"", type));
 			break;
 		default:
 			// Literal of other types are not defined yet.
-			throw new IntermediateCodeGeneratorException("Literal node of type " + node.getLiteralType().toString()
-					+ " is not supported");
+			throw new IntermediateCodeGeneratorException(
+					"Literal node of type " + node.getLiteralType().toString()
+							+ " is not supported");
 		}
+	}
+
+	/**
+	 * Escape special char sequences but ignore them if they are already escaped
+	 * 
+	 * @param literal
+	 *            The string to escape
+	 * @param search
+	 *            The char sequence to replace
+	 * @param replace
+	 *            The char sequence to use as replacement
+	 * @return The escaped string
+	 */
+	private String escapeString(String literal, String search, String replace) {
+		int fromIndex = 0;
+		int pos = 0;
+		while ((pos = literal.indexOf(search, fromIndex)) >= 0) {
+			if (pos > 0 && literal.charAt(pos - 1) == '\\') {
+				fromIndex = pos;
+				continue;
+			}
+			fromIndex = pos + replace.length();
+			if (pos > 0) {
+				literal = literal.substring(0, pos) + replace
+						+ literal.substring(pos + 1);
+			} else {
+				literal = replace + literal.substring(pos + 1);
+			}
+		}
+		return literal;
 	}
 
 	/**
@@ -457,8 +516,10 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 	 * @throws IntermediateCodeGeneratorException
 	 *             Something went wrong
 	 */
-	private void processDoWhileNode(DoWhileNode node) throws IntermediateCodeGeneratorException {
-		throw new IntermediateCodeGeneratorException(new UnsupportedOperationException());
+	private void processDoWhileNode(DoWhileNode node)
+			throws IntermediateCodeGeneratorException {
+		throw new IntermediateCodeGeneratorException(
+				new UnsupportedOperationException());
 	}
 
 	/**
@@ -469,7 +530,8 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 	 * @throws IntermediateCodeGeneratorException
 	 *             Something went wrong
 	 */
-	private void processDeclarationNode(DeclarationNode node) throws IntermediateCodeGeneratorException {
+	private void processDeclarationNode(DeclarationNode node)
+			throws IntermediateCodeGeneratorException {
 		String identifierName = node.getIdentifier();
 		Type identifierType = node.getType();
 		// save the new declared variable into our structures
@@ -484,8 +546,10 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 	 * @throws IntermediateCodeGeneratorException
 	 *             Something went wrong
 	 */
-	private void processBreakNode(BreakNode node) throws IntermediateCodeGeneratorException {
-		throw new IntermediateCodeGeneratorException(new UnsupportedOperationException());
+	private void processBreakNode(BreakNode node)
+			throws IntermediateCodeGeneratorException {
+		throw new IntermediateCodeGeneratorException(
+				new UnsupportedOperationException());
 	}
 
 	/**
@@ -496,7 +560,8 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 	 * @throws IntermediateCodeGeneratorException
 	 *             Something went wrong
 	 */
-	private void processBranchNode(BranchNode node) throws IntermediateCodeGeneratorException {
+	private void processBranchNode(BranchNode node)
+			throws IntermediateCodeGeneratorException {
 		ExpressionNode condition = node.getCondition();
 		StatementNode onTrue = node.getStatementNodeOnTrue();
 		StatementNode onFalse = node.getStatementNodeOnFalse();
@@ -504,7 +569,8 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 		this.callProcessing(condition);
 		IntermediateResult conditionResult = this.intermediateResults.pop();
 		if (conditionResult.getType().getKind() != Kind.BOOLEAN) {
-			String err = "A condition is not of type boolean but of unsupported type " + conditionResult.getType();
+			String err = "A condition is not of type boolean but of unsupported type "
+					+ conditionResult.getType();
 			logger.fatal(err);
 			throw new IntermediateCodeGeneratorException(err);
 		}
@@ -513,7 +579,8 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 		String falseLabel = this.createNewLabel();
 		String endLabel = this.createNewLabel();
 
-		this.irCode.add(QuadrupleFactory.branch(conditionResult.getValue(), trueLabel, falseLabel));
+		this.irCode.add(QuadrupleFactory.branch(conditionResult.getValue(),
+				trueLabel, falseLabel));
 		this.irCode.add(QuadrupleFactory.label(trueLabel));
 		this.callProcessing(onTrue);
 		this.irCode.add(QuadrupleFactory.jump(endLabel));
@@ -535,7 +602,8 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 	 * @throws IntermediateCodeGeneratorException
 	 *             Something went wrong
 	 */
-	private void processBasicIdentifierNode(BasicIdentifierNode node) throws IntermediateCodeGeneratorException {
+	private void processBasicIdentifierNode(BasicIdentifierNode node)
+			throws IntermediateCodeGeneratorException {
 		// A basic identifier can be pushed to the stack of results immediately
 		String identifier = node.getIdentifier();
 		Type identifierType = this.currentSymbolTable.peek().lookupType(identifier);
@@ -547,7 +615,8 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 		}
 
 		String actualIdentifier = this.loadIdentifier(identifier);
-		this.intermediateResults.push(new IntermediateResult(actualIdentifier, identifierType));
+		this.intermediateResults.push(new IntermediateResult(actualIdentifier,
+				identifierType));
 	}
 
 	/**
@@ -558,7 +627,8 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 	 * @throws IntermediateCodeGeneratorException
 	 *             Something went wrong
 	 */
-	private void processAssignmentNode(AssignmentNode node) throws IntermediateCodeGeneratorException {
+	private void processAssignmentNode(AssignmentNode node)
+			throws IntermediateCodeGeneratorException {
 		// the id to assign the value to
 		IdentifierNode id = node.getLeftValue();
 
@@ -592,7 +662,8 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 		Type toType = toIntermediate.getType();
 
 		// check if the cast is needed
-		boolean castNeeded = CastingFactory.isCastNeeded(toType, fromIntermediate.getType());
+		boolean castNeeded = CastingFactory.isCastNeeded(toType,
+				fromIntermediate.getType());
 
 		// get the name and id of the source
 		String fromId = fromIntermediate.getValue();
@@ -601,14 +672,18 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 		if (fromArrayIndex != null && toArrayIndex != null) {
 			// assign array to array
 			String temporary = this.createAndSaveTemporaryIdentifier(fromType);
-			this.irCode.addAll(QuadrupleFactory.assign(fromType, fromId, temporary, fromArrayIndex, null));
+			this.irCode.addAll(QuadrupleFactory.assign(fromType, fromId, temporary,
+					fromArrayIndex, null));
 			if (castNeeded) {
 				String temporary2 = this.createAndSaveTemporaryIdentifier(toType);
-				this.irCode.add(CastingFactory.createCast(fromType, temporary, toType, temporary2));
-				this.irCode.addAll(QuadrupleFactory.assign(toType, temporary2, toId, null, toArrayIndex));
+				this.irCode.add(CastingFactory.createCast(fromType, temporary,
+						toType, temporary2));
+				this.irCode.addAll(QuadrupleFactory.assign(toType, temporary2, toId,
+						null, toArrayIndex));
 				toId = temporary2;
 			} else {
-				this.irCode.addAll(QuadrupleFactory.assign(toType, temporary, toId, null, toArrayIndex));
+				this.irCode.addAll(QuadrupleFactory.assign(toType, temporary, toId,
+						null, toArrayIndex));
 				toId = temporary;
 			}
 		} else {
@@ -616,19 +691,23 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 				if (toArrayIndex == null) {
 					// assign array to variable
 					String temporary = this.createAndSaveTemporaryIdentifier(fromType);
-					this.irCode.addAll(QuadrupleFactory.assign(fromType, fromId, temporary, fromArrayIndex,
-							toArrayIndex));
-					this.irCode.add(CastingFactory.createCast(fromType, temporary, toType, toId));
+					this.irCode.addAll(QuadrupleFactory.assign(fromType, fromId,
+							temporary, fromArrayIndex, toArrayIndex));
+					this.irCode.add(CastingFactory.createCast(fromType, temporary,
+							toType, toId));
 					toId = temporary;
 				} else {
 					// assign variable to array
 					String temporary = this.createAndSaveTemporaryIdentifier(toType);
-					this.irCode.add(CastingFactory.createCast(fromType, fromId, toType, temporary));
-					this.irCode.addAll(QuadrupleFactory.assign(toType, temporary, toId, fromArrayIndex, toArrayIndex));
+					this.irCode.add(CastingFactory.createCast(fromType, fromId,
+							toType, temporary));
+					this.irCode.addAll(QuadrupleFactory.assign(toType, temporary,
+							toId, fromArrayIndex, toArrayIndex));
 					toId = temporary;
 				}
 			} else {
-				this.irCode.addAll(QuadrupleFactory.assign(toType, fromId, toId, fromArrayIndex, toArrayIndex));
+				this.irCode.addAll(QuadrupleFactory.assign(toType, fromId, toId,
+						fromArrayIndex, toArrayIndex));
 			}
 		}
 		this.intermediateResults.push(new IntermediateResult(toId, toType));
@@ -642,7 +721,8 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 	 * @throws IntermediateCodeGeneratorException
 	 *             Something went wrong
 	 */
-	private void processArrayIdentifierNode(ArrayIdentifierNode node) throws IntermediateCodeGeneratorException {
+	private void processArrayIdentifierNode(ArrayIdentifierNode node)
+			throws IntermediateCodeGeneratorException {
 
 		IdentifierNode innerNode = node.getIdentifierNode();
 
@@ -673,9 +753,11 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 			if (outerArray) {
 				arrayType = nodeType;
 			}
-			this.irCode.add(QuadrupleFactory.arrayGet(arrayType, innerResult.getValue(), "#" + node.getIndex(),
+			this.irCode.add(QuadrupleFactory.arrayGet(arrayType,
+					innerResult.getValue(), "#" + node.getIndex(),
 					tmpIdentifier));
-			this.intermediateResults.push(new IntermediateResult(tmpIdentifier, innerResult.getType()));
+			this.intermediateResults.push(new IntermediateResult(tmpIdentifier,
+					innerResult.getType()));
 		}
 	}
 
@@ -687,13 +769,9 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 	 * @throws IntermediateCodeGeneratorException
 	 *             Something went wrong
 	 */
-	private void processArithmeticUnaryExpressionNode(ArithmeticUnaryExpressionNode node)
+	private void processArithmeticUnaryExpressionNode(
+			ArithmeticUnaryExpressionNode node)
 			throws IntermediateCodeGeneratorException {
-		if (node.getOperator() != UnaryOperator.MINUS) {
-			// No unary operations except for minus are supported by arithmetic
-			// nodes
-			throw new IntermediateCodeGeneratorException("Unsupported arithmetic unary operator");
-		}
 		ExpressionNode rightNode = node.getRightValue();
 
 		// process the right hand value
@@ -701,9 +779,12 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 
 		IntermediateResult rightIntermediate = this.intermediateResults.pop();
 
-		String temp = this.createAndSaveTemporaryIdentifier(rightIntermediate.getType());
-		this.irCode.add(QuadrupleFactory.unaryMinus(rightIntermediate.getType(), rightIntermediate.getValue(), temp));
-		this.intermediateResults.push(new IntermediateResult(temp, rightIntermediate.getType()));
+		String temp = this.createAndSaveTemporaryIdentifier(rightIntermediate
+				.getType());
+		this.irCode.add(QuadrupleFactory.unaryMinus(rightIntermediate.getType(),
+				rightIntermediate.getValue(), temp));
+		this.intermediateResults.push(new IntermediateResult(temp, rightIntermediate
+				.getType()));
 	}
 
 	/**
@@ -714,7 +795,8 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 	 * @throws IntermediateCodeGeneratorException
 	 *             something went wrong
 	 */
-	private void processArithmeticBinaryExpressionNode(ArithmeticBinaryExpressionNode node)
+	private void processArithmeticBinaryExpressionNode(
+			ArithmeticBinaryExpressionNode node)
 			throws IntermediateCodeGeneratorException {
 
 		// process the left and right value first
@@ -734,23 +816,29 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 			if (left.getType() instanceof LongType) {
 				// both values are of type LONG
 				String temp = this.createAndSaveTemporaryIdentifier(new LongType());
-				this.irCode.add(QuadrupleFactory.longArithmeticBinaryOperation(node.getOperator(), left.getValue(),
-						right.getValue(), temp));
+				this.irCode.add(QuadrupleFactory.longArithmeticBinaryOperation(
+						node.getOperator(), left.getValue(), right.getValue(),
+						temp));
 
-				this.intermediateResults.push(new IntermediateResult(temp, new LongType()));
+				this.intermediateResults.push(new IntermediateResult(temp,
+						new LongType()));
 			} else if (left.getType() instanceof DoubleType) {
 				// both values are of type DOUBLE
 				String temp = this.createAndSaveTemporaryIdentifier(new DoubleType());
-				this.irCode.add(QuadrupleFactory.longArithmeticBinaryOperation(node.getOperator(), left.getValue(),
-						right.getValue(), temp));
+				this.irCode.add(QuadrupleFactory.doubleArithmeticBinaryOperation(
+						node.getOperator(), left.getValue(), right.getValue(),
+						temp));
 
-				this.intermediateResults.push(new IntermediateResult(temp, new DoubleType()));
+				this.intermediateResults.push(new IntermediateResult(temp,
+						new DoubleType()));
 			} else {
 				// this is an unsupported combination of types
 				String err = "Arithmetic Binary Expression with arguments of types %s and %s is not supported";
-				String errf = String.format(err, left.getType().toString(), right.getType().toString());
+				String errf = String.format(err, left.getType().toString(),
+						right.getType().toString());
 				logger.fatal(errf);
-				throw new IntermediateCodeGeneratorException(errf, new UnsupportedOperationException());
+				throw new IntermediateCodeGeneratorException(errf,
+						new UnsupportedOperationException());
 			}
 		} else {
 			// A cast is needed.
@@ -762,26 +850,32 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 				// the left value is of type LONG, so it needs to be casted
 				String temp = this.createAndSaveTemporaryIdentifier(new DoubleType());
 				String temp2 = this.createAndSaveTemporaryIdentifier(new DoubleType());
-				this.irCode.add(CastingFactory.createCast(left.getType(), left.getValue(), new DoubleType(), temp));
-				this.irCode.add(QuadrupleFactory.doubleArithmeticBinaryOperation(node.getOperator(), temp,
-						right.getValue(), temp2));
+				this.irCode.add(CastingFactory.createCast(left.getType(),
+						left.getValue(), new DoubleType(), temp));
+				this.irCode.add(QuadrupleFactory.doubleArithmeticBinaryOperation(
+						node.getOperator(), temp, right.getValue(), temp2));
 
-				this.intermediateResults.push(new IntermediateResult(temp2, new DoubleType()));
+				this.intermediateResults.push(new IntermediateResult(temp2,
+						new DoubleType()));
 			} else if (right.getType() instanceof LongType) {
 				// the right value is of type LONG, so it needs to be casted
 				String temp = this.createAndSaveTemporaryIdentifier(new DoubleType());
 				String temp2 = this.createAndSaveTemporaryIdentifier(new DoubleType());
-				this.irCode.add(CastingFactory.createCast(right.getType(), right.getValue(), new DoubleType(), temp));
-				this.irCode.add(QuadrupleFactory.doubleArithmeticBinaryOperation(node.getOperator(), left.getValue(),
-						temp, temp2));
+				this.irCode.add(CastingFactory.createCast(right.getType(),
+						right.getValue(), new DoubleType(), temp));
+				this.irCode.add(QuadrupleFactory.doubleArithmeticBinaryOperation(
+						node.getOperator(), left.getValue(), temp, temp2));
 
-				this.intermediateResults.push(new IntermediateResult(temp2, new DoubleType()));
+				this.intermediateResults.push(new IntermediateResult(temp2,
+						new DoubleType()));
 			} else {
 				// this combinations of types is not supported
 				String err = "Arithmetic Binary Expression with arguments of types %s and %s is not supported";
-				String errf = String.format(err, left.getType().toString(), right.getType().toString());
+				String errf = String.format(err, left.getType().toString(),
+						right.getType().toString());
 				logger.fatal(errf);
-				throw new IntermediateCodeGeneratorException(errf, new UnsupportedOperationException());
+				throw new IntermediateCodeGeneratorException(errf,
+						new UnsupportedOperationException());
 			}
 		}
 
@@ -798,7 +892,8 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 	 * @throws IntermediateCodeGeneratorException
 	 *             an exception occurred
 	 */
-	private String saveIdentifier(String identifier, Type type) throws IntermediateCodeGeneratorException {
+	private String saveIdentifier(String identifier, Type type)
+			throws IntermediateCodeGeneratorException {
 		if (!this.usedNames.contains(identifier)) {
 			// an identifier with this name was not yet used.
 			// it does not need to be renamed to stick to SSA
@@ -826,7 +921,8 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 	 * @throws IntermediateCodeGeneratorException
 	 *             An error occurred
 	 */
-	private String createAndSaveTemporaryIdentifier(Type type) throws IntermediateCodeGeneratorException {
+	private String createAndSaveTemporaryIdentifier(Type type)
+			throws IntermediateCodeGeneratorException {
 		// Condition: getNextFreeTemporary never returns a name that was already
 		// used in the IR until now
 		// (globally unique names)
@@ -847,12 +943,13 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 	 * @throws IntermediateCodeGeneratorException
 	 *             An error occurred
 	 */
-	private String createAndSaveTemporaryIdentifierReference(Type type) throws IntermediateCodeGeneratorException {
+	private String createAndSaveTemporaryIdentifierReference(Type type)
+			throws IntermediateCodeGeneratorException {
 		String id = this.currentSymbolTable.peek().getNextFreeTemporary();
 		this.currentSymbolTable.peek().putTemporary(id, type);
 		this.usedNames.add(id);
-		this.irCode.add(new QuadrupleImpl(Operator.DECLARE_REFERENCE, Quadruple.EmptyArgument, Quadruple.EmptyArgument,
-				id));
+		this.irCode.add(new QuadrupleImpl(Operator.DECLARE_REFERENCE,
+				Quadruple.EmptyArgument, Quadruple.EmptyArgument, id));
 		return id;
 	}
 
@@ -866,11 +963,13 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 	 * @throws IntermediateCodeGeneratorException
 	 *             Identifier was not found
 	 */
-	private String loadIdentifier(String id) throws IntermediateCodeGeneratorException {
+	private String loadIdentifier(String id)
+			throws IntermediateCodeGeneratorException {
 		String name = this.currentSymbolTable.peek().getIdentifierAlias(id);
 		if (name == null) {
 			logger.fatal("Undeclared variable found: " + id);
-			throw new IntermediateCodeGeneratorException("Undeclared variable found: " + id);
+			throw new IntermediateCodeGeneratorException(
+					"Undeclared variable found: " + id);
 		}
 		return name;
 	}
