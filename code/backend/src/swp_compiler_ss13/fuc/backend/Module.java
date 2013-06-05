@@ -5,6 +5,8 @@ import swp_compiler_ss13.common.backend.Quadruple;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Locale;
@@ -80,6 +82,9 @@ public class Module
 		stringLiterals = new ArrayList<Integer>();
 		variableUseCount = new HashMap<String,Integer>();
 
+		/* Add fake temporary variable */
+		variableUseCount.put(".tmp", 0);
+
 		this.out = out;
 	}
 
@@ -142,7 +147,7 @@ public class Module
 				break;
 			case BOOLEAN:
 				/* Booleans are 8bit signed integers */
-				irType = "i8";
+				irType = "i1";
 				break;
 			case STRING:
 				/* Strings are each a pointer to a string literal
@@ -239,12 +244,37 @@ public class Module
 	}
 
 	/**
+	 * Gets the LLVM IR function residing in the preamble
+	 * for a binary TAC operator.
+	 *
+	 * @param operator the binary TAC operator
+	 * @return the corresponding LLVM IR function
+	 */
+	private String getIRBinaryCall(Quadruple.Operator operator) {
+		String irCall = "";
+
+		switch(operator)
+		{
+			/* Arithmetic */
+			case DIV_LONG:
+				irCall = "div_long";
+				break;
+			case DIV_DOUBLE:
+				irCall = "div_double";
+				break;
+		}
+
+		return irCall;
+	}
+
+	/**
 	 * Gets a unique use identifier for
 	 * a variable; no two calls will return
 	 * the same use identifier.
 	 *
 	 * @param variable the variable's name
 	 * @return a free use identifier for the variable
+	 * @exception BackendException if an error occurs
 	 */
 	private String getUseIdentifierForVariable(String variable) throws BackendException {
 		int ssa_suffix = 0;
@@ -282,34 +312,25 @@ public class Module
 		}
 	}
 
-	private static Pattern toIRString_ReplacePattern = Pattern.compile("[^a-zA-Z0-9üÜöÖäÄ]");
-
+	/**
+	 * Convert a three adress code string
+	 * to a LLVM IR string.
+	 * All other public functions expect strings
+	 * to be in the LLVM IR format.
+	 *
+	 * @param str a TAC string
+	 * @return the converted LLVM IR string
+	 */
 	public static String toIRString(String str)
 	{
-		String irString = str;
+		String irString = "";
 
-		if(str.charAt(0) == '#')
-		{
-			irString = "#\"";
-
-			str = str.substring(2, str.length() - 1);
-			Matcher m = Module.toIRString_ReplacePattern.matcher(str);
-
-			int pos = 0;
-			while(m.find())
-			{
-				irString += str.substring(pos, m.end() - 1);
-				pos = m.end();
-
-				System.err.println(str.charAt(pos - 1));
-				irString += "\\" + String.format(
-					(Locale) null,
-					"%x",
-					(int) str.charAt(pos - 1));
-			}
-
-			irString += "\\00\"";
-		}
+		/* Unescape special characters */
+		irString = str.replace("\\\"", "\"").
+			replace("\\r", "\r").
+			replace("\\n", "\n").
+			replace("\\t", "\t").
+			replace("\\0", "\0");
 
 		return irString;
 	}
@@ -322,11 +343,32 @@ public class Module
 	 * @param literal the string to use
 	 * @return the new string literal's id
 	 */
-	private Integer addStringLiteral(String literal)
+	private Integer addStringLiteral(String literal) throws BackendException
 	{
-		int length = literal.substring(1, literal.length() - 1)
-			.replaceAll("\\\\[a-fA-f0-9][a-fA-f0-9]","_")
-			.replaceAll("[üÜöÖäÄ]","__").length();
+		int length = 0;
+
+		try
+		{
+			literal = literal.substring(1, literal.length() - 1);
+			byte[] utf8 = literal.getBytes("UTF-8");
+			literal = Arrays.toString(utf8).replaceAll("(-?)([0-9]+)(,?)","i8 $1$2$3");
+
+			if(utf8.length > 0)
+			{
+				literal = literal.replace("]",", i8 0]");
+			}
+			else
+			{
+				literal = "[i8 0]";
+			}
+
+			length = utf8.length + 1;
+		}
+		catch(UnsupportedEncodingException e)
+		{
+			throw new BackendException("LLVM backend cannot handle strings without utf8 support");
+		}
+
 		int id = stringLiterals.size();
 		stringLiterals.add(length);
 
@@ -335,7 +377,7 @@ public class Module
 		String identifier = getStringLiteralIdentifier(id);
 
 		gen(identifier + " = alloca " + type);
-		gen("store " + type + " c" + literal + ", " + type + "* " + identifier);
+		gen("store " + type + " " + literal + ", " + type + "* " + identifier);
 
 		return id;
 	}
@@ -347,6 +389,7 @@ public class Module
 	 * @param variable the variable's name
 	 * @param literalID the string literal's id
 	 * @return the used "use identifier" for variable
+	 * @exception BackendException if an error occurs
 	 */
 	private String addLoadStringLiteral(String variable, int literalID) throws BackendException {
 		String variableIdentifier = "%" + variable;
@@ -383,6 +426,7 @@ public class Module
 	 * @param type the new variable's type
 	 * @param variable the new variable's name
 	 * @param initializer the new variable's initial value
+	 * @exception BackendException if an error occurs
 	 */
 	public void addPrimitiveDeclare(Kind type, String variable, String initializer) throws BackendException {
 		addNewVariable(type, variable);
@@ -402,6 +446,7 @@ public class Module
 	 * @param type the type of the assignment
 	 * @param dst the destination variable's name
 	 * @param src the source constant or the source variable's name
+	 * @exception BackendException if an error occurs
 	 */
 	public void addPrimitiveAssign(Kind type, String dst, String src) throws BackendException {
 		boolean constantSrc = false;
@@ -444,8 +489,12 @@ public class Module
 	 * @param src the source variable's name
 	 * @param dstType the destination variable's type
 	 * @param dst the destination variable's name
+	 * @exception BackendException if an error occurs
 	 */
-	public void addPrimitiveConversion(Kind srcType, String src, Kind dstType, String dst) throws BackendException {
+	public void addPrimitiveConversion(Kind srcType,
+	                                   String src,
+	                                   Kind dstType,
+	                                   String dst) throws BackendException {
 		String srcUseIdentifier = getUseIdentifierForVariable(src);
 		String dstUseIdentifier = getUseIdentifierForVariable(dst);
 		String srcIdentifier = "%" + src;
@@ -466,19 +515,27 @@ public class Module
 	}
 
 	/**
-	 * Adds a genric binary operation of two sources - each can
+	 * Adds a generic binary operation of two sources - each can
 	 * either be a constant or a variable - the result
 	 * of which will be stored in a variable (<code>dst</code>).
 	 * All types must be identical.
 	 *
 	 * @param op the binary operation to add
-	 * @param type the type of the binary operation
+	 * @param resultType  the result type of the binary operation
+	 * @param argumentType the argument type of the binary operation
 	 * @param lhs the constant or name of the variable on the left hand side
 	 * @param rhs the constant or name of the variable on the right hand side
 	 * @param dst the destination variable's name
+	 * @exception BackendException if an error occurs
 	 */
-	public void addPrimitiveBinaryInstruction(Quadruple.Operator op, Kind type, String lhs, String rhs, String dst) throws BackendException {
-		String irType = getIRType(type);
+	public void addPrimitiveBinaryInstruction(Quadruple.Operator op,
+	                                          Kind resultType,
+	                                          Kind argumentType,
+	                                          String lhs,
+	                                          String rhs,
+	                                          String dst) throws BackendException {
+		String irArgumentType = getIRType(argumentType);
+		String irResultType = getIRType(resultType);
 		String irInst = getIRBinaryInstruction(op);
 
 		if(lhs.charAt(0) == '#')
@@ -489,7 +546,7 @@ public class Module
 		{
 			String lhsIdentifier = "%" + lhs;
 			lhs = getUseIdentifierForVariable(lhs);
-			gen(lhs + " = load " + irType + "* " + lhsIdentifier);
+			gen(lhs + " = load " + irArgumentType + "* " + lhsIdentifier);
 		}
 
 		if(rhs.charAt(0) == '#')
@@ -500,16 +557,94 @@ public class Module
 		{
 			String rhsIdentifier = "%" + rhs;
 			rhs = getUseIdentifierForVariable(rhs);
-			gen(rhs + " = load " + irType + "* " + rhsIdentifier);
+			gen(rhs + " = load " + irArgumentType + "* " + rhsIdentifier);
 		}
 
 		String dstUseIdentifier = getUseIdentifierForVariable(dst);
 		String dstIdentifier = "%" + dst;
 
-		gen(dstUseIdentifier + " = " + irInst + " " + irType + " " + lhs + ", " + rhs);
-		gen("store " + irType + " " + dstUseIdentifier + ", " + irType + "* " + dstIdentifier);
+		gen(dstUseIdentifier + " = " + irInst + " " + irArgumentType + " " + lhs + ", " + rhs);
+		gen("store " + irResultType + " " + dstUseIdentifier + ", " + irResultType + "* " + dstIdentifier);
 	}
 
+	/**
+	 * Adds a call to a argument-homogenous binary functions
+	 * where each argument can either be a constant or a variable;
+	 * the result of the function will be stored in a variable (<code>dst</code>).
+	 * Argument types must both be equal, but may differ
+	 * from the result type.
+	 *
+	 * @param op the binary operation to add
+	 * @param resultType the type of the binary operation's result
+	 * @param argumentType the type of the binary operation's arguments
+	 * @param lhs the constant or name of the variable on the left hand side
+	 * @param rhs the constant or name of the variable on the right hand side
+	 * @param dst the destination variable's name
+	 * @exception BackendException if an error occurs
+	 */
+	public void addPrimitiveBinaryCall(Quadruple.Operator op,
+	                                   Kind resultType,
+	                                   Kind argumentType,
+	                                   String lhs,
+	                                   String rhs,
+	                                   String dst) throws BackendException {
+		String irArgumentType = getIRType(argumentType);
+		String irResultType = getIRType(resultType);
+		String irCall = getIRBinaryCall(op);
+
+		if(lhs.charAt(0) == '#')
+		{
+			lhs = lhs.substring(1);
+		}
+		else
+		{
+			String lhsIdentifier = "%" + lhs;
+			lhs = getUseIdentifierForVariable(lhs);
+			gen(lhs + " = load " + irArgumentType + "* " + lhsIdentifier);
+		}
+
+		if(rhs.charAt(0) == '#')
+		{
+			rhs = rhs.substring(1);
+
+			if((op == Quadruple.Operator.DIV_LONG) &&
+			   (Long.valueOf(rhs).equals(Long.valueOf(0))))
+			{
+				throw new BackendException("Division by zero");
+			}
+
+			if((op == Quadruple.Operator.DIV_DOUBLE) &&
+			   ((Double.valueOf(rhs).equals(Double.valueOf(0.0))) ||
+			    (Double.valueOf(rhs).equals(Double.valueOf(-0.0)))))
+			{
+				throw new BackendException("Division by zero");
+			}
+		}
+		else
+		{
+			String rhsIdentifier = "%" + rhs;
+			rhs = getUseIdentifierForVariable(rhs);
+			gen(rhs + " = load " + irArgumentType + "* " + rhsIdentifier);
+		}
+
+		String dstUseIdentifier = getUseIdentifierForVariable(dst);
+		String dstIdentifier = "%" + dst;
+
+		gen(dstUseIdentifier + " = invoke " + irResultType + " (" + irArgumentType + ", " + irArgumentType + ")* " +
+		    "@" + irCall + "(" + irArgumentType + " " + lhs + ", " + irArgumentType + " " + rhs + ") to label " + dstUseIdentifier + ".ok unwind label %UncaughtException");
+		gen(dstUseIdentifier.substring(1, dstUseIdentifier.length()) + ".ok:");
+		gen("store " + irResultType + " " + dstUseIdentifier + ", " + irResultType + "* " + dstIdentifier);
+	}
+
+	/**
+	 * Adds a binary not operation, where the source
+	 * may be either a constant, or a variable, whereas
+	 * the result must be a variable.
+	 *
+	 * @param source the constant or name of the variable to be negated
+	 * @param destination the destination variable's name
+	 * @exception BackendException if an error occurs
+	 */
 	public void addBooleanNot(String source, String destination) throws BackendException {
 
 		String irType = getIRType(BOOLEAN);
@@ -540,6 +675,7 @@ public class Module
 	 * main method.
 	 *
 	 * @param value the value to return (exit code)
+	 * @exception BackendException if an error occurs
 	 */
 	public void addMainReturn(String value) throws BackendException {
 		if(value.charAt(0) == '#')
@@ -555,23 +691,54 @@ public class Module
 		}
 	}
 
+	/**
+	 * Adds a label which may be the target of
+	 * branching instructions.
+	 *
+	 * @param name the label's name, must be unique in the program
+	 */
 	public void addLabel(String name){
 		gen(name+":");
 	}
 
+	/**
+	 * Adds a branching instruction, which may either
+	 * be unconditional (e.g. branch immediately) or
+	 * depend on a boolean variable 'condition' (e.g. branch to
+	 * one of two target labels depening on the boolean
+	 * variable's value at runtime).
+	 *
+	 * @param target1 target label for unconditional branch, target
+	 *                for the condition being true for conditional branch
+	 * @param target2 <code>Quadruple.EmptyArgument</code> for unconditional
+	 *                branch, target for the condition being false for
+	 *                the conditional branch
+	 * @param condition <code>Quadruple.EmptyArgument</code> for unconditional
+	 *                  branch, the condition being tested for conditional branch
+	 * @exception BackendException if an error occurs
+	 */
 	public void addBranch(String target1, String target2, String condition) throws BackendException {
 		/* conditional branch */
 		if (!target2.equals(Quadruple.EmptyArgument)){
+			String irType = getIRType(Kind.BOOLEAN);
 			String conditionUseIdentifier = getUseIdentifierForVariable(condition);
-			gen(conditionUseIdentifier + " = load " + "i8" + "* %" + condition);
-			gen(conditionUseIdentifier + ".cond = trunc i8 " + conditionUseIdentifier + " to i1");
-			gen("br i1 " + conditionUseIdentifier + ".cond, label %" + target1 + ", label %"+ target2);
+			gen(conditionUseIdentifier + " = load " + irType + "* %" + condition);
+			gen("br " + irType + " " + conditionUseIdentifier + ", label %" + target1 + ", label %"+ target2);
 		}
 		else {
 			gen("br label %" + target1);
 		}
 	}
 
+	/**
+	 * Adds a call to the printf function for
+	 * the value, which may be either a constant
+	 * or the name of a variable.
+	 *
+	 * @param value the value to be printed
+	 * @param type the type of the value (boolean, long, double, string)
+	 * @exception BackendException if an error occurs
+	 */
 	public void addPrint(String value, Kind type) throws BackendException {
 		String irType = getIRType(type);
 		boolean constantSrc = false;
@@ -590,33 +757,38 @@ public class Module
 			gen(value + " = load " + irType + "* " + valueIdentifier);
 		}
 
-		String formatUseIdentifier = getUseIdentifierForVariable(".format.string");
+		String temporaryIdentifier = "";
 
 		switch (type) {
 			case BOOLEAN:
-				gen("call void (i8)* @print_boolean(" + irType + " " + value + ")");
+				temporaryIdentifier = getUseIdentifierForVariable(".tmp");
+				gen(temporaryIdentifier + " = call i8* (" + irType + ")* @btoa(" + irType + " " + value + ")");
 				break;
 			case LONG:
-				gen(formatUseIdentifier + " = getelementptr [5 x i8]* @.string_format_long, i64 0, i64 0");
-				gen("call i32 (i8*, ...)* @printf(i8* " + formatUseIdentifier + ", " + irType + " " + value + ")");
+				temporaryIdentifier = getUseIdentifierForVariable(".tmp");
+				gen(temporaryIdentifier + " = call i8* (" + irType + ")* @ltoa(" + irType + " " + value + ")");
 				break;
 			case DOUBLE:
-				gen(formatUseIdentifier + " = getelementptr [4 x i8]* @.string_format_double, i64 0, i64 0");
-				gen("call i32 (i8*, ...)* @printf(i8* " + formatUseIdentifier + ", " + irType + " " + value + ")");
+				temporaryIdentifier = getUseIdentifierForVariable(".tmp");
+				gen(temporaryIdentifier + " = call i8* (" + irType + ")* @dtoa(" + irType + " " + value + ")");
 				break;
 			case STRING:
 				if(constantSrc)
 				{
+					temporaryIdentifier = getUseIdentifierForVariable(".tmp");
 					int id = addStringLiteral(value);
-					value = addLoadStringLiteral(".tmp.string", id);
-				}
+					String literalIdentifier = getStringLiteralIdentifier(id);
+					String literalType = getStringLiteralType(id);
 
-				gen(formatUseIdentifier + " = getelementptr [4 x i8]* @.string_format_string, i64 0, i64 0");
-				gen("call i32 (i8*, ...)* @printf(i8* " + formatUseIdentifier + ", " + irType + " " + value + ")");
+					gen(temporaryIdentifier + " = getelementptr " + literalType + "* " + literalIdentifier + ", i64 0, i64 0");
+				}
+				else
+				{
+					temporaryIdentifier = value;
+				}
 				break;
 		}
+
+		gen("call i32 (i8*, ...)* @printf(i8* " + temporaryIdentifier + ")");
 	}
-
-
-
 }
