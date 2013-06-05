@@ -37,7 +37,8 @@ public class OtherTests {
 	@Before
 	public void setUp() {
 		log = new ReportLogImpl();
-		analyser = new SemanticAnalyser(this.log);
+		analyser = new SemanticAnalyser();
+		analyser.setReportLog(log);
 	}
 
 	@After

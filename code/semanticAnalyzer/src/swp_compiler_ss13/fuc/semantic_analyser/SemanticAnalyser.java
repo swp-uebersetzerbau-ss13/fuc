@@ -35,7 +35,7 @@ import swp_compiler_ss13.common.parser.SymbolTable;
 import swp_compiler_ss13.common.report.ReportType;
 import swp_compiler_ss13.common.types.Type;
 
-public class SemanticAnalyser {
+public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalysis.SemanticAnalyser {
 
 	private static Logger logger = Logger.getLogger(SemanticAnalyser.class);
 
@@ -68,7 +68,7 @@ public class SemanticAnalyser {
 	private static final String CAN_BREAK = "true";
 	private static final String TYPE_MISMATCH = "type mismatch";
 	private static final String DEAD_CODE = "dead";
-	private final ReportLog errorLog;
+	private ReportLog errorLog;
 	private final Map<ASTNode, Map<Attribute, String>> attributes;
 	/**
 	 * Contains all initialized identifiers. As soon it has assigned it will be
@@ -76,15 +76,29 @@ public class SemanticAnalyser {
 	 */
 	private final Map<SymbolTable, Set<String>> initializedIdentifiers;
 
+	public SemanticAnalyser() {
+		this.attributes = new HashMap<>();
+		this.initializedIdentifiers = new HashMap<>();
+	}
+
 	public SemanticAnalyser(ReportLog log) {
 		this.attributes = new HashMap<>();
 		this.initializedIdentifiers = new HashMap<>();
 		this.errorLog = log;
 	}
+	
+	
 
+	@Override
+	public void setReportLog(ReportLog log) {
+		errorLog = log;
+	}
+	
+	@Override
 	public AST analyse(AST ast) {
 		this.attributes.clear();
 		this.initializedIdentifiers.clear();
+		assert(errorLog != null);
 		
 		this.traverseAstNode(ast.getRootNode(), ast.getRootSymbolTable());
 		
