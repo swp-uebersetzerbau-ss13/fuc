@@ -662,7 +662,7 @@ public class ReduceImpl {
 				public Object create(Object... objs) throws ParserException  {
 					
 					if(!(objs[0] instanceof Token)){
-						writeReportError(reportLog, objs[0], "Token !");
+						writeReportError(reportLog, objs[0], "Token -");
 					}
 					
 					Token token = (Token) objs[0];
