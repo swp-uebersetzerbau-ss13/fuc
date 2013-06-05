@@ -21,10 +21,9 @@ public abstract class ASTNodeImpl implements ASTNode {
 	private ASTNode parent;
 	
 	/**
-	 * coverage List
+	 * coverage list
 	 */
-	
-	List<Token> coverage = new ArrayList<Token>();
+	private List<Token> coverage = new ArrayList<Token>();
 
 	@Override
 	public ASTNode getParentNode() {

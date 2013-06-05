@@ -38,25 +38,45 @@ public class RealTokenTest {
 	 */
 	@Test
 	public void matchingRealTypesTest() {
-		TokenType tokenType = (TokenType) PA.invokeMethod(this.lexer,
-				"matchToken(java.lang.String)", Constants.DOUBLESTRING1);
-		assertEquals(TokenType.REAL, tokenType);
+		PA.setValue(this.lexer, "actualTokenValue", Constants.DOUBLESTRING1);
+		PA.invokeMethod(this.lexer, "matchToken()");
+		assertEquals(TokenType.REAL, PA.getValue(this.lexer, "actualTokenType"));
 
-		tokenType = (TokenType) PA.invokeMethod(this.lexer,
-				"matchToken(java.lang.String)", Constants.DOUBLESTRING2);
-		assertEquals(TokenType.REAL, tokenType);
+		PA.setValue(this.lexer, "actualTokenValue", Constants.DOUBLESTRING2);
+		PA.invokeMethod(this.lexer, "matchToken()");
+		assertEquals(TokenType.REAL, PA.getValue(this.lexer, "actualTokenType"));
 
-		tokenType = (TokenType) PA.invokeMethod(this.lexer,
-				"matchToken(java.lang.String)", Constants.DOUBLESTRING3);
-		assertEquals(TokenType.REAL, tokenType);
+		PA.setValue(this.lexer, "actualTokenValue", Constants.DOUBLESTRING3);
+		PA.invokeMethod(this.lexer, "matchToken()");
+		assertEquals(TokenType.REAL, PA.getValue(this.lexer, "actualTokenType"));
 
-		tokenType = (TokenType) PA.invokeMethod(this.lexer,
-				"matchToken(java.lang.String)", Constants.DOUBLESTRING4);
-		assertEquals(TokenType.REAL, tokenType);
+		PA.setValue(this.lexer, "actualTokenValue", Constants.DOUBLESTRING4);
+		PA.invokeMethod(this.lexer, "matchToken()");
+		assertEquals(TokenType.REAL, PA.getValue(this.lexer, "actualTokenType"));
 
-		tokenType = (TokenType) PA.invokeMethod(this.lexer,
-				"matchToken(java.lang.String)", Constants.DOUBLESTRING5);
-		assertEquals(TokenType.REAL, tokenType);
+		PA.setValue(this.lexer, "actualTokenValue", Constants.DOUBLESTRING5);
+		PA.invokeMethod(this.lexer, "matchToken()");
+		assertEquals(TokenType.REAL, PA.getValue(this.lexer, "actualTokenType"));
+
+		PA.setValue(this.lexer, "actualTokenValue", Constants.DOUBLESTRING6);
+		PA.invokeMethod(this.lexer, "matchToken()");
+		assertEquals(TokenType.REAL, PA.getValue(this.lexer, "actualTokenType"));
+
+		PA.setValue(this.lexer, "actualTokenValue", Constants.DOUBLESTRING7);
+		PA.invokeMethod(this.lexer, "matchToken()");
+		assertEquals(TokenType.REAL, PA.getValue(this.lexer, "actualTokenType"));
+
+		PA.setValue(this.lexer, "actualTokenValue", Constants.DOUBLESTRING8);
+		PA.invokeMethod(this.lexer, "matchToken()");
+		assertEquals(TokenType.REAL, PA.getValue(this.lexer, "actualTokenType"));
+
+		PA.setValue(this.lexer, "actualTokenValue", Constants.DOUBLESTRING9);
+		PA.invokeMethod(this.lexer, "matchToken()");
+		assertEquals(TokenType.REAL, PA.getValue(this.lexer, "actualTokenType"));
+
+		PA.setValue(this.lexer, "actualTokenValue", Constants.DOUBLESTRING10);
+		PA.invokeMethod(this.lexer, "matchToken()");
+		assertEquals(TokenType.REAL, PA.getValue(this.lexer, "actualTokenType"));
 	}
 
 	/**
@@ -70,7 +90,10 @@ public class RealTokenTest {
 		Token token;
 		String realString = Constants.DOUBLESTRING1 + " "
 				+ Constants.DOUBLESTRING2 + " " + Constants.DOUBLESTRING3 + " "
-				+ Constants.DOUBLESTRING4 + " " + Constants.DOUBLESTRING5;
+				+ Constants.DOUBLESTRING4 + " " + Constants.DOUBLESTRING5 + " "
+				+ Constants.DOUBLESTRING6 + " " + Constants.DOUBLESTRING7 + " "
+				+ Constants.DOUBLESTRING8 + " " + Constants.DOUBLESTRING9 + " "
+				+ Constants.DOUBLESTRING10;
 		this.lexer.setSourceStream(new ByteArrayInputStream(realString
 				.getBytes("UTF-8")));
 
@@ -92,7 +115,10 @@ public class RealTokenTest {
 			throws UnsupportedEncodingException {
 		String simpleNumString = Constants.DOUBLESTRING1 + " "
 				+ Constants.DOUBLESTRING2 + " " + Constants.DOUBLESTRING3 + " "
-				+ Constants.DOUBLESTRING4 + " " + Constants.DOUBLESTRING5;
+				+ Constants.DOUBLESTRING4 + " " + Constants.DOUBLESTRING5 + " "
+				+ Constants.DOUBLESTRING6 + " " + Constants.DOUBLESTRING7 + " "
+				+ Constants.DOUBLESTRING8 + " " + Constants.DOUBLESTRING9 + " "
+				+ Constants.DOUBLESTRING10;
 
 		this.lexer.setSourceStream(new ByteArrayInputStream(simpleNumString
 				.getBytes("UTF-8")));
@@ -102,10 +128,8 @@ public class RealTokenTest {
 		assertEquals(TokenType.REAL, token.getTokenType());
 		assertEquals(1, token.getLine().intValue());
 		assertEquals(1, token.getColumn().intValue());
-		assertTrue(
-				"wrong cast",
-				token.getDoubleValue() == Double.valueOf(
-						Constants.DOUBLESTRING1).doubleValue());
+		assertTrue(token.getDoubleValue() == Double.valueOf(
+				Constants.DOUBLESTRING1).doubleValue());
 
 		token = (RealToken) this.lexer.getNextToken();
 		assertEquals(Constants.DOUBLESTRING2, token.getValue());
@@ -113,7 +137,7 @@ public class RealTokenTest {
 		assertEquals(1, token.getLine().intValue());
 		assertEquals(9, token.getColumn().intValue());
 		assertTrue(token.getDoubleValue() == Double.valueOf(
-				Constants.DOUBLESTRING2).doubleValue());
+				"12312.300000000001").doubleValue());
 
 		token = (RealToken) this.lexer.getNextToken();
 		assertEquals(Constants.DOUBLESTRING3, token.getValue());
@@ -121,23 +145,63 @@ public class RealTokenTest {
 		assertEquals(1, token.getLine().intValue());
 		assertEquals(19, token.getColumn().intValue());
 		assertTrue(token.getDoubleValue() == Double.valueOf(
-				Constants.DOUBLESTRING3).doubleValue());
+				"12312.300000000001").doubleValue());
 
 		token = (RealToken) this.lexer.getNextToken();
 		assertEquals(Constants.DOUBLESTRING4, token.getValue());
 		assertEquals(TokenType.REAL, token.getTokenType());
 		assertEquals(1, token.getLine().intValue());
 		assertEquals(29, token.getColumn().intValue());
-		assertTrue(token.getDoubleValue() == Double.valueOf(
-				Constants.DOUBLESTRING4).doubleValue());
+		assertTrue(token.getDoubleValue() == Double.valueOf("1.23123")
+				.doubleValue());
 
 		token = (RealToken) this.lexer.getNextToken();
 		assertEquals(Constants.DOUBLESTRING5, token.getValue());
 		assertEquals(TokenType.REAL, token.getTokenType());
 		assertEquals(1, token.getLine().intValue());
 		assertEquals(40, token.getColumn().intValue());
+		assertTrue(token.getDoubleValue() == Double.valueOf("1.23123")
+				.doubleValue());
+
+		token = (RealToken) this.lexer.getNextToken();
+		assertEquals(Constants.DOUBLESTRING6, token.getValue());
+		assertEquals(TokenType.REAL, token.getTokenType());
+		assertEquals(1, token.getLine().intValue());
+		assertEquals(51, token.getColumn().intValue());
 		assertTrue(token.getDoubleValue() == Double.valueOf(
-				Constants.DOUBLESTRING5).doubleValue());
+				Constants.DOUBLESTRING6).doubleValue());
+
+		token = (RealToken) this.lexer.getNextToken();
+		assertEquals(Constants.DOUBLESTRING7, token.getValue());
+		assertEquals(TokenType.REAL, token.getTokenType());
+		assertEquals(1, token.getLine().intValue());
+		assertEquals(60, token.getColumn().intValue());
+		assertTrue(token.getDoubleValue() == Double.valueOf(
+				"-12312.300000000001").doubleValue());
+
+		token = (RealToken) this.lexer.getNextToken();
+		assertEquals(Constants.DOUBLESTRING8, token.getValue());
+		assertEquals(TokenType.REAL, token.getTokenType());
+		assertEquals(1, token.getLine().intValue());
+		assertEquals(71, token.getColumn().intValue());
+		assertTrue(token.getDoubleValue() == Double.valueOf(
+				"-12312.300000000001").doubleValue());
+
+		token = (RealToken) this.lexer.getNextToken();
+		assertEquals(Constants.DOUBLESTRING9, token.getValue());
+		assertEquals(TokenType.REAL, token.getTokenType());
+		assertEquals(1, token.getLine().intValue());
+		assertEquals(82, token.getColumn().intValue());
+		assertTrue(token.getDoubleValue() == Double.valueOf(
+				Constants.DOUBLESTRING9).doubleValue());
+
+		token = (RealToken) this.lexer.getNextToken();
+		assertEquals(Constants.DOUBLESTRING10, token.getValue());
+		assertEquals(TokenType.REAL, token.getTokenType());
+		assertEquals(1, token.getLine().intValue());
+		assertEquals(94, token.getColumn().intValue());
+		assertTrue(token.getDoubleValue() == Double.valueOf(
+				"-12312.300000000001").doubleValue());
 	}
 
 	/**
@@ -148,6 +212,10 @@ public class RealTokenTest {
 	public void formatRealValuesOutOfRangeTest() {
 		RealToken token = new RealTokenImpl(Constants.DOUBLESTRINGOUTOFRANGE1,
 				null, null, null);
-		assertTrue(token.getDoubleValue() == Double.MAX_VALUE);
+		assertTrue(token.getDoubleValue() == null);
+
+		token = new RealTokenImpl(Constants.DOUBLESTRINGOUTOFRANGE2, null,
+				null, null);
+		assertTrue(token.getDoubleValue() == null);
 	}
 }

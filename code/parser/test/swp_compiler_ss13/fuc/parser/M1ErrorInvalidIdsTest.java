@@ -4,13 +4,14 @@ import static org.junit.Assert.fail;
 
 import java.io.ByteArrayInputStream;
 
+import swp_compiler_ss13.fuc.lexer.LexerImpl;
+
 import org.apache.log4j.BasicConfigurator;
 import org.junit.Test;
 
 import swp_compiler_ss13.common.lexer.Lexer;
 import swp_compiler_ss13.common.report.ReportLog;
-import swp_compiler_ss13.fuc.lexer.LexerImpl;
-import swp_compiler_ss13.fuc.parser.errorHandling.ParserReportLogImpl;
+import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
 import swp_compiler_ss13.fuc.parser.generator.ALRGenerator;
 import swp_compiler_ss13.fuc.parser.generator.LR0Generator;
 import swp_compiler_ss13.fuc.parser.generator.items.LR0Item;
@@ -70,7 +71,7 @@ public class M1ErrorInvalidIdsTest {
 				+ "long return;\n"
 				+ "long string;\n"
 				+ "long bool;\n"
-				+ "long fü_berlin;";
+				+ "long fÃ¼_berlin;";
 		// Generate parsing table
 		Grammar grammar = new ProjectGrammar.M1().getGrammar();
 		ALRGenerator<LR0Item, LR0State> generator = new LR0Generator(grammar);
@@ -83,7 +84,7 @@ public class M1ErrorInvalidIdsTest {
 		// Run LR-parser with table
 		LRParser lrParser = new LRParser();
 		LexerWrapper lexWrapper = new LexerWrapper(lexer, grammar);
-		ReportLog reportLog = new ParserReportLogImpl();
+		ReportLog reportLog = new ReportLogImpl();
 		try {
 			if (lrParser.parse(lexWrapper, reportLog, table) == null) {
 				throw new ParserException("A parse exception!");

@@ -35,22 +35,25 @@ public class TypeSymbolTest {
 	 */
 	@Test
 	public void matchingTypeSymbolsTest() {
-		TokenType tokenType = (TokenType) PA.invokeMethod(this.lexer,
-				"matchToken(java.lang.String)", Constants.LONGSYMBOL);
-		assertEquals(TokenType.LONG_SYMBOL, tokenType);
+		PA.setValue(this.lexer, "actualTokenValue", Constants.LONGSYMBOL);
+		PA.invokeMethod(this.lexer, "matchToken()");
+		assertEquals(TokenType.LONG_SYMBOL,
+				PA.getValue(this.lexer, "actualTokenType"));
 
-		tokenType = (TokenType) PA.invokeMethod(this.lexer,
-				"matchToken(java.lang.String)", Constants.DOUBLESYMBOL);
-		assertEquals(TokenType.DOUBLE_SYMBOL, tokenType);
+		PA.setValue(this.lexer, "actualTokenValue", Constants.DOUBLESYMBOL);
+		PA.invokeMethod(this.lexer, "matchToken()");
+		assertEquals(TokenType.DOUBLE_SYMBOL,
+				PA.getValue(this.lexer, "actualTokenType"));
 
-		tokenType = (TokenType) PA.invokeMethod(this.lexer,
-				"matchToken(java.lang.String)", Constants.BOOLSYMBOL);
-		assertEquals(TokenType.BOOL_SYMBOL, tokenType);
+		PA.setValue(this.lexer, "actualTokenValue", Constants.BOOLSYMBOL);
+		PA.invokeMethod(this.lexer, "matchToken()");
+		assertEquals(TokenType.BOOL_SYMBOL,
+				PA.getValue(this.lexer, "actualTokenType"));
 
-		tokenType = (TokenType) PA.invokeMethod(this.lexer,
-				"matchToken(java.lang.String)", Constants.STRINGSYMBOL);
-		assertEquals(TokenType.STRING_SYMBOL, tokenType);
-
+		PA.setValue(this.lexer, "actualTokenValue", Constants.STRINGSYMBOL);
+		PA.invokeMethod(this.lexer, "matchToken()");
+		assertEquals(TokenType.STRING_SYMBOL,
+				PA.getValue(this.lexer, "actualTokenType"));
 	}
 
 	/**

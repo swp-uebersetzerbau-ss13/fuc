@@ -2,7 +2,6 @@ package swp_compiler_ss13.fuc.ast.test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
-import static org.junit.Assert.fail;
 import junit.extensions.PA;
 
 import org.junit.Before;
@@ -83,11 +82,6 @@ public class ReturnNodeImplTest {
 	 */
 	@Test
 	public void testSetRightValue() {
-		try {
-			this.node.setRightValue(null);
-			fail("Expected IllegalArgumentException");
-		} catch (IllegalArgumentException e) {
-		}
 		BasicIdentifierNode id = new BasicIdentifierNodeImpl();
 		this.node.setRightValue(id);
 		assertSame(id, PA.getValue(this.node, "rightNode"));

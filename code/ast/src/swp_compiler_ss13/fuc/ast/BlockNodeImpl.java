@@ -85,6 +85,9 @@ public class BlockNodeImpl extends ASTNodeImpl implements BlockNode {
 			logger.error("The argument statement can not be null!");
 			throw new IllegalArgumentException("The argument statement can not be null!");
 		}
+		
+		statement.setParentNode(this);
+		
 		this.statementNodes.add(statement);
 	}
 

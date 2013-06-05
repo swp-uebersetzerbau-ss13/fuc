@@ -55,6 +55,9 @@ public class PrintNodeImpl extends ASTNodeImpl implements PrintNode {
 			logger.error("The argument identifier can not be null!");
 			throw new IllegalArgumentException("The argument identifier can not be null!");
 		}
+		
+		identifier.setParentNode(this);
+		
 		this.node = identifier;
 	}
 

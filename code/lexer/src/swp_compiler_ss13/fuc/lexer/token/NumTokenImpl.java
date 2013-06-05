@@ -86,7 +86,7 @@ public class NumTokenImpl implements NumToken {
 				return Long.parseLong(this.value);
 			}
 		} catch (Exception e) {
-			return Long.MAX_VALUE;
+			return null;
 		}
 	}
 }
