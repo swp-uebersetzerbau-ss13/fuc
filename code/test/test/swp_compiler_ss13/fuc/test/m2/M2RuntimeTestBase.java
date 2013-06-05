@@ -1,6 +1,7 @@
 package swp_compiler_ss13.fuc.test.m2;
 
-import lexer.LexerImpl;
+import junit.extensions.PA;
+import swp_compiler_ss13.fuc.lexer.LexerImpl;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.junit.Assume;
@@ -19,8 +20,8 @@ import swp_compiler_ss13.fuc.backend.LLVMBackend;
 import swp_compiler_ss13.fuc.backend.TACExecutor;
 import swp_compiler_ss13.fuc.ir.IntermediateCodeGeneratorImpl;
 import swp_compiler_ss13.fuc.parser.ParserImpl;
-import swp_compiler_ss13.fuc.parser.errorHandling.ReportLogImpl;
 import swp_compiler_ss13.fuc.test.base.RuntimeTestBase;
+import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
 
 import java.io.IOException;
 import java.util.Arrays;

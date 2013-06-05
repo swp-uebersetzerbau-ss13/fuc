@@ -6,7 +6,8 @@ import java.io.*;
 import java.util.Arrays;
 import java.util.Collection;
 
-import lexer.LexerImpl;
+import junit.extensions.PA;
+import swp_compiler_ss13.fuc.lexer.LexerImpl;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -21,7 +22,7 @@ import swp_compiler_ss13.fuc.backend.LLVMBackend;
 import swp_compiler_ss13.fuc.backend.TACExecutor;
 import swp_compiler_ss13.fuc.ir.IntermediateCodeGeneratorImpl;
 import swp_compiler_ss13.fuc.parser.ParserImpl;
-import swp_compiler_ss13.fuc.parser.errorHandling.ReportLogImpl;
+import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
 
 /**
  * Runtime tests for the M1 examples. The runtime tests check for results

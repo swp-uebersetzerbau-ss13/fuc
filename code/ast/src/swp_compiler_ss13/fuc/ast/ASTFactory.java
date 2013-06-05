@@ -121,7 +121,13 @@ public class ASTFactory {
 	public BlockNode addBlock() {
 		BlockNode block = new BlockNodeImpl();
 		block.setParentNode(this.node);
-		block.setSymbolTable(new SymbolTableImpl(((BlockNode) this.node).getSymbolTable()));
+
+		ASTNode parentBlock = this.node;
+		while (!(parentBlock instanceof BlockNode)) {
+			parentBlock = parentBlock.getParentNode();
+		}
+
+		block.setSymbolTable(new SymbolTableImpl(((BlockNode) parentBlock).getSymbolTable()));
 		switch (this.node.getNodeType()) {
 		case BranchNode:
 			BranchNode branch = ((BranchNode) this.node);
@@ -160,7 +166,9 @@ public class ASTFactory {
 		((BlockNode) this.node).addStatement(ret);
 		ret.setParentNode(this.node);
 		ret.setRightValue(identifier);
-		identifier.setParentNode(ret);
+		if (identifier != null) {
+			identifier.setParentNode(ret);
+		}
 		return ret;
 	}
 

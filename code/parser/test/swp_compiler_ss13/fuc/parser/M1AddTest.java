@@ -12,7 +12,7 @@ import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.M1.sem;
 
 import java.io.ByteArrayInputStream;
 
-import lexer.LexerImpl;
+import swp_compiler_ss13.fuc.lexer.LexerImpl;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -22,8 +22,8 @@ import org.junit.Test;
 import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.lexer.Lexer;
 import swp_compiler_ss13.common.lexer.TokenType;
-import swp_compiler_ss13.common.parser.ReportLog;
-import swp_compiler_ss13.fuc.parser.errorHandling.ReportLogImpl;
+import swp_compiler_ss13.common.report.ReportLog;
+import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
 import swp_compiler_ss13.fuc.parser.generator.ALRGenerator;
 import swp_compiler_ss13.fuc.parser.generator.LR0Generator;
 import swp_compiler_ss13.fuc.parser.generator.items.LR0Item;

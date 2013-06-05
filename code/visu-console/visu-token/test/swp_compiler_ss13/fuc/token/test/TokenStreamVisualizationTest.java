@@ -2,12 +2,11 @@ package swp_compiler_ss13.fuc.token.test;
 
 import java.io.ByteArrayInputStream;
 
-import lexer.LexerImpl;
-
 import org.junit.Before;
 import org.junit.Test;
 
 import swp_compiler_ss13.common.lexer.Lexer;
+import swp_compiler_ss13.fuc.lexer.LexerImpl;
 import swp_compiler_ss13.fuc.token.visualization.TokenStreamVisualizationImpl;
 
 public class TokenStreamVisualizationTest {
