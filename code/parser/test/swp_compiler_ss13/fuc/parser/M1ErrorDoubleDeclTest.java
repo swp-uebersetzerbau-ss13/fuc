@@ -1,5 +1,7 @@
 package swp_compiler_ss13.fuc.parser;
 
+import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.loadExample;
+
 import java.io.ByteArrayInputStream;
 
 import org.apache.log4j.BasicConfigurator;
@@ -60,10 +62,9 @@ public class M1ErrorDoubleDeclTest {
 //	}
 
 	@Test
-	public void testErrorDoubleDeclOrgLexer() {
-		String input = "# error: two decls for same id i\n"
-				+ "long i;\n"
-				+ "long i;";
+	public void testErrorDoubleDeclOrgLexer() throws Exception {
+		String input = loadExample("m1/error_double_decl.prog");
+		
 		// Generate parsing table
 		Grammar grammar = new ProjectGrammar.M1().getGrammar();
 		ALRGenerator<LR0Item, LR0State> generator = new LR0Generator(grammar);

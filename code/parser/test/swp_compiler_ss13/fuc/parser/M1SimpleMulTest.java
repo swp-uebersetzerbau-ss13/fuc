@@ -1,6 +1,7 @@
 package swp_compiler_ss13.fuc.parser;
 
 import static org.junit.Assert.assertNotNull;
+import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.loadExample;
 
 import java.io.ByteArrayInputStream;
 
@@ -69,11 +70,9 @@ public class M1SimpleMulTest {
 	}
 
 	@Test
-	public void testSimpleMulOrgLexer() {
-		String input = "# returns 6\n"
-				+ "long l;\n"
-				+ "l = 3 * 3;\n"
-				+ "return l;";
+	public void testSimpleMulOrgLexer() throws Exception {
+		String input = loadExample("m1/simple_mul.prog");
+		
 		// Generate parsing table
 		Grammar grammar = new ProjectGrammar.M1().getGrammar();
 		ALRGenerator<LR0Item, LR0State> generator = new LR0Generator(grammar);

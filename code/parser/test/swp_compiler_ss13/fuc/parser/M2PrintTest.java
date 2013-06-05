@@ -1,6 +1,7 @@
 package swp_compiler_ss13.fuc.parser;
 
 import static org.junit.Assert.assertNotNull;
+import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.loadExample;
 
 import java.io.ByteArrayInputStream;
 
@@ -70,20 +71,9 @@ public class M2PrintTest {
 	}
 
 	@Test
-	public void testAssignmentOrgLexer() {
-		String input = "# returns 10\n"
-				+ "# prints nothing\n"
-				+ "long a;\n"
-				+ "long b;\n"
-				+ "long c;\n"
-				+ "\n"
-				+ "a = 4;\n"
-				+ "b = 3;\n"
-				+ "c = 2;\n"
-				+ "a = b = 4;\n"
-				+ "c = a + b + c;\n"
-				+ "\n"
-				+ "return c;\n";
+	public void testPrintOrgLexer() throws Exception {
+		String input = loadExample("m2/print.prog");
+		
 		// Generate parsing table
 		Grammar grammar = new ProjectGrammar.M1().getGrammar();
 		ALRGenerator<LR0Item, LR0State> generator = new LR0Generator(grammar);

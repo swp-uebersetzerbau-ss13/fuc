@@ -1,6 +1,7 @@
 package swp_compiler_ss13.fuc.parser;
 
 import static org.junit.Assert.assertNotNull;
+import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.loadExample;
 
 import java.io.ByteArrayInputStream;
 
@@ -69,10 +70,9 @@ public class M1UndefReturnTest {
 	}
 
 	@Test
-	public void testErrorUndefReturnOrgLexer() {
-		String input = "# error: id spam is not initialized and returned"
-				+ "long spam;\n"
-				+ "return spam;";
+	public void testErrorUndefReturnOrgLexer() throws Exception {
+		String input = loadExample("m1/error_undef_return.prog");
+		
 		// Generate parsing table
 		Grammar grammar = new ProjectGrammar.M1().getGrammar();
 		ALRGenerator<LR0Item, LR0State> generator = new LR0Generator(grammar);

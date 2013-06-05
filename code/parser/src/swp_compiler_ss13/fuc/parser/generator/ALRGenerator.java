@@ -2,6 +2,7 @@ package swp_compiler_ss13.fuc.parser.generator;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.Map;
 
 import swp_compiler_ss13.fuc.parser.generator.automaton.Dfa;
@@ -9,15 +10,16 @@ import swp_compiler_ss13.fuc.parser.generator.automaton.DfaEdge;
 import swp_compiler_ss13.fuc.parser.generator.items.Item;
 import swp_compiler_ss13.fuc.parser.generator.states.ALRState;
 import swp_compiler_ss13.fuc.parser.generator.states.AState;
-import swp_compiler_ss13.fuc.parser.generator.terminals.ITerminalSet;
+import swp_compiler_ss13.fuc.parser.generator.states.LR0State;
 import swp_compiler_ss13.fuc.parser.grammar.Grammar;
 import swp_compiler_ss13.fuc.parser.grammar.NonTerminal;
+import swp_compiler_ss13.fuc.parser.grammar.Symbol;
 import swp_compiler_ss13.fuc.parser.grammar.Terminal;
 import swp_compiler_ss13.fuc.parser.parser.states.LRParserState;
 import swp_compiler_ss13.fuc.parser.parser.tables.DoubleEntryException;
+import swp_compiler_ss13.fuc.parser.parser.tables.LRActionTable;
 import swp_compiler_ss13.fuc.parser.parser.tables.LRParsingTable;
 import swp_compiler_ss13.fuc.parser.parser.tables.actions.Accept;
-import swp_compiler_ss13.fuc.parser.parser.tables.actions.Reduce;
 import swp_compiler_ss13.fuc.parser.parser.tables.actions.Shift;
 
 /**
@@ -112,31 +114,87 @@ public abstract class ALRGenerator<I extends Item, S extends ALRState<I>> {
 			for (I item : state.getItems()) {
 				if (item.isComplete()) {
 					LRParserState fromState = statesMap.get(kernel);
-
-					// Aw! I need to add this Reduce for all elements of the
-					// FOLLOW-set of this item...
-					ITerminalSet terminalSet = grammarInfo.getFollowSets().get(
-							item.getProduction().getLHS());
-					for (Terminal terminal : terminalSet.getTerminals()) {
-						try {
-							table.getActionTable().set(
-									new Reduce(item.getProduction()),
-									fromState, terminal);
-						} catch (DoubleEntryException err) {
-							throw new RuntimeException(err); // TODO Really the
-																// right way...?
-						}
+					try {
+						addReduceAction(table.getActionTable(), item, fromState);
+					} catch (DoubleEntryException err) {
+						throw new RuntimeException(err); // TODO Really the
+						// right way...?
 					}
 				}
 			}
 		}
 	}
+	
+	protected abstract void addReduceAction(LRActionTable table, I item, LRParserState fromState) throws DoubleEntryException;
 
 	// --------------------------------------------------------------------------
 	// --- methods
 	// --------------------------------------------------------------
 	// --------------------------------------------------------------------------
-	public abstract Dfa<I, S> createDFA();
+	public Dfa<I, S> createDFA() {
+		// Init
+		S startState = createStartState();
+		startState.toString();
+		Dfa<I, S> dfa = createLrDFA(startState);
+
+		LinkedList<S> todo = new LinkedList<>();
+		todo.add(startState);
+
+		// For all state, find edges to (possibly) new states
+		while (!todo.isEmpty()) {
+			S kernel = todo.removeFirst();
+			ALRState<I> state = kernel.closure(grammarInfo); // unpack!
+
+			for (I item : state.getItems()) {
+				if (item.isShiftable()) {
+					Symbol symbol = item.getNextSymbol();
+					if (symbol.equals(Terminal.EOF)) {
+						// $: We accept...? TODO Is the simplest solution,
+						// but... sufficient?
+						dfa.getEdges().add(
+								DfaEdge.createAcceptEdge(kernel, symbol));
+					} else {
+						@SuppressWarnings("unchecked")
+						S nextState = (S) state.goTo(symbol);
+
+						// Is it new?
+						S oldState = contains(dfa, nextState);
+						if (oldState == null) {
+							dfa.getStates().add(nextState);
+							todo.add(nextState);
+						} else {
+							// Re-use old instance and drop temporarely
+							// generated 'nextState'..
+							nextState = oldState;
+						}
+
+						// Add edge to automaton
+						DfaEdge<S> edge = new DfaEdge<S>(kernel, symbol,
+								nextState, item.getLR0Kernel());
+						dfa.getEdges().add(edge);
+					}
+				}
+			}
+		}
+
+		return dfa;
+	}
+	
+	protected abstract S createStartState();
+	protected abstract Dfa<I, S> createLrDFA(S startState);
+	
+	/**
+	 * @return The equivalent {@link LR0State} if there is one contained in the
+	 *         DFA; else <code>null</code>
+	 */
+	private S contains(Dfa<I, S> dfa, S newState) {
+		for (S oldState : dfa.getStates()) {
+			if (oldState.equals(newState)) {
+				return oldState;
+			}
+		}
+		return null;
+	}
 
 	// --------------------------------------------------------------------------
 	// --- getter/setter
