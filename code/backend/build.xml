@@ -95,7 +95,7 @@
 				</classpath>
 				<batchtest todir="${test.results.dir}">
 					<fileset dir="${test.dir}">
-						<include name="**/*TestSuite.java" />
+						<include name="**/TestSuite.java" />
 					</fileset>
 				</batchtest>
                 <formatter type="plain" usefile="false" />
@@ -132,5 +132,42 @@
 			<html destdir="${test.coverage_report.dir}" />
 		</jacoco:report>
 	</target>
+
+    <!-- === run runtime tests === -->
+    <target name="run-tests-runtime" depends="build-tests"
+            description="run the runtime junit tests. Needs LLVM Installation">
+        <mkdir dir="${test.results.dir}"/>
+
+        <junit
+                printsummary="on"
+                fork="true"
+                haltonerror="true"
+                haltonfailure="true">
+            <classpath>
+                <path refid="classpath-test"/>
+            </classpath>
+            <batchtest todir="${test.results.dir}">
+                <fileset dir="${test.dir}">
+                    <include name="**/RuntimeTestSuite.java"/>
+                </fileset>
+            </batchtest>
+            <formatter type="plain" usefile="false"/>
+            <formatter type="xml"/>
+        </junit>
+
+        <!-- Generate HTML report -->
+        <junitreport todir="${test.results.dir}">
+            <fileset dir="${test.results.dir}">
+                <include name="TEST-*.xml"/>
+            </fileset>
+            <report format="noframes" todir="${test.reports.dir}"/>
+        </junitreport>
+    </target>
+
+    <!-- === run all the tests === -->
+    <target name="run-tests-all" depends="build-tests, run-tests, run-tests-runtime"
+            description="run all the junit tests. Needs LLVM Installation">
+    </target>
+
 
 </project>

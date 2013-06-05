@@ -13,13 +13,15 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.junit.*;
 
+import org.junit.experimental.categories.Category;
 import swp_compiler_ss13.common.backend.BackendException;
 import swp_compiler_ss13.common.backend.Quadruple;
 
 /**
  * Runtime tests for the LLVMBackend
  */
-public class BackendRuntimeTest {
+@Category(RuntimeTests.class)
+public class RuntimeTest {
 
 	private static LLVMBackend backend;
 	private static ArrayList<Quadruple> tac;
@@ -27,14 +29,24 @@ public class BackendRuntimeTest {
 	private ByteArrayOutputStream os;
 	private static Logger logger;
 
+	private static boolean hasLLI;
+
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-
-		logger = Logger.getLogger(BackendRuntimeTest.class);
+		logger = Logger.getLogger(RuntimeTest.class);
 
 		/* only run tests if lli (dynamic compiler from LLVM) is found */
-		Assume.assumeTrue(checkForLLIInstallation());
+		hasLLI = checkForLLIInstallation();
+		if (!hasLLI){
+			logger.warn("Runtime tests are ignored, because of missing LLVM lli installation.");
+			String infoMsg = "If you have LLVM installed you might need to check your $PATH: " +
+					"Intellij IDEA: Run -> Edit Configurations -> Environment variables; " +
+					"Eclipse: Run Configurations -> Environment; " +
+					"Shell: Check $PATH";
+			logger.info(infoMsg);
+		}
+		Assume.assumeTrue("Missing LLVM installation", hasLLI);
 
 		backend = new LLVMBackend();
 	}
@@ -42,6 +54,7 @@ public class BackendRuntimeTest {
 	/* Called before every test */
 	@Before
 	public void setUp() throws Exception {
+
 		tac = new ArrayList<Quadruple>();
 		os = new ByteArrayOutputStream();
 		out = new PrintWriter(os);
@@ -50,6 +63,11 @@ public class BackendRuntimeTest {
 	/* Called after every test */
 	@After
 	public void tearDown() throws Exception {
+	}
+
+	@AfterClass
+	public static void tearDownBeforeClass() {
+
 	}
 
 	@Test
@@ -121,57 +139,57 @@ public class BackendRuntimeTest {
 		assertEquals("true\nfalse\n", res.output);
 	}
 
-	@Test
-	@Ignore
-	public void notBooleanTest() throws InterruptedException, BackendException, IOException {
-
-		out.println("DECLARE_BOOLEAN|!|!|b");
-		out.println("NOT_BOOLEAN|#FALSE|!|b");
-		out.println("PRINT_BOOLEAN|b|!|!|");
-
-		assertEquals(0, runTAC().exitCode);
-	}
-
-	@Test
-	@Ignore
-	public void orBooleanTest() throws InterruptedException, BackendException, IOException {
-
-		out.println("DECLARE_BOOLEAN|!|!|b");
-		out.println("DECLARE_BOOLEAN|!|!|rhs");
-		out.println("OR_BOOLEAN|#FALSE|#TRUE|b");
-
-		assertEquals(0, runTAC().exitCode);
-	}
-
-	@Test
-	@Ignore
-	public void printLong() throws InterruptedException, BackendException, IOException {
-
-		out.println("DECLARE_LONG|#1|!|l");
-		out.println("PRINT_LONG|l|!|!|");
-
-		assertEquals(0, runTAC().exitCode);
-	}
-
-	@Test
-	@Ignore
-	public void printDouble() throws InterruptedException, BackendException, IOException {
-
-		out.println("DECLARE_DOUBLE|#1.0|!|d");
-		out.println("PRINT_DOUBLE|d|!|!");
-
-		assertEquals(0, runTAC().exitCode);
-	}
-
-	@Test
-	@Ignore
-	public void printString() throws InterruptedException, BackendException, IOException {
-
-		out.println("DECLARE_STRING|#\"bla\"|!|s");
-		out.println("PRINT_STRING|s|!|!");
-
-		assertEquals(0, runTAC().exitCode);
-	}
+//	@Test
+//	@Ignore
+//	public void notBooleanTest() throws InterruptedException, BackendException, IOException {
+//
+//		out.println("DECLARE_BOOLEAN|!|!|b");
+//		out.println("NOT_BOOLEAN|#FALSE|!|b");
+//		out.println("PRINT_BOOLEAN|b|!|!|");
+//
+//		assertEquals(0, runTAC().exitCode);
+//	}
+//
+//	@Test
+//	@Ignore
+//	public void orBooleanTest() throws InterruptedException, BackendException, IOException {
+//
+//		out.println("DECLARE_BOOLEAN|!|!|b");
+//		out.println("DECLARE_BOOLEAN|!|!|rhs");
+//		out.println("OR_BOOLEAN|#FALSE|#TRUE|b");
+//
+//		assertEquals(0, runTAC().exitCode);
+//	}
+//
+//	@Test
+//	@Ignore
+//	public void printLong() throws InterruptedException, BackendException, IOException {
+//
+//		out.println("DECLARE_LONG|#1|!|l");
+//		out.println("PRINT_LONG|l|!|!|");
+//
+//		assertEquals(0, runTAC().exitCode);
+//	}
+//
+//	@Test
+//	@Ignore
+//	public void printDouble() throws InterruptedException, BackendException, IOException {
+//
+//		out.println("DECLARE_DOUBLE|#1.0|!|d");
+//		out.println("PRINT_DOUBLE|d|!|!");
+//
+//		assertEquals(0, runTAC().exitCode);
+//	}
+//
+//	@Test
+//	@Ignore
+//	public void printString() throws InterruptedException, BackendException, IOException {
+//
+//		out.println("DECLARE_STRING|#\"bla\"|!|s");
+//		out.println("PRINT_STRING|s|!|!");
+//
+//		assertEquals(0, runTAC().exitCode);
+//	}
 
 
 
@@ -193,14 +211,6 @@ public class BackendRuntimeTest {
 
 		Logger.getRootLogger().setLevel(level);
 
-		if (!hasLLI) {
-			logger.warn("Runtime tests are ignored, because of missing LLVM lli installation.");
-			String infoMsg = "If you have LLVM installed you might need to check your $PATH: " +
-					"Intellij IDEA: Run -> Edit Configurations -> Environment variables; " +
-					"Eclipse: Run Configurations -> Environment; " +
-					"Shell: Check $PATH";
-			logger.info(infoMsg);
-		}
 		return hasLLI;
 	}
 
