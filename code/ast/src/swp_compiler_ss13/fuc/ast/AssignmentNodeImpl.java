@@ -6,8 +6,8 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import swp_compiler_ss13.common.ast.ASTNode;
+import swp_compiler_ss13.common.ast.nodes.ExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.IdentifierNode;
-import swp_compiler_ss13.common.ast.nodes.StatementNode;
 import swp_compiler_ss13.common.ast.nodes.binary.AssignmentNode;
 
 /**
@@ -31,7 +31,7 @@ public class AssignmentNodeImpl extends ASTNodeImpl implements AssignmentNode {
 	/**
 	 * right node
 	 */
-	private StatementNode rightNode;
+	private ExpressionNode rightNode;
 
 	@Override
 	public ASTNodeType getNodeType() {
@@ -80,7 +80,7 @@ public class AssignmentNodeImpl extends ASTNodeImpl implements AssignmentNode {
 	}
 
 	@Override
-	public StatementNode getRightValue() {
+	public ExpressionNode getRightValue() {
 		if (this.rightNode == null) {
 			logger.warn("returning null as the right value for the assignment!");
 		}
@@ -88,7 +88,7 @@ public class AssignmentNodeImpl extends ASTNodeImpl implements AssignmentNode {
 	}
 
 	@Override
-	public void setRightValue(StatementNode node) {
+	public void setRightValue(ExpressionNode node) {
 		if (node == null) {
 			logger.error("The argument identifier can not be null!");
 			throw new IllegalArgumentException("The argument identifier can not be null!");

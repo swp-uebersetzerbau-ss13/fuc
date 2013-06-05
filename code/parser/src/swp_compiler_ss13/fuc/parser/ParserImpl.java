@@ -3,7 +3,7 @@ package swp_compiler_ss13.fuc.parser;
 import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.lexer.Lexer;
 import swp_compiler_ss13.common.parser.Parser;
-import swp_compiler_ss13.common.parser.ReportLog;
+import swp_compiler_ss13.common.report.ReportLog;
 import swp_compiler_ss13.fuc.parser.generator.ALRGenerator;
 import swp_compiler_ss13.fuc.parser.generator.LR0Generator;
 import swp_compiler_ss13.fuc.parser.generator.items.LR0Item;
@@ -15,7 +15,6 @@ import swp_compiler_ss13.fuc.parser.parser.LRParser;
 import swp_compiler_ss13.fuc.parser.parser.LexerWrapper;
 import swp_compiler_ss13.fuc.parser.parser.ParserException;
 import swp_compiler_ss13.fuc.parser.parser.tables.LRParsingTable;
-import swp_compiler_ss13.fuc.semantic_analyser.SemanticAnalyser;
 
 public class ParserImpl implements Parser {
 	// --------------------------------------------------------------------------
@@ -48,6 +47,11 @@ public class ParserImpl implements Parser {
 		LRParser lrParser = new LRParser();
 		LexerWrapper lexWrapper = new LexerWrapper(this.lexer, grammar);
 		AST ast = null;
+		
+		if(reportLog == null){
+			throw new NullPointerException("reportLog is not set");
+		}
+		
 		try{
 			ast = lrParser.parse(lexWrapper, this.reportLog, table);
 		}catch(DoubleIdentifierException e){
@@ -55,12 +59,6 @@ public class ParserImpl implements Parser {
 		}catch(ParserException e){
 			return null;
 		}
-		
-			// Call semantic analysis
-			// TODO Fix dependency cycle caused by ReportLogImpl + Error!!!
-			SemanticAnalyser analyzer = new SemanticAnalyser(this.reportLog);
-			ast = analyzer.analyse(ast);
-		
 		
 
 		return ast;

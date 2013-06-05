@@ -1,0 +1,16 @@
+#!/bin/sh
+
+#
+# To activate: copy as “pre-commit” to .git/hooks
+#
+
+cd code
+echo "Running unit tests ... (skip by running “git commit --no-verify” instead)"
+
+ant run-tests > /dev/null
+
+if [ $? -ne 0 ]; then
+	echo "Unit tests failed! Commit was aborted."
+	exit 1
+fi
+
