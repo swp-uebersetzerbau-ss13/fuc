@@ -4,6 +4,7 @@ import junit.extensions.PA;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+import swp_compiler_ss13.fuc.errorLog.LogEntry;
 import swp_compiler_ss13.fuc.lexer.LexerImpl;
 import org.junit.*;
 import org.junit.runner.RunWith;
@@ -89,35 +90,35 @@ public class M1ErrorTest {
 				"long bar;\n" +
 				"foo = 3;\n" +
 				"bar = foo ++ 1;";
-//		String undefReturn = "" +
-//				"# error: id spam is not initialized and returned\n" +
-//				"long spam;\n" +
-//				"return spam;";
+		String undefReturn = "" +
+				"# error: id spam is not initialized and returned\n" +
+				"long spam;\n" +
+				"return spam;";
 
 		return Arrays.asList(new Object[][] {
 				/* mask: {testName, progCode, expectedReportLogError} */
 				{ "doubleDeclaration", doubleDeclaration,
-						"The variable 'i' of type 'LongType' has been declared twice!" },
-				{ "invalidIds", invalidIds, "Found undefined token 'foo$bar'!" },
-				{ "multipleMinusENotation", multipleMinusENotation, "Found undefined token '10e----1'!" },
-				{ "multiplePlusesInExp", multiplePlusesInExp, "Found undefined token '++'!" } });
-//				{ "undefReturn", undefReturn, "NotInitializedException" } });
+						"ERROR (DOUBLE_DECLARATION): i' of type 'LongType" },
+				{ "invalidIds", invalidIds, "ERROR (UNRECOGNIZED_TOKEN): foo$bar" },
+				{ "multipleMinusENotation", multipleMinusENotation, "ERROR (UNRECOGNIZED_TOKEN): 10e----1" },
+				{ "multiplePlusesInExp", multiplePlusesInExp, "ERROR (UNRECOGNIZED_TOKEN): ++" },
+				{ "undefReturn", undefReturn, "WARNNING (UNDEFINED): Variable “spam” may be used without initialization." } });
 	}
 
 
 	@Test
 	public void errorTest() throws InterruptedException, IOException, IntermediateCodeGeneratorException, BackendException {
-		//Error e = compileForError(this.prog).get(0);
-		//assertEquals(this.expected, e.getMessage());
+		LogEntry logEntry = compileForError(this.prog).get(0);
+		assertEquals(this.expected, logEntry.toString());
 	}
 
 
-//	private List<Error> compileForError(String prog) throws BackendException,
-//			IntermediateCodeGeneratorException, IOException, InterruptedException {
-//		lexer.setSourceStream(new ByteArrayInputStream(prog.getBytes("UTF-8")));
-//		parser.setLexer(lexer);
-//		parser.setReportLog(errlog);
-//		AST ast = parser.getParsedAST();
-//		return errlog.getErrors();
-//	}
+	private List<LogEntry> compileForError(String prog) throws BackendException,
+			IntermediateCodeGeneratorException, IOException, InterruptedException {
+		lexer.setSourceStream(new ByteArrayInputStream(prog.getBytes("UTF-8")));
+		parser.setLexer(lexer);
+		parser.setReportLog(errlog);
+		AST ast = parser.getParsedAST();
+		return errlog.getEntries();
+	}
 }
