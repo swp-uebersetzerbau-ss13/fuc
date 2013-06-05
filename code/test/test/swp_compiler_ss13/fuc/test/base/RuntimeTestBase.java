@@ -20,7 +20,7 @@ import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 import swp_compiler_ss13.common.lexer.Lexer;
 import swp_compiler_ss13.common.parser.Parser;
 import swp_compiler_ss13.fuc.backend.TACExecutor;
-import swp_compiler_ss13.fuc.parser.errorHandling.ReportLogImpl;
+import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
 
 /**
  * Runtime tests base class. The tests runtime tests require a LLVM installation
