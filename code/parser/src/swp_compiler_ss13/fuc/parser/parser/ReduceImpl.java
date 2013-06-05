@@ -29,6 +29,7 @@ import swp_compiler_ss13.common.types.primitive.BooleanType;
 import swp_compiler_ss13.common.types.primitive.DoubleType;
 import swp_compiler_ss13.common.types.primitive.LongType;
 import swp_compiler_ss13.common.types.primitive.StringType;
+import swp_compiler_ss13.fuc.ast.ASTNodeImpl;
 import swp_compiler_ss13.fuc.ast.ArithmeticBinaryExpressionNodeImpl;
 import swp_compiler_ss13.fuc.ast.ArithmeticUnaryExpressionNodeImpl;
 import swp_compiler_ss13.fuc.ast.ArrayIdentifierNodeImpl;
@@ -81,9 +82,12 @@ public class ReduceImpl {
 
 					BlockNodeImpl block = joinBlocks(left, right, reportLog);
 					
-					block.setCoverage(((BlockNode)left).coverage());
-					block.setCoverage(((BlockNode)right).coverage());
-					
+					if(left != NO_VALUE){
+						block.setCoverage(((BlockNode)left).coverage());
+					}
+					if(right != NO_VALUE){
+						block.setCoverage(((BlockNode)right).coverage());
+					}
 					return block;
 				}
 			};
@@ -540,6 +544,7 @@ public class ReduceImpl {
 				}
 			};
 		case "bool -> join":
+			break;
 		case "join -> join && equality":
 			return new ReduceAction() {
 				@Override
@@ -693,19 +698,19 @@ public class ReduceImpl {
 						writeReportError(reportLog, objs[0], "Token (");
 					}
 					
-					if(!(objs[1] instanceof AssignmentNode)){
-						writeReportError(reportLog, objs[1], "Assignment");
+					if(!(objs[1] instanceof ExpressionNode)){
+						writeReportError(reportLog, objs[1], "Expression");
 					}
 					
 					if(!(objs[2] instanceof Token)){
 						writeReportError(reportLog, objs[2], "Token )");
 					}
 
-					AssignmentNodeImpl assign = (AssignmentNodeImpl) objs[1];
-					assign.setCoverageAtFront((Token)objs[0]);
-					assign.setCoverage((Token)objs[2]);
+					ASTNodeImpl astNode = (ASTNodeImpl) objs[1];
+					astNode.setCoverageAtFront((Token)objs[0]);
+					astNode.setCoverage((Token)objs[2]);
 					
-					return  assign;
+					return  astNode;
 				}
 			};
 		case "unary -> factor":
@@ -794,61 +799,49 @@ public class ReduceImpl {
 				}
 
 			};
-		case "type -> bool":
+		case "type -> basic":
 			return new ReduceAction() {
 				@Override
 				public Object create(Object... objs) throws ParserException  {
-					Token token = (Token)objs[0];
-					DeclarationNodeImpl decl = new DeclarationNodeImpl();
-					decl.setType(new BooleanType());
-					decl.setCoverage(token);
 					
-					return decl;
-				}
-
-			};
-		case "type -> string":
-			return new ReduceAction() {
-				@Override
-				public Object create(Object... objs) throws ParserException  {
+					if(!(objs[0] instanceof Token)){
+						writeReportError(reportLog, objs[0], "Type");
+					}
+					
 					Token token = (Token)objs[0];
 					DeclarationNodeImpl decl = new DeclarationNodeImpl();
 					
-					//decl is thrown away afterwards, nobody has to know ReduceStringType
-					decl.setType(new ReduceStringType(Type.Kind.STRING));
+					switch(token.getTokenType()){
+				
+					case BOOL_SYMBOL:
+						decl.setType(new BooleanType());
+						decl.setCoverage(token);
+						return decl;
+						
+					case DOUBLE_SYMBOL:
+						decl.setType(new DoubleType());
+						decl.setCoverage(token);
+						return decl;
+						
+					case LONG_SYMBOL:
+						decl.setType(new LongType());
+						decl.setCoverage(token);
+						return decl;
+						
+					case STRING_SYMBOL:
+						//decl is thrown away afterwards, nobody has to know ReduceStringType
+						decl.setType(new ReduceStringType(Type.Kind.STRING));
+						decl.setCoverage(token);
+						return decl;
 					
-					decl.setCoverage(token);
+					default:
+						writeReportError(reportLog, token, " Basic Type");
+						return null;
 					
-					return decl;
+					}
 				}
-
 			};
-		case "type -> num":
-			return new ReduceAction() {
-				@Override
-				public Object create(Object... objs) throws ParserException  {
-					Token token = (Token)objs[0];
-					DeclarationNodeImpl decl = new DeclarationNodeImpl();
-					decl.setType(new LongType());
-					decl.setCoverage(token);
-					
-					return decl;
-				}
 
-			};
-		case "type -> real":
-			return new ReduceAction() {
-				@Override
-				public Object create(Object... objs) throws ParserException  {
-					Token token = (Token)objs[0];
-					DeclarationNodeImpl decl = new DeclarationNodeImpl();
-					decl.setType(new DoubleType());
-					decl.setCoverage(token);
-					
-					return decl;
-				}
-
-			};
 		case "type -> record { decls }":
 			return new ReduceAction() {
 				@Override
@@ -940,7 +933,7 @@ public class ReduceImpl {
 //	}
 	
 	private static void writeReportError(final ReportLog reportLog,
-			Object obj,String msg) {
+			Object obj,String msg) throws ParserException{
 		if(obj instanceof ASTNode){
 			reportLog.reportError(ReportType.UNDEFINED, ((ASTNode)obj).coverage(), "there is no " + msg + " found!");
 			throw new ParserException(msg +" expected");
