@@ -114,7 +114,7 @@ define i64 @div_long(i64,i64) {
 
 ;; Divide two Doubles, throw an appropriate exception for division by zero
 define double @div_double(double,double) {
-  %condition = fcmp eq double %1, 0.0
+  %condition = fcmp oeq double %1, 0.0
   br i1 %condition, label %Zero, label %NonZero
   NonZero:
     %result = fdiv double %0, %1
