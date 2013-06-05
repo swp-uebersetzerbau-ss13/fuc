@@ -165,5 +165,14 @@ public class SymbolTableImpl implements SymbolTable {
 			}
 		}
 	}
+	
+	/**
+	 * Sets the parent for a Symboltable
+	 * Method not part of the interface, only used in Parser.
+	 * @param table
+	 */
+	public void setParent(SymbolTable table){
+		parent = table;
+	}
 
 }
