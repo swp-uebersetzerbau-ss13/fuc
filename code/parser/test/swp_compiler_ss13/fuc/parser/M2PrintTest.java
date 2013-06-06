@@ -1,7 +1,6 @@
 package swp_compiler_ss13.fuc.parser;
 
 import static org.junit.Assert.assertNotNull;
-import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.loadExample;
 
 import java.io.ByteArrayInputStream;
 
@@ -29,18 +28,7 @@ public class M2PrintTest {
 	}
 
 //	@Test
-//	public void testAdd() {
-//		// String input = "# return 27\n"
-//		// + "long l;\n"
-//		// + "l = 10 +\n"
-//		// + "23 # - 23\n"
-//		// + "- 23\n"
-//		// + "+ 100 /\n"
-//		// + "\n"
-//		// + "2\n"
-//		// + "- 30\n"
-//		// + "- 9 / 3;\n"
-//		// + "return l;\n";
+//	public void testPrint() {
 //		// Generate parsing table
 //		Grammar grammar = new ProjectGrammar.M1().getGrammar();
 //		ALRGenerator<LR0Item, LR0State> generator = new LR0Generator(grammar);
@@ -63,14 +51,34 @@ public class M2PrintTest {
 //		checkAst(ast);
 //	}
 
-	private static void checkAst(AST ast) {
-		assertNotNull(ast);
-		// TODO Validate ast
-	}
-
 //	@Test
 //	public void testPrintOrgLexer() throws Exception {
-//		String input = loadExample("m2/print.prog");
+//		String input = "# return 0\n"
+//				+ "# prints:\n"
+//				+ "# true\n"
+//				+ "# 18121313223\n"
+//				+ "# -2.323e-99\n"
+//				+ "# jagÄrEttString\"\n"
+//				+ "\n"
+//				+ "long l;\n"
+//				+ "double d;\n"
+//				+ "string s;\n"
+//				+ "bool b;\n"
+//				+ "\n"
+//				+ "string linebreak;\n"
+//				+ "linebreak = \"\n\";\n"
+//				+ "\n"
+//				+ "b = true;\n"
+//				+ "l = 18121313223;\n"
+//				+ "d = -23.23e-100;\n"
+//				+ "s = \"jagÄrEttString\"\n\";  # c-like escaping in strings\n"
+//				+ "\n"
+//				+ "print b; print linebreak;\n"
+//				+ "print l; print linebreak;       # print one digit left of the radix point\n"
+//				+ "print d; print linebreak;\n"
+//				+ "print s;\n"
+//				+ "\n"
+//				+ "return;                    # equivalent to return EXIT_SUCCESS";
 //		
 //		// Generate parsing table
 //		Grammar grammar = new ProjectGrammar.Complete().getGrammar();
@@ -88,4 +96,9 @@ public class M2PrintTest {
 //		AST ast = lrParser.parse(lexWrapper, reportLog, table);
 //		checkAst(ast);
 //	}
+
+	private static void checkAst(AST ast) {
+		assertNotNull(ast);
+		// TODO Validate ast
+	}
 }

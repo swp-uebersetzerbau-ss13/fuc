@@ -1,9 +1,0 @@
-# error: invalid ids
-long foo$bar;
-long spam_ham;
-long 2fooly;
-long return;
-long string;
-long bool;
-long fü_berlin;
-

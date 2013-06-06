@@ -2,7 +2,6 @@ package swp_compiler_ss13.fuc.parser;
 
 import static org.junit.Assert.assertNotNull;
 import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.id;
-import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.loadExample;
 import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.num;
 import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.t;
 import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.M1.assignop;
@@ -44,10 +43,6 @@ public class M1ParathesesTest {
 
 	@Test
 	public void testParatheses() {
-		// String input = "# returns 8 or does it?"
-		// + "long l;\n"
-		// + "l = ( 3 + 3 ) * 2 - ( l = ( 2 + ( 16 / 8 ) ) );\n"
-		// + "return l;";
 		// Generate parsing table
 		Grammar grammar = new ProjectGrammar.M1().getGrammar();
 		ALRGenerator<LR0Item, LR0State> generator = new LR0Generator(grammar);
@@ -77,7 +72,10 @@ public class M1ParathesesTest {
 
 	@Test
 	public void testParathesesOrgLexer() throws Exception {
-		String input = loadExample("m1/paratheses.prog");
+		String input = "# returns 8 or does it?\n"
+				+ "long l;\n"
+				+ "l = ( 3 + 3 ) * 2 - ( l = ( 2 + ( 16 / 8 ) ) );\n"
+				+ "return l;\n";
 		
 		// Generate parsing table
 		Grammar grammar = new ProjectGrammar.M1().getGrammar();

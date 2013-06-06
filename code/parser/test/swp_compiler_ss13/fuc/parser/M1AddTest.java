@@ -2,7 +2,6 @@ package swp_compiler_ss13.fuc.parser;
 
 import static org.junit.Assert.assertNotNull;
 import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.id;
-import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.loadExample;
 import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.num;
 import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.t;
 import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.M1.assignop;
@@ -42,17 +41,6 @@ public class M1AddTest {
 
 	@Test
 	public void testAdd() {
-		// String input = "# return 27\n"
-		// + "long l;\n"
-		// + "l = 10 +\n"
-		// + "23 # - 23\n"
-		// + "- 23\n"
-		// + "+ 100 /\n"
-		// + "\n"
-		// + "2\n"
-		// + "- 30\n"
-		// + "- 9 / 3;\n"
-		// + "return l;\n";
 		// Generate parsing table
 		Grammar grammar = new ProjectGrammar.M1().getGrammar();
 		ALRGenerator<LR0Item, LR0State> generator = new LR0Generator(grammar);
@@ -82,7 +70,17 @@ public class M1AddTest {
 
 	@Test
 	public void testAddOrgLexer() throws Exception {
-		String input = loadExample("m1/add.prog");
+		 String input = "# return 27\n"
+		 + "long l;\n"
+		 + "l = 10 +\n"
+		 + "23 # - 23\n"
+		 + "- 23\n"
+		 + "+ 100 /\n"
+		 + "\n"
+		 + "2\n"
+		 + "- 30\n"
+		 + "- 9 / 3;\n"
+		 + "return l;\n";
 		
 		// Generate parsing table
 		Grammar grammar = new ProjectGrammar.M1().getGrammar();

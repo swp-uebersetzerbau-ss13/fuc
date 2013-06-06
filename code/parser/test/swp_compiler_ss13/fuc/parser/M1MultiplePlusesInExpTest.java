@@ -1,7 +1,6 @@
 package swp_compiler_ss13.fuc.parser;
 
 import static org.junit.Assert.fail;
-import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.loadExample;
 
 import java.io.ByteArrayInputStream;
 
@@ -29,7 +28,7 @@ public class M1MultiplePlusesInExpTest {
 	}
 
 //	@Test
-//	public void testDoubleDecl() {
+//	public void testErrorMultiplePlusesInExp() {
 //
 //		// String input = "# return 27\n"
 //		// + "long l;\n"
@@ -64,7 +63,11 @@ public class M1MultiplePlusesInExpTest {
 
 	@Test
 	public void testErrorMultiplePlusesInExpOrgLexer() throws Exception {
-		String input = loadExample("m1/error_multiple_pluses_in_exp.prog");
+		String input = "# error: too many pluses in an expression\n"
+				+ "long foo;\n"
+				+ "long bar;\n"
+				+ "foo = 3;\n"
+				+ "bar = foo ++ 1;\n";
 		
 		// Generate parsing table
 		Grammar grammar = new ProjectGrammar.M1().getGrammar();

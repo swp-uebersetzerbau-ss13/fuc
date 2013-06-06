@@ -1,7 +1,6 @@
 package swp_compiler_ss13.fuc.parser;
 
 import static org.junit.Assert.assertNotNull;
-import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.loadExample;
 
 import java.io.ByteArrayInputStream;
 
@@ -21,7 +20,6 @@ import swp_compiler_ss13.fuc.parser.grammar.Grammar;
 import swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar;
 import swp_compiler_ss13.fuc.parser.parser.LRParser;
 import swp_compiler_ss13.fuc.parser.parser.LexerWrapper;
-import swp_compiler_ss13.fuc.parser.parser.ParserException;
 import swp_compiler_ss13.fuc.parser.parser.tables.LRParsingTable;
 
 public class M1UndefReturnTest {
@@ -30,19 +28,7 @@ public class M1UndefReturnTest {
 	}
 
 //	@Test
-//	public void testDoubleDecl() {
-//
-//		// String input = "# return 27\n"
-//		// + "long l;\n"
-//		// + "l = 10 +\n"
-//		// + "23 # - 23\n"
-//		// + "- 23\n"
-//		// + "+ 100 /\n"
-//		// + "\n"
-//		// + "2\n"
-//		// + "- 30\n"
-//		// + "- 9 / 3;\n"
-//		// + "return l;\n";
+//	public void testErrorUndefReturn() {
 //		// Generate parsing table
 //		Grammar grammar = new ProjectGrammar.M1().getGrammar();
 //		ALRGenerator<LR0Item, LR0State> generator = new LR0Generator(grammar);
@@ -71,7 +57,9 @@ public class M1UndefReturnTest {
 
 	@Test
 	public void testErrorUndefReturnOrgLexer() throws Exception {
-		String input = loadExample("m1/error_undef_return.prog");
+		String input = "# error: id spam is not initialized and returned\n"
+				+ "long spam;\n"
+				+ "return spam;";
 		
 		// Generate parsing table
 		Grammar grammar = new ProjectGrammar.M1().getGrammar();
@@ -86,10 +74,8 @@ public class M1UndefReturnTest {
 		LRParser lrParser = new LRParser();
 		LexerWrapper lexWrapper = new LexerWrapper(lexer, grammar);
 		ReportLog reportLog = new ParserReportLogImpl();
-		try{
-			lrParser.parse(lexWrapper, reportLog, table);
-		}catch(ParserException e){
-			//well done
-		}
+		
+		AST ast = lrParser.parse(lexWrapper, reportLog, table);
+		checkAst(ast);
 	}
 }

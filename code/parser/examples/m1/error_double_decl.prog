@@ -1,3 +1,0 @@
-# error: two decls for same id i
-long i;
-long i;

@@ -1,4 +1,0 @@
-# return 9
-long l;
-l = 3 * 3;
-return l;

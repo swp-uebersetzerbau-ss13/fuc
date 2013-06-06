@@ -72,7 +72,29 @@ public class M2CondTest {
 
 //	@Test
 //	public void testCondOrgLexer() throws Exception {
-//		String input = loadExample("m2/cond.prog");
+//		String input = "# return 5\n"
+//				+ "# prints nothing\n"
+//				+ "bool b;\n"
+//				+ "bool c;\n"
+//				+ "long l;\n"
+//				+ "\n"
+//				+ "string bla;\n"
+//				+ "bla = \"bla\";\n"
+//				+ "\n"
+//				+ "b = true;\n"
+//				+ "c = false;\n"
+//				+ "\n"
+//				+ "l = 4;\n"
+//				+ "\n"
+//				+ "# dangling-else should be resolved as given by indentation\n"
+//				+ "\n"
+//				+ "if ( b )\n"
+//				+ "  if ( c || ! b )\n"
+//				+ "    print bla;\n"
+//				+ "  else\n"
+//				+ "    l = 5;\n"
+//				+ "\n"
+//				+ "return l;\n";
 //		
 //		// Generate parsing table
 //		Grammar grammar = new ProjectGrammar.Complete().getGrammar();
