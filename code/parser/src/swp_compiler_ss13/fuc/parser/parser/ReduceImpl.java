@@ -12,9 +12,12 @@ import swp_compiler_ss13.common.ast.nodes.IdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.StatementNode;
 import swp_compiler_ss13.common.ast.nodes.binary.AssignmentNode;
 import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode.BinaryOperator;
+import swp_compiler_ss13.common.ast.nodes.binary.DoWhileNode;
 import swp_compiler_ss13.common.ast.nodes.binary.LogicBinaryExpressionNode;
+import swp_compiler_ss13.common.ast.nodes.binary.WhileNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.LiteralNode;
 import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
+import swp_compiler_ss13.common.ast.nodes.ternary.BranchNode;
 import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
 import swp_compiler_ss13.common.ast.nodes.unary.PrintNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ReturnNode;
@@ -83,13 +86,7 @@ public class ReduceImpl {
 					Object right = objs[1]; // Should be NO_VALUE or BlockNode
 
 					BlockNodeImpl block = joinBlocks(left, right, reportLog);
-					
-					if(left != NO_VALUE){
-						block.setCoverage(((BlockNode)left).coverage());
-					}
-					if(right != NO_VALUE){
-						block.setCoverage(((BlockNode)right).coverage());
-					}
+
 					return block;
 				}
 			};
@@ -104,11 +101,8 @@ public class ReduceImpl {
 					BlockNodeImpl block = joinBlocks(left, right, reportLog);
 					
 					Token leftBranch = (Token)objs[0];
-					block.setCoverage(leftBranch);
-					
-					block.setCoverage(((BlockNode)left).coverage());
-					block.setCoverage(((BlockNode)right).coverage());
-					
+					block.setCoverageAtFront(leftBranch);
+									
 					Token rightBranch = (Token)objs[3];
 					block.setCoverage(rightBranch);
 										
@@ -150,10 +144,11 @@ public class ReduceImpl {
 					}
 
 					// Create new BlockNode
-					BlockNode block = new BlockNodeImpl();
+					BlockNodeImpl block = new BlockNodeImpl();
 					block.setSymbolTable(new SymbolTableImpl());
 					for (DeclarationNode decl : declList) {
 						insertDecl(block, decl, reportLog);
+						block.setCoverage(decl.coverage());
 					}
 					return block;
 				}
@@ -221,16 +216,25 @@ public class ReduceImpl {
 				@Override
 				public Object create(Object... objs) throws ParserException  {
 					Object left = objs[0]; // Should be NO_VALUE or BlockNode or other
-											// StatementNode
+					// StatementNode
 					Object right = objs[1]; // Should be StatementNode or
-											// BlockNode
+					// BlockNode
 
 					LinkedList<StatementNode> stmtList = new LinkedList<>();
 					// Handle left
 					if (!left.equals(NO_VALUE)) {
 						// there are just 0ne statement
 						if (left instanceof BlockNode) {
-							stmtList.addAll(((BlockNode) left).getStatementList());
+
+							//looks for real Blocknode with own scope, coverage begins and end with { }
+							BlockNode block = (BlockNode) left;
+							if(block.coverage().get(0).getValue().equalsIgnoreCase("{") &&
+									block.coverage().get(block.coverage().size()-1).getValue().equalsIgnoreCase("}")){
+								stmtList.add((StatementNode)block);
+							}else{
+								stmtList.addAll(block.getStatementList());
+							}
+
 						} else if (!(left instanceof StatementNode)) {
 							log.error("Error in decls -> decls decl: Left must be a DeclarationNode!");
 						} else {
@@ -240,8 +244,16 @@ public class ReduceImpl {
 
 					// Handle right
 					if (right instanceof BlockNode) {
-						BlockNode oldBlock = (BlockNode) right;
-						stmtList.addAll(oldBlock.getStatementList());
+						
+						//looks for real Blocknode with own scope, coverage begins and end with { }
+						BlockNode block = (BlockNode) right;
+						if(block.coverage().get(0).getValue().equalsIgnoreCase("{") &&
+								block.coverage().get(block.coverage().size()-1).getValue().equalsIgnoreCase("}")){
+							stmtList.add((StatementNode)block);
+							
+						}else{
+							stmtList.addAll(block.getStatementList());
+						}
 					} else {
 						if (!(right instanceof StatementNode)) {
 							log.error("Error in decls -> decls decl: Right must be a DeclarationNode!");
@@ -251,10 +263,11 @@ public class ReduceImpl {
 					}
 
 					// Create new BlockNode
-					BlockNode block = new BlockNodeImpl();
+					BlockNodeImpl block = new BlockNodeImpl();
 					for (StatementNode stmt : stmtList) {
 						block.addStatement(stmt);
 						stmt.setParentNode(block);
+						block.setCoverage(stmt.coverage());
 					}
 					return block;
 				}
@@ -828,6 +841,7 @@ public class ReduceImpl {
 					Token token = (Token)objs[0];
 					DeclarationNodeImpl decl = new DeclarationNodeImpl();
 					
+					//look for BasicType and reduce
 					switch(token.getTokenType()){
 				
 					case BOOL_SYMBOL:
@@ -882,16 +896,19 @@ public class ReduceImpl {
 	 * @param decl
 	 */
 	private static void insertDecl(BlockNode block, DeclarationNode decl, final ReportLog reportLog) throws ParserException {
+		//Here is no coverage to set.
+		
 		SymbolTable symbolTable = block.getSymbolTable();
 		// TODO M2: Shadowing allowed???
 		if (symbolTable.isDeclaredInCurrentScope(decl.getIdentifier())) {
 			reportLog.reportError(ReportType.DOUBLE_DECLARATION, decl.coverage(), "The variable '" + 
 			decl.getIdentifier() + "' of type '" + decl.getType() + "' has been declared twice!");
-			throw new DoubleIdentifierException("double id exception");
+			throw new ParserException("double id exception");
 		}
 		block.addDeclaration(decl);
 		block.getSymbolTable().insert(decl.getIdentifier(), decl.getType());
 		decl.setParentNode(block);
+		
 	}
 
 	private static BlockNodeImpl joinBlocks(Object left, Object right, ReportLog reportLog) throws ParserException{
@@ -904,6 +921,7 @@ public class ReduceImpl {
 			for (DeclarationNode decl : declsBlock.getDeclarationList()) {
 				insertDecl(newBlock, decl, reportLog);
 				decl.setParentNode(newBlock);
+				newBlock.setCoverage(decl.coverage());
 			}
 		}
 
@@ -911,8 +929,37 @@ public class ReduceImpl {
 		if (!right.equals(NO_VALUE)) {
 			BlockNode stmtsBlock = (BlockNode) right;
 			for (StatementNode stmt : stmtsBlock.getStatementList()) {
+				
+				//look for Blocknodes, Loopnodes and Branchnodes and concat Symboltables
+				if(stmt instanceof BranchNode){
+					BranchNode branch = (BranchNode)stmt;
+					if(branch.getStatementNodeOnTrue() instanceof BlockNode){
+						BlockNode node = (BlockNode) branch.getStatementNodeOnTrue();
+						((SymbolTableImpl)node.getSymbolTable()).setParent(newBlock.getSymbolTable());
+					}
+					if(branch.getStatementNodeOnFalse() instanceof BlockNode){
+						BlockNode node = (BlockNode) branch.getStatementNodeOnFalse();
+						((SymbolTableImpl)node.getSymbolTable()).setParent(newBlock.getSymbolTable());
+					}					
+				}else{
+					if(stmt instanceof BlockNode){
+						((SymbolTableImpl)((BlockNode)stmt).getSymbolTable()).setParent(newBlock.getSymbolTable());
+					}else{
+						if(stmt instanceof DoWhileNode){
+							BlockNode block = ((DoWhileNode)stmt).getLoopBody();
+							((SymbolTableImpl)block.getSymbolTable()).setParent(newBlock.getSymbolTable());
+						}else{
+							if(stmt instanceof WhileNode){
+								BlockNode block = ((WhileNode)stmt).getLoopBody();
+								((SymbolTableImpl)block.getSymbolTable()).setParent(newBlock.getSymbolTable());
+							}	
+						}
+					}
+				}
+				
 				newBlock.addStatement(stmt);
 				stmt.setParentNode(newBlock);
+				newBlock.setCoverage(stmt.coverage());
 			}
 		}
 		
@@ -949,19 +996,29 @@ public class ReduceImpl {
 //		return binop;
 //	}
 	
+	/**
+	 * Gets ReportLog, the Object, thats made some trouble and the message whats expected instead.
+	 * Throws in all cases a PaserException.
+	 * 
+	 * @param reportLog
+	 * @param obj
+	 * @param msg
+	 * @throws ParserException
+	 */
 	private static void writeReportError(final ReportLog reportLog,
 			Object obj,String msg) throws ParserException{
 		if(obj instanceof ASTNode){
-			reportLog.reportError(ReportType.UNDEFINED, ((ASTNode)obj).coverage(), "there is no " + msg + " found!");
+			reportLog.reportError(ReportType.UNDEFINED, ((ASTNode)obj).coverage(), "There is no " + msg + " found!");
 			throw new ParserException(msg +" expected");
 		}
 		if(obj instanceof Token){
 			List<Token> list = new ArrayList<Token>();
 			list.add((Token)obj);
-			reportLog.reportError(ReportType.UNDEFINED, list, "there is no " + msg + " found!");
+			reportLog.reportError(ReportType.UNDEFINED, list, "There is no " + msg + " found!");
 			throw new ParserException(msg +" expected");
-
 		}
+		reportLog.reportError(ReportType.UNDEFINED, null, "Object is not defined in AST");
+		throw new ParserException("Object not defined in AST");
 	}
 	
 	/**
@@ -1043,7 +1100,6 @@ public class ReduceImpl {
 	}
 
 	private static class ReduceStringType extends Type{
-
 		/**
 		 * its not possible to create a StringType without the length, so
 		 * we need a dummy class to do it right
