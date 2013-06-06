@@ -595,6 +595,9 @@ public class FucIdeController {
 				for (String logEntry : logEntries) {
 					FucIdeController.this.view.addErrorLog(logEntry);
 				}
+				if (logEntries.length == 0) {
+					FucIdeController.this.view.addErrorLog("No errors reported");
+				}
 			}
 		});
 	}
