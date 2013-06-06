@@ -79,6 +79,11 @@ public class LR0Item implements Item {
 	public boolean isComplete() {
 		return !shiftable;
 	}
+	
+	@Override
+	public LR0Item getLR0Kernel() {
+		return this;
+	}
 
 	@Override
 	public LR0Item shift() {

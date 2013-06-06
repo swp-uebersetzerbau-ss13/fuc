@@ -1,6 +1,7 @@
 package swp_compiler_ss13.fuc.parser;
 
 import static org.junit.Assert.fail;
+import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.loadExample;
 
 import java.io.ByteArrayInputStream;
 
@@ -62,15 +63,9 @@ public class M1ErrorInvalidIdsTest {
 //	}
 
 	@Test
-	public void testErrorInvalidIdOrgLexer() {
-		String input = "# error: invalid ids\n"
-				+ "long foo$bar;\n"
-				+ "long spam_ham;\n"
-				+ "long 2fooly;\n"
-				+ "long return;\n"
-				+ "long string;\n"
-				+ "long bool;\n"
-				+ "long fÃ¼_berlin;";
+	public void testErrorInvalidIdOrgLexer() throws Exception {
+		String input = loadExample("m1/error_invalid_ids.prog");
+		
 		// Generate parsing table
 		Grammar grammar = new ProjectGrammar.M1().getGrammar();
 		ALRGenerator<LR0Item, LR0State> generator = new LR0Generator(grammar);

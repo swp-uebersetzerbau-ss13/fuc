@@ -33,4 +33,6 @@ public interface Item {
 	 * @return Creates a new instance with the position = position + 1
 	 */
 	public Item shift();
+	
+	public LR0Item getLR0Kernel();
 }

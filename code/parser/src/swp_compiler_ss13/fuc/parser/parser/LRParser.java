@@ -54,6 +54,7 @@ public class LRParser {
 
 		WHILE: while (true) {
 			LRParserState state = parserStack.peek();
+			log.debug("current token: " + token);
 
 			TokenType tokenType = token.getTokenType();
 			switch (tokenType) {
@@ -80,6 +81,7 @@ public class LRParser {
 			case SHIFT: {
 				// Shift state
 				Shift shift = (Shift) action;
+				log.debug(shift.toString());
 				parserStack.push(shift.getNewState());
 
 				// Push old token on stack
@@ -98,6 +100,7 @@ public class LRParser {
 				// +++++++++++++++++++++++++++++++++++
 				// get action for reduced production
 				Production prod = reduce.getProduction();
+				log.debug(reduce.toString() + " " + prod.toString());
 				ReduceAction reduceAction = null;
 				
 
@@ -135,6 +138,12 @@ public class LRParser {
 					throw new ParserException("Error state occurred");
 				}
 				parserStack.push(newState);
+				
+				String stackRep = "Stack:";
+				for (Object obj : valueStack) {
+					stackRep += " " + obj.toString();
+				}
+				log.debug(stackRep);
 			}
 			break;
 
