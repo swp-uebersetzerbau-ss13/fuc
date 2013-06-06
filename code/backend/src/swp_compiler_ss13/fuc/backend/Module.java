@@ -4,12 +4,8 @@ import swp_compiler_ss13.common.backend.BackendException;
 import swp_compiler_ss13.common.backend.Quadruple;
 
 import java.io.PrintWriter;
-import java.util.ArrayList;
+import java.util.*;
 import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Locale;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
@@ -132,7 +128,10 @@ public class Module
 	 * @param type the type from the three address code
 	 * @return the corresponding LLVM IR type
 	 */
-	private String getIRType(Kind type)
+	private String getIRType(Kind type) {
+		return getIRType(type,false);
+	}
+	private String getIRType(Kind type, boolean as_ptr)
 	{
 		String irType = "";
 		switch(type)
@@ -157,8 +156,39 @@ public class Module
 				break;
 		}
 
-		return irType;
+		return irType + (as_ptr ? "*" : "");
 	}
+
+	/**
+	 * Get the LLVM IR type corresponding to
+	 * an *array* type from the three address code.
+	 *
+	 * @param type the final type of the array, eg: double[][] --> double
+	 * @param sizes a list of sizes of the array dimensions, eg:
+	 *          double x[5][10][7] --> [5,10,7]
+	 * @return the corresponding LLVM IR type for the array
+	 */
+	private String getIRAType(Kind type, List<Integer> dimensions) {
+		return getIRAType(type,dimensions,false);
+	}
+	private String getIRAType(Kind type, List<Integer> dimensions, boolean as_ptr)
+	{
+		String irType = "";
+		// write dimensions
+		for (int d : dimensions)
+			irType = irType + "[" + d + " x ";
+		// write actual type
+		irType = irType + getIRType(type);
+		// write closing brakets
+		for (int d : dimensions)
+			irType += "]";
+		irType.trim();
+		return irType + (as_ptr ? "*" : "");
+	}
+
+	// stores the types of array variables and references,
+	//  necessary due to TAC design decisions and strict typing policy in LLVM-IR.
+	private Map<String,ArrayType> arNamespace = new HashMap<String,ArrayType>();
 
 	/**
 	 * Gets the LLVM IR instruction for a binary TAC operator
@@ -419,6 +449,16 @@ public class Module
 		return variableIdentifier;
 	}
 
+	public String addArrayDeclare(Kind type, List<Integer> sizes, String identifier)
+	{
+		String irType = getIRAType(type,sizes);
+		String variableIdentifier = "%" + identifier;
+		variableUseCount.put(identifier, 0);
+		arNamespace.put(identifier, new ArrayType(sizes,type));
+		gen(variableIdentifier + " = alloca " + irType);
+		return variableIdentifier;
+	}
+
 	/**
 	 * Adds a new variable and optionally sets its
 	 * initial value if given.
@@ -478,6 +518,90 @@ public class Module
 			gen(srcUseIdentifier + " = load " + irType + "* " + srcIdentifier);
 			gen("store " + irType + " " + srcUseIdentifier + ", " + irType + "* " + dstIdentifier);
 		}
+	}
+
+	/** 
+	 *  Conditionally loads a constant or an identifier. If given a constant, just the leading # character
+	 *  is removed. If given a variable (anything without leading # character),
+	 *  it is being loaded and the temporary register name is returned.
+	 *	
+	 *	@param constantOrIdentifier Name of a constant or identifier.
+	 *  @returns name of usable primitive
+	 */
+	private String cdl(String constantOrIdentifier, Kind type) throws BackendException {
+		if(constantOrIdentifier.charAt(0) == '#')
+			// constant
+			return constantOrIdentifier.substring(1);
+		else {
+			// identifier
+			String id = getUseIdentifierForVariable(constantOrIdentifier);
+			gen(id + " = load " + getIRType(type,true) + " %"+constantOrIdentifier);
+			return id;
+		}
+	}
+
+	public void addArrayGet(String arrayName, int idx, String dst) throws BackendException {
+		ArrayType arType = arNamespace.get(arrayName);
+		String arrayTypeStr = getIRAType(arType.storage_type,arType.dimensions);
+		//  if the array has more than one level, dst must be a reference
+		if(arType.dimensions.size() > 1) {
+			// reference mode
+			// in reference mode, we just store the getelementptr result into dst
+			gen("%"+dst + " = getelementptr " + arrayTypeStr + "* " + "%" + arrayName + ", i64 0" + ", i64 " + idx);
+			// it is important to note, that references's types are JUST like array types: pointers to arrays
+			//  the next time we do a GET_ARRAY_* instruction, we need the the encapsulated array type.
+			//  eg: if we dereference [2 x [4 x i64]] here, we need [4 x i64] next time we use the reference.
+			// effectively, after each ARRAY_GET_REFERENCE operation we have to remove the first dimension from
+			//  the array dimensions list:
+			
+			// copy old list (shallow is okay, we never change the Integers)
+			ArrayType newArrayType = new ArrayType(new LinkedList<Integer>(arType.dimensions),
+			                                       arType.storage_type);
+			newArrayType.dimensions.remove(0);
+			arNamespace.put(dst, newArrayType);
+		}
+		else {
+			// direct access
+			// construct getelementptr instruction
+			String ptrId = getUseIdentifierForVariable(".tmp");
+			gen(ptrId + " = getelementptr " + arrayTypeStr + "* " + "%" + arrayName + ", i64 0" + ", i64 " + idx);
+			// retrieve value from pointer via stack load instruction
+			String storageTypeStr = getIRType(arType.storage_type);
+			String valId = getUseIdentifierForVariable(".tmp");
+			gen(valId + " = load " + storageTypeStr + "* " + ptrId);
+			gen("store "+storageTypeStr+" "+valId+", "+storageTypeStr+"* %"+dst);
+		}
+	}
+
+	public void addArraySet(String arrayName, int idx, String src) throws BackendException {
+		ArrayType arType = arNamespace.get(arrayName);
+		if(arType.dimensions.size() > 1)
+			throw new BackendException("you cannot use a reference for an ARRAY_SET_* operation");
+		// construct getelementptr instruction
+		String ptrId = getUseIdentifierForVariable(".tmp");
+		String arrayTypeStr = getIRAType(arType.storage_type,arType.dimensions);
+		gen(ptrId + " = getelementptr " + arrayTypeStr + "* " + "%" + arrayName + ", i64 0" + ", i64 " + idx);
+		// store value
+		String storageTypeStr = getIRType(arType.storage_type);
+		gen("store "+storageTypeStr+" "+cdl(src,arType.storage_type)+", "+storageTypeStr+"* "+ptrId);				
+	}
+
+	static public Kind QuadTypeToKind(Quadruple.Operator op) throws BackendException {
+		switch (op) {
+		case DECLARE_DOUBLE:
+		case ARRAY_GET_DOUBLE:
+		case ARRAY_SET_DOUBLE:
+			return Kind.DOUBLE;
+		case DECLARE_BOOLEAN:
+		case ARRAY_GET_BOOLEAN:
+		case ARRAY_SET_BOOLEAN:
+			return Kind.BOOLEAN;
+		case DECLARE_LONG:
+		case ARRAY_GET_LONG:
+		case ARRAY_SET_LONG:
+			return Kind.LONG;
+		}
+		throw new BackendException("QuadTypeToKind: unimplemented OP -> unknown type");
 	}
 
 	/**

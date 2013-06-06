@@ -14,6 +14,7 @@ import java.io.InputStreamReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.LinkedList;
 import java.util.Map;
 
 /**
@@ -92,6 +93,12 @@ public class LLVMBackend implements Backend
 		this.llvm_uncaught = "\n" + out.toString();
 	}
 
+	// indicates whether we are currently parsing an array declaration,
+	//  (which is the only stateful parse operation)
+	private boolean array_mode = false; 
+	private List<Integer> array_sizes = new LinkedList<Integer>();
+	private String  array_name = "";
+
 	/**
 	 * This function generates LLVM IR code for
 	 * given three address code.
@@ -114,6 +121,33 @@ public class LLVMBackend implements Backend
 
 		for(Quadruple q : tac)
 		{
+			if(array_mode) {
+				if(q.getOperator() == Quadruple.Operator.DECLARE_ARRAY) {
+					int size = Integer.parseInt(q.getArgument1().substring(1));
+					assert(size>=0);
+					array_sizes.add(size);
+				}
+				else {
+					Type.Kind final_type = null;
+					switch(q.getOperator()) {
+					case DECLARE_DOUBLE:
+						final_type = Type.Kind.DOUBLE;
+						break;
+					case DECLARE_LONG:
+						final_type = Type.Kind.LONG;
+						break;
+					case DECLARE_BOOLEAN:
+						final_type = Type.Kind.BOOLEAN;
+						break;
+					}
+					m.addArrayDeclare(final_type,array_sizes,array_name);
+					array_sizes=new LinkedList();
+					array_name="";
+					array_mode=false;
+				}
+				continue;
+			}
+
 			switch(q.getOperator())
 			{
 				/* Variable declaration */
@@ -140,6 +174,15 @@ public class LLVMBackend implements Backend
 						Type.Kind.STRING,
 						q.getResult(),
 						Module.toIRString(q.getArgument1()));
+					break;
+
+				/* Arrays */
+				case DECLARE_ARRAY:
+					int size = Integer.parseInt(q.getArgument1().substring(1));
+					assert(size>=0);
+					array_sizes.add(size);
+					array_mode=true;
+					array_name=q.getResult();
 					break;
 
 				/* Type conversion */
@@ -182,6 +225,33 @@ public class LLVMBackend implements Backend
 						Type.Kind.STRING,
 						q.getResult(),
 						Module.toIRString(q.getArgument1()));
+					break;
+
+				/* Indexed Copy */
+				// types are determined from context, since we have to store
+				//  the full array type anyways
+				case ARRAY_GET_LONG:
+				case ARRAY_GET_DOUBLE:
+				case ARRAY_GET_BOOLEAN:
+				case ARRAY_GET_REFERENCE:
+					m.addArrayGet(
+						q.getArgument1(),
+						Integer.parseInt(q.getArgument2().substring(1)),
+						q.getResult());
+					break;
+				case ARRAY_SET_LONG:
+				case ARRAY_SET_DOUBLE:
+				case ARRAY_SET_BOOLEAN:
+					m.addArraySet(
+						q.getArgument1(),
+						Integer.parseInt(q.getArgument2().substring(1)),
+						q.getResult());
+					break;
+				
+				/* References */
+				// reference declarations are superfluous and do not generate any code,
+				//  nor provide information which is not clear by context.
+				case DECLARE_REFERENCE:
 					break;
 
 				/* Arithmetic */

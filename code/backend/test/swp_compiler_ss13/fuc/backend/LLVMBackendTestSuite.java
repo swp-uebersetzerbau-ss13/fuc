@@ -13,6 +13,7 @@ import org.junit.runners.Suite;
 		LLVMBackendArithmeticTest.class,
 		LLVMBackendCompareTest.class,
 		LLVMBackendControlAndIOTest.class,
+		LLVMBackendArrayTest.class,
 		ModuleTest.class,
 		BackendRuntimeTest.class
 })
