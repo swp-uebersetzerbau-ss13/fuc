@@ -139,6 +139,32 @@ public class RuntimeTest {
 		assertEquals("true\nfalse\n", res.output);
 	}
 
+  @Test
+  public void arrayTest() throws Exception {
+    tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_ARRAY, "#5", EmptyArgument, "array"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_LONG, EmptyArgument, EmptyArgument, null));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.ARRAY_SET_LONG, "array", "#0", "#1"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.ARRAY_SET_LONG, "array", "#1", "#2"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.ARRAY_SET_LONG, "array", "#2", "#3"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.ARRAY_SET_LONG, "array", "#3", "#4"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.ARRAY_SET_LONG, "array", "#4", "#5"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_LONG, EmptyArgument, EmptyArgument, "acc"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_LONG, EmptyArgument, EmptyArgument, "tmp"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.ARRAY_GET_LONG, "array", "#0", "acc"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.ARRAY_GET_LONG, "array", "#1", "tmp"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.ADD_LONG, "acc", "tmp", "acc"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.ARRAY_GET_LONG, "array", "#2", "tmp"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.ADD_LONG, "acc", "tmp", "acc"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.ARRAY_GET_LONG, "array", "#3", "tmp"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.ADD_LONG, "acc", "tmp", "acc"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.ARRAY_GET_LONG, "array", "#4", "tmp"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.ADD_LONG, "acc", "tmp", "acc"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.PRINT_LONG, "acc", Quadruple.EmptyArgument, Quadruple.EmptyArgument));
+		ExecutionResult res = TACExecutor.runIR(generateCode(tac));
+		assertEquals("15\n", res.output);
+
+  }
+
 //	@Test
 //	@Ignore
 //	public void notBooleanTest() throws InterruptedException, BackendException, IOException {
