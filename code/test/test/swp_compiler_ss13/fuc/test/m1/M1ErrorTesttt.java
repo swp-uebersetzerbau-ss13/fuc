@@ -37,7 +37,7 @@ import static org.junit.Assert.assertEquals;
  * @author Jens V. Fischer
  */
 @RunWith(value = Parameterized.class)
-public class M1ErrorTest {
+public class M1ErrorTesttt {
 
 	private static Lexer lexer;
 	private static Parser parser;
@@ -46,7 +46,7 @@ public class M1ErrorTest {
 	private String prog;
 	private String expected;
 
-	public M1ErrorTest(String nameOfTestProg, String prog, String expected) {
+	public M1ErrorTesttt(String nameOfTestProg, String prog, String expected) {
 		this.prog = prog;
 		this.expected = expected;
 	}
