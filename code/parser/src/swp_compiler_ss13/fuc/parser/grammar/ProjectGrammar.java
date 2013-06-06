@@ -3,7 +3,8 @@ package swp_compiler_ss13.fuc.parser.grammar;
 import swp_compiler_ss13.common.lexer.TokenType;
 
 /**
- * This classes define our grammar as specified in the requirements for the separate milestones
+ * This classes define our grammar as specified in the requirements for the
+ * separate milestones
  * 
  * @see GrammarSpec
  * @author Gero
@@ -17,11 +18,13 @@ public class ProjectGrammar {
 		public static final Terminal id = new Terminal("id", TokenType.ID);
 		public static final Terminal sem = new Terminal(";",
 				TokenType.SEMICOLON);
-		public static final Terminal basic = new Terminal("basic", TokenType.LONG_SYMBOL, TokenType.DOUBLE_SYMBOL, TokenType.BOOL_SYMBOL);
-		 public static final Terminal lb = new Terminal("(",
-		 TokenType.LEFT_PARAN);
-		 public static final Terminal rb = new Terminal(")",
-		 TokenType.RIGHT_PARAN);
+		public static final Terminal basic = new Terminal("basic",
+				TokenType.LONG_SYMBOL, TokenType.DOUBLE_SYMBOL,
+				TokenType.BOOL_SYMBOL, TokenType.STRING_SYMBOL);
+		public static final Terminal lb = new Terminal("(",
+				TokenType.LEFT_PARAN);
+		public static final Terminal rb = new Terminal(")",
+				TokenType.RIGHT_PARAN);
 		public static final Terminal returnn = new Terminal("return",
 				TokenType.RETURN);
 		public static final Terminal assignop = new Terminal("=",
@@ -77,8 +80,8 @@ public class ProjectGrammar {
 				loc, assignop, assign);
 		public static final Production assign2 = new Production(23, assign,
 				bool);
-//		public static final Production bool1 = new Production(24, bool, bool,
-//				orop, join);
+		// public static final Production bool1 = new Production(24, bool, bool,
+		// orop, join);
 		public static final Production bool2 = new Production(25, bool, join);
 		public static final Production join2 = new Production(27, join,
 				equality);
@@ -108,7 +111,6 @@ public class ProjectGrammar {
 				real);
 	}
 
-	
 	public static class Complete extends GrammarSpec {
 		public static final Terminal lcb = new Terminal("{",
 				TokenType.LEFT_BRACE);
@@ -121,7 +123,8 @@ public class ProjectGrammar {
 				TokenType.LEFT_BRACKET);
 		public static final Terminal rsb = new Terminal("]",
 				TokenType.RIGHT_BRACKET);
-		public static final Terminal record = new Terminal("record", TokenType.RECORD_SYMBOL);
+		public static final Terminal record = new Terminal("record",
+				TokenType.RECORD_SYMBOL);
 
 		public static final Terminal iff = new Terminal("if", TokenType.IF);
 		public static final Terminal lb = new Terminal("(",
@@ -161,7 +164,9 @@ public class ProjectGrammar {
 		public static final Terminal not = new Terminal("!", TokenType.NOT);
 		public static final Terminal num = new Terminal("num", TokenType.NUM);
 		public static final Terminal real = new Terminal("real", TokenType.REAL);
-		public static final Terminal basic = new Terminal("basic", TokenType.LONG_SYMBOL, TokenType.DOUBLE_SYMBOL, TokenType.BOOL_SYMBOL);
+		public static final Terminal basic = new Terminal("basic",
+				TokenType.LONG_SYMBOL, TokenType.DOUBLE_SYMBOL,
+				TokenType.BOOL_SYMBOL, TokenType.STRING_SYMBOL);
 		public static final Terminal truee = new Terminal("true",
 				TokenType.TRUE);
 		public static final Terminal falsee = new Terminal("false",
@@ -214,7 +219,8 @@ public class ProjectGrammar {
 				lb, assign, rb, stmt, elsee, stmt);
 		public static final Production stmt4 = new Production(13, stmt, whilee,
 				lb, assign, rb, stmt);
-		public static final Production stmt9 = new Production(52, stmt, doo, stmt, whilee, lb, assign, rb, sem);
+		public static final Production stmt9 = new Production(52, stmt, doo,
+				stmt, whilee, lb, assign, rb, sem);
 		public static final Production stmt5 = new Production(14, stmt, breakk,
 				sem);
 		public static final Production stmt6 = new Production(15, stmt,
@@ -231,7 +237,8 @@ public class ProjectGrammar {
 				id);
 		public static final Production assign1 = new Production(22, assign,
 				loc, assignop, assign);
-		public static final Production assign2 = new Production(23, assign, bool);
+		public static final Production assign2 = new Production(23, assign,
+				bool);
 		public static final Production bool1 = new Production(24, bool, bool,
 				orop, join);
 		public static final Production bool2 = new Production(25, bool, join);

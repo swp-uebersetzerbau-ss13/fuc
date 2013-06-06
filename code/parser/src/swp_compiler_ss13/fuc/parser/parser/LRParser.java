@@ -139,9 +139,9 @@ public class LRParser {
 				}
 				parserStack.push(newState);
 				
-				String stackRep = "Stack: ";
+				String stackRep = "Stack:";
 				for (Object obj : valueStack) {
-					stackRep += obj.toString();
+					stackRep += " " + obj.toString();
 				}
 				log.debug(stackRep);
 			}

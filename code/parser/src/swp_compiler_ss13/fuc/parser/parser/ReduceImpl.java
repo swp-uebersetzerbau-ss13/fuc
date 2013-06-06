@@ -294,12 +294,12 @@ public class ReduceImpl {
 					node.setCoverage(ifToken,leftBranch);
 					
 					
-					if(objs[2] instanceof LogicBinaryExpressionNode){
-						LogicBinaryExpressionNode condition = (LogicBinaryExpressionNode)objs[2];
+					if(objs[2] instanceof ExpressionNode){
+						ExpressionNode condition = (ExpressionNode)objs[2];
 						node.setCondition(condition);
 						node.setCoverage(condition.coverage());
 					}else{
-						writeReportError(reportLog, objs[2], "Logical Expression");
+						writeReportError(reportLog, objs[2], "Expression");
 					}
 					
 					Token rightBranch = (Token)objs[3];
@@ -419,11 +419,16 @@ public class ReduceImpl {
 			return new ReduceAction() {
 				@Override
 				public Object create(Object... objs) throws ParserException  {
+					// Token printToken = (Token) objs[0];	// Token expected
+					Object id = objs[1]; // IdentifierNode expected
+					// semicolon gets dropped
+					
 					PrintNode printNode = new PrintNodeImpl();
-					if(objs[0] instanceof IdentifierNode){
-						printNode.setRightValue((IdentifierNode)objs[0]);
+					if(id instanceof IdentifierNode){
+						IdentifierNode idNode = (IdentifierNode) id;
+						printNode.setRightValue(idNode);
 					}else{
-						writeReportError(reportLog, objs[0], "Identifier");
+						writeReportError(reportLog, id, "Identifier");
 					}
 					
 					return printNode;
