@@ -429,7 +429,7 @@ public class FucIdeController {
 
 				FucIdeController.this.view.clearErrorLog();
 				int e = 0;
-				for (LogEntry error : log.getErrors()) {
+				for (LogEntry error : log.getEntries()) {
 					String warnOrError = error.getLogType().toString();
 					String message = error.getMessage();
 					String type = error.getReportType().toString();
