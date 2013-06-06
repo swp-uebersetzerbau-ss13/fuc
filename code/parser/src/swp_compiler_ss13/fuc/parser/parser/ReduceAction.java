@@ -1,6 +1,6 @@
 package swp_compiler_ss13.fuc.parser.parser;
 
-interface ReduceAction {
+public interface ReduceAction {
 	
 	/**
 	 * Reduce the given Objects in Array of ASTnodes and Tokens to a

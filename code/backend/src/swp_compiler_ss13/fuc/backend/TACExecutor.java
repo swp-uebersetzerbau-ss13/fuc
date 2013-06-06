@@ -23,6 +23,10 @@ import org.apache.log4j.Logger;
 public class TACExecutor
 {
 
+	/**
+	 * The logger used to output information.
+	 *
+	 */
 	private static Logger logger = Logger.getLogger(TACExecutor.class);
 
 	/**
@@ -31,7 +35,7 @@ public class TACExecutor
 	 * @throws IOException if <code>lli</code> is not found
 	 */
 	private static Process tryToStartLLI() throws IOException {
-		ProcessBuilder pb = new ProcessBuilder("lli", "-");
+		ProcessBuilder pb = new ProcessBuilder("lli", "-jit-enable-eh", "-");
 		pb.redirectErrorStream(true);
 		Process p = null;
 		try {
@@ -48,11 +52,11 @@ public class TACExecutor
 		}
 		return p;
 	}
-	
+
 	/**
 	 * Exectues LLVM IR code via LLVM's <code>lli</code> tool and shows the
 	 * result of that execution (exit code and output from the programm).
-	 * 
+	 *
 	 * @param irCode
 	 *            an <code>InputStream</code> of LLVM IR Code
 	 * @return the output and exit code of the execution of the LLVM IR code
@@ -81,18 +85,18 @@ public class TACExecutor
 
 		/* read stdout from lli process */
 		BufferedReader outPutReader = new BufferedReader(new InputStreamReader(p.getInputStream()));
-		StringBuilder executionOutput = new StringBuilder();		
+		StringBuilder executionOutput = new StringBuilder();
 		line = null;
-		while ((line = outPutReader.readLine()) != null) {			
-			executionOutput.append(line);
+		while ((line = outPutReader.readLine()) != null) {
+			executionOutput.append(line + "\n");
 		}
 
 		int executionExitCode = p.waitFor();
 
 		return new ExecutionResult(executionOutput.toString(), executionExitCode, irCodeStringBuilder.toString());
 	}
-	
-	
+
+
 	/**
 	 * Reads three address code (as quadruples) from an input stream, Calls the
 	 * <code>LLVMBackend</code> with the quadruple list of TAC instructions and
@@ -132,7 +136,7 @@ public class TACExecutor
 		while((line = in.readLine()) != null)
 		{
 			String[] tupleFields = line.split("\\|");
-			Quadruple q = new Q(Quadruple.Operator.valueOf(tupleFields[0]),
+			Quadruple q = new QuadrupleImpl(Quadruple.Operator.valueOf(tupleFields[0]),
 					tupleFields[1],
 					tupleFields[2],
 					tupleFields[3]);
@@ -161,9 +165,9 @@ public class TACExecutor
 
 		ExecutionResult result = runIR(irCode);
 
-		logger.info("Generated LLVM IR:\n" + result.irCode + "\n");
+		logger.info("Generated LLVM IR:\n" + result.irCode);
 
-		logger.info("Execution output (stdout,stderr):\n" + result.output + "\n");
+		logger.info("Execution output (stdout,stderr):\n" + result.output);
 
 		logger.info("Exit code of execution: " + String.valueOf(result.exitCode));
 
@@ -191,7 +195,7 @@ public class TACExecutor
 				logger.info("Generating LLVM IR for " + arg);
 				runTAC(new FileInputStream(arg));
 			}
-		} 
+		}
 		else {
 			logger.info("Generating LLVM IR for stdin, please enter" + " one quadruple per line in the format "
 					+ "\"Operator|Arg1|Arg2|Res\" (without the quotes):");
@@ -199,35 +203,6 @@ public class TACExecutor
 		}
 	}
 
-
-	/**
-	 * A bare-bones implementation of the
-	 * <code>Quadruple</code> interface used to format
-	 * the text-style TAC to <code>Quadruple</code>-TAC
-	 *
-	 */
-	private static class Q implements Quadruple
-	{
-		private Operator operator;
-		private String argument1;
-		private String argument2;
-		private String result;
-
-		public Q(Operator o, String a1, String a2, String r)
-		{
-			operator = o;
-			argument1 = a1;
-			argument2 = a2;
-			result = r;
-		}
-
-		public String toString() { return "(" + String.valueOf(operator) + "|" + argument1  + "|" + argument2 + "|" + result + ")"; }
-
-		public Operator getOperator() { return operator; }
-		public String getArgument1() { return argument1; }
-		public String getArgument2() { return argument2; }
-		public String getResult() { return result; }
-	}
 
 	/**
 	 * The result of executing LLVM IR Code. The result consists of the output

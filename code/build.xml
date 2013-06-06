@@ -31,6 +31,12 @@
 		<ant antfile="build.xml" dir="${visu.tac.code.dir}" target="clean" inheritall="false" />
 		<ant antfile="build.xml" dir="${errorLog.dir}" target="clean" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.token.dir}" target="clean" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.gui.ide.dir}" target="clean" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.gui.ide.source.dir}" target="clean" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.gui.ide.text.dir}" target="clean" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.gui.ide.ast.dir}" target="clean" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.gui.ide.text.token.dir}" target="clean" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.gui.ide.text.tac.dir}" target="clean" inheritall="false" />
 	</target>
 	
 	<!-- === build all projects === -->
@@ -51,6 +57,12 @@
 		<ant antfile="build.xml" dir="${visu.tac.code.dir}" target="build" inheritall="false" />
 		<ant antfile="build.xml" dir="${errorLog.dir}" target="build" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.token.dir}" target="build" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.gui.ide.dir}" target="build" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.gui.ide.source.dir}" target="build" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.gui.ide.text.dir}" target="build" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.gui.ide.ast.dir}" target="build" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.gui.ide.text.token.dir}" target="build" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.gui.ide.text.tac.dir}" target="build" inheritall="false" />
 	</target>
 	
 	<!-- === doc all projects === -->
@@ -71,6 +83,12 @@
 		<ant antfile="build.xml" dir="${visu.tac.code.dir}" target="doc" inheritall="false" />
 		<ant antfile="build.xml" dir="${errorLog.dir}" target="doc" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.token.dir}" target="doc" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.gui.ide.dir}" target="doc" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.gui.ide.source.dir}" target="doc" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.gui.ide.text.dir}" target="doc" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.gui.ide.ast.dir}" target="doc" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.gui.ide.text.token.dir}" target="doc" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.gui.ide.text.tac.dir}" target="doc" inheritall="false" />
 	</target>
 	
 	<!-- === build all tests === -->
@@ -149,7 +167,7 @@
 		</jar>
 		
 		<!-- create the Lexer package -->
-		<echo message="lexer.LexerImpl" file="${dist.dir}/temp/swp_compiler_ss13.common.lexer.Lexer" />
+		<echo message="swp_compiler_ss13.fuc.lexer.LexerImpl" file="${dist.dir}/temp/swp_compiler_ss13.common.lexer.Lexer" />
 		<jar destfile="${dist.dir}/FUC-Lexer.jar" basedir="${lexer.dir}/${bin.dir}">
 			<zipfileset dir="${dist.dir}/temp" includes="swp_compiler_ss13.common.lexer.Lexer" fullpath="META-INF/services/swp_compiler_ss13.common.lexer.Lexer" />
 		</jar>
@@ -161,9 +179,9 @@
 		</jar>
 		
 		<!-- create the SemanticAnalyzer package -->
-		<echo message="swp_compiler_ss13.fuc.semantic_analyser.SemanticAnalyser" file="${dist.dir}/temp/swp_compiler_ss13.common.semantic_analyser.SemanticAnalyser" />
+		<echo message="swp_compiler_ss13.fuc.semantic_analyser.SemanticAnalyser" file="${dist.dir}/temp/swp_compiler_ss13.common.semanticAnalysis.SemanticAnalyser" />
 		<jar destfile="${dist.dir}/FUC-Semantic-Analyser.jar" basedir="${semanticAnalyzer.dir}/${bin.dir}">
-			<zipfileset dir="${dist.dir}/temp" includes="swp_compiler_ss13.common.semantic_analyser.SemanticAnalyser" fullpath="META-INF/services/swp_compiler_ss13.common.semantic_analyser.SemanticAnalyser" />
+			<zipfileset dir="${dist.dir}/temp" includes="swp_compiler_ss13.common.semanticAnalysis.SemanticAnalyser" fullpath="META-INF/services/swp_compiler_ss13.common.semanticAnalysis.SemanticAnalyser" />
 		</jar>
 		
 		<!-- create the AST Infix Visu -->
@@ -207,6 +225,39 @@
 		
 		<!-- create the interface package -->
 		<jar destfile="${dist.dir}/Common-Interfaces.jar" basedir="${interfaces.dir}/${bin.dir}" />
+		
+		<!-- create the visu-gui-ide package -->
+		<jar destfile="${dist.dir}/Fuc-Ide.jar" basedir="${visu.gui.ide.dir}/${bin.dir}" />
+		
+		<!-- create the visu-gui-ide-text package -->
+		<echo message="swp_compiler_ss13.fuc.gui.text.Text_Controller" file="${dist.dir}/temp/swp_compiler_ss13.fuc.gui.ide.mvc.Controller" />
+		<jar destfile="${dist.dir}/Fuc-Gui-Ide-Text.jar" basedir="${visu.gui.ide.text.dir}/${bin.dir}">
+			<!-- <zipfileset dir="${dist.dir}/temp" includes="swp_compiler_ss13.fuc.gui.ide.mvc.Controller" fullpath="META-INF/services/swp_compiler_ss13.fuc.gui.ide.mvc.Controller" /> -->
+		</jar>
+		
+		<!-- create the visu-gui-ide-source package -->
+		<echo message="swp_compiler_ss13.fuc.gui.sourcecode.SourceCodeController" file="${dist.dir}/temp/swp_compiler_ss13.fuc.gui.ide.mvc.Controller" />
+		<jar destfile="${dist.dir}/Fuc-Gui-Ide-SourceCode.jar" basedir="${visu.gui.ide.source.dir}/${bin.dir}" >
+			<zipfileset dir="${dist.dir}/temp" includes="swp_compiler_ss13.fuc.gui.ide.mvc.Controller" fullpath="META-INF/services/swp_compiler_ss13.fuc.gui.ide.mvc.Controller" />
+		</jar>
+		
+		<!-- create the visu-gui-ide-ast package -->
+		<echo message="swp_compiler_ss13.fuc.gui.ast.AST_Controller" file="${dist.dir}/temp/swp_compiler_ss13.fuc.gui.ide.mvc.Controller" />
+		<jar destfile="${dist.dir}/Fuc-Gui-Ide-Ast.jar" basedir="${visu.gui.ide.ast.dir}/${bin.dir}">
+			<zipfileset dir="${dist.dir}/temp" includes="swp_compiler_ss13.fuc.gui.ide.mvc.Controller" fullpath="META-INF/services/swp_compiler_ss13.fuc.gui.ide.mvc.Controller" />
+		</jar>
+		
+		<!-- create the visu-gui-ide-text-token package -->
+		<echo message="swp_compiler_ss13.fuc.gui.text.token.TextGUITokenVisualizationController" file="${dist.dir}/temp/swp_compiler_ss13.fuc.gui.ide.mvc.Controller" />
+		<jar destfile="${dist.dir}/Fuc-Gui-Ide-Text-Token.jar" basedir="${visu.gui.ide.text.token.dir}/${bin.dir}">
+			<zipfileset dir="${dist.dir}/temp" includes="swp_compiler_ss13.fuc.gui.ide.mvc.Controller" fullpath="META-INF/services/swp_compiler_ss13.fuc.gui.ide.mvc.Controller" />
+		</jar>
+		
+		<!-- create the visu-gui-ide-text-token package -->
+		<echo message="swp_compiler_ss13.fuc.gui.text.tac.TextGUITacVisualizationController" file="${dist.dir}/temp/swp_compiler_ss13.fuc.gui.ide.mvc.Controller" />
+		<jar destfile="${dist.dir}/Fuc-Gui-Ide-Text-Tac.jar" basedir="${visu.gui.ide.text.tac.dir}/${bin.dir}">
+			<zipfileset dir="${dist.dir}/temp" includes="swp_compiler_ss13.fuc.gui.ide.mvc.Controller" fullpath="META-INF/services/swp_compiler_ss13.fuc.gui.ide.mvc.Controller" />
+		</jar>
 		
 		<delete dir="${dist.dir}/temp" />
 		
@@ -334,6 +385,30 @@
 			<zipfileset dir="${visu.token.dir}/${test.dir}" prefix="test" />
 			<zipfileset dir="${visu.token.dir}/${doc.dir}" prefix="doc" />
 		</jar>
+		
+		<!-- create the visu-gui-ide package -->
+		<jar destfile="${dist.dir}/Fuc-Ide.jar" update="true">
+			<zipfileset dir="${visu.gui.ide.dir}/${src.dir}" prefix="src" />
+			<zipfileset dir="${visu.gui.ide.dir}/${doc.dir}" prefix="doc" />
+		</jar>
+		
+		<!-- create the visu-gui-ide-text package -->
+		<jar destfile="${dist.dir}/Fuc-Gui-Ide-Text.jar" update="true">
+			<zipfileset dir="${visu.gui.ide.text.dir}/${src.dir}" prefix="src" />
+			<zipfileset dir="${visu.gui.ide.text.dir}/${doc.dir}" prefix="doc" />
+		</jar>
+		
+		<!-- create the visu-gui-ide-ast package -->
+		<jar destfile="${dist.dir}/Fuc-Gui-Ide-Ast.jar" update="true">
+			<zipfileset dir="${visu.gui.ide.ast.dir}/${src.dir}" prefix="src" />
+			<zipfileset dir="${visu.gui.ide.ast.dir}/${doc.dir}" prefix="doc" />
+		</jar>
+		
+		<!-- create the visu-gui-ide-text-token package -->
+		<jar destfile="${dist.dir}/Fuc-Gui-Ide-Text-Token.jar" basedir="${visu.gui.ide.text.token.dir}/${bin.dir}">
+			<zipfileset dir="${visu.gui.ide.text.token.dir}/${src.dir}" prefix="src" />
+			<zipfileset dir="${visu.gui.ide.text.token.dir}/${doc.dir}" prefix="doc" />
+		</jar>
 	</target>
 	
 	<!-- === run without build === -->
@@ -352,8 +427,22 @@
 		</java>
 	</target>
 	
+	<!-- === run gui without build === -->
+	<target name="run-gui-without-build"  description="execute the FUC GUI IDE without distributing the code (faster but only works if dist directory already exists)">
+		<java classname="swp_compiler_ss13.fuc.gui.ide.FucIdeController" fork="yes">
+			<classpath>
+				<fileset dir="${dist.dir}">
+					<include name="**/*.jar" />
+				</fileset>			
+			</classpath>
+		</java>
+	</target>
+	
 	<!-- === run === -->
 	<target name="run" depends="dist, run-without-build"  description="build everything and execute the FUC Controller" />
+	
+	<!-- === run gui === -->
+	<target name="run-gui" depends="dist, run-gui-without-build"  description="build everything and execute the FUC GUI" />
 	
 	<!-- === update log4j props === -->
 	<target name="update-log4j-props" description="update the log4jsettings. Call this when you change /etc/log4j.properties">
