@@ -1,6 +1,5 @@
 package swp_compiler_ss13.fuc.backend;
 
-import org.junit.Test;
 import swp_compiler_ss13.common.backend.BackendException;
 import java.io.IOException;
 
@@ -9,12 +8,12 @@ import static swp_compiler_ss13.common.backend.Quadruple.*;
 /**
  * Tests for LLVMBackend: Arithmetic
  */
-public class LLVMBackendArithmeticTest extends LLVMBackendTest {
+public class ArithmeticTest extends TestBase {
 
 
 	/* Add */
 
-	@Test
+	@org.junit.Test
 	public void generateTargetCodeTest_AddLong_Const() throws IOException, BackendException {
 		tac.add(new QuadrupleImpl(Operator.DECLARE_LONG, EmptyArgument, EmptyArgument, "result"));
 		tac.add(new QuadrupleImpl(Operator.ADD_LONG, "#23", "#42", "result"));
@@ -27,7 +26,7 @@ public class LLVMBackendArithmeticTest extends LLVMBackendTest {
 	}
 
 
-	@Test
+	@org.junit.Test
 	public void generateTargetCodeTest_AddLong_Var() throws IOException, BackendException {
 		tac.add(new QuadrupleImpl(Operator.DECLARE_LONG, EmptyArgument, EmptyArgument, "longVar1"));
 		tac.add(new QuadrupleImpl(Operator.DECLARE_LONG, EmptyArgument, EmptyArgument, "longVar2"));
@@ -45,7 +44,7 @@ public class LLVMBackendArithmeticTest extends LLVMBackendTest {
         expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
-	@Test
+	@org.junit.Test
 	public void generateTargetCodeTest_AddDouble_Const() throws IOException, BackendException {
 		tac.add(new QuadrupleImpl(Operator.DECLARE_DOUBLE, EmptyArgument, EmptyArgument, "result"));
 		tac.add(new QuadrupleImpl(Operator.ADD_DOUBLE, "#23.0", "#42.0", "result"));
@@ -57,7 +56,7 @@ public class LLVMBackendArithmeticTest extends LLVMBackendTest {
 		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
-	@Test
+	@org.junit.Test
 	public void generateTargetCodeTest_AddDouble_Var() throws IOException, BackendException {
 		tac.add(new QuadrupleImpl(Operator.DECLARE_DOUBLE, EmptyArgument, EmptyArgument, "doubleVar1"));
 		tac.add(new QuadrupleImpl(Operator.DECLARE_DOUBLE, EmptyArgument, EmptyArgument, "doubleVar2"));
@@ -77,7 +76,7 @@ public class LLVMBackendArithmeticTest extends LLVMBackendTest {
 
 	/* Sub */
 
-	@Test
+	@org.junit.Test
 	public void generateTargetCodeTest_SubLong_Const() throws IOException, BackendException {
 		tac.add(new QuadrupleImpl(Operator.DECLARE_LONG, EmptyArgument, EmptyArgument, "result"));
 		tac.add(new QuadrupleImpl(Operator.SUB_LONG, "#23", "#42", "result"));
@@ -89,7 +88,7 @@ public class LLVMBackendArithmeticTest extends LLVMBackendTest {
 		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
-	@Test
+	@org.junit.Test
 	public void generateTargetCodeTest_SubLong_Var() throws IOException, BackendException {
 		tac.add(new QuadrupleImpl(Operator.DECLARE_LONG, EmptyArgument, EmptyArgument, "longVar1"));
 		tac.add(new QuadrupleImpl(Operator.DECLARE_LONG, EmptyArgument, EmptyArgument, "longVar2"));
@@ -107,7 +106,7 @@ public class LLVMBackendArithmeticTest extends LLVMBackendTest {
 		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
-	@Test
+	@org.junit.Test
 	public void generateTargetCodeTest_SubDouble_Const() throws IOException, BackendException {
 		tac.add(new QuadrupleImpl(Operator.DECLARE_DOUBLE, EmptyArgument, EmptyArgument, "result"));
 		tac.add(new QuadrupleImpl(Operator.SUB_DOUBLE, "#23.0", "#42.0", "result"));
@@ -119,7 +118,7 @@ public class LLVMBackendArithmeticTest extends LLVMBackendTest {
 		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
-	@Test
+	@org.junit.Test
 	public void generateTargetCodeTest_SubDouble_Var() throws IOException, BackendException {
 		tac.add(new QuadrupleImpl(Operator.DECLARE_DOUBLE, EmptyArgument, EmptyArgument, "doubleVar1"));
 		tac.add(new QuadrupleImpl(Operator.DECLARE_DOUBLE, EmptyArgument, EmptyArgument, "doubleVar2"));
@@ -139,7 +138,7 @@ public class LLVMBackendArithmeticTest extends LLVMBackendTest {
 
 	/* Multiplication */
 
-	@Test
+	@org.junit.Test
 	public void generateTargetCodeTest_MulLong_Const() throws IOException, BackendException {
 		tac.add(new QuadrupleImpl(Operator.DECLARE_LONG, EmptyArgument, EmptyArgument, "result"));
 		tac.add(new QuadrupleImpl(Operator.MUL_LONG, "#23", "#42", "result"));
@@ -151,7 +150,7 @@ public class LLVMBackendArithmeticTest extends LLVMBackendTest {
 		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
-	@Test
+	@org.junit.Test
 	public void generateTargetCodeTest_MulLong_Var() throws IOException, BackendException {
 		tac.add(new QuadrupleImpl(Operator.DECLARE_LONG, EmptyArgument, EmptyArgument, "longVar1"));
 		tac.add(new QuadrupleImpl(Operator.DECLARE_LONG, EmptyArgument, EmptyArgument, "longVar2"));
@@ -169,7 +168,7 @@ public class LLVMBackendArithmeticTest extends LLVMBackendTest {
 		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
-	@Test
+	@org.junit.Test
 	public void generateTargetCodeTest_MulDouble_Const() throws IOException, BackendException {
 		tac.add(new QuadrupleImpl(Operator.DECLARE_DOUBLE, EmptyArgument, EmptyArgument, "result"));
 		tac.add(new QuadrupleImpl(Operator.MUL_DOUBLE, "#23.0", "#42.0", "result"));
@@ -181,7 +180,7 @@ public class LLVMBackendArithmeticTest extends LLVMBackendTest {
 		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
-	@Test
+	@org.junit.Test
 	public void generateTargetCodeTest_MulDouble_Var() throws IOException, BackendException {
 		tac.add(new QuadrupleImpl(Operator.DECLARE_DOUBLE, EmptyArgument, EmptyArgument, "doubleVar1"));
 		tac.add(new QuadrupleImpl(Operator.DECLARE_DOUBLE, EmptyArgument, EmptyArgument, "doubleVar2"));
@@ -201,7 +200,7 @@ public class LLVMBackendArithmeticTest extends LLVMBackendTest {
 
 	/* Division */
 
-	@Test
+	@org.junit.Test
 	public void generateTargetCodeTest_DivLong_Const() throws IOException, BackendException {
 		tac.add(new QuadrupleImpl(Operator.DECLARE_LONG, EmptyArgument, EmptyArgument, "result"));
 		tac.add(new QuadrupleImpl(Operator.DIV_LONG, "#23", "#42", "result"));
@@ -214,7 +213,7 @@ public class LLVMBackendArithmeticTest extends LLVMBackendTest {
 		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
-	@Test
+	@org.junit.Test
 	public void generateTargetCodeTest_DivLong_Var() throws IOException, BackendException {
 		tac.add(new QuadrupleImpl(Operator.DECLARE_LONG, EmptyArgument, EmptyArgument, "longVar1"));
 		tac.add(new QuadrupleImpl(Operator.DECLARE_LONG, EmptyArgument, EmptyArgument, "longVar2"));
@@ -233,14 +232,14 @@ public class LLVMBackendArithmeticTest extends LLVMBackendTest {
 		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
-	@Test (expected = BackendException.class)
+	@org.junit.Test(expected = BackendException.class)
 	public void generateTargetCodeTest_DivThroughZero_Long() throws IOException, BackendException {
 		tac.add(new QuadrupleImpl(Operator.DECLARE_LONG, EmptyArgument, EmptyArgument, "result"));
 		tac.add(new QuadrupleImpl(Operator.DIV_LONG, "#23", "#0", "result"));
 		generateCodeAsString(tac);
 	}
 
-	@Test
+	@org.junit.Test
 	public void generateTargetCodeTest_DivDouble_Const() throws IOException, BackendException {
 		tac.add(new QuadrupleImpl(Operator.DECLARE_DOUBLE, EmptyArgument, EmptyArgument, "result"));
 		tac.add(new QuadrupleImpl(Operator.DIV_DOUBLE, "#23.0", "#42.0", "result"));
@@ -253,7 +252,7 @@ public class LLVMBackendArithmeticTest extends LLVMBackendTest {
 		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
-	@Test
+	@org.junit.Test
 	public void generateTargetCodeTest_DivDouble_Var() throws IOException, BackendException {
 		tac.add(new QuadrupleImpl(Operator.DECLARE_DOUBLE, EmptyArgument, EmptyArgument, "doubleVar1"));
 		tac.add(new QuadrupleImpl(Operator.DECLARE_DOUBLE, EmptyArgument, EmptyArgument, "doubleVar2"));
@@ -272,7 +271,7 @@ public class LLVMBackendArithmeticTest extends LLVMBackendTest {
 		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
-	@Test (expected = BackendException.class)
+	@org.junit.Test(expected = BackendException.class)
 	public void generateTargetCodeTest_DivThroughZero_DOUBLE() throws IOException, BackendException {
 		tac.add(new QuadrupleImpl(Operator.DECLARE_DOUBLE, EmptyArgument, EmptyArgument, "result"));
 		tac.add(new QuadrupleImpl(Operator.DIV_DOUBLE, "#23.0", "#0.0", "result"));
@@ -281,7 +280,7 @@ public class LLVMBackendArithmeticTest extends LLVMBackendTest {
 
 	/* Boolean Arithmetic */
 
-	@Test
+	@org.junit.Test
 	public void generateTargetCodeTest_NotBoolean_Const() throws IOException, BackendException {
 		tac.add(new QuadrupleImpl(Operator.DECLARE_BOOLEAN, EmptyArgument, EmptyArgument, "res"));
 		tac.add(new QuadrupleImpl(Operator.NOT_BOOLEAN, "#FALSE", EmptyArgument, "res"));
@@ -293,7 +292,7 @@ public class LLVMBackendArithmeticTest extends LLVMBackendTest {
 			expectMain(mainFunctionCode, generateCodeAsString(tac));
 		}	
 
-	@Test
+	@org.junit.Test
 	public void generateTargetCodeTest_NotBoolean_Var() throws Exception {
 		tac.add(new QuadrupleImpl(Operator.DECLARE_BOOLEAN, "#FALSE", EmptyArgument, "b"));
 		tac.add(new QuadrupleImpl(Operator.DECLARE_BOOLEAN, EmptyArgument, EmptyArgument, "res"));
@@ -309,7 +308,7 @@ public class LLVMBackendArithmeticTest extends LLVMBackendTest {
 		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
-	@Test
+	@org.junit.Test
 	public void generateTargetCodeTest_OrBoolean_Const() throws IOException, BackendException {
 		tac.add(new QuadrupleImpl(Operator.DECLARE_BOOLEAN, EmptyArgument, EmptyArgument, "res"));
 		tac.add(new QuadrupleImpl(Operator.OR_BOOLEAN, "#FALSE", "#TRUE", "res"));
@@ -321,7 +320,7 @@ public class LLVMBackendArithmeticTest extends LLVMBackendTest {
 		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
-	@Test
+	@org.junit.Test
 	public void generateTargetCodeTest_OrBoolean_Var() throws Exception {
 		tac.add(new QuadrupleImpl(Operator.DECLARE_BOOLEAN, "#FALSE", EmptyArgument, "b1"));
 		tac.add(new QuadrupleImpl(Operator.DECLARE_BOOLEAN, "#FALSE", EmptyArgument, "b2"));
@@ -341,7 +340,7 @@ public class LLVMBackendArithmeticTest extends LLVMBackendTest {
 		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
-	@Test
+	@org.junit.Test
 	public void generateTargetCodeTest_AndBoolean_Const() throws IOException, BackendException {
 		tac.add(new QuadrupleImpl(Operator.DECLARE_BOOLEAN, EmptyArgument, EmptyArgument, "res"));
 		tac.add(new QuadrupleImpl(Operator.AND_BOOLEAN, "#FALSE", "#TRUE", "res"));
@@ -353,7 +352,7 @@ public class LLVMBackendArithmeticTest extends LLVMBackendTest {
 		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
-	@Test
+	@org.junit.Test
 	public void generateTargetCodeTest_AndBoolean_Var() throws Exception {
 		tac.add(new QuadrupleImpl(Operator.DECLARE_BOOLEAN, "#FALSE", EmptyArgument, "b1"));
 		tac.add(new QuadrupleImpl(Operator.DECLARE_BOOLEAN, "#FALSE", EmptyArgument, "b2"));

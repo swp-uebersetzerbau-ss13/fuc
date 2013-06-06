@@ -17,7 +17,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * Base Class LLVMBackend Backend Tests
  */
-public class LLVMBackendTest {
+public class TestBase {
 
 	static LLVMBackend backend;
 	static ArrayList<Quadruple> tac;

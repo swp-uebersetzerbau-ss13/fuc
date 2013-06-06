@@ -1,6 +1,5 @@
 package swp_compiler_ss13.fuc.backend;
 
-import org.junit.Test;
 import swp_compiler_ss13.common.backend.BackendException;
 import swp_compiler_ss13.common.backend.Quadruple;
 
@@ -13,9 +12,9 @@ import static swp_compiler_ss13.common.backend.Quadruple.Operator;
 /**
  * Tests for LLVMBackend: Controll flow and IO
  */
-public class LLVMBackendControlAndIOTest extends LLVMBackendTest {
+public class ControlAndIOTest extends TestBase {
 
-	@Test
+	@org.junit.Test
 	public void generateTargetCodeTest_Return_Const() throws IOException, BackendException {
 		tac.add(new QuadrupleImpl(
 			        Operator.RETURN,
@@ -27,7 +26,7 @@ public class LLVMBackendControlAndIOTest extends LLVMBackendTest {
 		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
-	@Test
+	@org.junit.Test
 	public void generateTargetCodeTest_Return_Var() throws IOException, BackendException {
 		tac.add(new QuadrupleImpl(
 			        Operator.DECLARE_LONG,
@@ -47,7 +46,7 @@ public class LLVMBackendControlAndIOTest extends LLVMBackendTest {
 		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
-	@Test
+	@org.junit.Test
 	public void generateTargetCodeTest_BranchTrue() throws IOException, BackendException {
 		tac.add(new QuadrupleImpl(Operator.DECLARE_BOOLEAN, "#TRUE", EmptyArgument, "cond"));
 		tac.add(new QuadrupleImpl(Operator.BRANCH, "true", "false", "cond"));
@@ -80,7 +79,7 @@ public class LLVMBackendControlAndIOTest extends LLVMBackendTest {
 		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
-	@Test
+	@org.junit.Test
 	public void generateTargetCodeTest_BranchFalse() throws IOException, BackendException {
 		tac.add(new QuadrupleImpl(Operator.DECLARE_BOOLEAN, "#FALSE", EmptyArgument, "cond"));
 		tac.add(new QuadrupleImpl(Operator.BRANCH, "true", "false", "cond"));
@@ -114,7 +113,7 @@ public class LLVMBackendControlAndIOTest extends LLVMBackendTest {
 	}
 
 
-	@Test
+	@org.junit.Test
 	public void generateTargetCodeTest_PrintLong() throws IOException, BackendException {
 		tac.add(new QuadrupleImpl(Operator.DECLARE_LONG, "#2", EmptyArgument, "l1"));
 		tac.add(new QuadrupleImpl(Operator.PRINT_LONG, "l1", EmptyArgument, EmptyArgument));
@@ -128,7 +127,7 @@ public class LLVMBackendControlAndIOTest extends LLVMBackendTest {
 		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
-	@Test
+	@org.junit.Test
 	public void generateTargetCodeTest_PrintDouble() throws IOException, BackendException {
 		tac.add(new QuadrupleImpl(Operator.DECLARE_DOUBLE, "#2.0", EmptyArgument, "d1"));
 		tac.add(new QuadrupleImpl(Operator.PRINT_DOUBLE, "d1", EmptyArgument, EmptyArgument));
@@ -142,7 +141,7 @@ public class LLVMBackendControlAndIOTest extends LLVMBackendTest {
 		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
-	@Test
+	@org.junit.Test
 	public void generateTargetCodeTest_PrintBoolean() throws IOException, BackendException {
 		tac.add(new QuadrupleImpl(Operator.DECLARE_BOOLEAN, "#FALSE", EmptyArgument, "b1"));
 		tac.add(new QuadrupleImpl(Operator.PRINT_BOOLEAN, "b1", EmptyArgument, EmptyArgument));
@@ -156,7 +155,7 @@ public class LLVMBackendControlAndIOTest extends LLVMBackendTest {
 		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
-	@Test
+	@org.junit.Test
 	public void generateTargetCodeTest_PrintString() throws IOException, BackendException {
 		tac.add(new QuadrupleImpl(Operator.DECLARE_STRING, "#\"bla\"", EmptyArgument, "s1"));
 		tac.add(new QuadrupleImpl(Operator.PRINT_STRING, "s1", EmptyArgument, EmptyArgument));

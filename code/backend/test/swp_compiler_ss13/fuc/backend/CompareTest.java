@@ -1,7 +1,5 @@
 package swp_compiler_ss13.fuc.backend;
 
-import org.junit.Ignore;
-import org.junit.Test;
 import swp_compiler_ss13.common.backend.BackendException;
 import swp_compiler_ss13.common.backend.Quadruple;
 
@@ -12,9 +10,9 @@ import static swp_compiler_ss13.common.backend.Quadruple.EmptyArgument;
 /**
  * Tests for LLVMBackend: Relops (comparisons)
  */
-public class LLVMBackendCompareTest extends LLVMBackendTest {
+public class CompareTest extends TestBase {
 
-	@Test
+	@org.junit.Test
 	public void generateTargetCodeTest_CompareEqualLong_Const() throws IOException, BackendException {
 		tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_BOOLEAN, EmptyArgument, EmptyArgument, "res"));
 		tac.add(new QuadrupleImpl(Quadruple.Operator.COMPARE_LONG_E, "#23", "#42", "res"));
@@ -26,7 +24,7 @@ public class LLVMBackendCompareTest extends LLVMBackendTest {
 		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
-	@Test
+	@org.junit.Test
 	public void generateTargetCodeTest_CompareGreaterLong_Const() throws IOException, BackendException {
 		tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_BOOLEAN, EmptyArgument, EmptyArgument, "res"));
 		tac.add(new QuadrupleImpl(Quadruple.Operator.COMPARE_LONG_G, "#23", "#42", "res"));
@@ -38,7 +36,7 @@ public class LLVMBackendCompareTest extends LLVMBackendTest {
 		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
-	@Test
+	@org.junit.Test
 	public void generateTargetCodeTest_CompareLessLong_Const() throws IOException, BackendException {
 		tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_BOOLEAN, EmptyArgument, EmptyArgument, "res"));
 		tac.add(new QuadrupleImpl(Quadruple.Operator.COMPARE_LONG_L, "#23", "#42", "res"));
@@ -50,7 +48,7 @@ public class LLVMBackendCompareTest extends LLVMBackendTest {
 		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
-	@Test
+	@org.junit.Test
 	public void generateTargetCodeTest_CompareGreaterEqualLong_Const() throws IOException, BackendException {
 		tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_BOOLEAN, EmptyArgument, EmptyArgument, "res"));
 		tac.add(new QuadrupleImpl(Quadruple.Operator.COMPARE_LONG_GE, "#23", "#42", "res"));
@@ -62,7 +60,7 @@ public class LLVMBackendCompareTest extends LLVMBackendTest {
 		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
-	@Test
+	@org.junit.Test
 	public void generateTargetCodeTest_CompareLessEqualLong_Const() throws IOException, BackendException {
 		tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_BOOLEAN, EmptyArgument, EmptyArgument, "res"));
 		tac.add(new QuadrupleImpl(Quadruple.Operator.COMPARE_LONG_LE, "#23", "#42", "res"));
@@ -93,7 +91,7 @@ public class LLVMBackendCompareTest extends LLVMBackendTest {
 //		expectMain(mainFunctionCode, generateCodeAsString(tac));
 //	}
 
-	@Test
+	@org.junit.Test
 	public void generateTargetCodeTest_CompareEqualDouble_Const() throws IOException, BackendException {
 		tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_BOOLEAN, EmptyArgument, EmptyArgument, "res"));
 		tac.add(new QuadrupleImpl(Quadruple.Operator.COMPARE_DOUBLE_E, "#23.0", "#42.0", "res"));
@@ -105,7 +103,7 @@ public class LLVMBackendCompareTest extends LLVMBackendTest {
 		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
-	@Test
+	@org.junit.Test
 	public void generateTargetCodeTest_CompareGreaterDouble_Const() throws IOException, BackendException {
 		tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_BOOLEAN, EmptyArgument, EmptyArgument, "res"));
 		tac.add(new QuadrupleImpl(Quadruple.Operator.COMPARE_DOUBLE_G, "#23.0", "#42.0", "res"));
@@ -117,7 +115,7 @@ public class LLVMBackendCompareTest extends LLVMBackendTest {
 		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
-	@Test
+	@org.junit.Test
 	public void generateTargetCodeTest_CompareLessDouble_Const() throws IOException, BackendException {
 		tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_BOOLEAN, EmptyArgument, EmptyArgument, "res"));
 		tac.add(new QuadrupleImpl(Quadruple.Operator.COMPARE_DOUBLE_L, "#23.0", "#42.0", "res"));
@@ -129,7 +127,7 @@ public class LLVMBackendCompareTest extends LLVMBackendTest {
 		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
-	@Test
+	@org.junit.Test
 	public void generateTargetCodeTest_CompareGreaterEqualDouble_Const() throws IOException, BackendException {
 		tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_BOOLEAN, EmptyArgument, EmptyArgument, "res"));
 		tac.add(new QuadrupleImpl(Quadruple.Operator.COMPARE_DOUBLE_GE, "#23.0", "#42.0", "res"));
@@ -141,7 +139,7 @@ public class LLVMBackendCompareTest extends LLVMBackendTest {
 		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
-	@Test
+	@org.junit.Test
 	public void generateTargetCodeTest_CompareLessEqualDouble_Const() throws IOException, BackendException {
 		tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_BOOLEAN, EmptyArgument, EmptyArgument, "res"));
 		tac.add(new QuadrupleImpl(Quadruple.Operator.COMPARE_DOUBLE_LE, "#23.0", "#42.0", "res"));

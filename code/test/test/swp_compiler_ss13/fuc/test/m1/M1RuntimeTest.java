@@ -33,12 +33,12 @@ import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
  * @author Jens V. Fischer
  */
 @RunWith(value = Parameterized.class)
-public class M1RuntimeTestBase extends RuntimeTestBase {
+public class M1RuntimeTest extends RuntimeTestBase {
 
 	private String prog;
 	private int expectedExitCode;
 
-	public M1RuntimeTestBase(String progName, String prog, int expectedExitCode) {
+	public M1RuntimeTest(String progName, String prog, int expectedExitCode) {
 		this.prog = prog;
 		this.expectedExitCode = expectedExitCode;
 	}

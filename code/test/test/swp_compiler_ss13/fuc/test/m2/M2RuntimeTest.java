@@ -1,6 +1,5 @@
 package swp_compiler_ss13.fuc.test.m2;
 
-import junit.extensions.PA;
 import swp_compiler_ss13.fuc.lexer.LexerImpl;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -10,12 +9,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import swp_compiler_ss13.common.backend.Backend;
 import swp_compiler_ss13.common.backend.BackendException;
-import swp_compiler_ss13.common.ir.IntermediateCodeGenerator;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
-import swp_compiler_ss13.common.lexer.Lexer;
-import swp_compiler_ss13.common.parser.Parser;
 import swp_compiler_ss13.fuc.backend.LLVMBackend;
 import swp_compiler_ss13.fuc.backend.TACExecutor;
 import swp_compiler_ss13.fuc.ir.IntermediateCodeGeneratorImpl;
@@ -38,22 +33,17 @@ import static org.junit.Assert.assertEquals;
  * @author Jens V. Fischer
  */
 @RunWith(value = Parameterized.class)
-public class M2RuntimeTestBase extends RuntimeTestBase {
+public class M2RuntimeTest extends RuntimeTestBase {
 
-	private static boolean m2Implemented = true;
+	private static boolean m2Implemented = false;
 
-	private static Lexer lexer;
-	private static Parser parser;
-	private static IntermediateCodeGenerator irgen;
-	private static Backend backend;
-	private static ReportLogImpl errlog;
-	private static Logger logger = Logger.getLogger(M2RuntimeTestBase.class);
+	private static Logger logger = Logger.getLogger(M2RuntimeTest.class);
 
 	private String prog;
 	private int expectedExitcode;
 	private String expectedOutput;
 
-	public M2RuntimeTestBase(String progName, String prog, int expectedExitcode, String expectedOutput) {
+	public M2RuntimeTest(String progName, String prog, int expectedExitcode, String expectedOutput) {
 		this.prog = prog;
 		this.expectedExitcode = expectedExitcode;
 		this.expectedOutput = expectedOutput;
