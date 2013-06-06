@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
+import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.fuc.parser.generator.automaton.Dfa;
 import swp_compiler_ss13.fuc.parser.generator.automaton.DfaEdge;
 import swp_compiler_ss13.fuc.parser.generator.items.Item;
@@ -19,7 +20,10 @@ import swp_compiler_ss13.fuc.parser.parser.states.LRParserState;
 import swp_compiler_ss13.fuc.parser.parser.tables.DoubleEntryException;
 import swp_compiler_ss13.fuc.parser.parser.tables.LRActionTable;
 import swp_compiler_ss13.fuc.parser.parser.tables.LRParsingTable;
+import swp_compiler_ss13.fuc.parser.parser.tables.actions.ALRAction;
+import static swp_compiler_ss13.fuc.parser.parser.tables.actions.ALRAction.ELRActionType.*;
 import swp_compiler_ss13.fuc.parser.parser.tables.actions.Accept;
+import swp_compiler_ss13.fuc.parser.parser.tables.actions.Reduce;
 import swp_compiler_ss13.fuc.parser.parser.tables.actions.Shift;
 
 /**
@@ -87,7 +91,8 @@ public abstract class ALRGenerator<I extends Item, S extends ALRState<I>> {
 					// SHIFT
 					LRParserState dstState = statesMap.get(edge.getDst());
 					try {
-						table.getActionTable().set(new Shift(dstState), src,
+//						Item item = edge.getSrcItem().shift();
+						table.getActionTable().set(new Shift(dstState/*, item*/), src,
 								terminal);
 					} catch (DoubleEntryException err) {
 						throw new RuntimeException(err); // TODO Really the
@@ -115,8 +120,8 @@ public abstract class ALRGenerator<I extends Item, S extends ALRState<I>> {
 				if (item.isComplete()) {
 					LRParserState fromState = statesMap.get(kernel);
 					try {
-						addReduceAction(table.getActionTable(), item, fromState);
-					} catch (DoubleEntryException err) {
+						createReduceAction(table.getActionTable(), item, fromState);
+					} catch (GeneratorException err) {
 						throw new RuntimeException(err); // TODO Really the
 						// right way...?
 					}
@@ -125,7 +130,39 @@ public abstract class ALRGenerator<I extends Item, S extends ALRState<I>> {
 		}
 	}
 	
-	protected abstract void addReduceAction(LRActionTable table, I item, LRParserState fromState) throws DoubleEntryException;
+	protected abstract void createReduceAction(LRActionTable table, I item, LRParserState fromState) throws GeneratorException;
+	
+	/**
+	 * Tries to set the given {@link Reduce} to the given {@link LRActionTable}. If there's a conflict, it tries to resolve it by precedence.
+	 * 
+	 * @param table
+	 * @param reduce
+	 * @throws DoubleEntryException 
+	 */
+	protected void setReduceAction(LRActionTable table, Reduce reduce, LRParserState curState, Terminal curTerminal) throws GeneratorException {
+		ALRAction action = table.getWithNull(curState, curTerminal);
+		if (action == null) {
+			// Free cell
+			table.set(reduce, curState, curTerminal);
+		} else {
+			// Try to resolve conflict...
+			if (action.getType() == SHIFT) {
+				// Shift-Reduce-Conflict. Try to resolve by precedence for production or terminal..
+				Shift shift = (Shift) action;
+				if (curTerminal.getTokenTypes().next() == TokenType.ELSE) {
+					// Fake precedences for Dangling Else: Prefer SHIFT! :-P
+					// TODO Introduce Associativity/Precedences...
+				} else {
+					throw new ShiftReduceConflict(shift, reduce, curTerminal);
+				}
+			} else if (action.getType() == REDUCE) {
+				// Reduce-Reduce-Conflict.
+				Reduce reduce1 = (Reduce) action;
+				throw new ReduceReduceConflict(reduce1, reduce);
+			}
+		}
+	}
+	
 
 	// --------------------------------------------------------------------------
 	// --- methods
@@ -134,7 +171,6 @@ public abstract class ALRGenerator<I extends Item, S extends ALRState<I>> {
 	public Dfa<I, S> createDFA() {
 		// Init
 		S startState = createStartState();
-		startState.toString();
 		Dfa<I, S> dfa = createLrDFA(startState);
 
 		LinkedList<S> todo = new LinkedList<>();

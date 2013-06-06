@@ -107,10 +107,10 @@ public class LR1State extends ALRState<LR1Item> {
 		/*
 		 * Closure(I)=
 		 * 	repeat
-		 * 		forany item(A→α.Xβ,z)in I
-		 * 			forany production X→γ
+		 * 		forany item(A → α.Xβ,z)in I
+		 * 			forany production X → γ
 		 * 				forany w ϵ FIRST(βz)
-		 * 					I ← I join {(X→.γ , w)}
+		 * 					I ← I join {(X → .γ , w)}
 		 * 	until I does not change
 		 * return I
 		 */
@@ -122,7 +122,7 @@ public class LR1State extends ALRState<LR1Item> {
 			LR1Item item = queue.removeFirst(); // item is A → α.Xβ with
 												// lookahead z"
 			Symbol nextSymbol = item.getNextSymbol();
-			if (nextSymbol.isNonTerminal()) { // nextSymbol is "X"
+			if (nextSymbol != null && nextSymbol.isNonTerminal()) { // nextSymbol is "X"
 				ITerminalSet firstSet = item.getNextLookaheads(firstSets,
 						nullableSet); // all "w"s
 				for (Production p : grammarInfo

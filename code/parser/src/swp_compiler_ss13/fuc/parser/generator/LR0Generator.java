@@ -7,7 +7,6 @@ import swp_compiler_ss13.fuc.parser.generator.terminals.ITerminalSet;
 import swp_compiler_ss13.fuc.parser.grammar.Grammar;
 import swp_compiler_ss13.fuc.parser.grammar.Terminal;
 import swp_compiler_ss13.fuc.parser.parser.states.LRParserState;
-import swp_compiler_ss13.fuc.parser.parser.tables.DoubleEntryException;
 import swp_compiler_ss13.fuc.parser.parser.tables.LRActionTable;
 import swp_compiler_ss13.fuc.parser.parser.tables.actions.Reduce;
 
@@ -46,14 +45,15 @@ public class LR0Generator extends ALRGenerator<LR0Item, LR0State> {
 	}
 	
 	@Override
-	protected void addReduceAction(LRActionTable table, LR0Item item,
-			LRParserState fromState) throws DoubleEntryException {
+	protected void createReduceAction(LRActionTable table, LR0Item item,
+			LRParserState fromState) throws GeneratorException {
 		// Aw! I need to add this Reduce for all elements of the
 		// FOLLOW-set of this item...
 		ITerminalSet terminalSet = grammarInfo.getFollowSets().get(
 				item.getProduction().getLHS());
 		for (Terminal terminal : terminalSet.getTerminals()) {
-			table.set(new Reduce(item.getProduction()), fromState, terminal);
+//			table.set(new Reduce(item.getProduction()), fromState, terminal);
+			setReduceAction(table, new Reduce(item.getProduction()), fromState, terminal);
 		}
 	}
 

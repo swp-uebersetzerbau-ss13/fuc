@@ -139,7 +139,7 @@ public class ProjectGrammar {
 				TokenType.RETURN);
 		public static final Terminal print = new Terminal("print",
 				TokenType.PRINT);
-		public static final Terminal dot = new Terminal(".", TokenType.DOT); // TODO Dot???
+		public static final Terminal dot = new Terminal(".", TokenType.DOT);
 		public static final Terminal assignop = new Terminal("=",
 				TokenType.ASSIGNOP);
 		public static final Terminal orop = new Terminal("||", TokenType.OR);
@@ -231,8 +231,7 @@ public class ProjectGrammar {
 				id);
 		public static final Production assign1 = new Production(22, assign,
 				loc, assignop, assign);
-		public static final Production assign2 = new Production(23, assign,
-				loc, assignop, bool);
+		public static final Production assign2 = new Production(23, assign, bool);
 		public static final Production bool1 = new Production(24, bool, bool,
 				orop, join);
 		public static final Production bool2 = new Production(25, bool, join);
