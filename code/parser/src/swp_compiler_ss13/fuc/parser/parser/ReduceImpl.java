@@ -346,12 +346,12 @@ public class ReduceImpl {
 					Token leftBranch = (Token)objs[1];
 					node.setCoverage(ifToken,leftBranch);
 					
-					if(objs[2] instanceof LogicBinaryExpressionNode){
-						LogicBinaryExpressionNode condition = (LogicBinaryExpressionNode)objs[2];
+					if(objs[2] instanceof ExpressionNode){
+						ExpressionNode condition = (ExpressionNode)objs[2];
 						node.setCondition(condition);
 						node.setCoverage(condition.coverage());
 					}else{
-						writeReportError(reportLog, objs[2], "Logical Expression");
+						writeReportError(reportLog, objs[2], "Expression");
 					}
 					
 					Token rightBranch = (Token)objs[3];
@@ -420,10 +420,13 @@ public class ReduceImpl {
 			return new ReduceAction() {
 				@Override
 				public Object create(Object... objs) throws ParserException  {
-					ReturnNode returnNode = new ReturnNodeImpl();
+					ReturnNodeImpl returnNode = new ReturnNodeImpl();
 					IdentifierNode identifier = (IdentifierNode) objs[1];
 					returnNode.setRightValue(identifier);
 					identifier.setParentNode(returnNode);
+					returnNode.setCoverage((Token)objs[0]);
+					returnNode.setCoverage(identifier.coverage());
+					returnNode.setCoverage((Token)objs[2]);
 					return returnNode;
 				}
 			};
@@ -432,17 +435,22 @@ public class ReduceImpl {
 			return new ReduceAction() {
 				@Override
 				public Object create(Object... objs) throws ParserException  {
-					// Token printToken = (Token) objs[0];	// Token expected
 					Object id = objs[1]; // IdentifierNode expected
 					// semicolon gets dropped
 					
-					PrintNode printNode = new PrintNodeImpl();
+					PrintNodeImpl printNode = new PrintNodeImpl();
+					
+					printNode.setCoverage((Token)objs[0]);
+					
 					if(id instanceof IdentifierNode){
 						IdentifierNode idNode = (IdentifierNode) id;
 						printNode.setRightValue(idNode);
+						printNode.setCoverage(idNode.coverage());
 					}else{
-						writeReportError(reportLog, id, "Identifier");
+						writeReportError(reportLog, ((ASTNode)id).coverage(), "Identifier");
 					}
+					
+					printNode.setCoverage((Token)objs[2]);
 					
 					return printNode;
 				}
@@ -882,7 +890,7 @@ public class ReduceImpl {
 			return new ReduceAction() {
 				@Override
 				public Object create(Object... objs) throws ParserException  {
-					//TODO: type reduce
+					//TODO: M3 Kuer
 					return null;
 				}
 
