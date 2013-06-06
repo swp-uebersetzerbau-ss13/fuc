@@ -1,6 +1,5 @@
 package swp_compiler_ss13.fuc.gui.ide.mvc;
 
-
 /**
  * Controller interface for MVC Pattern
  * 

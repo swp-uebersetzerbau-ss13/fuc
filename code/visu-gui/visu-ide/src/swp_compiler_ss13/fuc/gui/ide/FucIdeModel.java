@@ -1,7 +1,9 @@
 package swp_compiler_ss13.fuc.gui.ide;
 
+import java.io.InputStream;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
 
@@ -11,9 +13,12 @@ import javax.swing.JMenu;
 
 import org.apache.log4j.Logger;
 
+import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.backend.Backend;
+import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.ir.IntermediateCodeGenerator;
 import swp_compiler_ss13.common.lexer.Lexer;
+import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.parser.Parser;
 import swp_compiler_ss13.common.semanticAnalysis.SemanticAnalyser;
 import swp_compiler_ss13.fuc.gui.ide.data.FucIdeButton;
@@ -316,7 +321,37 @@ public class FucIdeModel implements IDE {
 	}
 
 	@Override
-	public void run() {
-		this.controller.onRunPressed();
+	public void run(boolean silent) {
+		this.controller.run(silent);
+	}
+
+	@Override
+	public List<Token> runLexer(String sourceCode, boolean silent) {
+		return this.controller.runLexer(sourceCode, silent);
+	}
+
+	@Override
+	public AST runParser(List<Token> tokens, boolean silent) {
+		return this.controller.runParser(tokens, silent);
+	}
+
+	@Override
+	public AST runSemanticAnalysis(AST ast, boolean silent) {
+		return this.controller.runSemanticAnalysis(ast, silent);
+	}
+
+	@Override
+	public List<Quadruple> runIntermediateCodeGenerator(AST ast, boolean silent) {
+		return this.controller.runIntermediateCodeGenerator(ast, silent);
+	}
+
+	@Override
+	public Map<String, InputStream> runBackend(List<Quadruple> tac, boolean silent) {
+		return this.controller.runBackend(tac, silent);
+	}
+
+	@Override
+	public void showTab(Controller controller) {
+		this.controller.showTab(controller);
 	}
 }

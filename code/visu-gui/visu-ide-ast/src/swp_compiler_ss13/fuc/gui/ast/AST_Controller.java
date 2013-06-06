@@ -45,19 +45,19 @@ public class AST_Controller implements Controller {
 	@Override
 	public void notifyModelChanged() {
 		this.notifyModelChangedWithoutLayoutChange();
-		root.view.recalculateLayout();
+		this.root.view.recalculateLayout();
 	}
 
 	protected void notifyModelChangedWithoutLayoutChange() {
-		LOG.trace("node: " + nodeToString(model.getNode()));
+		LOG.trace("node: " + this.nodeToString(this.model.getNode()));
 		this.view.setNode(this.model.getNode());
 		AST_Controller ast_Controller;
 		for (ASTNode node : this.model.getChildren()) {
-			LOG.trace("childnode: " + nodeToString(node));
-			ast_Controller = new AST_Controller(root);
+			LOG.trace("childnode: " + this.nodeToString(node));
+			ast_Controller = new AST_Controller(this.root);
 			ast_Controller.model.setNode(node);
 			ast_Controller.notifyModelChangedWithoutLayoutChange();
-			view.addChild(ast_Controller.view);
+			this.view.addChild(ast_Controller.view);
 		}
 	}
 
@@ -76,7 +76,7 @@ public class AST_Controller implements Controller {
 
 	public void viewStateChanged() {
 		this.view.changeChildState();
-		root.view.recalculateLayout();
+		this.root.view.recalculateLayout();
 	}
 
 }
