@@ -10,6 +10,7 @@ public class Constants {
 
 	/* keywords */
 	public static final String IFSTRING = "if";
+	public static final String ELSESTRING = "else";
 	public static final String WHILESTRING = "while";
 	public static final String DOSTRING = "do";
 	public static final String BREAKSTRING = "break";
@@ -83,6 +84,7 @@ public class Constants {
 	public static final String DOUBLESYMBOL = "double";
 	public static final String BOOLSYMBOL = "bool";
 	public static final String STRINGSYMBOL = "string";
+	public static final String RECORDSYMBOL = "record";
 
 	/* IDs */
 	public static final String ID1 = "id";
@@ -95,5 +97,6 @@ public class Constants {
 	public static final String STRING2 = "\"\\ntest\"";
 	public static final String STRING3 = "\"test;test\"";
 	public static final String STRING4 = "\"test\"test";
+	public static final String NOSTRING1 = "\"test";
 
 }

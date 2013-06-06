@@ -41,6 +41,10 @@ public class KeywordTest {
 		PA.invokeMethod(this.lexer, "matchToken()");
 		assertEquals(TokenType.IF, PA.getValue(this.lexer, "actualTokenType"));
 
+		PA.setValue(this.lexer, "actualTokenValue", Constants.ELSESTRING);
+		PA.invokeMethod(this.lexer, "matchToken()");
+		assertEquals(TokenType.ELSE, PA.getValue(this.lexer, "actualTokenType"));
+
 		PA.setValue(this.lexer, "actualTokenValue", Constants.WHILESTRING);
 		PA.invokeMethod(this.lexer, "matchToken()");
 		assertEquals(TokenType.WHILE,
@@ -77,9 +81,9 @@ public class KeywordTest {
 			throws UnsupportedEncodingException {
 
 		String simpleKeywordString = Constants.IFSTRING + " "
-				+ Constants.WHILESTRING + " " + Constants.DOSTRING + " "
-				+ Constants.BREAKSTRING + " " + Constants.RETURNSTRING + " "
-				+ Constants.PRINTSTRING;
+				+ Constants.ELSESTRING + " " + Constants.WHILESTRING + " "
+				+ Constants.DOSTRING + " " + Constants.BREAKSTRING + " "
+				+ Constants.RETURNSTRING + " " + Constants.PRINTSTRING;
 
 		this.lexer.setSourceStream(new ByteArrayInputStream(simpleKeywordString
 				.getBytes("UTF-8")));
@@ -91,35 +95,40 @@ public class KeywordTest {
 		assertEquals(1, token.getColumn().intValue());
 
 		token = this.lexer.getNextToken();
+		assertEquals(Constants.ELSESTRING, token.getValue());
+		assertEquals(TokenType.ELSE, token.getTokenType());
+		assertEquals(1, token.getLine().intValue());
+		assertEquals(4, token.getColumn().intValue());
+
+		token = this.lexer.getNextToken();
 		assertEquals(Constants.WHILESTRING, token.getValue());
 		assertEquals(TokenType.WHILE, token.getTokenType());
 		assertEquals(1, token.getLine().intValue());
-		assertEquals(4, token.getColumn().intValue());
+		assertEquals(9, token.getColumn().intValue());
 
 		token = this.lexer.getNextToken();
 		assertEquals(Constants.DOSTRING, token.getValue());
 		assertEquals(TokenType.DO, token.getTokenType());
 		assertEquals(1, token.getLine().intValue());
-		assertEquals(10, token.getColumn().intValue());
+		assertEquals(15, token.getColumn().intValue());
 
 		token = this.lexer.getNextToken();
 		assertEquals(Constants.BREAKSTRING, token.getValue());
 		assertEquals(TokenType.BREAK, token.getTokenType());
 		assertEquals(1, token.getLine().intValue());
-		assertEquals(13, token.getColumn().intValue());
+		assertEquals(18, token.getColumn().intValue());
 
 		token = this.lexer.getNextToken();
 		assertEquals(Constants.RETURNSTRING, token.getValue());
 		assertEquals(TokenType.RETURN, token.getTokenType());
 		assertEquals(1, token.getLine().intValue());
-		assertEquals(19, token.getColumn().intValue());
+		assertEquals(24, token.getColumn().intValue());
 
 		token = this.lexer.getNextToken();
 		assertEquals(Constants.PRINTSTRING, token.getValue());
 		assertEquals(TokenType.PRINT, token.getTokenType());
 		assertEquals(1, token.getLine().intValue());
-		assertEquals(26, token.getColumn().intValue());
-
+		assertEquals(31, token.getColumn().intValue());
 	}
 
 	/**

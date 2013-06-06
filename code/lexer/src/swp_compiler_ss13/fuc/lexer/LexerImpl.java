@@ -3,6 +3,8 @@ package swp_compiler_ss13.fuc.lexer;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import swp_compiler_ss13.common.lexer.BoolToken;
 import swp_compiler_ss13.common.lexer.Lexer;
@@ -30,10 +32,9 @@ public class LexerImpl implements Lexer {
 	private TokenType actualTokenType;
 	private Integer actualLine;
 	private Integer actualColumn;
-	private Integer actualCountOfTokenInLine;
-	private boolean isNextLine;
-	private boolean isSemicolon;
 	private boolean isEOF;
+	private final static Pattern NEXT_CHARACTER = Pattern.compile("[^\\s]+");
+	private final static Pattern NEXT_WHITESPACE = Pattern.compile("\\s");
 
 	/**
 	 * Method sets an {@link InputStream} for the lexer and splits it line by
@@ -54,6 +55,24 @@ public class LexerImpl implements Lexer {
 
 		scanner.close();
 
+		/*
+		 * check if the input is empty
+		 */
+		if (this.convertedLines.size() == 0) {
+
+			this.isEOF = true;
+			this.actualTokenValue = "$";
+			this.actualTokenType = TokenType.EOF;
+
+		} else {
+
+			/*
+			 * get the value of the first line
+			 */
+			this.actualLineValue = this.convertedLines.get(this.actualLine - 1);
+
+		}
+
 	}
 
 	/**
@@ -61,12 +80,10 @@ public class LexerImpl implements Lexer {
 	 */
 	private void init() {
 
+		this.actualTokenValue = "";
 		this.actualLine = 1;
 		this.actualColumn = 1;
-		this.actualCountOfTokenInLine = 0;
 		this.actualToken = null;
-		this.isSemicolon = false;
-		this.isNextLine = false;
 		this.isEOF = false;
 
 	}
@@ -87,33 +104,11 @@ public class LexerImpl implements Lexer {
 	public Token getNextToken() {
 
 		/*
-		 * check if input is empty, EOF is reached or a semicolon was already
-		 * read
+		 * check if EOF is already reached
 		 */
-		if (this.isEOF || this.convertedLines.size() == 0) {
-
-			this.actualTokenValue = "$";
-			this.actualTokenType = TokenType.EOF;
-
-		} else if (this.isSemicolon) {
-			this.actualColumn = this.actualLineValue.indexOf(";",
-					this.actualColumn + this.actualTokenValue.length() - 1) + 1;
-			this.actualTokenValue = ";";
-			this.actualTokenType = TokenType.SEMICOLON;
-			this.isSemicolon = false;
-
-		} else {
+		if (!this.isEOF) {
 
 			this.abstractToken();
-
-			/*
-			 * check if actual line is empty
-			 */
-			if (this.actualLineValue.isEmpty()
-					|| this.actualLineValue.matches("\\s")) {
-				return this.getNextToken();
-
-			}
 
 		}
 
@@ -162,73 +157,68 @@ public class LexerImpl implements Lexer {
 		/*
 		 * increase actual line if necessary
 		 */
-		if (this.checkLineOfCode() || this.isNextLine) {
+		if (this.checkLineOfCode()) {
 
 			this.increaseLineOfCode();
-			this.isNextLine = false;
 
 		}
 
-		/*
-		 * check if all tokens are read
-		 */
-		if (this.convertedLines.size() < this.actualLine) {
-
-			this.actualTokenValue = "$";
-			this.actualTokenType = TokenType.EOF;
-			this.isEOF = true;
-
-		} else {
+		if (!this.isEOF) {
 
 			/*
-			 * get the value of the actual line
+			 * find the next character in line which is not a whitespace
 			 */
-			this.actualLineValue = this.convertedLines.get(this.actualLine - 1);
+			Matcher matchNextCharacter = NEXT_CHARACTER
+					.matcher(this.actualLineValue);
 
-			/*
-			 * abstract the next token value of the actual line
-			 */
-			if (this.actualLineValue.startsWith(" ")) {
+			while (matchNextCharacter.find()) {
 
-				this.actualTokenValue = this.actualLineValue.split("\\s+")[this.actualCountOfTokenInLine + 1];
-
-			} else {
-
-				this.actualTokenValue = this.actualLineValue.split("\\s+")[this.actualCountOfTokenInLine];
+				/*
+				 * calculate the column for the next token value
+				 */
+				this.actualColumn += this.actualTokenValue.length()
+						+ matchNextCharacter.start();
+				break;
 
 			}
 
-			/*
-			 * calculate the column for the new token value
-			 */
-			if (this.actualColumn > 1) {
-
-				this.actualColumn = this.actualLineValue.indexOf(
-						this.actualTokenValue, this.actualColumn + 1) + 1;
-
-			} else {
-
-				this.actualColumn = this.actualLineValue.indexOf(
-						this.actualTokenValue, 0) + 1;
-
-			}
+			System.out.println("Index of next character: "
+					+ matchNextCharacter.start());
+			System.out.println("Column: " + this.actualColumn);
+			System.out.println("Start line value: " + this.actualLineValue);
 
 			/*
-			 * when actual token value starts with an apostrophe everything till
-			 * the next apostrophe is the value
+			 * remove every whitespace in front of the next token value
 			 */
-			if (this.actualTokenValue.startsWith("\"")) {
+			this.actualLineValue = this.actualLineValue.replaceAll("^\\s+", "");
+
+			System.out.println("Modified line value: " + this.actualLineValue);
+
+			/*
+			 * check if the next token is an ID, a string (starts with an
+			 * apostrophe), a comment or another type
+			 */
+			if (false) {
+
+				// id
+
+			} else if (this.actualLineValue.startsWith("\"")
+					&& this.actualLineValue.indexOf("\"", 1) != -1) {
 
 				int indexOfNextApostrophe = this.actualLineValue.indexOf("\"",
-						this.actualColumn);
+						1);
 
 				/*
 				 * check if string is finished in this line
 				 */
 				if (indexOfNextApostrophe == -1) {
 
-					// FIXME: try to find the apostrophe in the next line
-					System.err.println("not yet implemented");
+					/*
+					 * multi line strings are not supported, so the value is not
+					 * a known token
+					 */
+					// FIXME: better handling
+					this.actualTokenType = TokenType.NOT_A_TOKEN;
 
 				} else {
 
@@ -243,64 +233,71 @@ public class LexerImpl implements Lexer {
 					}
 
 					/*
-					 * set the correct value for the string token
+					 * set the correct value for the string token and the token
+					 * type
 					 */
-					this.actualTokenValue = this.actualLineValue.substring(
-							this.actualColumn - 1, indexOfNextApostrophe + 1);
-
-					/*
-					 * check if the next character after the string is a
-					 * semicolon
-					 */
-					if (this.actualLineValue.substring(
-							indexOfNextApostrophe + 1).equals(";")) {
-
-						this.isSemicolon = true;
-					}
-
-					/*
-					 * calculate the new count of token FIXME: work without
-					 * count of token or start subsequence from behind
-					 */
-					if (this.actualTokenValue.contains(" ")) {
-
-						for (int i = 0; i < this.actualLineValue.split("\\s+").length; i++) {
-
-							if (this.actualLineValue.split("\\s+")[i]
-									.contains(this.actualTokenValue
-											.subSequence(this.actualTokenValue
-													.indexOf(" ") + 1,
-													indexOfNextApostrophe + 1))) {
-
-								this.actualCountOfTokenInLine = i;
-							}
-
-						}
-
-					}
+					this.actualTokenValue = this.actualLineValue.substring(0,
+							indexOfNextApostrophe + 1);
+					this.actualTokenType = TokenType.STRING;
 
 				}
 
+			} else if (this.actualLineValue.startsWith("#")) {
+
+				this.actualTokenValue = this.actualLineValue;
+				this.actualTokenType = TokenType.COMMENT;
+
+			} else {
+
+				Matcher matchNextWhitespace = NEXT_WHITESPACE
+						.matcher(this.actualLineValue);
+				boolean hasNextWhitespace = false;
+
+				/*
+				 * check if a next whitespace in line is existent if not the
+				 * rest of the line must be tokenized
+				 */
+				while (matchNextWhitespace.find()) {
+
+					this.actualTokenValue = this.actualLineValue.substring(0,
+							matchNextWhitespace.start());
+					hasNextWhitespace = true;
+					break;
+
+				}
+
+				if (!hasNextWhitespace) {
+					this.actualTokenValue = this.actualLineValue;
+				}
+
+				/*
+				 * check if a semicolon is at the end of the token
+				 */
+				if (this.actualTokenValue.contains(";")
+						&& this.actualTokenValue.length() > 1) {
+
+					this.actualTokenValue = this.actualTokenValue.substring(0,
+							this.actualTokenValue.indexOf(";"));
+
+				}
+
+				/*
+				 * match the token value
+				 */
+				this.matchToken();
+
 			}
 
+			System.out.println("Token value: " + this.actualTokenValue);
 			/*
-			 * when actual token value has an semicolon at the end then it must
-			 * be abstract of the token value
+			 * remove the actual token value from the line value
 			 */
-			if (this.actualTokenValue.endsWith(";")) {
+			this.actualLineValue = this.actualLineValue
+					.substring(this.actualTokenValue.length());
 
-				this.isSemicolon = true;
-				this.actualTokenValue = this.actualTokenValue.substring(0,
-						this.actualTokenValue.length() - 1);
+			System.out.println("End line value: " + this.actualLineValue);
+			System.out.println("---------------------------------------");
 
-			}
-
-			/*
-			 * increases the count of read tokens in the actual line and matches
-			 * the actual token value
-			 */
-			this.actualCountOfTokenInLine++;
-			this.matchToken();
 		}
 
 	}
@@ -314,8 +311,10 @@ public class LexerImpl implements Lexer {
 	 *         <code>false</code>: character is not escaped
 	 */
 	private boolean checkEscapeStatus(int index) {
+
 		return !String.valueOf(this.actualLineValue.charAt(index - 1)).equals(
 				"\\");
+
 	}
 
 	/**
@@ -326,33 +325,52 @@ public class LexerImpl implements Lexer {
 	 */
 	private boolean checkLineOfCode() {
 
-		boolean increaseLine = false;
+		if (this.actualLineValue.isEmpty()
+				|| this.actualLineValue.matches("\\s+")) {
 
-		if (this.actualLineValue != null) {
+			return true;
 
-			int actualTokensInLine = this.actualLineValue.split("\\s+").length;
+		} else {
 
-			if ((this.actualLineValue.startsWith(" ") && actualTokensInLine <= this.actualCountOfTokenInLine + 1)
-					|| (!this.actualLineValue.startsWith(" ") && actualTokensInLine <= this.actualCountOfTokenInLine)) {
-
-				increaseLine = true;
-
-			}
+			return false;
 
 		}
 
-		return increaseLine;
 	}
 
 	/**
-	 * Method increases the actual line of code for the lexer and resets the
-	 * column and the count of tokens in line
+	 * Method increases the actual line of code, resets the column and the token
+	 * value and set the new line value
 	 */
 	private void increaseLineOfCode() {
 
 		this.actualLine++;
 		this.actualColumn = 1;
-		this.actualCountOfTokenInLine = 0;
+		this.actualTokenValue = "";
+
+		/*
+		 * check if all tokens are read
+		 */
+		if (this.convertedLines.size() < this.actualLine) {
+
+			this.actualTokenValue = "$";
+			this.actualTokenType = TokenType.EOF;
+			this.isEOF = true;
+
+		} else {
+
+			this.actualLineValue = this.convertedLines.get(this.actualLine - 1);
+
+			/*
+			 * check if the actual line is empty
+			 */
+			if (this.checkLineOfCode()) {
+
+				this.increaseLineOfCode();
+
+			}
+
+		}
 
 	}
 
@@ -375,7 +393,7 @@ public class LexerImpl implements Lexer {
 
 		} else if (this.actualTokenValue
 				.matches("\\\"(?:[^\\\"\\\\]+|\\\\.)*\\\"")) {
-
+			// FIXME: delete matching
 			this.actualTokenType = TokenType.STRING;
 
 		} else if (this.actualTokenValue.matches(";")) {
@@ -474,6 +492,10 @@ public class LexerImpl implements Lexer {
 
 			this.actualTokenType = TokenType.IF;
 
+		} else if (this.actualTokenValue.matches("else")) {
+
+			this.actualTokenType = TokenType.ELSE;
+
 		} else if (this.actualTokenValue.matches("while")) {
 
 			this.actualTokenType = TokenType.WHILE;
@@ -510,20 +532,17 @@ public class LexerImpl implements Lexer {
 
 			this.actualTokenType = TokenType.STRING_SYMBOL;
 
+		} else if (this.actualTokenValue.matches("record")) {
+
+			this.actualTokenType = TokenType.RECORD_SYMBOL;
+
 		} else if (this.actualTokenValue.matches("[a-zA-Z]\\w*")) {
 
 			this.actualTokenType = TokenType.ID;
 
 		} else if (this.actualTokenValue.matches("#.*")) {
-
-			/*
-			 * when token is a comment, everything in the line after the '#' is
-			 * part of the value
-			 */
+			// FIXME: delete matching
 			this.actualTokenType = TokenType.COMMENT;
-			this.actualTokenValue = this.actualLineValue
-					.substring(this.actualLineValue.indexOf("#"));
-			this.isNextLine = true;
 
 		} else if (this.actualTokenValue == "$") {
 
