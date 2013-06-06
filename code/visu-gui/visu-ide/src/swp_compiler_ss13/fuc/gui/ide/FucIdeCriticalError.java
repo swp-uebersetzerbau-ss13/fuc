@@ -59,9 +59,10 @@ public class FucIdeCriticalError {
 	}
 
 	private void show() {
-		if (this.recoverable) {
-			this.errormsg += "\n\nPress OK to quit. Press Cancel to continue anyway.";
-			int r = JOptionPane.showConfirmDialog(this.parent, this.errormsg, "Recoverable Error",
+		if (FucIdeCriticalError.this.recoverable) {
+			FucIdeCriticalError.this.errormsg += "\n\nPress OK to quit. Press Cancel to continue anyway.";
+			int r = JOptionPane.showConfirmDialog(FucIdeCriticalError.this.parent,
+					FucIdeCriticalError.this.errormsg, "Recoverable Error",
 					JOptionPane.OK_CANCEL_OPTION,
 					JOptionPane.ERROR_MESSAGE);
 			if (r == JOptionPane.OK_OPTION) {
@@ -69,8 +70,11 @@ public class FucIdeCriticalError {
 			}
 		}
 		else {
-			JOptionPane.showMessageDialog(this.parent, this.errormsg, "Critical Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(FucIdeCriticalError.this.parent,
+					FucIdeCriticalError.this.errormsg, "Critical Error",
+					JOptionPane.ERROR_MESSAGE);
 			System.exit(1);
 		}
+
 	}
 }
