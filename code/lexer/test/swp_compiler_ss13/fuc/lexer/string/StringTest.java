@@ -109,8 +109,7 @@ public class StringTest {
 	@Test
 	public void tokenizeStringWithOtherCharactersAfterTest()
 			throws UnsupportedEncodingException {
-		String simpleStringString = Constants.STRING4 + " "
-				+ Constants.SEMICOLON;
+		String simpleStringString = Constants.STRING4 + Constants.SEMICOLON;
 		this.lexer.setSourceStream(new ByteArrayInputStream(simpleStringString
 				.getBytes("UTF-8")));
 
@@ -120,11 +119,36 @@ public class StringTest {
 		assertEquals(1, token.getLine().intValue());
 		assertEquals(1, token.getColumn().intValue());
 
-		// FIXME: not yet implemented
 		token = this.lexer.getNextToken();
-		// assertEquals("test", token.getValue());
-		// assertEquals(TokenType.NOT_A_TOKEN, token.getTokenType());
-		// assertEquals(1, token.getLine().intValue());
-		// assertEquals(5, token.getColumn().intValue());
+		assertEquals("test", token.getValue());
+		assertEquals(TokenType.ID, token.getTokenType());
+		assertEquals(1, token.getLine().intValue());
+		assertEquals(7, token.getColumn().intValue());
+
+		token = this.lexer.getNextToken();
+		assertEquals(Constants.SEMICOLON, token.getValue());
+		assertEquals(TokenType.SEMICOLON, token.getTokenType());
+		assertEquals(1, token.getLine().intValue());
+		assertEquals(11, token.getColumn().intValue());
+	}
+
+	/**
+	 * Test for tokenizing of incorrect strings
+	 * 
+	 * @throws UnsupportedEncodingException
+	 *             : UTF-8 encoding not supported
+	 */
+	@Test
+	public void tokenizeIncorrectStringsTest()
+			throws UnsupportedEncodingException {
+		String simpleStringString = Constants.NOSTRING1;
+		this.lexer.setSourceStream(new ByteArrayInputStream(simpleStringString
+				.getBytes("UTF-8")));
+
+		Token token = this.lexer.getNextToken();
+		assertEquals(Constants.NOSTRING1, token.getValue());
+		assertEquals(TokenType.NOT_A_TOKEN, token.getTokenType());
+		assertEquals(1, token.getLine().intValue());
+		assertEquals(1, token.getColumn().intValue());
 	}
 }

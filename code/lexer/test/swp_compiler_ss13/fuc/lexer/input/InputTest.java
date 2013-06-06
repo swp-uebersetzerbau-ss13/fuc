@@ -113,7 +113,7 @@ public class InputTest {
 	 */
 	@Test
 	public void readEmptyInputTest() throws UnsupportedEncodingException {
-		this.lexer.setSourceStream(new ByteArrayInputStream(""
+		this.lexer.setSourceStream(new ByteArrayInputStream(" "
 				.getBytes("UTF-8")));
 		Token token = this.lexer.getNextToken();
 		assertEquals(TokenType.EOF, token.getTokenType());
