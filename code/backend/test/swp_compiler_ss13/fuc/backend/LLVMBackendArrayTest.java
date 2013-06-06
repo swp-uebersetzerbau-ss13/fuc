@@ -9,7 +9,7 @@ import static swp_compiler_ss13.common.backend.Quadruple.*;
 /**
  * Tests for LLVMBackend: Arrays
  */
-public class LLVMBackendArrayTest extends LLVMBackendTest {
+public class LLVMBackendArrayTest extends TestBase {
 	/* test test */
 	@Test public void arrays__declare_array__long() throws IOException, BackendException {
 		tac.add(new QuadrupleImpl(Operator.DECLARE_ARRAY, "#70", EmptyArgument, "x"));

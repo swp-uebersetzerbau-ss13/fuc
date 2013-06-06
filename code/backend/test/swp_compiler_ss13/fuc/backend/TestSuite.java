@@ -9,6 +9,7 @@ import org.junit.runners.Suite;
 		DeclareTest.class,
 		AssignTest.class,
 		ArithmeticTest.class,
+		LLVMBackendArrayTest.class,
 		CompareTest.class,
 		ControlAndIOTest.class,
 		ModuleTest.class,
