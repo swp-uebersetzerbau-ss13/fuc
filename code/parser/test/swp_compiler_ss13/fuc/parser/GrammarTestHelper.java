@@ -11,6 +11,7 @@ public class GrammarTestHelper {
 	public static Token num(int i) {
 		return new TestToken(i + "", TokenType.NUM);
 	}
+
 	// for long	
 	public static Token longe(long  i) {
 		return new TestToken(i + "", TokenType.NUM);
@@ -19,6 +20,7 @@ public class GrammarTestHelper {
 		public static Token doublee(double i) {
 			return new TestToken(i + "", TokenType.REAL);
 	}
+
 	
 
 	public static Token t(Terminal terminal) {

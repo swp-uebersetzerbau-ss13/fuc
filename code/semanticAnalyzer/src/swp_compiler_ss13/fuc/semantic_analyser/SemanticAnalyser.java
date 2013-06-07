@@ -448,9 +448,18 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 	protected void handleNode(BasicIdentifierNode node, SymbolTable table) {
 		String identifier = node.getIdentifier();
 		boolean initialzed = isInitialized(table, identifier);
+		Type t = table.lookupType(node.getIdentifier());
 
+		if (t == null) {
+			setAttribute(node, Attribute.TYPE_CHECK, TYPE_MISMATCH);
+			errorLog.reportError(ReportType.UNDEFINED, node.coverage(),
+				"Identifier “" + identifier + "” has not been declared.");
+			
+			return;
+		}
+		
 		setAttribute(node, Attribute.IDENTIFIER, identifier);
-		setAttribute(node, Attribute.TYPE, table.lookupType(node.getIdentifier()).getKind().name());
+		setAttribute(node, Attribute.TYPE, t.getKind().name());
 
 		/*
 		 * checks

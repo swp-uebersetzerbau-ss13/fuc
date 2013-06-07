@@ -11,8 +11,6 @@ import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.retur
 import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.sem;
 import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.truee;
 
-import java.io.ByteArrayInputStream;
-
 import org.apache.log4j.BasicConfigurator;
 import org.junit.Test;
 
@@ -21,9 +19,6 @@ import swp_compiler_ss13.common.lexer.Lexer;
 import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.common.report.ReportLog;
 import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
-import swp_compiler_ss13.fuc.lexer.LexerImpl;
-import swp_compiler_ss13.fuc.parser.TestLexer;
-import swp_compiler_ss13.fuc.parser.TestToken;
 import swp_compiler_ss13.fuc.parser.generator.ALRGenerator;
 import swp_compiler_ss13.fuc.parser.generator.LR1Generator;
 import swp_compiler_ss13.fuc.parser.generator.items.LR1Item;
@@ -36,6 +31,7 @@ import swp_compiler_ss13.fuc.parser.parser.LexerWrapper;
 import swp_compiler_ss13.fuc.parser.parser.tables.LRParsingTable;
 
 public class M2PrintTest {
+	
 	static {
 		BasicConfigurator.configure();
 	}
@@ -179,6 +175,10 @@ public class M2PrintTest {
 //		AST ast = lrParser.parse(lexWrapper, reportLog, table);
 //		checkAst(ast);
 //	}
+	
+	
+	
+	
 
 	private static void checkAst(AST ast) {
 		assertNotNull(ast);

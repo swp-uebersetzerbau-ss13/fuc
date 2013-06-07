@@ -49,6 +49,42 @@ public class AssignmentTests {
 		log = null;
 	}
 
+	@Test
+	public void undeclaredIdentifierTest() {
+		// Identifier
+		BasicIdentifierNode identifier = new BasicIdentifierNodeImpl();
+		identifier.setIdentifier("l");
+		
+		// Value
+		LiteralNode value = new LiteralNodeImpl();
+		value.setLiteral("4");
+		value.setLiteralType(new LongType());
+
+		// Assignment
+		AssignmentNode assignment = new AssignmentNodeImpl();
+		assignment.setLeftValue(identifier);
+		assignment.setRightValue(value);
+		
+		identifier.setParentNode(assignment);
+		value.setParentNode(assignment);
+		
+		// Program
+		SymbolTable symbolTable = new SymbolTableImpl();
+
+		BlockNode blockNode = new BlockNodeImpl();
+		blockNode.addStatement(assignment);
+		blockNode.setSymbolTable(symbolTable);
+		assignment.setParentNode(blockNode);
+
+		// Analyze
+		AST ast = new ASTImpl();
+		ast.setRootNode(blockNode);
+		analyser.analyse(ast);
+
+		// TODO better error check
+		assertEquals(log.getErrors().size(), 1);
+	}
+	
 	/**
 	 * # error: assignment of boolean to long-identifier<br/>
 	 * long l;<br/>

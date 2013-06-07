@@ -4,6 +4,16 @@ import static org.junit.Assert.assertNotNull;
 import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.*;
 import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.*;
  
+//<<<<<<< HEAD
+//=======
+//import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.assignop;
+//import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.falsee;
+//import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.print;
+//import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.returnn;
+//import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.sem;
+//import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.truee;
+//
+//>>>>>>> origin/master
 
 import java.io.ByteArrayInputStream;
 
