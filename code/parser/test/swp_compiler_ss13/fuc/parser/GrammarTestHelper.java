@@ -11,14 +11,15 @@ public class GrammarTestHelper {
 	public static Token num(int i) {
 		return new TestToken(i + "", TokenType.NUM);
 	}
-	// for long
-		public static Token longe(long  i) {
-			return new TestToken(i + "", TokenType.LONG_SYMBOL);
-		}
-		// for  double
-			public static Token doublee(double i) {
-				return new TestToken(i + "", TokenType.DOUBLE_SYMBOL);
-			}
+	// for long	
+	public static Token longe(long  i) {
+		return new TestToken(i + "", TokenType.NUM);
+	}
+	// for  double
+		public static Token doublee(double i) {
+			return new TestToken(i + "", TokenType.REAL);
+	}
+	
 
 	public static Token t(Terminal terminal) {
 		// TODO Handle special terminals better

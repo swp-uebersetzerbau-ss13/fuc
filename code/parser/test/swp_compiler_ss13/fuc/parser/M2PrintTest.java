@@ -74,43 +74,41 @@ public class M2PrintTest {
 			}*/
 			
 			
-			@Test
-			public void testInput(){
-		 		// Generate parsing table
-				Grammar grammar = new ProjectGrammar.Complete().getGrammar();
-				ALRGenerator<LR1Item, LR1State> generator = new LR1Generator(grammar);
-				LRParsingTable table = generator.getParsingTable();
-				
-				
-				 		
-				// Simulate input
-				Lexer lexer = new TestLexer(
-				new TestToken("long", TokenType.LONG_SYMBOL), id("l"), t(sem),
-				new TestToken("double", TokenType.DOUBLE_SYMBOL), id("d"), t(sem),
-				new TestToken("string", TokenType.STRING_SYMBOL), id("s"), t(sem),
-				new TestToken("bool", TokenType.BOOL_SYMBOL), id("b"), t(sem),
-				new TestToken("string", TokenType.STRING_SYMBOL), id("linebreak"), t(sem),
-				id("linebreak"), t(assignop),new TestToken("\n", TokenType.STRING), t(sem),
-				id("b"), t(assignop), t(truee), t(sem),
-				id("l"), t(assignop), longe(18121313223), t(sem),
-				id("d"), t(assignop), doublee(-23.23e-100), t(sem),
-				id("s"), t(assignop),new TestToken("jagÄrEttString\"\n", TokenType.STRING), t(sem),
-				t(print), id("b"), t(sem),t(print), id("linebreak"), t(sem),
-				t(print), id("l"), t(sem),t(print), id("linebreak"), t(sem),
-				t(print), id("d"), t(sem),t(print), id("linebreak"), t(sem),
-				t(print), id("s"), t(sem),
-				t(returnn),t(sem),t(Terminal.EOF));	
-						
-				 
-		 
-		 		// Run LR-parser with table
-				LRParser lrParser = new LRParser();
-				LexerWrapper lexWrapper = new LexerWrapper(lexer, grammar);
-				ReportLog reportLog = new ReportLogImpl();
-				AST ast = lrParser.parse(lexWrapper, reportLog, table);
-				System.out.println(ast);
-				
-			}
+	@Test
+	public void testInput(){
+ 		// Generate parsing table
+		Grammar grammar = new ProjectGrammar.Complete().getGrammar();
+		ALRGenerator<LR1Item, LR1State> generator = new LR1Generator(grammar);
+		LRParsingTable table = generator.getParsingTable();
+		
+		
+		 		
+		// Simulate input
+		Lexer lexer = new TestLexer(
+		new TestToken("long", TokenType.LONG_SYMBOL), id("l"), t(sem),
+		new TestToken("double", TokenType.DOUBLE_SYMBOL), id("d"), t(sem),
+		new TestToken("string", TokenType.STRING_SYMBOL), id("s"), t(sem),
+		new TestToken("bool", TokenType.BOOL_SYMBOL), id("b"), t(sem),
+		new TestToken("string", TokenType.STRING_SYMBOL), id("linebreak"), t(sem),
+		id("linebreak"), t(assignop),new TestToken("\n", TokenType.STRING), t(sem),
+		id("b"), t(assignop), t(truee), t(sem),
+		id("l"), t(assignop), longe(18121313223L), t(sem),
+		id("d"), t(assignop), doublee(-23.23e-100), t(sem),
+		id("s"), t(assignop),new TestToken("jagÄrEttString\"\n", TokenType.STRING), t(sem),
+		t(print), id("b"), t(sem),t(print), id("linebreak"), t(sem),
+		t(print), id("l"), t(sem),t(print), id("linebreak"), t(sem),
+		t(print), id("d"), t(sem),t(print), id("linebreak"), t(sem),
+		t(print), id("s"), t(sem),
+		t(returnn),t(sem),t(Terminal.EOF));			 
+ 
+ 		// Run LR-parser with table
+		LRParser lrParser = new LRParser();
+		LexerWrapper lexWrapper = new LexerWrapper(lexer, grammar);
+		ReportLog reportLog = new ReportLogImpl();
+		AST ast = lrParser.parse(lexWrapper, reportLog, table);
+		checkAst(ast);
+	}
+	
 
 //	@Test
 //	public void testPrint() {
