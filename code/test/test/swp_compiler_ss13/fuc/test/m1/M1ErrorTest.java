@@ -1,34 +1,28 @@
 package swp_compiler_ss13.fuc.test.m1;
 
-import junit.extensions.PA;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-
-import swp_compiler_ss13.fuc.errorLog.LogEntry;
-import swp_compiler_ss13.fuc.lexer.LexerImpl;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import swp_compiler_ss13.common.ast.AST;
-import swp_compiler_ss13.common.backend.Backend;
 import swp_compiler_ss13.common.backend.BackendException;
-import swp_compiler_ss13.common.backend.Quadruple;
-import swp_compiler_ss13.common.ir.IntermediateCodeGenerator;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 import swp_compiler_ss13.common.lexer.Lexer;
 import swp_compiler_ss13.common.parser.Parser;
-import swp_compiler_ss13.fuc.backend.LLVMBackend;
-import swp_compiler_ss13.fuc.ir.IntermediateCodeGeneratorImpl;
-import swp_compiler_ss13.fuc.parser.ParserImpl;
+import swp_compiler_ss13.common.semanticAnalysis.SemanticAnalyser;
+import swp_compiler_ss13.fuc.errorLog.LogEntry;
 import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
+import swp_compiler_ss13.fuc.lexer.LexerImpl;
+import swp_compiler_ss13.fuc.parser.ParserImpl;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
@@ -37,16 +31,17 @@ import static org.junit.Assert.assertEquals;
  * @author Jens V. Fischer
  */
 @RunWith(value = Parameterized.class)
-public class M1ErrorTesttt {
+public class M1ErrorTest {
 
 	private static Lexer lexer;
 	private static Parser parser;
+	private static SemanticAnalyser analyser;
 	private static ReportLogImpl errlog;
 
 	private String prog;
 	private String expected;
 
-	public M1ErrorTesttt(String nameOfTestProg, String prog, String expected) {
+	public M1ErrorTest(String nameOfTestProg, String prog, String expected) {
 		this.prog = prog;
 		this.expected = expected;
 	}
@@ -61,6 +56,7 @@ public class M1ErrorTesttt {
 	public void setUp() throws Exception {
 		lexer = new LexerImpl();
 		parser = new ParserImpl();
+		analyser = new swp_compiler_ss13.fuc.semantic_analyser.SemanticAnalyser();
 		errlog = new ReportLogImpl();
 	}
 
@@ -98,10 +94,10 @@ public class M1ErrorTesttt {
 		return Arrays.asList(new Object[][] {
 				/* mask: {testName, progCode, expectedReportLogError} */
 				{ "doubleDeclaration", doubleDeclaration,
-						"ERROR (DOUBLE_DECLARATION): i' of type 'LongType" },
-				{ "invalidIds", invalidIds, "ERROR (UNRECOGNIZED_TOKEN): foo$bar" },
-				{ "multipleMinusENotation", multipleMinusENotation, "ERROR (UNRECOGNIZED_TOKEN): 10e----1" },
-				{ "multiplePlusesInExp", multiplePlusesInExp, "ERROR (UNRECOGNIZED_TOKEN): ++" },
+						"ERROR (DOUBLE_DECLARATION): The variable 'i' of type 'LongType' has been declared twice!" },
+				{ "invalidIds", invalidIds, "ERROR (UNDEFINED): Found undefined token 'foo$bar'!" },
+				{ "multipleMinusENotation", multipleMinusENotation, "ERROR (UNDEFINED): Found undefined token '10e----1'!" },
+				{ "multiplePlusesInExp", multiplePlusesInExp, "ERROR (UNDEFINED): Found undefined token '++'!" },
 				{ "undefReturn", undefReturn, "WARNNING (UNDEFINED): Variable “spam” may be used without initialization." } });
 	}
 
@@ -119,6 +115,11 @@ public class M1ErrorTesttt {
 		parser.setLexer(lexer);
 		parser.setReportLog(errlog);
 		AST ast = parser.getParsedAST();
+		if (errlog.hasErrors()){
+			return errlog.getErrors();
+		}
+		analyser.setReportLog(errlog);
+		analyser.analyse(ast);
 		return errlog.getEntries();
 	}
 }
