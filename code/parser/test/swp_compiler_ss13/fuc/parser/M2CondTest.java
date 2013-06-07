@@ -14,8 +14,10 @@ import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.lexer.Lexer;
 import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.common.report.ReportLog;
+import swp_compiler_ss13.fuc.ast.visualization.ASTXMLVisualization;
 import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
 import swp_compiler_ss13.fuc.lexer.LexerImpl;
+import swp_compiler_ss13.fuc.parser.errorHandling.ParserASTXMLVisualization;
 import swp_compiler_ss13.fuc.parser.generator.ALRGenerator;
 import swp_compiler_ss13.fuc.parser.generator.LR1Generator;
 import swp_compiler_ss13.fuc.parser.generator.items.LR1Item;
@@ -58,6 +60,7 @@ public class M2CondTest {
 
 		// Run LR-parser with table
 		LRParser lrParser = new LRParser();
+		
 		LexerWrapper lexWrapper = new LexerWrapper(lexer, grammar);
 		ReportLog reportLog = new ReportLogImpl();
 		AST ast = lrParser.parse(lexWrapper, reportLog, table);
@@ -67,49 +70,49 @@ public class M2CondTest {
 
 	private static void checkAst(AST ast) {
 		assertNotNull(ast);
-		// TODO Validate ast
+		System.out.println(new ParserASTXMLVisualization().visualizeAST(ast));
 	}
 
-//	@Test
-//	public void testCondOrgLexer() throws Exception {
-//		String input = "# return 5\n"
-//				+ "# prints nothing\n"
-//				+ "bool b;\n"
-//				+ "bool c;\n"
-//				+ "long l;\n"
-//				+ "\n"
-//				+ "string bla;\n"
-//				+ "bla = \"bla\";\n"
-//				+ "\n"
-//				+ "b = true;\n"
-//				+ "c = false;\n"
-//				+ "\n"
-//				+ "l = 4;\n"
-//				+ "\n"
-//				+ "# dangling-else should be resolved as given by indentation\n"
-//				+ "\n"
-//				+ "if ( b )\n"
-//				+ "  if ( c || ! b )\n"
-//				+ "    print bla;\n"
-//				+ "  else\n"
-//				+ "    l = 5;\n"
-//				+ "\n"
-//				+ "return l;\n";
-//		
-//		// Generate parsing table
-//		Grammar grammar = new ProjectGrammar.Complete().getGrammar();
-//		ALRGenerator<LR1Item, LR1State> generator = new LR1Generator(grammar);
-//		LRParsingTable table = generator.getParsingTable();
-//
-//		// Simulate input
-//		Lexer lexer = new LexerImpl();
-//		lexer.setSourceStream(new ByteArrayInputStream(input.getBytes()));
-//
-//		// Run LR-parser with table
-//		LRParser lrParser = new LRParser();
-//		LexerWrapper lexWrapper = new LexerWrapper(lexer, grammar);
-//		ReportLog reportLog = new ReportLogImpl();
-//		AST ast = lrParser.parse(lexWrapper, reportLog, table);
-//		checkAst(ast);
-//	}
+	@Test
+	public void testCondOrgLexer() throws Exception {
+		String input = "# return 5\n"
+				+ "# prints nothing\n"
+				+ "bool b;\n"
+				+ "bool c;\n"
+				+ "long l;\n"
+				+ "\n"
+				+ "string bl;\n"
+				+ "bla = \"bla\";\n"
+				+ "\n"
+				+ "b = true;\n"
+				+ "c = false;\n"
+				+ "\n"
+				+ "l = 4;\n"
+				+ "\n"
+				+ "# dangling-else should be resolved as given by indentation\n"
+				+ "\n"
+				+ "if ( b )\n"
+				+ "  if ( c || ! b )\n"
+				+ "    print bla;\n"
+				+ "  else\n"
+				+ "    l = 5;\n"
+				+ "\n"
+				+ "return l;\n";
+		
+		// Generate parsing table
+		Grammar grammar = new ProjectGrammar.Complete().getGrammar();
+		ALRGenerator<LR1Item, LR1State> generator = new LR1Generator(grammar);
+		LRParsingTable table = generator.getParsingTable();
+
+		// Simulate input
+		Lexer lexer = new LexerImpl();
+		lexer.setSourceStream(new ByteArrayInputStream(input.getBytes()));
+
+		// Run LR-parser with table
+		LRParser lrParser = new LRParser();
+		LexerWrapper lexWrapper = new LexerWrapper(lexer, grammar);
+		ReportLog reportLog = new ReportLogImpl();
+		AST ast = lrParser.parse(lexWrapper, reportLog, table);
+		checkAst(ast);
+	}
 }

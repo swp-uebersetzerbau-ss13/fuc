@@ -11,6 +11,9 @@ import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.retur
 import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.sem;
 import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.truee;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+
 import org.apache.log4j.BasicConfigurator;
 import org.junit.Test;
 
@@ -18,7 +21,10 @@ import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.lexer.Lexer;
 import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.common.report.ReportLog;
+import swp_compiler_ss13.fuc.ast.visualization.ASTXMLVisualization;
 import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
+import swp_compiler_ss13.fuc.lexer.LexerImpl;
+import swp_compiler_ss13.fuc.parser.errorHandling.ParserASTXMLVisualization;
 import swp_compiler_ss13.fuc.parser.generator.ALRGenerator;
 import swp_compiler_ss13.fuc.parser.generator.LR1Generator;
 import swp_compiler_ss13.fuc.parser.generator.items.LR1Item;
@@ -80,22 +86,25 @@ public class M2PrintTest {
 		
 		 		
 		// Simulate input
-		Lexer lexer = new TestLexer(
-		new TestToken("long", TokenType.LONG_SYMBOL), id("l"), t(sem),
-		new TestToken("double", TokenType.DOUBLE_SYMBOL), id("d"), t(sem),
-		new TestToken("string", TokenType.STRING_SYMBOL), id("s"), t(sem),
-		new TestToken("bool", TokenType.BOOL_SYMBOL), id("b"), t(sem),
-		new TestToken("string", TokenType.STRING_SYMBOL), id("linebreak"), t(sem),
-		id("linebreak"), t(assignop),new TestToken("\n", TokenType.STRING), t(sem),
-		id("b"), t(assignop), t(truee), t(sem),
-		id("l"), t(assignop), longe(18121313223L), t(sem),
-		id("d"), t(assignop), doublee(-23.23e-100), t(sem),
-		id("s"), t(assignop),new TestToken("jagÄrEttString\"\n", TokenType.STRING), t(sem),
-		t(print), id("b"), t(sem),t(print), id("linebreak"), t(sem),
-		t(print), id("l"), t(sem),t(print), id("linebreak"), t(sem),
-		t(print), id("d"), t(sem),t(print), id("linebreak"), t(sem),
-		t(print), id("s"), t(sem),
-		t(returnn),t(sem),t(Terminal.EOF));			 
+//		Lexer lexer = new TestLexer(
+//		new TestToken("long", TokenType.LONG_SYMBOL), id("l"), t(sem),
+//		new TestToken("double", TokenType.DOUBLE_SYMBOL), id("d"), t(sem),
+//		new TestToken("string", TokenType.STRING_SYMBOL), id("s"), t(sem),
+//		new TestToken("bool", TokenType.BOOL_SYMBOL), id("b"), t(sem),
+//		new TestToken("string", TokenType.STRING_SYMBOL), id("linebreak"), t(sem),
+//		id("linebreak"), t(assignop),new TestToken("\n", TokenType.STRING), t(sem),
+//		id("b"), t(assignop), t(truee), t(sem),
+//		id("l"), t(assignop), longe(18121313223L), t(sem),
+//		id("d"), t(assignop), doublee(-23.23e-100), t(sem),
+//		id("s"), t(assignop),new TestToken("jagÄrEttString\"\n", TokenType.STRING), t(sem),
+//		t(print), id("b"), t(sem),t(print), id("linebreak"), t(sem),
+//		t(print), id("l"), t(sem),t(print), id("linebreak"), t(sem),
+//		t(print), id("d"), t(sem),t(print), id("linebreak"), t(sem),
+//		t(print), id("s"), t(sem),
+//		t(returnn),t(sem),t(Terminal.EOF));		
+		
+		Lexer lexer = new LexerImpl();
+		lexer.setSourceStream(new ByteArrayInputStream(input.getBytes()));
  
  		// Run LR-parser with table
 		LRParser lrParser = new LRParser();
@@ -183,5 +192,6 @@ public class M2PrintTest {
 	private static void checkAst(AST ast) {
 		assertNotNull(ast);
 		// TODO Validate ast
+		System.out.println(new ParserASTXMLVisualization().visualizeAST(ast));
 	}
 }
