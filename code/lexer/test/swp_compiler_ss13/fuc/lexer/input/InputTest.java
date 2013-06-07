@@ -16,6 +16,7 @@ import org.junit.Test;
 import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.fuc.lexer.LexerImpl;
+import swp_compiler_ss13.fuc.lexer.util.Constants;
 
 /**
  * Testclass for setting the input of the lexer correct
@@ -119,5 +120,30 @@ public class InputTest {
 		assertEquals(TokenType.EOF, token.getTokenType());
 		assertEquals(1, token.getLine().intValue());
 		assertEquals(1, token.getColumn().intValue());
+	}
+
+	/**
+	 * Test for tokenizing of tabs
+	 * 
+	 * @throws UnsupportedEncodingException
+	 *             : UTF-8 encoding not supported
+	 */
+	@Test
+	public void tokenizingOfTabsTest() throws UnsupportedEncodingException {
+		String simpleIDString = Constants.ID1 + "\t" + Constants.ID2;
+		this.lexer.setSourceStream(new ByteArrayInputStream(simpleIDString
+				.getBytes("UTF-8")));
+
+		Token token = this.lexer.getNextToken();
+		assertEquals(Constants.ID1, token.getValue());
+		assertEquals(TokenType.ID, token.getTokenType());
+		assertEquals(1, token.getLine().intValue());
+		assertEquals(1, token.getColumn().intValue());
+
+		token = this.lexer.getNextToken();
+		assertEquals(Constants.ID2, token.getValue());
+		assertEquals(TokenType.ID, token.getTokenType());
+		assertEquals(1, token.getLine().intValue());
+		assertEquals(4, token.getColumn().intValue());
 	}
 }

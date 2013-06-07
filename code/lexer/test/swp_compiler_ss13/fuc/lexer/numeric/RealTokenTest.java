@@ -218,4 +218,30 @@ public class RealTokenTest {
 				null, null);
 		assertTrue(token.getDoubleValue() == null);
 	}
+
+	/**
+	 * Test for tokenizing of a real value with semicolon at the end
+	 * 
+	 * @throws UnsupportedEncodingException
+	 *             : UTF-8 encoding not supported
+	 */
+	@Test
+	public void tokenizeRealValueWithSemicolonAtEndTest()
+			throws UnsupportedEncodingException {
+		String simpleRealString = Constants.DOUBLESTRING1 + Constants.SEMICOLON;
+		this.lexer.setSourceStream(new ByteArrayInputStream(simpleRealString
+				.getBytes("UTF-8")));
+
+		Token token = this.lexer.getNextToken();
+		assertEquals(Constants.DOUBLESTRING1, token.getValue());
+		assertEquals(TokenType.REAL, token.getTokenType());
+		assertEquals(1, token.getLine().intValue());
+		assertEquals(1, token.getColumn().intValue());
+
+		token = this.lexer.getNextToken();
+		assertEquals(Constants.SEMICOLON, token.getValue());
+		assertEquals(TokenType.SEMICOLON, token.getTokenType());
+		assertEquals(1, token.getLine().intValue());
+		assertEquals(8, token.getColumn().intValue());
+	}
 }

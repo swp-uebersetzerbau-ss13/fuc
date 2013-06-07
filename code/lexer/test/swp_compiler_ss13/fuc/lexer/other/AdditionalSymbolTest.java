@@ -40,6 +40,10 @@ public class AdditionalSymbolTest {
 		assertEquals(TokenType.SEMICOLON,
 				PA.getValue(this.lexer, "actualTokenType"));
 
+		PA.setValue(this.lexer, "actualTokenValue", Constants.DOT);
+		PA.invokeMethod(this.lexer, "matchToken()");
+		assertEquals(TokenType.DOT, PA.getValue(this.lexer, "actualTokenType"));
+
 		/*
 		 * FIXME: PA.invokeMethode() throws IllegalArgumentException
 		 * 
@@ -55,7 +59,8 @@ public class AdditionalSymbolTest {
 	}
 
 	/**
-	 * Test for tokenizing of semicolons, comments and EOF with an empty line
+	 * Test for tokenizing of semicolons, comments, dot and EOF with an empty
+	 * line
 	 * 
 	 * @throws UnsupportedEncodingException
 	 *             : UTF-8 encoding not supported
@@ -63,8 +68,9 @@ public class AdditionalSymbolTest {
 	@Test
 	public void simpleTokenizingOfSymbolsTest()
 			throws UnsupportedEncodingException {
-		String simpleSymbolString = Constants.ID1 + Constants.SEMICOLON
-				+ "\n\n" + Constants.COMMENT + " " + Constants.COMMENT_EXAMPLE;
+		String simpleSymbolString = Constants.ID1 + Constants.SEMICOLON + " "
+				+ Constants.DOT + "\n\n" + Constants.COMMENT + " "
+				+ Constants.COMMENT_EXAMPLE;
 
 		this.lexer.setSourceStream(new ByteArrayInputStream(simpleSymbolString
 				.getBytes("UTF-8")));
@@ -80,6 +86,12 @@ public class AdditionalSymbolTest {
 		assertEquals(TokenType.SEMICOLON, token.getTokenType());
 		assertEquals(1, token.getLine().intValue());
 		assertEquals(3, token.getColumn().intValue());
+
+		token = this.lexer.getNextToken();
+		assertEquals(Constants.DOT, token.getValue());
+		assertEquals(TokenType.DOT, token.getTokenType());
+		assertEquals(1, token.getLine().intValue());
+		assertEquals(5, token.getColumn().intValue());
 
 		token = this.lexer.getNextToken();
 		assertEquals(Constants.COMMENT + " " + Constants.COMMENT_EXAMPLE,

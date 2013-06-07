@@ -23,6 +23,7 @@ public class GrammarTestHelper {
 
 	
 
+
 	public static Token t(Terminal terminal) {
 		// TODO Handle special terminals better
 		if (terminal == Terminal.EOF) {

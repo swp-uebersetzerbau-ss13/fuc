@@ -1,27 +1,15 @@
 package swp_compiler_ss13.fuc.parser;
 
 import static org.junit.Assert.assertNotNull;
-import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.doublee;
-import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.id;
-import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.longe;
-import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.t;
-import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.assignop;
-import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.print;
-import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.returnn;
-import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.sem;
-import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.truee;
 
 import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 
 import org.apache.log4j.BasicConfigurator;
 import org.junit.Test;
 
 import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.lexer.Lexer;
-import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.common.report.ReportLog;
-import swp_compiler_ss13.fuc.ast.visualization.ASTXMLVisualization;
 import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
 import swp_compiler_ss13.fuc.lexer.LexerImpl;
 import swp_compiler_ss13.fuc.parser.errorHandling.ParserASTXMLVisualization;
@@ -31,17 +19,16 @@ import swp_compiler_ss13.fuc.parser.generator.items.LR1Item;
 import swp_compiler_ss13.fuc.parser.generator.states.LR1State;
 import swp_compiler_ss13.fuc.parser.grammar.Grammar;
 import swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar;
-import swp_compiler_ss13.fuc.parser.grammar.Terminal;
 import swp_compiler_ss13.fuc.parser.parser.LRParser;
 import swp_compiler_ss13.fuc.parser.parser.LexerWrapper;
 import swp_compiler_ss13.fuc.parser.parser.tables.LRParsingTable;
 
 public class M2PrintTest {
-	
 	static {
 		BasicConfigurator.configure();
 	}
 	
+
 	String input = 
 			"# return 0\n"
 			+ "# prints:\n"
@@ -76,14 +63,11 @@ public class M2PrintTest {
 			}*/
 			
 			
+
 	@Test
-	public void testInput(){
- 		// Generate parsing table
-		Grammar grammar = new ProjectGrammar.Complete().getGrammar();
-		ALRGenerator<LR1Item, LR1State> generator = new LR1Generator(grammar);
-		LRParsingTable table = generator.getParsingTable();
+	public void testForAnnoyingTravis() {
 		
-		
+
 		 		
 		// Simulate input
 //		Lexer lexer = new TestLexer(
@@ -103,6 +87,11 @@ public class M2PrintTest {
 //		t(print), id("s"), t(sem),
 //		t(returnn),t(sem),t(Terminal.EOF));		
 		
+		// Generate parsing table
+		Grammar grammar = new ProjectGrammar.Complete().getGrammar();
+		ALRGenerator<LR1Item, LR1State> generator = new LR1Generator(grammar);
+		LRParsingTable table = generator.getParsingTable();
+
 		Lexer lexer = new LexerImpl();
 		lexer.setSourceStream(new ByteArrayInputStream(input.getBytes()));
  
@@ -112,8 +101,8 @@ public class M2PrintTest {
 		ReportLog reportLog = new ReportLogImpl();
 		AST ast = lrParser.parse(lexWrapper, reportLog, table);
 		checkAst(ast);
+
 	}
-	
 
 //	@Test
 //	public void testPrint() {
@@ -184,10 +173,6 @@ public class M2PrintTest {
 //		AST ast = lrParser.parse(lexWrapper, reportLog, table);
 //		checkAst(ast);
 //	}
-	
-	
-	
-	
 
 	private static void checkAst(AST ast) {
 		assertNotNull(ast);
