@@ -1,9 +1,9 @@
 package swp_compiler_ss13.fuc.parser;
 
 import static org.junit.Assert.assertNotNull;
-import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.real;
 import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.id;
 import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.num;
+import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.real;
 import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.t;
 import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.assignop;
 import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.print;
@@ -21,9 +21,13 @@ import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.lexer.Lexer;
 import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.common.report.ReportLog;
+import swp_compiler_ss13.common.types.primitive.BooleanType;
+import swp_compiler_ss13.common.types.primitive.DoubleType;
+import swp_compiler_ss13.common.types.primitive.LongType;
+import swp_compiler_ss13.common.types.primitive.StringType;
+import swp_compiler_ss13.fuc.ast.ASTFactory;
 import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
 import swp_compiler_ss13.fuc.lexer.LexerImpl;
-import swp_compiler_ss13.fuc.parser.errorHandling.ParserASTXMLVisualization;
 import swp_compiler_ss13.fuc.parser.generator.ALRGenerator;
 import swp_compiler_ss13.fuc.parser.generator.LR1Generator;
 import swp_compiler_ss13.fuc.parser.generator.items.LR1Item;
@@ -71,7 +75,6 @@ public class M2PrintTest {
 		ReportLog reportLog = new ReportLogImpl();
 		AST ast = lrParser.parse(lexWrapper, reportLog, table);
 		checkAst(ast);
-
 	}
 
 
@@ -125,7 +128,28 @@ public class M2PrintTest {
 
 	private static void checkAst(AST ast) {
 		assertNotNull(ast);
-		// TODO Validate ast
-		System.out.println(new ParserASTXMLVisualization().visualizeAST(ast));
+		
+		ASTFactory factory = new ASTFactory();
+		factory.addDeclaration("l", new LongType());
+		factory.addDeclaration("d", new DoubleType());
+		factory.addDeclaration("s", new StringType(1L));
+		factory.addDeclaration("b", new BooleanType());
+
+		factory.addDeclaration("linebreak", new StringType(1L));
+		factory.addAssignment(factory.newBasicIdentifier("linebreak"), factory.newLiteral("\n", new StringType(1L)));
+		factory.addAssignment(factory.newBasicIdentifier("b"), factory.newLiteral("true", new BooleanType()));
+		factory.addAssignment(factory.newBasicIdentifier("l"), factory.newLiteral("18121313223", new LongType()));
+		factory.addAssignment(factory.newBasicIdentifier("d"), factory.newLiteral("-23.23e-100", new LongType()));
+		factory.addAssignment(factory.newBasicIdentifier("s"), factory.newLiteral("jagÄrEttString\"", new StringType(9L)));
+		
+		factory.addPrint(factory.newBasicIdentifier("b")); factory.addPrint(factory.newBasicIdentifier("linebreak"));
+		factory.addPrint(factory.newBasicIdentifier("l")); factory.addPrint(factory.newBasicIdentifier("linebreak"));
+		factory.addPrint(factory.newBasicIdentifier("d")); factory.addPrint(factory.newBasicIdentifier("linebreak"));
+		factory.addPrint(factory.newBasicIdentifier("s"));
+		
+		factory.addReturn(null);
+		
+		AST expected = factory.getAST();
+		ASTComparator.compareAST(expected, ast);
 	}
 }
