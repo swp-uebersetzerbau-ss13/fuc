@@ -35,10 +35,13 @@ public class LexerImpl implements Lexer {
 	private boolean isEOF;
 	private final static Pattern NEXT_CHARACTER = Pattern.compile("[^\\s]+");
 	private final static Pattern NEXT_WHITESPACE = Pattern.compile("\\s");
+	private final static Pattern DOUBLE = Pattern.compile("\\d+\\.\\d+");
+	// order is important
+	private final static String[] SEPARATOR_CHARACTERS = { ".", ";" };
 
 	/**
 	 * Method sets an {@link InputStream} for the lexer and splits it line by
-	 * line into an {@link ArrayList}
+	 * line into an {@link ArrayList} while removing the tabs with whitespaces
 	 */
 	@Override
 	public void setSourceStream(InputStream stream) {
@@ -49,7 +52,8 @@ public class LexerImpl implements Lexer {
 
 		while (scanner.hasNext()) {
 
-			this.convertedLines.add(scanner.useDelimiter("\\n").next());
+			this.convertedLines.add(scanner.useDelimiter("\\n").next()
+					.replaceAll("\t", " "));
 
 		}
 
@@ -254,8 +258,8 @@ public class LexerImpl implements Lexer {
 				boolean hasNextWhitespace = false;
 
 				/*
-				 * check if a next whitespace in line is existent if not the
-				 * rest of the line must be tokenized
+				 * check if a whitespace in line is existent and abstract the
+				 * token value from beginning of the line to the next whitespace
 				 */
 				while (matchNextWhitespace.find()) {
 
@@ -266,8 +270,14 @@ public class LexerImpl implements Lexer {
 
 				}
 
+				/*
+				 * if no whitespace is in line, the rest of the line is the
+				 * token value
+				 */
 				if (!hasNextWhitespace) {
+
 					this.actualTokenValue = this.actualLineValue;
+
 				}
 
 				/*
@@ -276,15 +286,52 @@ public class LexerImpl implements Lexer {
 				if (this.actualTokenValue.contains(";")
 						&& this.actualTokenValue.length() > 1) {
 
-					this.actualTokenValue = this.actualTokenValue.substring(0,
-							this.actualTokenValue.indexOf(";"));
+					if (this.actualTokenValue.startsWith(";")) {
+
+						this.actualTokenValue = String
+								.valueOf(this.actualTokenValue.charAt(0));
+
+					} else {
+
+						this.actualTokenValue = this.actualTokenValue
+								.substring(0,
+										this.actualTokenValue.indexOf(";"));
+
+					}
 
 				}
 
 				/*
-				 * match the token value
+				 * try to match the token value
 				 */
 				this.matchToken();
+
+				if (this.actualTokenType == TokenType.NOT_A_TOKEN) {
+
+					/*
+					 * check if a dot is in the token value
+					 */
+					if (this.actualTokenValue.contains(".")
+							&& this.actualTokenValue.length() > 1) {
+
+						if (this.actualTokenValue.startsWith(".")) {
+
+							this.actualTokenValue = String
+									.valueOf(this.actualTokenValue.charAt(0));
+
+						} else {
+
+							this.actualTokenValue = this.actualTokenValue
+									.substring(0,
+											this.actualTokenValue.indexOf("."));
+
+						}
+
+						this.matchToken();
+
+					}
+
+				}
 
 			}
 
@@ -399,6 +446,10 @@ public class LexerImpl implements Lexer {
 		} else if (this.actualTokenValue.matches(";")) {
 
 			this.actualTokenType = TokenType.SEMICOLON;
+
+		} else if (this.actualTokenValue.matches("\\.")) {
+
+			this.actualTokenType = TokenType.DOT;
 
 		} else if (this.actualTokenValue.matches("\\(")) {
 
@@ -555,5 +606,4 @@ public class LexerImpl implements Lexer {
 		}
 
 	}
-
 }

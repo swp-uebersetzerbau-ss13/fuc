@@ -55,6 +55,7 @@ import swp_compiler_ss13.fuc.gui.ide.data.FucIdeButton;
 import swp_compiler_ss13.fuc.gui.ide.data.FucIdeMenu;
 import swp_compiler_ss13.fuc.gui.ide.data.FucIdeStatusLabel;
 import swp_compiler_ss13.fuc.gui.ide.data.FucIdeTab;
+import swp_compiler_ss13.fuc.gui.ide.mvc.Controller;
 
 public class FucIdeView extends JFrame {
 	private JPanel contentPane;
@@ -458,5 +459,9 @@ public class FucIdeView extends JFrame {
 	public void addErrorLog(String msg) {
 		((DefaultListModel<String>) this.errorReportList.getModel()).addElement(msg);
 		this.errorReportList.revalidate();
+	}
+
+	public void showTab(Controller controller) {
+		this.componentTabs.setSelectedComponent(controller.getView().getComponent());
 	}
 }

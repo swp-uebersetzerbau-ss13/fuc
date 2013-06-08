@@ -5,6 +5,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -348,104 +349,7 @@ public class FucIdeController {
 	}
 
 	public void onRunPressed() {
-		Lexer lexer = this.model.getActiveLexer();
-		Parser parser = this.model.getActiveParser();
-		SemanticAnalyser analyzer = this.model.getActiveAnalyzer();
-		IntermediateCodeGenerator irgen = this.model.getActiveIRG();
-		Backend backend = this.model.getActiveBackend();
-
-		String sourceCode = this.model.getSourceCode();
-		if (sourceCode == null) {
-			sourceCode = "";
-		}
-		final ReportLogImpl log = new ReportLogImpl();
-
-		try {
-			// do lexer stuff
-			lexer = lexer.getClass().newInstance();
-
-			lexer.setSourceStream(new ByteArrayInputStream(sourceCode.getBytes()));
-			List<Token> tokens = new LinkedList<>();
-			while (true) {
-				Token t = lexer.getNextToken();
-				if (t.getTokenType() == TokenType.EOF) {
-					break;
-				}
-				tokens.add(t);
-			}
-			for (Controller c : this.model.getGUIControllers()) {
-				if (c.getModel().setTokens(tokens)) {
-					c.notifyModelChanged();
-				}
-			}
-
-			// do parser stuff
-			lexer = lexer.getClass().newInstance();
-			lexer.setSourceStream(new ByteArrayInputStream(sourceCode.getBytes()));
-			parser = parser.getClass().newInstance();
-			parser.setLexer(lexer);
-			parser.setReportLog(log);
-			AST ast = parser.getParsedAST();
-			for (Controller c : this.model.getGUIControllers()) {
-				if (c.getModel().setAST(ast)) {
-					c.notifyModelChanged();
-				}
-			}
-
-			if (ast != null) {
-
-				// do analyzer stuff
-				analyzer = analyzer.getClass().newInstance();
-				analyzer.setReportLog(log);
-				AST checkedAST = analyzer.analyse(ast);
-
-				// do irgen stuff
-				irgen = irgen.getClass().newInstance();
-				List<Quadruple> tac = irgen.generateIntermediateCode(checkedAST);
-				for (Controller c : this.model.getGUIControllers()) {
-					if (c.getModel().setTAC(tac)) {
-						c.notifyModelChanged();
-					}
-				}
-
-				// do backend stuff
-				backend = backend.getClass().newInstance();
-				Map<String, InputStream> target = backend.generateTargetCode("Program", tac);
-				for (Controller c : this.model.getGUIControllers()) {
-					if (c.getModel().setTargetCode(target)) {
-						c.notifyModelChanged();
-					}
-				}
-			}
-
-		} catch (Throwable e) {
-			new FucIdeCriticalError(this.view, e, true);
-		}
-
-		SwingUtilities.invokeLater(new Runnable() {
-
-			@Override
-			public void run() {
-
-				FucIdeController.this.view.clearErrorLog();
-				int e = 0;
-				for (LogEntry error : log.getEntries()) {
-					String warnOrError = error.getLogType().toString();
-					String message = error.getMessage();
-					String type = error.getReportType().toString();
-					String tokens = (null == error.getTokens()) ? "null" : error.getTokens().toString();
-
-					FucIdeController.this.view.addErrorLog(warnOrError + " - " + type);
-					FucIdeController.this.view.addErrorLog(message);
-					FucIdeController.this.view.addErrorLog(tokens);
-					FucIdeController.this.view.addErrorLog("");
-					e++;
-				}
-				if (e == 0) {
-					FucIdeController.this.view.addErrorLog("No errors reported");
-				}
-			}
-		});
+		this.run(false);
 	}
 
 	public void onLexerSelected(Lexer lexer) {
@@ -482,7 +386,243 @@ public class FucIdeController {
 		}
 	}
 
+	public void notifyTokensChanged(List<Token> tokens) {
+		logger.info("token list was changed");
+		for (Controller c : this.model.getGUIControllers()) {
+			if (c.getModel().setTokens(tokens)) {
+				c.notifyModelChanged();
+			}
+		}
+	}
+
+	public void notifyASTChanged(AST ast) {
+		logger.info("ast was changed");
+		for (Controller c : this.model.getGUIControllers()) {
+			if (c.getModel().setAST(ast)) {
+				c.notifyModelChanged();
+			}
+		}
+	}
+
+	public void notifyTACChanged(List<Quadruple> tac) {
+		logger.info("tac was changed");
+		for (Controller c : this.model.getGUIControllers()) {
+			if (c.getModel().setTAC(tac)) {
+				c.notifyModelChanged();
+			}
+		}
+	}
+
+	public void notifyTargetChanged(Map<String, InputStream> target) {
+		logger.info("target was changed");
+		for (Controller c : this.model.getGUIControllers()) {
+			if (c.getModel().setTargetCode(target)) {
+				c.notifyModelChanged();
+			}
+		}
+	}
+
 	public Component getView() {
 		return this.view;
+	}
+
+	public void run(boolean silent) {
+		String sourceCode = this.model.getSourceCode();
+		ReportLogImpl reportlog = new ReportLogImpl();
+
+		List<Token> tokens = this.runLexer(sourceCode, silent, reportlog);
+		this.notifyTokensChanged(tokens);
+		if (tokens != null) {
+			AST ast = this.runParser(tokens, silent, reportlog);
+			this.notifyASTChanged(ast);
+			if (ast != null) {
+				AST checkedAST = this.runSemanticAnalysis(ast, silent, reportlog);
+				this.notifyASTChanged(ast);
+				if (checkedAST != null) {
+					List<Quadruple> tac = this.runIntermediateCodeGenerator(checkedAST, silent, reportlog);
+					this.notifyTACChanged(tac);
+					if (tac == null) {
+						Map<String, InputStream> target = this.runBackend(tac, silent, reportlog);
+						this.notifyTargetChanged(target);
+					}
+				}
+			}
+		}
+		if (!silent) {
+			this.setLogEntries(reportlog);
+		}
+	}
+
+	public List<Token> runLexer(String sourceCode, boolean silent) {
+		ReportLogImpl reportlog = new ReportLogImpl();
+		List<Token> tokens = this.runLexer(sourceCode, silent, reportlog);
+		this.notifyTokensChanged(tokens);
+		if (!silent) {
+			this.setLogEntries(reportlog);
+		}
+		return tokens;
+	}
+
+	public AST runParser(List<Token> tokens, boolean silent) {
+		ReportLogImpl reportlog = new ReportLogImpl();
+		AST ast = this.runParser(tokens, silent, reportlog);
+		this.notifyASTChanged(ast);
+		if (!silent) {
+			this.setLogEntries(reportlog);
+		}
+		return ast;
+	}
+
+	public AST runSemanticAnalysis(AST ast, boolean silent) {
+		ReportLogImpl reportlog = new ReportLogImpl();
+		AST cast = this.runSemanticAnalysis(ast, silent, reportlog);
+		this.notifyASTChanged(cast);
+		if (!silent) {
+			this.setLogEntries(reportlog);
+		}
+		return cast;
+	}
+
+	public Map<String, InputStream> runBackend(List<Quadruple> tac, boolean silent) {
+		ReportLogImpl reportlog = new ReportLogImpl();
+		Map<String, InputStream> target = this.runBackend(tac, silent, reportlog);
+		this.notifyTargetChanged(target);
+		if (!silent) {
+			this.setLogEntries(reportlog);
+		}
+		return target;
+	}
+
+	public List<Quadruple> runIntermediateCodeGenerator(AST ast, boolean silent) {
+		ReportLogImpl reportlog = new ReportLogImpl();
+		List<Quadruple> tac = this.runIntermediateCodeGenerator(ast, silent, reportlog);
+		this.notifyTACChanged(tac);
+		if (!silent) {
+			this.setLogEntries(reportlog);
+		}
+		return tac;
+	}
+
+	public List<Token> runLexer(String sourceCode, boolean silent, ReportLogImpl log) {
+		if (sourceCode == null) {
+			sourceCode = "";
+		}
+		Lexer lexer = this.model.getActiveLexer();
+		InputStream stream = new ByteArrayInputStream(sourceCode.getBytes());
+
+		try {
+			lexer.setSourceStream(stream);
+			List<Token> tokenList = new LinkedList<>();
+			while (true) {
+				Token token = lexer.getNextToken();
+				tokenList.add(token);
+				if (token.getTokenType() == TokenType.EOF) {
+					break;
+				}
+			}
+			return tokenList;
+		} catch (Throwable th) {
+			if (!silent) {
+				new FucIdeCriticalError(this.view, th, true);
+			}
+		}
+		return null;
+	}
+
+	public AST runParser(List<Token> tokens, boolean silent, ReportLogImpl log) {
+		Parser parser = this.model.getActiveParser();
+		parser.setReportLog(log);
+		parser.setLexer(new MockLexer(tokens));
+
+		try {
+			AST ast = parser.getParsedAST();
+			return ast;
+		} catch (Throwable th) {
+			if (!silent) {
+				new FucIdeCriticalError(this.view, th, true);
+			}
+		}
+		return null;
+	}
+
+	public AST runSemanticAnalysis(AST ast, boolean silent, ReportLogImpl log) {
+		SemanticAnalyser sa = this.model.getActiveAnalyzer();
+		sa.setReportLog(log);
+		try {
+			AST checkedAst = sa.analyse(ast);
+			return checkedAst;
+		} catch (Throwable th) {
+			if (!silent) {
+				new FucIdeCriticalError(this.view, th, true);
+			}
+		}
+		return null;
+	}
+
+	public Map<String, InputStream> runBackend(List<Quadruple> tac, boolean silent, ReportLogImpl log) {
+		Backend backend = this.model.getActiveBackend();
+		try {
+			Map<String, InputStream> target = backend.generateTargetCode("main", tac);
+			return target;
+		} catch (Throwable th) {
+			if (!silent) {
+				new FucIdeCriticalError(this.view, th, true);
+			}
+		}
+		return null;
+	}
+
+	public List<Quadruple> runIntermediateCodeGenerator(AST ast, boolean silent, ReportLogImpl log) {
+		IntermediateCodeGenerator irg = this.model.getActiveIRG();
+		try {
+			List<Quadruple> tac = irg.generateIntermediateCode(ast);
+			return tac;
+		} catch (Throwable th) {
+			if (!silent) {
+				new FucIdeCriticalError(this.view, th, true);
+			}
+		}
+		return null;
+	}
+
+	private void setLogEntries(final ReportLogImpl reportlog) {
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+
+				FucIdeController.this.view.clearErrorLog();
+				String[] logEntries = FucIdeController.this.getLogEntries(reportlog);
+				for (String logEntry : logEntries) {
+					FucIdeController.this.view.addErrorLog(logEntry);
+				}
+				if (logEntries.length == 0) {
+					FucIdeController.this.view.addErrorLog("No errors reported");
+				}
+			}
+		});
+	}
+
+	protected String[] getLogEntries(ReportLogImpl reportlog) {
+		List<LogEntry> errors = reportlog.getEntries();
+		List<String> strings = new ArrayList<>(errors.size() * 4);
+		for (LogEntry error : errors) {
+			strings.add(error.getLogType() + ": " + error.getReportType());
+			strings.add(error.getMessage());
+			List<Token> tokenlist = error.getTokens();
+			if (tokenlist != null) {
+				strings.add(error.getTokens().toString());
+			}
+			strings.add("------------------");
+		}
+		return strings.toArray(new String[] {});
+	}
+
+	public void showTab(final Controller controller) {
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				FucIdeController.this.view.showTab(controller);
+			}
+		});
 	}
 }
