@@ -45,9 +45,17 @@ public class GrammarSpec {
 			throws IllegalArgumentException, IllegalAccessException {
 		List<T> result = new LinkedList<>();
 		for (Field field : this.getClass().getDeclaredFields()) {
+			boolean access = false;
+			if (!field.isAccessible()) {
+				access = true;
+				field.setAccessible(true);
+			}
 			Object obj = field.get(this);
 			if (clazz.isInstance(obj)) {
 				result.add(clazz.cast(obj));
+			}
+			if (access) {
+				field.setAccessible(false);
 			}
 		}
 		return result;

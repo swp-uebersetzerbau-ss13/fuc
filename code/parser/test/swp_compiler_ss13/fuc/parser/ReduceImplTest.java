@@ -28,7 +28,7 @@ import swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar;
 import swp_compiler_ss13.fuc.parser.parser.ReduceAction;
 import swp_compiler_ss13.fuc.parser.parser.ReduceImpl;
 
-public class M2ReduceImplTest {
+public class ReduceImplTest {
 
 	
 	static ReportLog reportLog;
