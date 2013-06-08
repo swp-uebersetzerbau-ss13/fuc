@@ -8,9 +8,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
+import junit.extensions.PA;
+
 import org.apache.log4j.Logger;
 
-import junit.extensions.PA;
 import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.ast.ASTNode;
 import swp_compiler_ss13.common.ast.nodes.binary.ArithmeticBinaryExpressionNode;
@@ -53,6 +54,10 @@ public class ASTComparator {
 	 */
 	public static void compareAST(AST expected, AST actual) {
 		assertNotNull(actual);
+		
+//		ParserASTXMLVisualization vis = new ParserASTXMLVisualization();
+//		System.out.println(vis.visualizeAST(expected));
+//		System.out.println(vis.visualizeAST(actual));
 		
 		// Iterate both trees
 		Iterator<ASTNode> actualIt = actual.getDFSLTRIterator();

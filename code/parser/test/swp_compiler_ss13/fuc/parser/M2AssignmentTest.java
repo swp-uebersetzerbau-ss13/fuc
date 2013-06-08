@@ -5,7 +5,6 @@ import static org.junit.Assert.assertNotNull;
 import java.io.ByteArrayInputStream;
 
 import org.apache.log4j.BasicConfigurator;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import swp_compiler_ss13.common.ast.AST;
@@ -71,8 +70,8 @@ public class M2AssignmentTest {
 		
 		factory.addAssignment(factory.newBasicIdentifier("c"),
 				factory.newBinaryExpression(BinaryOperator.ADDITION,
-						factory.newBasicIdentifier("a"),
-						factory.newBinaryExpression(BinaryOperator.ADDITION, factory.newBasicIdentifier("b"), factory.newBasicIdentifier("c"))));
+						factory.newBinaryExpression(BinaryOperator.ADDITION, factory.newBasicIdentifier("a"), factory.newBasicIdentifier("b")),
+						factory.newBasicIdentifier("c")));
 		factory.addReturn(factory.newBasicIdentifier("c"));
 		
 		AST expectedAst = factory.getAST();
@@ -80,7 +79,6 @@ public class M2AssignmentTest {
 	}
 
  
-	@Ignore
 	@Test
 	public void testAssignmentOrgLexer() throws Exception {
 		String input = "# returns 10\n"
