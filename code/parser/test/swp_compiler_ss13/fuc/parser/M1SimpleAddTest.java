@@ -51,11 +51,6 @@ public class M1SimpleAddTest {
 //		checkAst(ast);
 //	}
 
-	private static void checkAst(AST ast) {
-		assertNotNull(ast);
-		// TODO Validate ast
-	}
-
 	@Test
 	public void testSimpleAddOrgLexer() throws Exception {
 		String input = "# returns 6\n"
@@ -78,5 +73,10 @@ public class M1SimpleAddTest {
 		ReportLog reportLog = new ParserReportLogImpl();
 		AST ast = lrParser.parse(lexWrapper, reportLog, table);
 		checkAst(ast);
+	}
+
+	private static void checkAst(AST ast) {
+		assertNotNull(ast);
+		// TODO Validate ast
 	}
 }

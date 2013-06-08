@@ -5,8 +5,6 @@ import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.fuc.parser.grammar.Terminal;
 
 public class GrammarTestHelper {
-	public static final String EXAMPLE_BASE_PATH = "./common/examples/";
-
 	public static Token num(int i) {
 		return new TestToken(i + "", TokenType.NUM);
 	}

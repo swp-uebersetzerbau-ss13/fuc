@@ -56,51 +56,51 @@ public class M2PrintTest {
 //		checkAst(ast);
 //	}
 
-//	@Test
-//	public void testPrintOrgLexer() throws Exception {
-//		String input = "# return 0\n"
-//				+ "# prints:\n"
-//				+ "# true\n"
-//				+ "# 18121313223\n"
-//				+ "# -2.323e-99\n"
-//				+ "# jagÄrEttString\"\n"
-//				+ "\n"
-//				+ "long l;\n"
-//				+ "double d;\n"
-//				+ "string s;\n"
-//				+ "bool b;\n"
-//				+ "\n"
-//				+ "string linebreak;\n"
-//				+ "linebreak = \"\n\";\n"
-//				+ "\n"
-//				+ "b = true;\n"
-//				+ "l = 18121313223;\n"
-//				+ "d = -23.23e-100;\n"
-//				+ "s = \"jagÄrEttString\"\n\";  # c-like escaping in strings\n"
-//				+ "\n"
-//				+ "print b; print linebreak;\n"
-//				+ "print l; print linebreak;       # print one digit left of the radix point\n"
-//				+ "print d; print linebreak;\n"
-//				+ "print s;\n"
-//				+ "\n"
-//				+ "return;                    # equivalent to return EXIT_SUCCESS";
-//		
-//		// Generate parsing table
-//		Grammar grammar = new ProjectGrammar.Complete().getGrammar();
-//		ALRGenerator<LR1Item, LR1State> generator = new LR1Generator(grammar);
-//		LRParsingTable table = generator.getParsingTable();
-//
-//		// Simulate input
-//		Lexer lexer = new LexerImpl();
-//		lexer.setSourceStream(new ByteArrayInputStream(input.getBytes()));
-//
-//		// Run LR-parser with table
-//		LRParser lrParser = new LRParser();
-//		LexerWrapper lexWrapper = new LexerWrapper(lexer, grammar);
-//		ReportLog reportLog = new ReportLogImpl();
-//		AST ast = lrParser.parse(lexWrapper, reportLog, table);
-//		checkAst(ast);
-//	}
+	@Test
+	public void testPrintOrgLexer() throws Exception {
+		String input = "# return 0\n"
+				+ "# prints:\n"
+				+ "# true\n"
+				+ "# 18121313223\n"
+				+ "# -2.323e-99\n"
+				+ "# jagÄrEttString\"\n"
+				+ "\n"
+				+ "long l;\n"
+				+ "double d;\n"
+				+ "string s;\n"
+				+ "bool b;\n"
+				+ "\n"
+				+ "string linebreak;\n"
+				+ "linebreak = \"\\n\";\n"
+				+ "\n"
+				+ "b = true;\n"
+				+ "l = 18121313223;\n"
+				+ "d = -23.23e-100;\n"
+				+ "s = \"jagÄrEttString\\\"\\n\";  # c-like escaping in strings\n"
+				+ "\n"
+				+ "print b; print linebreak;\n"
+				+ "print l; print linebreak;       # print one digit left of the radix point\n"
+				+ "print d; print linebreak;\n"
+				+ "print s;\n"
+				+ "\n"
+				+ "return;                    # equivalent to return EXIT_SUCCESS";
+		
+		// Generate parsing table
+		Grammar grammar = new ProjectGrammar.Complete().getGrammar();
+		ALRGenerator<LR1Item, LR1State> generator = new LR1Generator(grammar);
+		LRParsingTable table = generator.getParsingTable();
+
+		// Simulate input
+		Lexer lexer = new LexerImpl();
+		lexer.setSourceStream(new ByteArrayInputStream(input.getBytes()));
+
+		// Run LR-parser with table
+		LRParser lrParser = new LRParser();
+		LexerWrapper lexWrapper = new LexerWrapper(lexer, grammar);
+		ReportLog reportLog = new ReportLogImpl();
+		AST ast = lrParser.parse(lexWrapper, reportLog, table);
+		checkAst(ast);
+	}
 
 	private static void checkAst(AST ast) {
 		assertNotNull(ast);
