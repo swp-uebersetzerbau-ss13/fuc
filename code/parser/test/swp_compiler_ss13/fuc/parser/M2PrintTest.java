@@ -44,6 +44,7 @@ public class M2PrintTest {
 		BasicConfigurator.configure();
 	}
 	
+	@Ignore
 	@Test
 	public void testPrint() {
 		// Simulate input
