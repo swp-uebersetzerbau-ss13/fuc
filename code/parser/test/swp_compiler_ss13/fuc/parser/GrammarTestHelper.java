@@ -1,8 +1,12 @@
 package swp_compiler_ss13.fuc.parser;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+
 import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
-import swp_compiler_ss13.fuc.parser.TestToken;
 import swp_compiler_ss13.fuc.parser.grammar.Terminal;
 
 public class GrammarTestHelper {
@@ -29,5 +33,20 @@ public class GrammarTestHelper {
 
 	public static Token id(String value) {
 		return new TestToken(value, TokenType.ID);
+	}
+	
+	public static String loadExample(String name) throws Exception {
+		String relPath = name;
+		File file = new File(relPath);
+		if (!file.exists()) {
+			throw new RuntimeException("No file at: '" + relPath + "'");
+		}
+		
+		FileInputStream fis = new FileInputStream(file);
+		FileChannel fc = fis.getChannel();
+		ByteBuffer bb = ByteBuffer.allocate((int) file.length());
+		fc.read(bb);
+		
+		return new String(bb.array());
 	}
 }

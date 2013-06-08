@@ -15,6 +15,7 @@ import swp_compiler_ss13.common.report.ReportLog;
 import swp_compiler_ss13.common.report.ReportType;
 import swp_compiler_ss13.fuc.ast.ASTImpl;
 import swp_compiler_ss13.fuc.parser.grammar.Production;
+import swp_compiler_ss13.fuc.parser.grammar.Terminal;
 import swp_compiler_ss13.fuc.parser.grammar.TokenEx;
 import swp_compiler_ss13.fuc.parser.parser.states.LRParserState;
 import swp_compiler_ss13.fuc.parser.parser.tables.LRParsingTable;
@@ -63,7 +64,7 @@ public class LRParser {
 				list.add(token);
 				reportLog.reportError(ReportType.UNDEFINED, list,
 						"Found undefined token '" + token.getValue() + "'!");
-				throw new ParserException("undefined Token found");
+				throw new ParserException("Found undefined token");
 
 			case COMMENT:
 				// Skip it silently
@@ -71,7 +72,10 @@ public class LRParser {
 				continue WHILE;
 			}
 
-			action = table.getActionTable().get(state, token.getTerminal());
+			Terminal terminal = token.getTerminal();
+			if (terminal == null)
+				throw new ParserException("No Terminal associated with token: " + token);
+			action = table.getActionTable().get(state, terminal);
 			if (action == null) {
 				log.error("Error in Parsetable occured!");
 				throw new ParserException("An Error in Parsetable occured");
