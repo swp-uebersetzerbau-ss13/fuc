@@ -35,9 +35,6 @@ public class LexerImpl implements Lexer {
 	private boolean isEOF;
 	private final static Pattern NEXT_CHARACTER = Pattern.compile("[^\\s]+");
 	private final static Pattern NEXT_WHITESPACE = Pattern.compile("\\s");
-	private final static Pattern DOUBLE = Pattern.compile("\\d+\\.\\d+");
-	// order is important
-	private final static String[] SEPARATOR_CHARACTERS = { ".", ";" };
 
 	/**
 	 * Method sets an {@link InputStream} for the lexer and splits it line by
@@ -48,12 +45,25 @@ public class LexerImpl implements Lexer {
 
 		this.init();
 		this.convertedLines = new ArrayList<>();
+		// BufferedReader reader;
+		// try {
+		// reader = new BufferedReader(new InputStreamReader(stream, "UTF-8"));
+		// while (reader.ready()) {
+		// this.convertedLines.add(reader.readLine());
+		// }
+		// } catch (UnsupportedEncodingException e1) {
+		// // TODO Auto-generated catch block
+		// e1.printStackTrace();
+		// } catch (IOException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
+
 		Scanner scanner = new Scanner(stream, "UTF-8");
 
 		while (scanner.hasNext()) {
 
-			this.convertedLines.add(scanner.useDelimiter("\\n").next()
-					.replaceAll("\t", " "));
+			this.convertedLines.add(scanner.nextLine());
 
 		}
 
@@ -202,11 +212,7 @@ public class LexerImpl implements Lexer {
 			 * check if the next token is an ID, a string (starts with an
 			 * apostrophe), a comment or another type
 			 */
-			if (false) {
-
-				// id
-
-			} else if (this.actualLineValue.startsWith("\"")
+			if (this.actualLineValue.startsWith("\"")
 					&& this.actualLineValue.indexOf("\"", 1) != -1) {
 
 				int indexOfNextApostrophe = this.actualLineValue.indexOf("\"",

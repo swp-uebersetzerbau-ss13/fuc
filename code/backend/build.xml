@@ -87,7 +87,7 @@
 		<jacoco:coverage destfile="${test.results.dir}/jacoco.exec">
 			<junit
 				printsummary="on"
-				fork="true"
+				fork="yes"
 				haltonerror="true"
 				haltonfailure="true" >
 				<classpath>
@@ -98,7 +98,6 @@
 						<include name="**/TestSuite.java" />
 					</fileset>
 				</batchtest>
-                <formatter type="plain" usefile="false" />
 				<formatter type="xml" />
 			</junit>
 		</jacoco:coverage>
@@ -140,7 +139,7 @@
 
         <junit
                 printsummary="on"
-                fork="true"
+                fork="yes"
                 haltonerror="true"
                 haltonfailure="true">
             <classpath>
@@ -151,7 +150,6 @@
                     <include name="**/RuntimeTestSuite.java"/>
                 </fileset>
             </batchtest>
-            <formatter type="plain" usefile="false"/>
             <formatter type="xml"/>
         </junit>
 

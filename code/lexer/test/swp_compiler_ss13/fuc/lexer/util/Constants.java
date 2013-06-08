@@ -95,7 +95,7 @@ public class Constants {
 
 	/* strings */
 	public static final String STRING1 = "\"Ha\\\"llo We\\\"lt!\"";
-	public static final String STRING2 = "\"\\ntest\"";
+	public static final String STRING2 = "\"\ntest\"";
 	public static final String STRING3 = "\"test;test\"";
 	public static final String STRING4 = "\"test\"test";
 	public static final String NOSTRING1 = "\"test";
