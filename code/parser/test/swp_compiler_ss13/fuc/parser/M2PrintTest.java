@@ -1,9 +1,9 @@
 package swp_compiler_ss13.fuc.parser;
 
 import static org.junit.Assert.assertNotNull;
-import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.doublee;
+import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.real;
 import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.id;
-import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.longe;
+import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.num;
 import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.t;
 import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.assignop;
 import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.print;
@@ -39,41 +39,8 @@ public class M2PrintTest {
 		BasicConfigurator.configure();
 	}
 	
-
-	String input = 
-			"# return 0\n"
-			+ "# prints:\n"
-			+ "# true\n"
-			+ "# 18121313223\n"
-			+ "# -2.323e-99\n"
-			+ "# jagÄrEttString\"\n"
-			+ "\n"
-			+ "long l;\n"
-			+ "double d;\n"
-			+ "string s;\n"
-			+ "bool b;\n"
-			+ "\n"
-			+ "string linebreak;\n"
-			+ "linebreak = \"\n\";\n"
-			+ "\n"
-			+ "b = true;\n"
-			+ "l = 18121313223;\n"
-			+ "d = -23.23e-100;\n"
-			+ "s = \"jagÄrEttString\"\n\";  # c-like escaping in strings\n"
-			+ "\n"
-			+ "print b; print linebreak;\n"
-			+ "print l; print linebreak;       # print one digit left of the radix point\n"
-			+ "print d; print linebreak;\n"
-			+ "print s;\n"
-			+ "\n"
-			+ "return;                    # equivalent to return EXIT_SUCCESS";
-			
-
 	@Test
-	public void testForAnnoyingTravis() {
-		
-
-		 		
+	public void testPrint() {
 		// Simulate input
 		Lexer lexer = new TestLexer(
 		new TestToken("long", TokenType.LONG_SYMBOL), id("l"), t(sem),
@@ -83,8 +50,8 @@ public class M2PrintTest {
 		new TestToken("string", TokenType.STRING_SYMBOL), id("linebreak"), t(sem),
 		id("linebreak"), t(assignop),new TestToken("\n", TokenType.STRING), t(sem),
 		id("b"), t(assignop), t(truee), t(sem),
-		id("l"), t(assignop), longe(18121313223L), t(sem),
-		id("d"), t(assignop), doublee(-23.23e-100), t(sem),
+		id("l"), t(assignop), num(18121313223L), t(sem),
+		id("d"), t(assignop), real(-23.23e-100), t(sem),
 		id("s"), t(assignop),new TestToken("jag�rEttString\"\n", TokenType.STRING), t(sem),
 		t(print), id("b"), t(sem),t(print), id("linebreak"), t(sem),
 		t(print), id("l"), t(sem),t(print), id("linebreak"), t(sem),
