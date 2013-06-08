@@ -1,9 +1,21 @@
 package swp_compiler_ss13.fuc.parser;
 
 import static org.junit.Assert.assertNotNull;
-import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.*;
-
-import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.*;
+import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.id;
+import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.num;
+import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.t;
+import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.assignop;
+import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.elsee;
+import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.falsee;
+import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.iff;
+import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.lb;
+import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.not;
+import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.orop;
+import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.print;
+import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.rb;
+import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.returnn;
+import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.sem;
+import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.truee;
 
 import java.io.ByteArrayInputStream;
 
@@ -14,7 +26,6 @@ import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.lexer.Lexer;
 import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.common.report.ReportLog;
-import swp_compiler_ss13.fuc.ast.visualization.ASTXMLVisualization;
 import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
 import swp_compiler_ss13.fuc.lexer.LexerImpl;
 import swp_compiler_ss13.fuc.parser.errorHandling.ParserASTXMLVisualization;

@@ -89,26 +89,22 @@ public class M2AssignmentTest {
 
 	@Test
 	public void testAssignmentOrgLexer() throws Exception {
-//		String input = "# returns 10\n"
-//				+ "# prints nothing\n"
-//				+ "long a;\n"
-//				+ "long b;\n"
-//				+ "long c;\n"
-//				+ "\n"
-//				+ "\n"
-//				+ "a = 4;\n"
-//				+ "b = 3;\n"
-//				+ "c = 2;\n"
-//				+ "\n"
-//				+ "a = b = 4;\n"
-//				+ "c = a + b + c;\n"
-//				+ "\n"
-//				+ "return c;\n";
-		
-		String input = "bool b;\n" +
-						"long l;\n" +
-						"if ( b ) l = 1;\n" +
-						"return l;\n";
+		String input = "# returns 10\n"
+				+ "# prints nothing\n"
+				+ "long a;\n"
+				+ "long b;\n"
+				+ "long c;\n"
+				+ "\n"
+				+ "\n"
+				+ "a = 4;\n"
+				+ "b = 3;\n"
+				+ "c = 2;\n"
+				+ "\n"
+				+ "a = b = 4;\n"
+				+ "c = a + b + c;\n"
+				+ "\n"
+				+ "return c;\n";
+
 		
 		// Generate parsing table
 		Grammar grammar = new ProjectGrammar.Complete().getGrammar();
