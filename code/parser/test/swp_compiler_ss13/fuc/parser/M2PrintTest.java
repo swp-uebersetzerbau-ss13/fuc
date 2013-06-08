@@ -14,6 +14,7 @@ import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.truee
 import java.io.ByteArrayInputStream;
 
 import org.apache.log4j.BasicConfigurator;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import swp_compiler_ss13.common.ast.AST;
@@ -74,34 +75,36 @@ public class M2PrintTest {
 	}
 
 
-//	@Test
+	@Ignore
+	@Test
 	public void testPrintOrgLexer() throws Exception {
-		String input = "# return 0\n"
-				+ "# prints:\n"
-				+ "# true\n"
-				+ "# 18121313223\n"
-				+ "# -2.323e-99\n"
-				+ "# jagÄrEttString\"\n"
-				+ "\n"
-				+ "long l;\n"
-				+ "double d;\n"
-				+ "string s;\n"
-				+ "bool b;\n"
-				+ "\n"
-				+ "string linebreak;\n"
-				+ "linebreak = \"\n\";\n"
-				+ "\n"
-				+ "b = true;\n"
-				+ "l = 18121313223;\n"
-				+ "d = -23.23e-100;\n"
-				+ "s = \"jagÄrEttString\"\n\";  # c-like escaping in strings\n"
-				+ "\n"
-				+ "print b; print linebreak;\n"
-				+ "print l; print linebreak;       # print one digit left of the radix point\n"
-				+ "print d; print linebreak;\n"
-				+ "print s;\n"
-				+ "\n"
-				+ "return;                    # equivalent to return EXIT_SUCCESS";
+//		String input = "# return 0\n"
+//				+ "# prints:\n"
+//				+ "# true\n"
+//				+ "# 18121313223\n"
+//				+ "# -2.323e-99\n"
+//				+ "# jagÄrEttString\"\n"
+//				+ "\n"
+//				+ "long l;\n"
+//				+ "double d;\n"
+//				+ "string s;\n"
+//				+ "bool b;\n"
+//				+ "\n"
+//				+ "string linebreak;\n"
+//				+ "linebreak = \"\n\";\n"
+//				+ "\n"
+//				+ "b = true;\n"
+//				+ "l = 18121313223;\n"
+//				+ "d = -23.23e-100;\n"
+//				+ "s = \"jagÄrEttString\"\n\";  # c-like escaping in strings\n"
+//				+ "\n"
+//				+ "print b; print linebreak;\n"
+//				+ "print l; print linebreak;       # print one digit left of the radix point\n"
+//				+ "print d; print linebreak;\n"
+//				+ "print s;\n"
+//				+ "\n"
+//				+ "return;                    # equivalent to return EXIT_SUCCESS";
+		String input = GrammarTestHelper.loadExample("print.prog");
 		
 		// Generate parsing table
 		Grammar grammar = new ProjectGrammar.Complete().getGrammar();

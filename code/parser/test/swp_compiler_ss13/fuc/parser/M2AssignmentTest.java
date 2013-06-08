@@ -2,18 +2,10 @@ package swp_compiler_ss13.fuc.parser;
 
 import static org.junit.Assert.assertNotNull;
 
-import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.id;
-import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.num;
-import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.t;
-import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.assignop;
-import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.plus;
-import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.returnn;
-import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.sem;
-
-
 import java.io.ByteArrayInputStream;
 
 import org.apache.log4j.BasicConfigurator;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import swp_compiler_ss13.common.ast.AST;
@@ -24,7 +16,6 @@ import swp_compiler_ss13.common.types.primitive.LongType;
 import swp_compiler_ss13.fuc.ast.ASTFactory;
 import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
 import swp_compiler_ss13.fuc.lexer.LexerImpl;
-import swp_compiler_ss13.fuc.parser.errorHandling.ParserASTXMLVisualization;
 import swp_compiler_ss13.fuc.parser.generator.ALRGenerator;
 import swp_compiler_ss13.fuc.parser.generator.LR1Generator;
 import swp_compiler_ss13.fuc.parser.generator.items.LR1Item;
@@ -43,7 +34,7 @@ public class M2AssignmentTest {
 //	@Test
 //	public void testAssignment() {
 //		// Generate parsing table
-//		Grammar grammar = new ProjectGrammar.M1().getGrammar();
+//		Grammar grammar = new ProjectGrammar.Complete().getGrammar();
 //		ALRGenerator<LR0Item, LR0State> generator = new LR0Generator(grammar);
 //		LRParsingTable table = generator.getParsingTable();
 //
@@ -73,20 +64,23 @@ public class M2AssignmentTest {
 		factory.addAssignment(factory.newBasicIdentifier("a"), factory.newLiteral("4", new LongType()));
 		factory.addAssignment(factory.newBasicIdentifier("b"), factory.newLiteral("3", new LongType()));
 		factory.addAssignment(factory.newBasicIdentifier("c"), factory.newLiteral("2", new LongType()));
+		
 		factory.addAssignment(factory.newBasicIdentifier("a"),
-					factory.addAssignment(factory.newBasicIdentifier("b"), 
+					factory.newAssignment(factory.newBasicIdentifier("b"), 
 					factory.newLiteral("4", new LongType())));
+		
 		factory.addAssignment(factory.newBasicIdentifier("c"),
 				factory.newBinaryExpression(BinaryOperator.ADDITION,
-						factory.newBinaryExpression(BinaryOperator.ADDITION, factory.newBasicIdentifier("a"), factory.newBasicIdentifier("b")),
-						factory.newBasicIdentifier("c")));
+						factory.newBasicIdentifier("a"),
+						factory.newBinaryExpression(BinaryOperator.ADDITION, factory.newBasicIdentifier("b"), factory.newBasicIdentifier("c"))));
 		factory.addReturn(factory.newBasicIdentifier("c"));
 		
-		System.out.println(new ParserASTXMLVisualization().visualizeAST(ast));
+		AST expectedAst = factory.getAST();
+		ASTComparator.compareAST(expectedAst, ast);
 	}
 
  
-
+	@Ignore
 	@Test
 	public void testAssignmentOrgLexer() throws Exception {
 		String input = "# returns 10\n"
@@ -104,7 +98,9 @@ public class M2AssignmentTest {
 				+ "c = a + b + c;\n"
 				+ "\n"
 				+ "return c;\n";
-
+//		String input = GrammarTestHelper.loadExample("test2.prog");
+//		String input = "\"test1\ntest2\"";
+//		String input = "string s;\ns = \"Hallo\nWelt\";";
 		
 		// Generate parsing table
 		Grammar grammar = new ProjectGrammar.Complete().getGrammar();

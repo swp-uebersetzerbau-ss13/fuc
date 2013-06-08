@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
+import org.apache.log4j.Logger;
+
 import junit.extensions.PA;
 import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.ast.ASTNode;
@@ -41,6 +43,8 @@ import swp_compiler_ss13.common.types.derived.StructType;
 
 public class ASTComparator {
 	
+	private static final Logger log = Logger.getLogger(ASTComparator.class);
+	
 	/**
 	 * Compares the two given {@link AST}s and assert their equality
 	 * 
@@ -57,6 +61,7 @@ public class ASTComparator {
 			ASTNode expectedNode = expectedIt.next();
 			ASTNode actualNode = actualIt.next();
 			
+			log.debug("Expected: " + expectedNode.toString() + " | Actual: " + actualNode.toString());
 			compare(expectedNode, actualNode);
 		}
 		
@@ -68,64 +73,66 @@ public class ASTComparator {
 	}
 	
 	private static void compare(ASTNode expected, ASTNode actual) {
-			switch (expected.getNodeType()) {
-				case BasicIdentifierNode:
-					compare((BasicIdentifierNode) expected, (BasicIdentifierNode) actual);
-					break;
-				case BreakNode:
-					compare((BreakNode) expected, (BreakNode) actual);
-					break;
-				case LiteralNode:
-					compare((LiteralNode) expected, (LiteralNode) actual);
-					break;
-				case ArithmeticUnaryExpressionNode:
-					compare((ArithmeticUnaryExpressionNode) expected, (ArithmeticUnaryExpressionNode) actual);
-					break;
-				case ArrayIdentifierNode:
-					compare((ArrayIdentifierNode) expected, (ArrayIdentifierNode) actual);
-					break;
-				case DeclarationNode:
-					compare((DeclarationNode) expected, (DeclarationNode) actual);
-					break;
-				case LogicUnaryExpressionNode:
-					compare((LogicUnaryExpressionNode) expected, (LogicUnaryExpressionNode) actual);
-					break;
-				case PrintNode:
-					compare((PrintNode) expected, (PrintNode) actual);
-					break;
-				case ReturnNode:
-					compare((ReturnNode) expected, (ReturnNode) actual);
-					break;
-				case StructIdentifierNode:
-					compare((StructIdentifierNode) expected, (StructIdentifierNode) actual);
-					break;
-				case ArithmeticBinaryExpressionNode:
-					compare((ArithmeticBinaryExpressionNode) expected, (ArithmeticBinaryExpressionNode) actual);
-					break;
-				case AssignmentNode:
-					compare((AssignmentNode) expected, (AssignmentNode) actual);
-					break;
-				case DoWhileNode:
-					compare((DoWhileNode) expected, (DoWhileNode) actual);
-					break;
-				case LogicBinaryExpressionNode:
-					compare((LogicBinaryExpressionNode) expected, (LogicBinaryExpressionNode) actual);
-					break;
-				case RelationExpressionNode:
-					compare((RelationExpressionNode) expected, (RelationExpressionNode) actual);
-					break;
-				case WhileNode:
-					compare((WhileNode) expected, (WhileNode) actual);
-					break;
-				case BranchNode:
-					compare((BranchNode) expected, (BranchNode) actual);
-					break;
-				case BlockNode:
-					compare((BlockNode) expected, (BlockNode) actual);
-					break;
-				default:
-					throw new IllegalArgumentException("Unknown ASTNodeType!");
-			}
+		assertEquals(expected.getNodeType(), actual.getNodeType());
+		
+		switch (expected.getNodeType()) {
+			case BasicIdentifierNode:
+				compare((BasicIdentifierNode) expected, (BasicIdentifierNode) actual);
+				break;
+			case BreakNode:
+				compare((BreakNode) expected, (BreakNode) actual);
+				break;
+			case LiteralNode:
+				compare((LiteralNode) expected, (LiteralNode) actual);
+				break;
+			case ArithmeticUnaryExpressionNode:
+				compare((ArithmeticUnaryExpressionNode) expected, (ArithmeticUnaryExpressionNode) actual);
+				break;
+			case ArrayIdentifierNode:
+				compare((ArrayIdentifierNode) expected, (ArrayIdentifierNode) actual);
+				break;
+			case DeclarationNode:
+				compare((DeclarationNode) expected, (DeclarationNode) actual);
+				break;
+			case LogicUnaryExpressionNode:
+				compare((LogicUnaryExpressionNode) expected, (LogicUnaryExpressionNode) actual);
+				break;
+			case PrintNode:
+				compare((PrintNode) expected, (PrintNode) actual);
+				break;
+			case ReturnNode:
+				compare((ReturnNode) expected, (ReturnNode) actual);
+				break;
+			case StructIdentifierNode:
+				compare((StructIdentifierNode) expected, (StructIdentifierNode) actual);
+				break;
+			case ArithmeticBinaryExpressionNode:
+				compare((ArithmeticBinaryExpressionNode) expected, (ArithmeticBinaryExpressionNode) actual);
+				break;
+			case AssignmentNode:
+				compare((AssignmentNode) expected, (AssignmentNode) actual);
+				break;
+			case DoWhileNode:
+				compare((DoWhileNode) expected, (DoWhileNode) actual);
+				break;
+			case LogicBinaryExpressionNode:
+				compare((LogicBinaryExpressionNode) expected, (LogicBinaryExpressionNode) actual);
+				break;
+			case RelationExpressionNode:
+				compare((RelationExpressionNode) expected, (RelationExpressionNode) actual);
+				break;
+			case WhileNode:
+				compare((WhileNode) expected, (WhileNode) actual);
+				break;
+			case BranchNode:
+				compare((BranchNode) expected, (BranchNode) actual);
+				break;
+			case BlockNode:
+				compare((BlockNode) expected, (BlockNode) actual);
+				break;
+			default:
+				throw new IllegalArgumentException("Unknown ASTNodeType!");
+		}
 	}
 	
 	private static void compare(DeclarationNode expected, DeclarationNode actual) {
