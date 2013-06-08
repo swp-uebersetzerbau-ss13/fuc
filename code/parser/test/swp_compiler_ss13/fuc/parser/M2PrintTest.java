@@ -3,7 +3,6 @@ package swp_compiler_ss13.fuc.parser;
 import static org.junit.Assert.assertNotNull;
 import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.id;
 import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.num;
-import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.real;
 import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.t;
 import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.assignop;
 import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.print;
@@ -14,7 +13,6 @@ import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.truee
 import java.io.ByteArrayInputStream;
 
 import org.apache.log4j.BasicConfigurator;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import swp_compiler_ss13.common.ast.AST;
@@ -44,7 +42,6 @@ public class M2PrintTest {
 		BasicConfigurator.configure();
 	}
 	
-	@Ignore
 	@Test
 	public void testPrint() {
 		// Simulate input
@@ -54,11 +51,11 @@ public class M2PrintTest {
 		new TestToken("string", TokenType.STRING_SYMBOL), id("s"), t(sem),
 		new TestToken("bool", TokenType.BOOL_SYMBOL), id("b"), t(sem),
 		new TestToken("string", TokenType.STRING_SYMBOL), id("linebreak"), t(sem),
-		id("linebreak"), t(assignop),new TestToken("\n", TokenType.STRING), t(sem),
+		id("linebreak"), t(assignop),new TestToken("\"\\n\"", TokenType.STRING), t(sem),
 		id("b"), t(assignop), t(truee), t(sem),
 		id("l"), t(assignop), num(18121313223L), t(sem),
-		id("d"), t(assignop), real(-23.23e-100), t(sem),
-		id("s"), t(assignop),new TestToken("jag�rEttString\"\n", TokenType.STRING), t(sem),
+		id("d"), t(assignop), new TestToken("-23.23e-100", TokenType.REAL), t(sem),
+		id("s"), t(assignop),new TestToken("\"jagÄrEttString\\\"\\n\"", TokenType.STRING), t(sem),
 		t(print), id("b"), t(sem),t(print), id("linebreak"), t(sem),
 		t(print), id("l"), t(sem),t(print), id("linebreak"), t(sem),
 		t(print), id("d"), t(sem),t(print), id("linebreak"), t(sem),
@@ -78,37 +75,35 @@ public class M2PrintTest {
 		checkAst(ast);
 	}
 
-
-	@Ignore
 	@Test
 	public void testPrintOrgLexer() throws Exception {
-//		String input = "# return 0\n"
-//				+ "# prints:\n"
-//				+ "# true\n"
-//				+ "# 18121313223\n"
-//				+ "# -2.323e-99\n"
-//				+ "# jagÄrEttString\"\n"
-//				+ "\n"
-//				+ "long l;\n"
-//				+ "double d;\n"
-//				+ "string s;\n"
-//				+ "bool b;\n"
-//				+ "\n"
-//				+ "string linebreak;\n"
-//				+ "linebreak = \"\n\";\n"
-//				+ "\n"
-//				+ "b = true;\n"
-//				+ "l = 18121313223;\n"
-//				+ "d = -23.23e-100;\n"
-//				+ "s = \"jagÄrEttString\"\n\";  # c-like escaping in strings\n"
-//				+ "\n"
-//				+ "print b; print linebreak;\n"
-//				+ "print l; print linebreak;       # print one digit left of the radix point\n"
-//				+ "print d; print linebreak;\n"
-//				+ "print s;\n"
-//				+ "\n"
-//				+ "return;                    # equivalent to return EXIT_SUCCESS";
-		String input = GrammarTestHelper.loadExample("print.prog");
+		String input = "# return 0\n"
+				+ "# prints:\n"
+				+ "# true\n"
+				+ "# 18121313223\n"
+				+ "# -2.323e-99\n"
+				+ "# jagÄrEttString\"\n"
+				+ "\n"
+				+ "long l;\n"
+				+ "double d;\n"
+				+ "string s;\n"
+				+ "bool b;\n"
+				+ "\n"
+				+ "string linebreak;\n"
+				+ "linebreak = \"\\n\";\n"
+				+ "\n"
+				+ "b = true;\n"
+				+ "l = 18121313223;\n"
+				+ "d = -23.23e-100;\n"
+				+ "s = \"jagÄrEttString\\\"\\n\";  # c-like escaping in strings\n"
+				+ "\n"
+				+ "print b; print linebreak;\n"
+				+ "print l; print linebreak;       # print one digit left of the radix point\n"
+				+ "print d; print linebreak;\n"
+				+ "print s;\n"
+				+ "\n"
+				+ "return;                    # equivalent to return EXIT_SUCCESS";
+//		String input = GrammarTestHelper.loadExample("print.prog");
 		
 		// Generate parsing table
 		Grammar grammar = new ProjectGrammar.Complete().getGrammar();
@@ -133,15 +128,15 @@ public class M2PrintTest {
 		ASTFactory factory = new ASTFactory();
 		factory.addDeclaration("l", new LongType());
 		factory.addDeclaration("d", new DoubleType());
-		factory.addDeclaration("s", new StringType(1L));
+		factory.addDeclaration("s", new StringType(LRParser.STRING_LENGTH));
 		factory.addDeclaration("b", new BooleanType());
 
-		factory.addDeclaration("linebreak", new StringType(1L));
-		factory.addAssignment(factory.newBasicIdentifier("linebreak"), factory.newLiteral("\n", new StringType(1L)));
+		factory.addDeclaration("linebreak", new StringType(LRParser.STRING_LENGTH));
+		factory.addAssignment(factory.newBasicIdentifier("linebreak"), factory.newLiteral("\"\\n\"", new StringType(4L)));
 		factory.addAssignment(factory.newBasicIdentifier("b"), factory.newLiteral("true", new BooleanType()));
 		factory.addAssignment(factory.newBasicIdentifier("l"), factory.newLiteral("18121313223", new LongType()));
-		factory.addAssignment(factory.newBasicIdentifier("d"), factory.newLiteral("-23.23e-100", new LongType()));
-		factory.addAssignment(factory.newBasicIdentifier("s"), factory.newLiteral("jagÄrEttString\"", new StringType(9L)));
+		factory.addAssignment(factory.newBasicIdentifier("d"), factory.newLiteral("-23.23e-100", new DoubleType()));
+		factory.addAssignment(factory.newBasicIdentifier("s"), factory.newLiteral("\"jagÄrEttString\\\"\\n\"", new StringType(20L)));
 		
 		factory.addPrint(factory.newBasicIdentifier("b")); factory.addPrint(factory.newBasicIdentifier("linebreak"));
 		factory.addPrint(factory.newBasicIdentifier("l")); factory.addPrint(factory.newBasicIdentifier("linebreak"));

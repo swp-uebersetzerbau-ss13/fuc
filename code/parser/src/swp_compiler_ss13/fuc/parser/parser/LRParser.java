@@ -29,6 +29,7 @@ public class LRParser {
 	// --- variables and constants
 	// ----------------------------------------------
 	// --------------------------------------------------------------------------
+	public static final Long STRING_LENGTH = 255L;
 
 	private final Logger log = Logger.getLogger(LRParser.class);
 

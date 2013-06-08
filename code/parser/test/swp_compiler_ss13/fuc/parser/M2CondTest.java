@@ -23,12 +23,19 @@ import org.apache.log4j.BasicConfigurator;
 import org.junit.Test;
 
 import swp_compiler_ss13.common.ast.AST;
+import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode.BinaryOperator;
+import swp_compiler_ss13.common.ast.nodes.ternary.BranchNode;
+import swp_compiler_ss13.common.ast.nodes.unary.UnaryExpressionNode.UnaryOperator;
 import swp_compiler_ss13.common.lexer.Lexer;
 import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.common.report.ReportLog;
+import swp_compiler_ss13.common.types.primitive.BooleanType;
+import swp_compiler_ss13.common.types.primitive.LongType;
+import swp_compiler_ss13.common.types.primitive.StringType;
+import swp_compiler_ss13.fuc.ast.ASTFactory;
+import swp_compiler_ss13.fuc.ast.BranchNodeImpl;
 import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
 import swp_compiler_ss13.fuc.lexer.LexerImpl;
-import swp_compiler_ss13.fuc.parser.errorHandling.ParserASTXMLVisualization;
 import swp_compiler_ss13.fuc.parser.generator.ALRGenerator;
 import swp_compiler_ss13.fuc.parser.generator.LR1Generator;
 import swp_compiler_ss13.fuc.parser.generator.items.LR1Item;
@@ -58,7 +65,7 @@ public class M2CondTest {
 				new TestToken("bool", TokenType.BOOL_SYMBOL), id("c"), t(sem),
 				new TestToken("long", TokenType.LONG_SYMBOL), id("l"), t(sem),
 				new TestToken("string", TokenType.STRING_SYMBOL), id("bla"), t(sem),
-				id("bla"), t(assignop), new TestToken("bla", TokenType.STRING), t(sem),
+				id("bla"), t(assignop), new TestToken("\"bla\"", TokenType.STRING), t(sem),
 				id("b"), t(assignop), t(truee), t(sem),
 				id("c"), t(assignop), t(falsee), t(sem),
 				id("l"), t(assignop), num(4), t(sem),
@@ -81,7 +88,37 @@ public class M2CondTest {
 
 	private static void checkAst(AST ast) {
 		assertNotNull(ast);
-		System.out.println(new ParserASTXMLVisualization().visualizeAST(ast));
+
+		// Create reference AST
+		ASTFactory factory = new ASTFactory();
+		factory.addDeclaration("b", new BooleanType());
+		factory.addDeclaration("c", new BooleanType());
+		factory.addDeclaration("l", new LongType());
+
+		factory.addDeclaration("bla", new StringType(LRParser.STRING_LENGTH));
+		factory.addAssignment(factory.newBasicIdentifier("bla"), factory.newLiteral("\"bla\"", new StringType(5L)));
+
+		factory.addAssignment(factory.newBasicIdentifier("b"), factory.newLiteral("true", new BooleanType()));
+		factory.addAssignment(factory.newBasicIdentifier("c"), factory.newLiteral("false", new BooleanType()));
+
+		factory.addAssignment(factory.newBasicIdentifier("l"), factory.newLiteral("4", new LongType()));
+		
+		BranchNode iff = factory.addBranch(factory.newBasicIdentifier("b"));
+		BranchNode ifElse = new BranchNodeImpl();
+		ifElse.setCondition(factory.newBinaryExpression(
+				BinaryOperator.LOGICAL_OR,
+				factory.newBasicIdentifier("c"),
+				factory.newUnaryExpression(UnaryOperator.LOGICAL_NEGATE,
+						factory.newBasicIdentifier("b"))));
+		ifElse.setStatementNodeOnTrue(factory.newPrint(factory.newBasicIdentifier("bla")));
+		ifElse.setStatementNodeOnFalse(factory.newAssignment(factory.newBasicIdentifier("l"), factory.newLiteral("5", new LongType())));
+		iff.setStatementNodeOnTrue(ifElse);
+		factory.goToParent();
+		
+		factory.addReturn(factory.newBasicIdentifier("l"));
+		
+		AST expected = factory.getAST();
+		ASTComparator.compareAST(expected, ast);
 	}
 
 	@Test
