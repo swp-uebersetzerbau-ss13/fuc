@@ -1,9 +1,11 @@
 package swp_compiler_ss13.fuc.parser;
 
+import org.junit.Ignore;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
+@Ignore
 @RunWith(Suite.class)
 @SuiteClasses({ ALRGeneratorTest.class, DoubleIdentifierExceptionTest.class,
 		  M1AddTest.class, M1ErrorDoubleDeclTest.class,
