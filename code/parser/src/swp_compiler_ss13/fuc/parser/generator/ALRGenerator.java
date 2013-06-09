@@ -27,7 +27,11 @@ import swp_compiler_ss13.fuc.parser.parser.tables.actions.Reduce;
 import swp_compiler_ss13.fuc.parser.parser.tables.actions.Shift;
 
 /**
- * Base class for LR(0) and LR(1) parser generators.
+ * Base class for LR(0) and LR(1) parser generators. It takes the given
+ * {@link Grammar},creates the according {@link Dfa} and finally iterates it to
+ * create SHIFT, ACCEPT and REDUCE actions. The latter one is delegated to
+ * implementations via
+ * {@link #createReduceAction(LRActionTable, Item, LRParserState)}
  * 
  * @author Gero
  */
@@ -70,7 +74,8 @@ public abstract class ALRGenerator<I extends Item, S extends ALRState<I>> {
 			}
 		}
 
-		// Construct parsing table (pass association 'parser state' -> 'generator state' for debugging)
+		// Construct parsing table (pass association 'parser state' ->
+		// 'generator state' for debugging)
 		table = new LRParsingTable(parserStatesMap);
 
 		// Traverse edges and generate shift, goto and accept
@@ -91,9 +96,9 @@ public abstract class ALRGenerator<I extends Item, S extends ALRState<I>> {
 					// SHIFT
 					LRParserState dstState = statesMap.get(edge.getDst());
 					try {
-//						Item item = edge.getSrcItem().shift();
-						table.getActionTable().set(new Shift(dstState/*, item*/), src,
-								terminal);
+						// Item item = edge.getSrcItem().shift();
+						table.getActionTable().set(
+								new Shift(dstState/* , item */), src, terminal);
 					} catch (DoubleEntryException err) {
 						throw new RuntimeException(err); // TODO Really the
 															// right way...?
@@ -120,7 +125,8 @@ public abstract class ALRGenerator<I extends Item, S extends ALRState<I>> {
 				if (item.isComplete()) {
 					LRParserState fromState = statesMap.get(kernel);
 					try {
-						createReduceAction(table.getActionTable(), item, fromState);
+						createReduceAction(table.getActionTable(), item,
+								fromState);
 					} catch (GeneratorException err) {
 						throw new RuntimeException(err); // TODO Really the
 						// right way...?
@@ -129,17 +135,32 @@ public abstract class ALRGenerator<I extends Item, S extends ALRState<I>> {
 			}
 		}
 	}
-	
-	protected abstract void createReduceAction(LRActionTable table, I item, LRParserState fromState) throws GeneratorException;
-	
+
 	/**
-	 * Tries to set the given {@link Reduce} to the given {@link LRActionTable}. If there's a conflict, it tries to resolve it by precedence.
+	 * The implementing generator has to set its reduce actions here
+	 * 
+	 * @param table
+	 *            The table to set the actions to
+	 * @param item
+	 *            The item that gets reduced
+	 * @param fromState
+	 *            The state the parser is currently in
+	 * @throws GeneratorException
+	 */
+	protected abstract void createReduceAction(LRActionTable table, I item,
+			LRParserState fromState) throws GeneratorException;
+
+	/**
+	 * Tries to set the given {@link Reduce} to the given {@link LRActionTable}.
+	 * If there's a conflict, it tries to resolve it by precedence.
 	 * 
 	 * @param table
 	 * @param reduce
-	 * @throws DoubleEntryException 
+	 * @throws DoubleEntryException
 	 */
-	protected void setReduceAction(LRActionTable table, Reduce reduce, LRParserState curState, Terminal curTerminal) throws GeneratorException {
+	protected void setReduceAction(LRActionTable table, Reduce reduce,
+			LRParserState curState, Terminal curTerminal)
+			throws GeneratorException {
 		ALRAction action = table.getWithNull(curState, curTerminal);
 		if (action == null) {
 			// Free cell
@@ -147,7 +168,8 @@ public abstract class ALRGenerator<I extends Item, S extends ALRState<I>> {
 		} else {
 			// Try to resolve conflict...
 			if (action.getType() == SHIFT) {
-				// Shift-Reduce-Conflict. Try to resolve by precedence for production or terminal..
+				// Shift-Reduce-Conflict. Try to resolve by precedence for
+				// production or terminal..
 				Shift shift = (Shift) action;
 				if (curTerminal.getTokenTypes().next() == TokenType.ELSE) {
 					// Fake precedences for Dangling Else: Prefer SHIFT! :-P
@@ -162,7 +184,6 @@ public abstract class ALRGenerator<I extends Item, S extends ALRState<I>> {
 			}
 		}
 	}
-	
 
 	// --------------------------------------------------------------------------
 	// --- methods
@@ -215,10 +236,18 @@ public abstract class ALRGenerator<I extends Item, S extends ALRState<I>> {
 
 		return dfa;
 	}
-	
+
+	/**
+	 * @return The start state of type <S> determined by the implementation
+	 */
 	protected abstract S createStartState();
+
+	/**
+	 * @param startState
+	 * @return An instance of {@link Dfa} with the correct types <I, S>
+	 */
 	protected abstract Dfa<I, S> createLrDFA(S startState);
-	
+
 	/**
 	 * @return The equivalent {@link LR0State} if there is one contained in the
 	 *         DFA; else <code>null</code>

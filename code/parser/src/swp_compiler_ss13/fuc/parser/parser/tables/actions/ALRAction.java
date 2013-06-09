@@ -1,6 +1,9 @@
 package swp_compiler_ss13.fuc.parser.parser.tables.actions;
 
 
+/**
+ * The base class for all LR parser actions
+ */
 public abstract class ALRAction {
    private final ELRActionType type;
    
