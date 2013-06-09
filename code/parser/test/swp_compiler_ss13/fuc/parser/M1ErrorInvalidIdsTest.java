@@ -1,16 +1,23 @@
 package swp_compiler_ss13.fuc.parser;
 
 import static org.junit.Assert.fail;
+import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.tokens;
 
 import java.io.ByteArrayInputStream;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.apache.log4j.BasicConfigurator;
 import org.junit.Test;
 
 import swp_compiler_ss13.common.lexer.Lexer;
-import swp_compiler_ss13.common.report.ReportLog;
+import swp_compiler_ss13.common.lexer.TokenType;
+import swp_compiler_ss13.common.report.ReportType;
+import swp_compiler_ss13.fuc.errorLog.LogEntry;
+import swp_compiler_ss13.fuc.errorLog.LogEntry.Type;
+import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
 import swp_compiler_ss13.fuc.lexer.LexerImpl;
-import swp_compiler_ss13.fuc.parser.errorHandling.ParserReportLogImpl;
+import swp_compiler_ss13.fuc.lexer.token.TokenImpl;
 import swp_compiler_ss13.fuc.parser.generator.ALRGenerator;
 import swp_compiler_ss13.fuc.parser.generator.LR0Generator;
 import swp_compiler_ss13.fuc.parser.generator.items.LR0Item;
@@ -59,6 +66,7 @@ public class M1ErrorInvalidIdsTest {
 				 + "long string;\n"
 				 + "long bool;\n"
 				 + "long fü_berlin;\n";
+		// TODO One test for each line!!!
 		
 		// Generate parsing table
 		Grammar grammar = new ProjectGrammar.M1().getGrammar();
@@ -72,14 +80,24 @@ public class M1ErrorInvalidIdsTest {
 		// Run LR-parser with table
 		LRParser lrParser = new LRParser();
 		LexerWrapper lexWrapper = new LexerWrapper(lexer, grammar);
-		ReportLog reportLog = new ParserReportLogImpl();
+		ReportLogImpl reportLog = new ReportLogImpl();
+		
+		// Check output
 		try {
-			if (lrParser.parse(lexWrapper, reportLog, table) == null) {
-				throw new ParserException("A parse exception!");
-			}
-			fail("Expected invalid ids error!");
+			lrParser.parse(lexWrapper, reportLog, table);
+			fail("Expected not-a-token error!");
 		} catch (ParserException err) {
-			// Success
+			// Check for correct error
+			checkReportLog(reportLog);
 		}
+	}
+	
+	private static void checkReportLog(ReportLogImpl actual) {
+		// Expected entries
+		List<LogEntry> expected = new LinkedList<>();
+		expected.add(new LogEntry(Type.ERROR, ReportType.UNRECOGNIZED_TOKEN, tokens(new TokenImpl("foo$bar", TokenType.NOT_A_TOKEN, 2, 6)), ""));
+		
+		// Compare
+		GrammarTestHelper.compareReportLogEntries(expected, actual.getEntries());
 	}
 }

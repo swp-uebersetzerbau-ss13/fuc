@@ -63,7 +63,7 @@ public class LRParser {
 			case NOT_A_TOKEN:
 				List<Token> list = new ArrayList<Token>();
 				list.add(token);
-				reportLog.reportError(ReportType.UNDEFINED, list,
+				reportLog.reportError(ReportType.UNRECOGNIZED_TOKEN, list,
 						"Found undefined token '" + token.getValue() + "'!");
 				throw new ParserException("Found undefined token");
 

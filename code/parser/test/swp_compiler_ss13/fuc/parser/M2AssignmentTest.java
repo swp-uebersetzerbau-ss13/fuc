@@ -68,30 +68,6 @@ public class M2AssignmentTest {
 		checkAst(ast);
 	}
 
-	private static void checkAst(AST ast) {
-		assertNotNull(ast);
-		ASTFactory factory = new ASTFactory();
-		factory.addDeclaration("a", new LongType());
-		factory.addDeclaration("b", new LongType());
-		factory.addDeclaration("c", new LongType());
-		factory.addAssignment(factory.newBasicIdentifier("a"), factory.newLiteral("4", new LongType()));
-		factory.addAssignment(factory.newBasicIdentifier("b"), factory.newLiteral("3", new LongType()));
-		factory.addAssignment(factory.newBasicIdentifier("c"), factory.newLiteral("2", new LongType()));
-		
-		factory.addAssignment(factory.newBasicIdentifier("a"),
-					factory.newAssignment(factory.newBasicIdentifier("b"), 
-					factory.newLiteral("4", new LongType())));
-		
-		factory.addAssignment(factory.newBasicIdentifier("c"),
-				factory.newBinaryExpression(BinaryOperator.ADDITION,
-						factory.newBinaryExpression(BinaryOperator.ADDITION, factory.newBasicIdentifier("a"), factory.newBasicIdentifier("b")),
-						factory.newBasicIdentifier("c")));
-		factory.addReturn(factory.newBasicIdentifier("c"));
-		
-		AST expectedAst = factory.getAST();
-		ASTComparator.compareAST(expectedAst, ast);
-	}
-
  
 	@Test
 	public void testAssignmentOrgLexer() throws Exception {
@@ -129,5 +105,29 @@ public class M2AssignmentTest {
 		ReportLog reportLog = new ReportLogImpl();
 		AST ast = lrParser.parse(lexWrapper, reportLog, table);
 		checkAst(ast);
+	}
+
+	private static void checkAst(AST ast) {
+		assertNotNull(ast);
+		ASTFactory factory = new ASTFactory();
+		factory.addDeclaration("a", new LongType());
+		factory.addDeclaration("b", new LongType());
+		factory.addDeclaration("c", new LongType());
+		factory.addAssignment(factory.newBasicIdentifier("a"), factory.newLiteral("4", new LongType()));
+		factory.addAssignment(factory.newBasicIdentifier("b"), factory.newLiteral("3", new LongType()));
+		factory.addAssignment(factory.newBasicIdentifier("c"), factory.newLiteral("2", new LongType()));
+		
+		factory.addAssignment(factory.newBasicIdentifier("a"),
+					factory.newAssignment(factory.newBasicIdentifier("b"), 
+					factory.newLiteral("4", new LongType())));
+		
+		factory.addAssignment(factory.newBasicIdentifier("c"),
+				factory.newBinaryExpression(BinaryOperator.ADDITION,
+						factory.newBinaryExpression(BinaryOperator.ADDITION, factory.newBasicIdentifier("a"), factory.newBasicIdentifier("b")),
+						factory.newBasicIdentifier("c")));
+		factory.addReturn(factory.newBasicIdentifier("c"));
+		
+		AST expectedAst = factory.getAST();
+		ASTComparator.compareAST(expectedAst, ast);
 	}
 }

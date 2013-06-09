@@ -1,14 +1,21 @@
 package swp_compiler_ss13.fuc.parser;
 
+import static org.junit.Assert.fail;
+import static org.junit.Assert.assertEquals;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 
 import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
+import swp_compiler_ss13.fuc.errorLog.LogEntry;
 import swp_compiler_ss13.fuc.parser.grammar.Terminal;
 
 public class GrammarTestHelper {
@@ -24,9 +31,6 @@ public class GrammarTestHelper {
 		return new TestToken(i + "", TokenType.REAL);
 	}
 
-	
-
-
 	public static Token t(Terminal terminal) {
 		// TODO Handle special terminals better
 		if (terminal == Terminal.EOF) {
@@ -38,6 +42,49 @@ public class GrammarTestHelper {
 	public static Token id(String value) {
 		return new TestToken(value, TokenType.ID);
 	}
+	
+	
+	public static void compareReportLogEntries(List<LogEntry> expected, List<LogEntry> actual) {
+		Iterator<LogEntry> expIt = expected.iterator();
+		Iterator<LogEntry> actIt = actual.iterator();
+		while (expIt.hasNext() && actIt.hasNext()) {
+			LogEntry exp = expIt.next();
+			LogEntry act = actIt.next();
+			compare(exp, act);
+		}
+		
+		if (expIt.hasNext() != actIt.hasNext()) {
+			fail("Different number of LogEntrys!");
+		}
+	}
+	
+	private static void compare(LogEntry expected, LogEntry actual) {
+		assertEquals(expected.getLogType(), actual.getLogType());
+		// TODO Compare error messages?!?!?
+//		assertEquals(expected.getMessage(), actual.getMessage());
+		assertEquals(expected.getReportType(), actual.getReportType());
+
+		assertEquals(expected.getTokens().size(), actual.getTokens().size());
+		Iterator<Token> expTokenIt = expected.getTokens().iterator();
+		Iterator<Token> actTokenIt = actual.getTokens().iterator();
+		while (expTokenIt.hasNext()) {
+			Token expToken = expTokenIt.next();
+			Token actToken = actTokenIt.next();
+			compare(expToken, actToken);
+		}
+	}
+	
+	private static void compare(Token expected, Token actual) {
+		assertEquals(expected.getColumn(), actual.getColumn());
+		assertEquals(expected.getLine(), actual.getLine());
+		assertEquals(expected.getTokenType(), actual.getTokenType());
+		assertEquals(expected.getValue(), actual.getValue());
+	}
+	
+	public static List<Token> tokens(Token... tokens) {
+		return Arrays.asList(tokens);
+	}
+	
 	
 	/**
 	 * Loads the file content from the file with the given relative path

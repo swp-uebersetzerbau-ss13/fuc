@@ -8,8 +8,11 @@ import org.apache.log4j.BasicConfigurator;
 import org.junit.Test;
 
 import swp_compiler_ss13.common.ast.AST;
+import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode.BinaryOperator;
 import swp_compiler_ss13.common.lexer.Lexer;
 import swp_compiler_ss13.common.report.ReportLog;
+import swp_compiler_ss13.common.types.primitive.LongType;
+import swp_compiler_ss13.fuc.ast.ASTFactory;
 import swp_compiler_ss13.fuc.lexer.LexerImpl;
 import swp_compiler_ss13.fuc.parser.errorHandling.ParserReportLogImpl;
 import swp_compiler_ss13.fuc.parser.generator.ALRGenerator;
@@ -51,11 +54,6 @@ public class M1SimpleMulTest {
 //		checkAst(ast);
 //	}
 
-	private static void checkAst(AST ast) {
-		assertNotNull(ast);
-		// TODO Validate ast
-	}
-
 	@Test
 	public void testSimpleMulOrgLexer() throws Exception {
 		String input = "# return 9\n"
@@ -79,5 +77,21 @@ public class M1SimpleMulTest {
 		
 		AST ast = lrParser.parse(lexWrapper, reportLog, table);
 		checkAst(ast);
+	}
+
+	private static void checkAst(AST ast) {
+		assertNotNull(ast);
+		
+		ASTFactory factory = new ASTFactory();
+		factory.addDeclaration("l", new LongType());
+		factory.addAssignment(
+				factory.newBasicIdentifier("l"),
+				factory.newBinaryExpression(BinaryOperator.MULTIPLICATION,
+						factory.newLiteral("3", new LongType()),
+						factory.newLiteral("3", new LongType())));
+		factory.addReturn(factory.newBasicIdentifier("l"));
+		AST expected = factory.getAST();
+		
+		ASTComparator.compareAST(expected, ast);
 	}
 }

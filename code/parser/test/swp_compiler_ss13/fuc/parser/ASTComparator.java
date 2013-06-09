@@ -210,6 +210,7 @@ public class ASTComparator {
 
 	private static void compare(BlockNode expected, BlockNode actual) {
 		compare(expected.getSymbolTable(), actual.getSymbolTable());
+		// TODO Compare coverage...?
 	}
 
 	@SuppressWarnings("unchecked")

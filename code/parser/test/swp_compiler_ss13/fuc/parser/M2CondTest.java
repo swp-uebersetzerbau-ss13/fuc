@@ -86,41 +86,6 @@ public class M2CondTest {
 		checkAst(ast);
 	}
 
-	private static void checkAst(AST ast) {
-		assertNotNull(ast);
-
-		// Create reference AST
-		ASTFactory factory = new ASTFactory();
-		factory.addDeclaration("b", new BooleanType());
-		factory.addDeclaration("c", new BooleanType());
-		factory.addDeclaration("l", new LongType());
-
-		factory.addDeclaration("bla", new StringType(LRParser.STRING_LENGTH));
-		factory.addAssignment(factory.newBasicIdentifier("bla"), factory.newLiteral("\"bla\"", new StringType(5L)));
-
-		factory.addAssignment(factory.newBasicIdentifier("b"), factory.newLiteral("true", new BooleanType()));
-		factory.addAssignment(factory.newBasicIdentifier("c"), factory.newLiteral("false", new BooleanType()));
-
-		factory.addAssignment(factory.newBasicIdentifier("l"), factory.newLiteral("4", new LongType()));
-		
-		BranchNode iff = factory.addBranch(factory.newBasicIdentifier("b"));
-		BranchNode ifElse = new BranchNodeImpl();
-		ifElse.setCondition(factory.newBinaryExpression(
-				BinaryOperator.LOGICAL_OR,
-				factory.newBasicIdentifier("c"),
-				factory.newUnaryExpression(UnaryOperator.LOGICAL_NEGATE,
-						factory.newBasicIdentifier("b"))));
-		ifElse.setStatementNodeOnTrue(factory.newPrint(factory.newBasicIdentifier("bla")));
-		ifElse.setStatementNodeOnFalse(factory.newAssignment(factory.newBasicIdentifier("l"), factory.newLiteral("5", new LongType())));
-		iff.setStatementNodeOnTrue(ifElse);
-		factory.goToParent();
-		
-		factory.addReturn(factory.newBasicIdentifier("l"));
-		
-		AST expected = factory.getAST();
-		ASTComparator.compareAST(expected, ast);
-	}
-
 	@Test
 	public void testCondOrgLexer() throws Exception {
 		String input = "# return 5\n"
@@ -162,5 +127,40 @@ public class M2CondTest {
 		ReportLog reportLog = new ReportLogImpl();
 		AST ast = lrParser.parse(lexWrapper, reportLog, table);
 		checkAst(ast);
+	}
+
+	private static void checkAst(AST ast) {
+		assertNotNull(ast);
+
+		// Create reference AST
+		ASTFactory factory = new ASTFactory();
+		factory.addDeclaration("b", new BooleanType());
+		factory.addDeclaration("c", new BooleanType());
+		factory.addDeclaration("l", new LongType());
+
+		factory.addDeclaration("bla", new StringType(LRParser.STRING_LENGTH));
+		factory.addAssignment(factory.newBasicIdentifier("bla"), factory.newLiteral("\"bla\"", new StringType(5L)));
+
+		factory.addAssignment(factory.newBasicIdentifier("b"), factory.newLiteral("true", new BooleanType()));
+		factory.addAssignment(factory.newBasicIdentifier("c"), factory.newLiteral("false", new BooleanType()));
+
+		factory.addAssignment(factory.newBasicIdentifier("l"), factory.newLiteral("4", new LongType()));
+		
+		BranchNode iff = factory.addBranch(factory.newBasicIdentifier("b"));
+		BranchNode ifElse = new BranchNodeImpl();
+		ifElse.setCondition(factory.newBinaryExpression(
+				BinaryOperator.LOGICAL_OR,
+				factory.newBasicIdentifier("c"),
+				factory.newUnaryExpression(UnaryOperator.LOGICAL_NEGATE,
+						factory.newBasicIdentifier("b"))));
+		ifElse.setStatementNodeOnTrue(factory.newPrint(factory.newBasicIdentifier("bla")));
+		ifElse.setStatementNodeOnFalse(factory.newAssignment(factory.newBasicIdentifier("l"), factory.newLiteral("5", new LongType())));
+		iff.setStatementNodeOnTrue(ifElse);
+		factory.goToParent();
+		
+		factory.addReturn(factory.newBasicIdentifier("l"));
+		
+		AST expected = factory.getAST();
+		ASTComparator.compareAST(expected, ast);
 	}
 }
