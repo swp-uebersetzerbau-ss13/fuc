@@ -53,7 +53,15 @@ public class M1ErrorDoubleDeclTest {
 //		LRParser lrParser = new LRParser();
 //		LexerWrapper lexWrapper = new LexerWrapper(lexer, grammar);
 //		ReportLog reportLog = new ReportLogImpl();
-//		lrParser.parse(lexWrapper, reportLog, table);
+//
+//		// Check output
+//		try {
+//			lrParser.parse(lexWrapper, reportLog, table);
+//			fail("Expected double id exception!");
+//		} catch (ParserException err) {
+//			// Check for correct error
+//			GrammarTestHelper.compareReportLogEntries(createExpectedEntries(), reportLog.getEntries(), false);
+//		}
 //	}
 
 	@Test
@@ -82,19 +90,17 @@ public class M1ErrorDoubleDeclTest {
 			fail("Expected double id exception!");
 		} catch (ParserException err) {
 			// Check for correct error
-			checkReportLog(reportLog);
+			GrammarTestHelper.compareReportLogEntries(createExpectedEntries(), reportLog.getEntries());
 		}
 	}
 	
-	private static void checkReportLog(ReportLogImpl actual) {
+	private static List<LogEntry> createExpectedEntries() {
 		// Expected entries
 		List<LogEntry> expected = new LinkedList<>();
 		expected.add(new LogEntry(Type.ERROR, ReportType.DOUBLE_DECLARATION,
 				tokens(new TokenImpl("long", TokenType.LONG_SYMBOL, 3, 1),
 						new TokenImpl("i", TokenType.ID, 3, 6),
 						new TokenImpl(";", TokenType.SEMICOLON, 3, 7)), ""));
-		
-		// Compare
-		GrammarTestHelper.compareReportLogEntries(expected, actual.getEntries());
+		return expected;
 	}
 }

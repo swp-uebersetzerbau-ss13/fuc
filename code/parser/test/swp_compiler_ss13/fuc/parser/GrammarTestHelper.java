@@ -43,14 +43,17 @@ public class GrammarTestHelper {
 		return new TestToken(value, TokenType.ID);
 	}
 	
-	
 	public static void compareReportLogEntries(List<LogEntry> expected, List<LogEntry> actual) {
+		compareReportLogEntries(expected, actual, true);
+	}
+	
+	public static void compareReportLogEntries(List<LogEntry> expected, List<LogEntry> actual, boolean checkTokenCoords) {
 		Iterator<LogEntry> expIt = expected.iterator();
 		Iterator<LogEntry> actIt = actual.iterator();
 		while (expIt.hasNext() && actIt.hasNext()) {
 			LogEntry exp = expIt.next();
 			LogEntry act = actIt.next();
-			compare(exp, act);
+			compare(exp, act, checkTokenCoords);
 		}
 		
 		if (expIt.hasNext() != actIt.hasNext()) {
@@ -58,7 +61,7 @@ public class GrammarTestHelper {
 		}
 	}
 	
-	private static void compare(LogEntry expected, LogEntry actual) {
+	private static void compare(LogEntry expected, LogEntry actual, boolean checkTokenCoords) {
 		assertEquals(expected.getLogType(), actual.getLogType());
 		// TODO Compare error messages?!?!?
 //		assertEquals(expected.getMessage(), actual.getMessage());
@@ -70,13 +73,15 @@ public class GrammarTestHelper {
 		while (expTokenIt.hasNext()) {
 			Token expToken = expTokenIt.next();
 			Token actToken = actTokenIt.next();
-			compare(expToken, actToken);
+			compare(expToken, actToken, checkTokenCoords);
 		}
 	}
 	
-	private static void compare(Token expected, Token actual) {
-		assertEquals(expected.getColumn(), actual.getColumn());
-		assertEquals(expected.getLine(), actual.getLine());
+	private static void compare(Token expected, Token actual, boolean checkTokenCoords) {
+		if (checkTokenCoords) {
+			assertEquals(expected.getColumn(), actual.getColumn());
+			assertEquals(expected.getLine(), actual.getLine());
+		}
 		assertEquals(expected.getTokenType(), actual.getTokenType());
 		assertEquals(expected.getValue(), actual.getValue());
 	}

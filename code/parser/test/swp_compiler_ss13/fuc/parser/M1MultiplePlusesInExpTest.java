@@ -66,6 +66,15 @@ public class M1MultiplePlusesInExpTest {
 //		LexerWrapper lexWrapper = new LexerWrapper(lexer, grammar);
 //		ReportLog reportLog = new ReportLogImpl();
 //		lrParser.parse(lexWrapper, reportLog, table);
+//	
+//		// Check output
+//		try {
+//			lrParser.parse(lexWrapper, reportLog, table);
+//			fail("Expected invalid ids error!");
+//		} catch (ParserException err) {
+//			// Check for correct error
+//			GrammarTestHelper.compareReportLogEntries(createExpectedEntries(), reportLog.getEntries(), false);
+//		}
 //	}
 
 	@Test
@@ -96,16 +105,14 @@ public class M1MultiplePlusesInExpTest {
 			fail("Expected invalid ids error!");
 		} catch (ParserException err) {
 			// Check for correct error
-			checkReportLog(reportLog);
+			GrammarTestHelper.compareReportLogEntries(createExpectedEntries(), reportLog.getEntries());
 		}
 	}
 	
-	private static void checkReportLog(ReportLogImpl actual) {
+	private static List<LogEntry> createExpectedEntries() {
 		// Expected entries
 		List<LogEntry> expected = new LinkedList<>();
 		expected.add(new LogEntry(Type.ERROR, ReportType.UNRECOGNIZED_TOKEN, tokens(new TokenImpl("++", TokenType.NOT_A_TOKEN, 5, 11)), ""));
-		
-		// Compare
-		GrammarTestHelper.compareReportLogEntries(expected, actual.getEntries());
+		return expected;
 	}
 }

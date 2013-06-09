@@ -95,9 +95,9 @@ public class M1ErrorTest {
 				/* mask: {testName, progCode, expectedReportLogError} */
 				{ "doubleDeclaration", doubleDeclaration,
 						"ERROR (DOUBLE_DECLARATION): The variable 'i' of type 'LongType' has been declared twice!" },
-				{ "invalidIds", invalidIds, "ERROR (UNDEFINED): Found undefined token 'foo$bar'!" },
-				{ "multipleMinusENotation", multipleMinusENotation, "ERROR (UNDEFINED): Found undefined token '10e----1'!" },
-				{ "multiplePlusesInExp", multiplePlusesInExp, "ERROR (UNDEFINED): Found undefined token '++'!" },
+				{ "invalidIds", invalidIds, "ERROR (UNRECOGNIZED_TOKEN): Found undefined token 'foo$bar'!" },
+				{ "multipleMinusENotation", multipleMinusENotation, "ERROR (UNRECOGNIZED_TOKEN): Found undefined token '10e----1'!" },
+				{ "multiplePlusesInExp", multiplePlusesInExp, "ERROR (UNRECOGNIZED_TOKEN): Found undefined token '++'!" },
 				{ "undefReturn", undefReturn, "WARNNING (UNDEFINED): Variable “spam” may be used without initialization." } });
 	}
 
