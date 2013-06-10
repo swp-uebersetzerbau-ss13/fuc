@@ -25,3 +25,7 @@ doc/
 *.toc
 *.vrb
 *.synctex.gz
+
+# temporary files created by emacs and other unix editors #
+*~
+*#
