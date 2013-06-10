@@ -37,6 +37,13 @@ public class LexerImpl implements Lexer {
 	private final static Pattern NEXT_WHITESPACE = Pattern.compile("\\s");
 
 	/**
+	 * Default constructor initializes class variables
+	 */
+	public LexerImpl() {
+		this.init();
+	}
+
+	/**
 	 * Method sets an {@link InputStream} for the lexer and splits it line by
 	 * line into an {@link ArrayList} while removing the tabs with whitespaces
 	 */
@@ -45,20 +52,6 @@ public class LexerImpl implements Lexer {
 
 		this.init();
 		this.convertedLines = new ArrayList<>();
-		// BufferedReader reader;
-		// try {
-		// reader = new BufferedReader(new InputStreamReader(stream, "UTF-8"));
-		// while (reader.ready()) {
-		// this.convertedLines.add(reader.readLine());
-		// }
-		// } catch (UnsupportedEncodingException e1) {
-		// // TODO Auto-generated catch block
-		// e1.printStackTrace();
-		// } catch (IOException e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// }
-
 		Scanner scanner = new Scanner(stream, "UTF-8");
 
 		while (scanner.hasNext()) {
@@ -84,6 +77,7 @@ public class LexerImpl implements Lexer {
 			 * get the value of the first line
 			 */
 			this.actualLineValue = this.convertedLines.get(this.actualLine - 1);
+			this.isEOF = false;
 
 		}
 
@@ -95,10 +89,11 @@ public class LexerImpl implements Lexer {
 	private void init() {
 
 		this.actualTokenValue = "";
+		this.actualTokenType = TokenType.EOF;
 		this.actualLine = 1;
 		this.actualColumn = 1;
 		this.actualToken = null;
-		this.isEOF = false;
+		this.isEOF = true;
 
 	}
 
@@ -196,21 +191,14 @@ public class LexerImpl implements Lexer {
 
 			}
 
-			System.out.println("Index of next character: "
-					+ matchNextCharacter.start());
-			System.out.println("Column: " + this.actualColumn);
-			System.out.println("Start line value: " + this.actualLineValue);
-
 			/*
 			 * remove every whitespace in front of the next token value
 			 */
 			this.actualLineValue = this.actualLineValue.replaceAll("^\\s+", "");
 
-			System.out.println("Modified line value: " + this.actualLineValue);
-
 			/*
-			 * check if the next token is an ID, a string (starts with an
-			 * apostrophe), a comment or another type
+			 * check if the next token is a string (starts with an apostrophe),
+			 * a comment or another type
 			 */
 			if (this.actualLineValue.startsWith("\"")
 					&& this.actualLineValue.indexOf("\"", 1) != -1) {
@@ -224,11 +212,8 @@ public class LexerImpl implements Lexer {
 				if (indexOfNextApostrophe == -1) {
 
 					/*
-					 * multi line strings are not supported, so the value is not
-					 * a known token
+					 * multi line strings are not yet supported
 					 */
-					// FIXME: better handling
-					this.actualTokenType = TokenType.NOT_A_TOKEN;
 
 				} else {
 
@@ -315,10 +300,13 @@ public class LexerImpl implements Lexer {
 				if (this.actualTokenType == TokenType.NOT_A_TOKEN) {
 
 					/*
-					 * check if a dot is in the token value
+					 * check if a dot is in the token value and the value is not
+					 * a number
 					 */
 					if (this.actualTokenValue.contains(".")
-							&& this.actualTokenValue.length() > 1) {
+							&& this.actualTokenValue.length() > 1
+							&& this.actualTokenValue
+									.matches(".*\\.[a-zA-Z]\\w*")) {
 
 						if (this.actualTokenValue.startsWith(".")) {
 
@@ -341,15 +329,11 @@ public class LexerImpl implements Lexer {
 
 			}
 
-			System.out.println("Token value: " + this.actualTokenValue);
 			/*
 			 * remove the actual token value from the line value
 			 */
 			this.actualLineValue = this.actualLineValue
 					.substring(this.actualTokenValue.length());
-
-			System.out.println("End line value: " + this.actualLineValue);
-			System.out.println("---------------------------------------");
 
 		}
 
@@ -443,11 +427,6 @@ public class LexerImpl implements Lexer {
 				.matches("(\\+|-)?[0-9]+\\.[0-9]+((e|E)(\\+|-)?[0-9]+)?")) {
 
 			this.actualTokenType = TokenType.REAL;
-
-		} else if (this.actualTokenValue
-				.matches("\\\"(?:[^\\\"\\\\]+|\\\\.)*\\\"")) {
-			// FIXME: delete matching
-			this.actualTokenType = TokenType.STRING;
 
 		} else if (this.actualTokenValue.matches(";")) {
 
@@ -596,10 +575,6 @@ public class LexerImpl implements Lexer {
 		} else if (this.actualTokenValue.matches("[a-zA-Z]\\w*")) {
 
 			this.actualTokenType = TokenType.ID;
-
-		} else if (this.actualTokenValue.matches("#.*")) {
-			// FIXME: delete matching
-			this.actualTokenType = TokenType.COMMENT;
 
 		} else if (this.actualTokenValue == "$") {
 

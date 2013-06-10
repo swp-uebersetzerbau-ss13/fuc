@@ -1,7 +1,7 @@
 /**
  * 
  */
-package swp_compiler_ss13.fuc.lexer.milestone;
+package swp_compiler_ss13.fuc.lexer.milestone.m1;
 
 import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
@@ -19,11 +19,11 @@ import org.junit.Test;
  * @author Tay, Ho Phuong
  * 
  */
-public class Error_Double_DeclProgTest {
-	private String prog = 
-			"# error: two decls for same id i\n" +
-			"long i;\n" +
-			"long i;";
+public class Error_Undef_ReturnProgTest {
+	private String prog =
+			"# error: id spam is not initialized and returned\n" +
+			"long spam;\n" +
+			"return spam;";
 	private InputStream stream;
 	private LexerImpl lexer;
 	private ArrayList<Token> list;
@@ -33,16 +33,16 @@ public class Error_Double_DeclProgTest {
 	 */
 	@Before
 	public void setUp() throws Exception {
-	    this.stream = new ByteArrayInputStream(prog.getBytes());
+		this.stream = new ByteArrayInputStream(prog.getBytes());
 		this.lexer = new swp_compiler_ss13.fuc.lexer.LexerImpl();
 		this.lexer.setSourceStream(this.stream);
 		this.list = new ArrayList<Token>(Arrays.asList(
-			new TokenImpl("# error: two decls for same id i", TokenType.COMMENT, 1, 1),
+			new TokenImpl("# error: id spam is not initialized and returned", TokenType.COMMENT, 1, 1),
 			new TokenImpl("long", TokenType.LONG_SYMBOL, 1, 1),
-			new TokenImpl("i", TokenType.ID, 1, 1),
+			new TokenImpl("spam", TokenType.ID, 1, 1),
 			new TokenImpl(";", TokenType.SEMICOLON, 1, 1),
-			new TokenImpl("long", TokenType.LONG_SYMBOL, 1, 1),
-			new TokenImpl("i", TokenType.ID, 1, 1),
+			new TokenImpl("return", TokenType.RETURN, 1, 1),
+			new TokenImpl("spam", TokenType.ID, 1, 1),			
 			new TokenImpl(";", TokenType.SEMICOLON, 1, 1),
 			new TokenImpl("$", TokenType.EOF, 1, 1)
 		));

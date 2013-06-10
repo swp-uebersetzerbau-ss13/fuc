@@ -1,7 +1,7 @@
 /**
  * 
  */
-package swp_compiler_ss13.fuc.lexer.milestone;
+package swp_compiler_ss13.fuc.lexer.milestone.m1;
 
 import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
@@ -19,12 +19,19 @@ import org.junit.Test;
  * @author Tay, Ho Phuong
  * 
  */
-public class Simple_MulProgTest {
-	private String prog = 
-			"# return 9\n" +
-			"long l;\n" +
-			"l = 3 * 3;\n" +
-			"return l;";
+public class AddProgTest {
+	private String prog =
+		"# return 27\n" +
+		"long l;\n" +
+		"l = 10 +\n" +
+		"        23 # - 23\n" +
+		"- 23\n" +
+		"+ 100 /\n" +
+		"\n" +
+		"2\n" +
+		"-       30 \n" +
+		"      - 9 / 3;\n" +
+		"return l;";
 	private InputStream stream;
 	private LexerImpl lexer;
 	private ArrayList<Token> list;
@@ -38,14 +45,27 @@ public class Simple_MulProgTest {
 		this.lexer = new swp_compiler_ss13.fuc.lexer.LexerImpl();
 		this.lexer.setSourceStream(this.stream);
 		this.list = new ArrayList<Token>(Arrays.asList(
-			new TokenImpl("# return 9", TokenType.COMMENT, 1, 1),
+			new TokenImpl("# return 27", TokenType.COMMENT, 1, 1),
 			new TokenImpl("long", TokenType.LONG_SYMBOL, 1, 1),
 			new TokenImpl("l", TokenType.ID, 1, 1),
 			new TokenImpl(";", TokenType.SEMICOLON, 1, 1),
 			new TokenImpl("l", TokenType.ID, 1, 1),
 			new TokenImpl("=", TokenType.ASSIGNOP, 1, 1),
-			new TokenImpl("3", TokenType.NUM, 1, 1),
-			new TokenImpl("*", TokenType.TIMES, 1, 1),
+			new TokenImpl("10", TokenType.NUM, 1, 1),
+			new TokenImpl("+", TokenType.PLUS, 1, 1),
+			new TokenImpl("23", TokenType.NUM, 1, 1),
+			new TokenImpl("# - 23", TokenType.COMMENT, 1, 1),
+			new TokenImpl("-", TokenType.MINUS, 1, 1),
+			new TokenImpl("23", TokenType.NUM, 1, 1),
+			new TokenImpl("+", TokenType.PLUS, 1, 1),
+			new TokenImpl("100", TokenType.NUM, 1, 1),
+			new TokenImpl("/", TokenType.DIVIDE, 1, 1),
+			new TokenImpl("2", TokenType.NUM, 1, 1),
+			new TokenImpl("-", TokenType.MINUS, 1, 1),
+			new TokenImpl("30", TokenType.NUM, 1, 1),
+			new TokenImpl("-", TokenType.MINUS, 1, 1),
+			new TokenImpl("9", TokenType.NUM, 1, 1),
+			new TokenImpl("/", TokenType.DIVIDE, 1, 1),
 			new TokenImpl("3", TokenType.NUM, 1, 1),
 			new TokenImpl(";", TokenType.SEMICOLON, 1, 1),
 			new TokenImpl("return", TokenType.RETURN, 1, 1),

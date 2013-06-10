@@ -1,7 +1,7 @@
 /**
  * 
  */
-package swp_compiler_ss13.fuc.lexer.milestone;
+package swp_compiler_ss13.fuc.lexer.milestone.m1;
 
 import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
@@ -19,13 +19,12 @@ import org.junit.Test;
  * @author Tay, Ho Phuong
  * 
  */
-public class Error_Multiple_Pluses_in_expProgTest {
+public class Simple_MulProgTest {
 	private String prog = 
-		"# error: too many pluses in an expression\n" +
-		"long foo;\n" +
-		"long bar;\n" +
-		"foo = 3;\n" +
-		"bar = foo ++ 1;";
+			"# return 9\n" +
+			"long l;\n" +
+			"l = 3 * 3;\n" +
+			"return l;";
 	private InputStream stream;
 	private LexerImpl lexer;
 	private ArrayList<Token> list;
@@ -39,22 +38,18 @@ public class Error_Multiple_Pluses_in_expProgTest {
 		this.lexer = new swp_compiler_ss13.fuc.lexer.LexerImpl();
 		this.lexer.setSourceStream(this.stream);
 		this.list = new ArrayList<Token>(Arrays.asList(
-			new TokenImpl("# error: too many pluses in an expression", TokenType.COMMENT, 1, 1),
+			new TokenImpl("# return 9", TokenType.COMMENT, 1, 1),
 			new TokenImpl("long", TokenType.LONG_SYMBOL, 1, 1),
-			new TokenImpl("foo", TokenType.ID, 1, 1),
+			new TokenImpl("l", TokenType.ID, 1, 1),
 			new TokenImpl(";", TokenType.SEMICOLON, 1, 1),
-			new TokenImpl("long", TokenType.LONG_SYMBOL, 1, 1),
-			new TokenImpl("bar", TokenType.ID, 1, 1),
-			new TokenImpl(";", TokenType.SEMICOLON, 1, 1),
-			new TokenImpl("foo", TokenType.ID, 1, 1),
+			new TokenImpl("l", TokenType.ID, 1, 1),
 			new TokenImpl("=", TokenType.ASSIGNOP, 1, 1),
 			new TokenImpl("3", TokenType.NUM, 1, 1),
+			new TokenImpl("*", TokenType.TIMES, 1, 1),
+			new TokenImpl("3", TokenType.NUM, 1, 1),
 			new TokenImpl(";", TokenType.SEMICOLON, 1, 1),
-			new TokenImpl("bar", TokenType.ID, 1, 1),
-			new TokenImpl("=", TokenType.ASSIGNOP, 1, 1),
-			new TokenImpl("foo", TokenType.ID, 1, 1),
-			new TokenImpl("++", TokenType.NOT_A_TOKEN, 1, 1),
-			new TokenImpl("1", TokenType.NUM, 1, 1),
+			new TokenImpl("return", TokenType.RETURN, 1, 1),
+			new TokenImpl("l", TokenType.ID, 1, 1),
 			new TokenImpl(";", TokenType.SEMICOLON, 1, 1),
 			new TokenImpl("$", TokenType.EOF, 1, 1)
 		));
