@@ -39,19 +39,19 @@ public class IdentifierShadowTest {
 		astf.addBlock();
 		astf.addDeclaration("shadow", new StringType(10L));
 		astf.addAssignment(astf.newBasicIdentifier("shadow"),
-				astf.newLiteral("Hallo Welt", new StringType(10L)));
+				astf.newLiteral("\"Hallo \\\" Welt\"", new StringType(10L)));
 		astf.addPrint(astf.newBasicIdentifier("shadow"));
 		astf.goToParent();
 		astf.addPrint(astf.newBasicIdentifier("shadow"));
 		astf.goToParent();
 		astf.addPrint(astf.newBasicIdentifier("shadow"));
-		ast = astf.getAST();
+		this.ast = astf.getAST();
 	}
 
 	@Test
 	public void test() throws IntermediateCodeGeneratorException {
 		IntermediateCodeGeneratorImpl irg = new IntermediateCodeGeneratorImpl();
-		List<Quadruple> irc = irg.generateIntermediateCode(ast);
+		List<Quadruple> irc = irg.generateIntermediateCode(this.ast);
 
 		StringBuilder b = new StringBuilder();
 		for (Quadruple q : irc) {
@@ -65,7 +65,7 @@ public class IdentifierShadowTest {
 				+ "(PRINT_BOOLEAN|shadow|!|!)\n" + "(DECLARE_LONG|!|!|tmp0)\n"
 				+ "(ASSIGN_LONG|#25|!|tmp0)\n" + "(PRINT_LONG|tmp0|!|!)\n"
 				+ "(DECLARE_STRING|!|!|tmp1)\n"
-				+ "(ASSIGN_STRING|#\"Hallo Welt\"|!|tmp1)\n"
+				+ "(ASSIGN_STRING|#\"Hallo \\\" Welt\"|!|tmp1)\n"
 				+ "(PRINT_STRING|tmp1|!|!)\n" + "(PRINT_LONG|tmp0|!|!)\n"
 				+ "(PRINT_BOOLEAN|shadow|!|!)\n";
 		System.out.println(actual);
