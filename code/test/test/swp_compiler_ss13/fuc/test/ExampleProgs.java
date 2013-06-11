@@ -87,7 +87,7 @@ public class ExampleProgs {
 				"long fü_berlin;";
 
 		int expectedExitcode = -1;
-		String expectedOutput = "ERROR (UNDEFINED): Found undefined token 'foo$bar'!";
+		String expectedOutput = "ERROR (UNRECOGNIZED_TOKEN): Found undefined token 'foo$bar'!";
 		return new Object[]{prog, expectedExitcode, expectedOutput};
 	}
 
@@ -97,7 +97,7 @@ public class ExampleProgs {
 				"long foo;\n" +
 				"foo = 10e----1;";
 		int expectedExitcode = -1;
-		String expectedOutput = "ERROR (UNDEFINED): Found undefined token '10e----1'!";
+		String expectedOutput = "ERROR (UNRECOGNIZED_TOKEN): Found undefined token '10e----1'!";
 		return new Object[]{prog, expectedExitcode, expectedOutput};
 	}
 
@@ -109,7 +109,7 @@ public class ExampleProgs {
 				"foo = 3;\n" +
 				"bar = foo ++ 1;";
 		int expectedExitcode = -1;
-		String expectedOutput = "ERROR (UNDEFINED): Found undefined token '++'!";
+		String expectedOutput = "ERROR (UNRECOGNIZED_TOKEN): Found undefined token '++'!";
 		return new Object[]{prog, expectedExitcode, expectedOutput};
 	}
 
