@@ -5,51 +5,27 @@ import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import swp_compiler_ss13.common.ast.AST;
-import swp_compiler_ss13.common.backend.BackendException;
-import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
-import swp_compiler_ss13.common.lexer.Lexer;
-import swp_compiler_ss13.common.parser.Parser;
-import swp_compiler_ss13.common.semanticAnalysis.SemanticAnalyser;
-import swp_compiler_ss13.fuc.errorLog.LogEntry;
 import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
 import swp_compiler_ss13.fuc.lexer.LexerImpl;
 import swp_compiler_ss13.fuc.parser.ParserImpl;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
+import swp_compiler_ss13.fuc.test.ExampleProgs;
+import swp_compiler_ss13.fuc.test.TestBase;
 
 /**
+ * <p>
  * Test for the M1 examples producing an expected error.
+ * </p>
+ * <p>
+ * All example progs can be found in {@link ExampleProgs}.
+ * </p>
+ * 
  * @author Jens V. Fischer
  */
-@RunWith(value = Parameterized.class)
-public class M1ErrorTest {
-
-	private static Lexer lexer;
-	private static Parser parser;
-	private static SemanticAnalyser analyser;
-	private static ReportLogImpl errlog;
-
-	private String prog;
-	private String expected;
-
-	public M1ErrorTest(String nameOfTestProg, String prog, String expected) {
-		this.prog = prog;
-		this.expected = expected;
-	}
+public class M1ErrorTest extends TestBase {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 		Logger.getRootLogger().setLevel(Level.ERROR);
-
 	}
 
 	@Before
@@ -60,66 +36,30 @@ public class M1ErrorTest {
 		errlog = new ReportLogImpl();
 	}
 
-	@Parameterized.Parameters(name = "{index}: {0}")
-	public static Collection<Object[]> data() {
-
-		String doubleDeclaration = "" +
-				"# error: two decls for same id i\n" +
-				"long i;\n" +
-				"long i;\n";
-		String invalidIds = "" +
-				"# error: invalid ids\n" +
-				"long foo$bar;\n" +
-				"long spam_ham;\n" +
-				"long 2fooly;\n" +
-				"long return;\n" +
-				"long string;\n" +
-				"long bool;\n" +
-				"long fü_berlin;";
-		String multipleMinusENotation = "" +
-				"# error: id foo has multiple minus in expontent notation\n" +
-				"long foo;\n" +
-				"foo = 10e----1;";
-		String multiplePlusesInExp = "" +
-				"# error: too many pluses in an expression\n" +
-				"long foo;\n" +
-				"long bar;\n" +
-				"foo = 3;\n" +
-				"bar = foo ++ 1;";
-		String undefReturn = "" +
-				"# error: id spam is not initialized and returned\n" +
-				"long spam;\n" +
-				"return spam;";
-
-		return Arrays.asList(new Object[][] {
-				/* mask: {testName, progCode, expectedReportLogError} */
-				{ "doubleDeclaration", doubleDeclaration,
-						"ERROR (DOUBLE_DECLARATION): The variable 'i' of type 'LongType' has been declared twice!" },
-				{ "invalidIds", invalidIds, "ERROR (UNDEFINED): Found undefined token 'foo$bar'!" },
-				{ "multipleMinusENotation", multipleMinusENotation, "ERROR (UNDEFINED): Found undefined token '10e----1'!" },
-				{ "multiplePlusesInExp", multiplePlusesInExp, "ERROR (UNDEFINED): Found undefined token '++'!" },
-				{ "undefReturn", undefReturn, "WARNNING (UNDEFINED): Variable “spam” may be used without initialization." } });
-	}
-
 
 	@Test
-	public void errorTest() throws InterruptedException, IOException, IntermediateCodeGeneratorException, BackendException {
-		LogEntry logEntry = compileForError(this.prog).get(0);
-		assertEquals(this.expected, logEntry.toString());
+	public void testDoubleDeclaration() throws Exception {
+		testProgForErrorMsg(ExampleProgs.doubleDeclaration());
 	}
 
-
-	private List<LogEntry> compileForError(String prog) throws BackendException,
-			IntermediateCodeGeneratorException, IOException, InterruptedException {
-		lexer.setSourceStream(new ByteArrayInputStream(prog.getBytes("UTF-8")));
-		parser.setLexer(lexer);
-		parser.setReportLog(errlog);
-		AST ast = parser.getParsedAST();
-		if (errlog.hasErrors()){
-			return errlog.getErrors();
-		}
-		analyser.setReportLog(errlog);
-		analyser.analyse(ast);
-		return errlog.getEntries();
+	@Test
+	public void testInvalidIds() throws Exception {
+		testProgForErrorMsg(ExampleProgs.invalidIds());
 	}
+
+	@Test
+	public void testMultipleMinusENotation() throws Exception {
+		testProgForErrorMsg(ExampleProgs.multipleMinusENotation());
+	}
+
+	@Test
+	public void testMultiplePlusesInExp() throws Exception {
+		testProgForErrorMsg(ExampleProgs.multiplePlusesInExp());
+	}
+
+	@Test
+	public void testUndefReturn() throws Exception {
+		testProgForErrorMsg(ExampleProgs.undefReturn());
+	}
+
 }
