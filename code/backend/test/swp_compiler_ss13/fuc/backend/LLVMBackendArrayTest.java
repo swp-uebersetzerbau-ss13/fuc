@@ -187,5 +187,22 @@ public class LLVMBackendArrayTest extends TestBase {
 		           "  ret i64 0"+"\n",
 				   generateCodeAsString(tac));
     }
-
+	@Test public void arrays__reference_self_resolve_set_long() throws IOException, BackendException {
+		tac.add(new QuadrupleImpl(Operator.DECLARE_REFERENCE, EmptyArgument, EmptyArgument, "r"));
+		tac.add(new QuadrupleImpl(Operator.DECLARE_ARRAY, "#20", EmptyArgument, "a"));
+		tac.add(new QuadrupleImpl(Operator.DECLARE_ARRAY, "#30", EmptyArgument, null));
+		tac.add(new QuadrupleImpl(Operator.DECLARE_ARRAY, "#40", EmptyArgument, null));
+		tac.add(new QuadrupleImpl(Operator.DECLARE_LONG, EmptyArgument, EmptyArgument, null));
+		tac.add(new QuadrupleImpl(Operator.ARRAY_GET_REFERENCE, "a", "#15", "r"));
+		tac.add(new QuadrupleImpl(Operator.ARRAY_GET_REFERENCE, "r", "#20", "r"));
+		tac.add(new QuadrupleImpl(Operator.ARRAY_SET_DOUBLE, "r", "#25", "#999"));
+		expectMain(
+				   "  %a = alloca [20 x [30 x [40 x i64]]]"+"\n"+
+				   "  %r.0 = getelementptr [20 x [30 x [40 x i64]]]* %a, i64 0, i64 15"+"\n"+
+				   "  %r.1 = getelementptr [30 x [40 x i64]]* %r.0, i64 0, i64 20"+"\n"+
+				   "  %.tmp.0 = getelementptr [40 x i64]* %r.1, i64 0, i64 25"+"\n"+
+		           "  store i64 999, i64* %.tmp.0"+"\n"+
+		           "  ret i64 0"+"\n",
+				   generateCodeAsString(tac));
+    }
 }

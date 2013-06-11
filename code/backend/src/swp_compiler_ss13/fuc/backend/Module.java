@@ -588,13 +588,19 @@ public class Module
 	}
 
 	public void addArraySet(String arrayName, int idx, String src) throws BackendException {
+		// if source is a reference, we have to consider multiple assignments to it due to SSA
+		String realarray;
+		if(variableIsReference.contains(arrayName))
+			realarray = "%" + arrayName + "." + (variableUseCount.get(arrayName)-1);
+		else
+		realarray = "%" + arrayName;
 		ArrayType arType = arNamespace.get(arrayName);
 		if(arType.dimensions.size() > 1)
 			throw new BackendException("you cannot use a reference for an ARRAY_SET_* operation");
 		// construct getelementptr instruction
 		String ptrId = getUseIdentifierForVariable(".tmp");
 		String arrayTypeStr = getIRAType(arType.storage_type,arType.dimensions);
-		gen(ptrId + " = getelementptr " + arrayTypeStr + "* " + "%" + arrayName + ", i64 0" + ", i64 " + idx);
+		gen(ptrId + " = getelementptr " + arrayTypeStr + "* " + realarray + ", i64 0" + ", i64 " + idx);
 		// store value
 		String storageTypeStr = getIRType(arType.storage_type);
 		gen("store "+storageTypeStr+" "+cdl(src,arType.storage_type)+", "+storageTypeStr+"* "+ptrId);				
