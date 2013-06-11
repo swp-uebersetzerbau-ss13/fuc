@@ -164,7 +164,7 @@ public class ExampleProgs {
 				"\n" +
 				"if ( b )\n" +
 				"  if ( c || ! b )\n" +
-				"    print \"bla\";\n" +
+				"    print bla;\n" +
 				"  else\n" +
 				"    l = 5;\n" +
 				"\n" +
@@ -193,9 +193,9 @@ public class ExampleProgs {
 				"d = -23.23e-100;\n" +
 				"s = \"jagÄrEttString\\\"\\n\";  # c-like escaping in strings\n" +
 				"\n" +
-				"print b; print \"\\n\";\n" +
-				"print l; print \"\\n\";       # print one digit left of the radix point\n" +
-				"print d; print \"\\n\";\n" +
+				"print b; print linebreak;\n" +
+				"print l; print linebreak;       # print one digit left of the radix point\n" +
+				"print d; print linebreak;\n" +
 				"print s;\n" +
 				"\n" +
 				"return;                    # equivalent to return EXIT_SUCCESS";
