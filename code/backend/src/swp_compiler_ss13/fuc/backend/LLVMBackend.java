@@ -252,6 +252,7 @@ public class LLVMBackend implements Backend
 				// reference declarations are superfluous and do not generate any code,
 				//  nor provide information which is not clear by context.
 				case DECLARE_REFERENCE:
+					m.addNewReference(q.getResult());
 					break;
 
 				/* Arithmetic */

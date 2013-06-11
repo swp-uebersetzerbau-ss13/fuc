@@ -47,6 +47,7 @@ public class Module
 	 *
 	 */
 	private Map<String,Integer> variableUseCount;
+	private Set<String> variableIsReference;
 
 	/**
 	 * The <code>PrintWriter</code> which
@@ -77,6 +78,7 @@ public class Module
 	{
 		stringLiterals = new ArrayList<Integer>();
 		variableUseCount = new HashMap<String,Integer>();
+		variableIsReference = new HashSet<String>();
 
 		/* Add fake temporary variable */
 		variableUseCount.put(".tmp", 0);
@@ -449,6 +451,12 @@ public class Module
 		return variableIdentifier;
 	}
 
+	public void addNewReference(String ident)
+	{
+		variableUseCount.put(ident, 0);
+		variableIsReference.add(ident);
+	}
+
 	public String addArrayDeclare(Kind type, List<Integer> sizes, String identifier)
 	{
 		String irType = getIRAType(type,sizes);
@@ -543,11 +551,17 @@ public class Module
 	public void addArrayGet(String arrayName, int idx, String dst) throws BackendException {
 		ArrayType arType = arNamespace.get(arrayName);
 		String arrayTypeStr = getIRAType(arType.storage_type,arType.dimensions);
+		String realsource;
+		// if source is a reference, we have to consider multiple assignments to it due to SSA
+		if(variableIsReference.contains(arrayName))
+			realsource = "%" + arrayName + "." + (variableUseCount.get(arrayName)-1);
+		else
+		    realsource = "%" + arrayName;
 		//  if the array has more than one level, dst must be a reference
 		if(arType.dimensions.size() > 1) {
-			// reference mode
+			// reference mode (returns a reference)
 			// in reference mode, we just store the getelementptr result into dst
-			gen("%"+dst + " = getelementptr " + arrayTypeStr + "* " + "%" + arrayName + ", i64 0" + ", i64 " + idx);
+			gen(getUseIdentifierForVariable(dst) + " = getelementptr " + arrayTypeStr + "* " + realsource + ", i64 0" + ", i64 " + idx);
 			// it is important to note, that references's types are JUST like array types: pointers to arrays
 			//  the next time we do a GET_ARRAY_* instruction, we need the the encapsulated array type.
 			//  eg: if we dereference [2 x [4 x i64]] here, we need [4 x i64] next time we use the reference.
@@ -564,7 +578,7 @@ public class Module
 			// direct access
 			// construct getelementptr instruction
 			String ptrId = getUseIdentifierForVariable(".tmp");
-			gen(ptrId + " = getelementptr " + arrayTypeStr + "* " + "%" + arrayName + ", i64 0" + ", i64 " + idx);
+			gen(ptrId + " = getelementptr " + arrayTypeStr + "* " + realsource + ", i64 0" + ", i64 " + idx);
 			// retrieve value from pointer via stack load instruction
 			String storageTypeStr = getIRType(arType.storage_type);
 			String valId = getUseIdentifierForVariable(".tmp");
