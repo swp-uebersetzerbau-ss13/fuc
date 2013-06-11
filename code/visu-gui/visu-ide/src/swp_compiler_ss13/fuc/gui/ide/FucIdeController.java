@@ -603,7 +603,7 @@ public class FucIdeController {
 	}
 
 	protected String[] getLogEntries(ReportLogImpl reportlog) {
-		List<LogEntry> errors = reportlog.getErrors();
+		List<LogEntry> errors = reportlog.getEntries();
 		List<String> strings = new ArrayList<>(errors.size() * 4);
 		for (LogEntry error : errors) {
 			strings.add(error.getLogType() + ": " + error.getReportType());

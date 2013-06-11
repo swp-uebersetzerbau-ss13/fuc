@@ -10,6 +10,8 @@ import org.junit.Test;
 import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.lexer.Lexer;
 import swp_compiler_ss13.common.report.ReportLog;
+import swp_compiler_ss13.common.types.primitive.LongType;
+import swp_compiler_ss13.fuc.ast.ASTFactory;
 import swp_compiler_ss13.fuc.lexer.LexerImpl;
 import swp_compiler_ss13.fuc.parser.errorHandling.ParserReportLogImpl;
 import swp_compiler_ss13.fuc.parser.generator.ALRGenerator;
@@ -49,12 +51,6 @@ public class M1UndefReturnTest {
 //		lrParser.parse(lexWrapper, reportLog, table);
 //	}
 
-
-	private static void checkAst(AST ast) {
-		assertNotNull(ast);
-		// TODO Validate ast
-	}
-
 	@Test
 	public void testErrorUndefReturnOrgLexer() throws Exception {
 		String input = "# error: id spam is not initialized and returned\n"
@@ -75,7 +71,19 @@ public class M1UndefReturnTest {
 		LexerWrapper lexWrapper = new LexerWrapper(lexer, grammar);
 		ReportLog reportLog = new ParserReportLogImpl();
 		
+		// Is a sematic error; AST should be ok
 		AST ast = lrParser.parse(lexWrapper, reportLog, table);
 		checkAst(ast);
+	}
+
+
+	private static void checkAst(AST ast) {
+		assertNotNull(ast);
+		
+		ASTFactory factory = new ASTFactory();
+		factory.addDeclaration("spam", new LongType());
+		factory.addReturn(factory.newBasicIdentifier("spam"));
+		AST expected = factory.getAST();
+		ASTComparator.compareAST(expected, ast);
 	}
 }

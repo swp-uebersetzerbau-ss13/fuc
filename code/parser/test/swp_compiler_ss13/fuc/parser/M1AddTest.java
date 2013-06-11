@@ -17,9 +17,12 @@ import org.apache.log4j.BasicConfigurator;
 import org.junit.Test;
 
 import swp_compiler_ss13.common.ast.AST;
+import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode.BinaryOperator;
 import swp_compiler_ss13.common.lexer.Lexer;
 import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.common.report.ReportLog;
+import swp_compiler_ss13.common.types.primitive.LongType;
+import swp_compiler_ss13.fuc.ast.ASTFactory;
 import swp_compiler_ss13.fuc.lexer.LexerImpl;
 import swp_compiler_ss13.fuc.parser.errorHandling.ParserReportLogImpl;
 import swp_compiler_ss13.fuc.parser.generator.ALRGenerator;
@@ -31,7 +34,6 @@ import swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar;
 import swp_compiler_ss13.fuc.parser.grammar.Terminal;
 import swp_compiler_ss13.fuc.parser.parser.LRParser;
 import swp_compiler_ss13.fuc.parser.parser.LexerWrapper;
-import swp_compiler_ss13.fuc.parser.parser.ParserException;
 import swp_compiler_ss13.fuc.parser.parser.tables.LRParsingTable;
 
 public class M1AddTest {
@@ -58,14 +60,10 @@ public class M1AddTest {
 		LRParser lrParser = new LRParser();
 		LexerWrapper lexWrapper = new LexerWrapper(lexer, grammar);
 		ReportLog reportLog = new ParserReportLogImpl();
+
+		// Check output
 		AST ast = lrParser.parse(lexWrapper, reportLog, table);
-
 		checkAst(ast);
-	}
-
-	private static void checkAst(AST ast) {
-		assertNotNull(ast);
-		// TODO Validate ast
 	}
 
 	@Test
@@ -95,11 +93,37 @@ public class M1AddTest {
 		LRParser lrParser = new LRParser();
 		LexerWrapper lexWrapper = new LexerWrapper(lexer, grammar);
 		ReportLog reportLog = new ParserReportLogImpl();
-		try{
-			lrParser.parse(lexWrapper, reportLog, table);
-		}catch(ParserException e){
-			//well done
-		}
+		
+		// Check output
+		AST ast = lrParser.parse(lexWrapper, reportLog, table);
+		checkAst(ast);
+	}
 
+	private static void checkAst(AST ast) {
+		assertNotNull(ast);
+		
+		// Create expected
+		ASTFactory factory = new ASTFactory();
+		factory.addDeclaration("l", new LongType());
+		factory.addAssignment(factory.newBasicIdentifier("l"),
+				factory.newBinaryExpression(BinaryOperator.SUBSTRACTION,
+				factory.newBinaryExpression(BinaryOperator.SUBSTRACTION,
+				factory.newBinaryExpression(BinaryOperator.ADDITION, 
+				factory.newBinaryExpression(BinaryOperator.SUBSTRACTION,
+				factory.newBinaryExpression(BinaryOperator.ADDITION,
+						factory.newLiteral("10", new LongType()),
+						factory.newLiteral("23", new LongType())),
+						factory.newLiteral("23", new LongType())),
+						factory.newBinaryExpression(BinaryOperator.DIVISION,
+								factory.newLiteral("100", new LongType()),
+								factory.newLiteral("2", new LongType()))),
+						factory.newLiteral("30", new LongType())),
+						factory.newBinaryExpression(BinaryOperator.DIVISION,
+								factory.newLiteral("9", new LongType()),
+								factory.newLiteral("3", new LongType()))));
+		factory.addReturn(factory.newBasicIdentifier("l"));
+		AST expected = factory.getAST();
+		
+		ASTComparator.compareAST(expected, ast);
 	}
 }

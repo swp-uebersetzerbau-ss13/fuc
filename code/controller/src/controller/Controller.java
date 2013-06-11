@@ -23,6 +23,7 @@ import swp_compiler_ss13.common.ir.IntermediateCodeGenerator;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 import swp_compiler_ss13.common.lexer.Lexer;
 import swp_compiler_ss13.common.parser.Parser;
+import swp_compiler_ss13.common.semanticAnalysis.SemanticAnalyser;
 import swp_compiler_ss13.common.visualization.ASTVisualization;
 import swp_compiler_ss13.common.visualization.TACVisualization;
 import swp_compiler_ss13.common.visualization.TokenStreamVisualization;
@@ -38,6 +39,7 @@ public class Controller {
 	// component plugins are found.
 	static Lexer lexer = null;
 	static Parser parser = null;
+        static SemanticAnalyser analyzer = null;
 	static IntermediateCodeGenerator irgen = null;
 	static Backend backend = null;
 
@@ -61,6 +63,7 @@ public class Controller {
 		// create loaders for component plugins
 		ServiceLoader<Lexer> lexerService = ServiceLoader.load(Lexer.class);
 		ServiceLoader<Parser> parserService = ServiceLoader.load(Parser.class);
+                ServiceLoader<SemanticAnalyser> analyzerService = ServiceLoader.load(SemanticAnalyser.class);
 		ServiceLoader<IntermediateCodeGenerator> irgenService = ServiceLoader.load(IntermediateCodeGenerator.class);
 		ServiceLoader<Backend> backendService = ServiceLoader.load(Backend.class);
 
@@ -90,6 +93,20 @@ public class Controller {
 			if (parser == null) {
 				System.err.println("   <- USED");
 				parser = p;
+			} else {
+				System.err.println();
+			}
+		}
+                
+                // load component plugins
+		// analyzer:
+		for (SemanticAnalyser a : analyzerService) {
+			System.err.print("  Plugin found (analyzer): '" + a.getClass() + "'");
+			// if still null, assign and mention that we use this plugin on
+			// stderr
+			if (analyzer == null) {
+				System.err.println("   <- USED");
+				analyzer = a;
 			} else {
 				System.err.println();
 			}
@@ -129,6 +146,9 @@ public class Controller {
 		}
 		if (parser == null) {
 			System.err.println("ERROR: no parser plugin found!");
+		}
+                if (analyzer == null) {
+			System.err.println("ERROR: no analyzer plugin found!");
 		}
 		if (irgen == null) {
 			System.err.println("ERROR: no IRGen plugin found!");
@@ -299,6 +319,24 @@ public class Controller {
 			}
 		}
 
+                // analyzer
+                analyzer.setReportLog(errlog);
+                ast = analyzer.analyse(ast);
+                
+                // in case of analyzer errors: abort and display errors
+		if (errlog.hasErrors()) {
+			System.err.println("ERROR: compile failed due to errors:");
+			for (LogEntry e : errlog.getEntries()) {
+				System.err.println(e.getMessage());
+			}
+			System.exit(1);
+		} else if (errlog.hasWarnings()) {
+                    System.err.println("WARNINGS:");
+			for (LogEntry e : errlog.getEntries()) {
+				System.err.println(e.getMessage());
+			}
+                }
+                
 		// IR gen...
 		List<Quadruple> tac = irgen.generateIntermediateCode(ast);
 

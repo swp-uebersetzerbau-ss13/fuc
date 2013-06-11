@@ -1,14 +1,23 @@
 package swp_compiler_ss13.fuc.parser;
 
+import static org.junit.Assert.fail;
+import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.tokens;
+
 import java.io.ByteArrayInputStream;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.apache.log4j.BasicConfigurator;
 import org.junit.Test;
 
 import swp_compiler_ss13.common.lexer.Lexer;
-import swp_compiler_ss13.common.report.ReportLog;
+import swp_compiler_ss13.common.lexer.TokenType;
+import swp_compiler_ss13.common.report.ReportType;
+import swp_compiler_ss13.fuc.errorLog.LogEntry;
+import swp_compiler_ss13.fuc.errorLog.LogEntry.Type;
+import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
 import swp_compiler_ss13.fuc.lexer.LexerImpl;
-import swp_compiler_ss13.fuc.parser.errorHandling.ParserReportLogImpl;
+import swp_compiler_ss13.fuc.lexer.token.TokenImpl;
 import swp_compiler_ss13.fuc.parser.generator.ALRGenerator;
 import swp_compiler_ss13.fuc.parser.generator.LR0Generator;
 import swp_compiler_ss13.fuc.parser.generator.items.LR0Item;
@@ -44,7 +53,15 @@ public class M1ErrorDoubleDeclTest {
 //		LRParser lrParser = new LRParser();
 //		LexerWrapper lexWrapper = new LexerWrapper(lexer, grammar);
 //		ReportLog reportLog = new ReportLogImpl();
-//		lrParser.parse(lexWrapper, reportLog, table);
+//
+//		// Check output
+//		try {
+//			lrParser.parse(lexWrapper, reportLog, table);
+//			fail("Expected double id exception!");
+//		} catch (ParserException err) {
+//			// Check for correct error
+//			GrammarTestHelper.compareReportLogEntries(createExpectedEntries(), reportLog.getEntries(), false);
+//		}
 //	}
 
 	@Test
@@ -65,11 +82,25 @@ public class M1ErrorDoubleDeclTest {
 		// Run LR-parser with table
 		LRParser lrParser = new LRParser();
 		LexerWrapper lexWrapper = new LexerWrapper(lexer, grammar);
-		ReportLog reportLog = new ParserReportLogImpl();
+		ReportLogImpl reportLog = new ReportLogImpl();
+
+		// Check output
 		try {
 			lrParser.parse(lexWrapper, reportLog, table);
+			fail("Expected double id exception!");
 		} catch (ParserException err) {
-			
+			// Check for correct error
+			GrammarTestHelper.compareReportLogEntries(createExpectedEntries(), reportLog.getEntries());
 		}
+	}
+	
+	private static List<LogEntry> createExpectedEntries() {
+		// Expected entries
+		List<LogEntry> expected = new LinkedList<>();
+		expected.add(new LogEntry(Type.ERROR, ReportType.DOUBLE_DECLARATION,
+				tokens(new TokenImpl("long", TokenType.LONG_SYMBOL, 3, 1),
+						new TokenImpl("i", TokenType.ID, 3, 6),
+						new TokenImpl(";", TokenType.SEMICOLON, 3, 7)), ""));
+		return expected;
 	}
 }

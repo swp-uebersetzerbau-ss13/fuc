@@ -12,6 +12,7 @@ import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.M1.plus;
 import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.M1.rb;
 import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.M1.sem;
 import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.M1.times;
+import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.M1.returnn;
 
 import java.io.ByteArrayInputStream;
 
@@ -19,9 +20,12 @@ import org.apache.log4j.BasicConfigurator;
 import org.junit.Test;
 
 import swp_compiler_ss13.common.ast.AST;
+import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode.BinaryOperator;
 import swp_compiler_ss13.common.lexer.Lexer;
 import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.common.report.ReportLog;
+import swp_compiler_ss13.common.types.primitive.LongType;
+import swp_compiler_ss13.fuc.ast.ASTFactory;
 import swp_compiler_ss13.fuc.lexer.LexerImpl;
 import swp_compiler_ss13.fuc.parser.errorHandling.ParserReportLogImpl;
 import swp_compiler_ss13.fuc.parser.generator.ALRGenerator;
@@ -33,7 +37,6 @@ import swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar;
 import swp_compiler_ss13.fuc.parser.grammar.Terminal;
 import swp_compiler_ss13.fuc.parser.parser.LRParser;
 import swp_compiler_ss13.fuc.parser.parser.LexerWrapper;
-import swp_compiler_ss13.fuc.parser.parser.ParserException;
 import swp_compiler_ss13.fuc.parser.parser.tables.LRParsingTable;
 
 public class M1ParathesesTest {
@@ -54,7 +57,8 @@ public class M1ParathesesTest {
 				id("l"), t(assignop), t(lb), num(3), t(plus), num(3), t(rb),
 				t(times), num(2), t(minus), t(lb), id("l"), t(assignop), t(lb),
 				num(2), t(plus), t(lb), num(16), t(div), num(8), t(rb), t(rb),
-				t(rb), t(sem), t(Terminal.EOF));
+				t(rb), t(sem),
+				t(returnn), id("l"), t(sem), t(Terminal.EOF));
 
 		// Run LR-parser with table
 		LRParser lrParser = new LRParser();
@@ -63,11 +67,6 @@ public class M1ParathesesTest {
 		AST ast = lrParser.parse(lexWrapper, reportLog, table);
 
 		checkAst(ast);
-	}
-
-	private static void checkAst(AST ast) {
-		assertNotNull(ast);
-		// TODO Validate ast
 	}
 
 	@Test
@@ -90,10 +89,33 @@ public class M1ParathesesTest {
 		LRParser lrParser = new LRParser();
 		LexerWrapper lexWrapper = new LexerWrapper(lexer, grammar);
 		ReportLog reportLog = new ParserReportLogImpl();
-		try{
-			lrParser.parse(lexWrapper, reportLog, table);
-		}catch(ParserException e){
-			//well done
-		}
+		
+		AST ast = lrParser.parse(lexWrapper, reportLog, table);
+		checkAst(ast);
+	}
+
+	private static void checkAst(AST ast) {
+		assertNotNull(ast);
+		
+		ASTFactory factory = new ASTFactory();
+		factory.addDeclaration("l", new LongType());
+		factory.addAssignment(
+				factory.newBasicIdentifier("l"),
+				factory.newBinaryExpression(BinaryOperator.SUBSTRACTION,
+				factory.newBinaryExpression(BinaryOperator.MULTIPLICATION,
+				factory.newBinaryExpression(BinaryOperator.ADDITION,
+						factory.newLiteral("3", new LongType()),
+						factory.newLiteral("3", new LongType())),
+						factory.newLiteral("2",	new LongType())),
+						factory.newAssignment(factory.newBasicIdentifier("l"),
+								factory.newBinaryExpression(BinaryOperator.ADDITION,
+										factory.newLiteral("2", new LongType()),
+										factory.newBinaryExpression(BinaryOperator.DIVISION,
+												factory.newLiteral("16", new LongType()),
+												factory.newLiteral("8", new LongType()))))));
+		factory.addReturn(factory.newBasicIdentifier("l"));
+		AST expected = factory.getAST();
+		
+		ASTComparator.compareAST(expected, ast);
 	}
 }

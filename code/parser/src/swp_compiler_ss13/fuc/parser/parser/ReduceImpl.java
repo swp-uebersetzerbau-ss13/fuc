@@ -13,14 +13,11 @@ import swp_compiler_ss13.common.ast.nodes.StatementNode;
 import swp_compiler_ss13.common.ast.nodes.binary.AssignmentNode;
 import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode.BinaryOperator;
 import swp_compiler_ss13.common.ast.nodes.binary.DoWhileNode;
-import swp_compiler_ss13.common.ast.nodes.binary.LogicBinaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.binary.WhileNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.LiteralNode;
 import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
 import swp_compiler_ss13.common.ast.nodes.ternary.BranchNode;
 import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
-import swp_compiler_ss13.common.ast.nodes.unary.PrintNode;
-import swp_compiler_ss13.common.ast.nodes.unary.ReturnNode;
 import swp_compiler_ss13.common.ast.nodes.unary.UnaryExpressionNode.UnaryOperator;
 import swp_compiler_ss13.common.lexer.NumToken;
 import swp_compiler_ss13.common.lexer.Token;
@@ -198,7 +195,7 @@ public class ReduceImpl {
 					if(decl.getType() instanceof ReduceStringType){
 						List<Token> coverage = decl.coverage();
 						decl = new DeclarationNodeImpl();
-						decl.setType(new StringType((long)idToken.getValue().length()));
+						decl.setType(new StringType(LRParser.STRING_LENGTH));
 						((DeclarationNodeImpl)decl).setCoverage(coverage);
 					}
 
