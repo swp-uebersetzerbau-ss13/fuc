@@ -1,7 +1,7 @@
 /**
  * 
  */
-package swp_compiler_ss13.fuc.lexer.milestone;
+package swp_compiler_ss13.fuc.lexer.milestone.m1;
 
 import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;

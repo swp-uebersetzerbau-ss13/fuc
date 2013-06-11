@@ -1,7 +1,7 @@
 /**
  * 
  */
-package swp_compiler_ss13.fuc.lexer.milestone;
+package swp_compiler_ss13.fuc.lexer.milestone.m1;
 
 import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
@@ -19,11 +19,11 @@ import org.junit.Test;
  * @author Tay, Ho Phuong
  * 
  */
-public class ParanthesesProgTest {
+public class Simple_AddProgTest {
 	private String prog = 
-			"# returns 8 or does it?\n" +
+			"# returns 6\n" +
 			"long l;\n" +
-			"l = ( 3 + 3 ) * 2 - ( l = ( 2 + ( 16 / 8 ) ) );\n" +
+			"l = 3 + 3;\n" +
 			"return l;";
 	private InputStream stream;
 	private LexerImpl lexer;
@@ -38,33 +38,15 @@ public class ParanthesesProgTest {
 		this.lexer = new swp_compiler_ss13.fuc.lexer.LexerImpl();
 		this.lexer.setSourceStream(this.stream);
 		this.list = new ArrayList<Token>(Arrays.asList(
-			new TokenImpl("# returns 8 or does it?", TokenType.COMMENT, 1, 1),
+			new TokenImpl("# returns 6", TokenType.COMMENT, 1, 1),
 			new TokenImpl("long", TokenType.LONG_SYMBOL, 1, 1),
 			new TokenImpl("l", TokenType.ID, 1, 1),
 			new TokenImpl(";", TokenType.SEMICOLON, 1, 1),
 			new TokenImpl("l", TokenType.ID, 1, 1),
 			new TokenImpl("=", TokenType.ASSIGNOP, 1, 1),
-			new TokenImpl("(", TokenType.LEFT_PARAN, 1, 1),
 			new TokenImpl("3", TokenType.NUM, 1, 1),
 			new TokenImpl("+", TokenType.PLUS, 1, 1),
 			new TokenImpl("3", TokenType.NUM, 1, 1),
-			new TokenImpl(")", TokenType.RIGHT_PARAN, 1, 1),
-			new TokenImpl("*", TokenType.TIMES, 1, 1),
-			new TokenImpl("2", TokenType.NUM, 1, 1),
-			new TokenImpl("-", TokenType.MINUS, 1, 1),
-			new TokenImpl("(", TokenType.LEFT_PARAN, 1, 1),
-			new TokenImpl("l", TokenType.ID, 1, 1),
-			new TokenImpl("=", TokenType.ASSIGNOP, 1, 1),
-			new TokenImpl("(", TokenType.LEFT_PARAN, 1, 1),
-			new TokenImpl("2", TokenType.NUM, 1, 1),
-			new TokenImpl("+", TokenType.PLUS, 1, 1),
-			new TokenImpl("(", TokenType.LEFT_PARAN, 1, 1),
-			new TokenImpl("16", TokenType.NUM, 1, 1),
-			new TokenImpl("/", TokenType.DIVIDE, 1, 1),
-			new TokenImpl("8", TokenType.NUM, 1, 1),
-			new TokenImpl(")", TokenType.RIGHT_PARAN, 1, 1),
-			new TokenImpl(")", TokenType.RIGHT_PARAN, 1, 1),
-			new TokenImpl(")", TokenType.RIGHT_PARAN, 1, 1),
 			new TokenImpl(";", TokenType.SEMICOLON, 1, 1),
 			new TokenImpl("return", TokenType.RETURN, 1, 1),
 			new TokenImpl("l", TokenType.ID, 1, 1),

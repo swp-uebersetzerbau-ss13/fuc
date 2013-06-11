@@ -461,7 +461,11 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 			break;
 		case STRING:
 			// Literal of type String needs to be in " and start with a #
-			// Replace all " in the string with \"
+			// If the lexer already gives a string in " and " do not add them
+			if (literal.startsWith("\"") && literal.endsWith("\"") && !literal.endsWith("\\\"")) {
+				literal = literal.substring(1, literal.length() - 1);
+			}
+			// Make C-Style escapings, only if they are not escaped already
 			literal = this.escapeString(literal, "\"", "\\\"");
 			literal = this.escapeString(literal, "\n", "\\n");
 			literal = this.escapeString(literal, "\r", "\\r");
@@ -494,7 +498,7 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 		int pos = 0;
 		while ((pos = literal.indexOf(search, fromIndex)) >= 0) {
 			if (pos > 0 && literal.charAt(pos - 1) == '\\') {
-				fromIndex = pos;
+				fromIndex = pos + 1;
 				continue;
 			}
 			fromIndex = pos + replace.length();
