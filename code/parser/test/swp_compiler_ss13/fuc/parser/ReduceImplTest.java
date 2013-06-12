@@ -7,7 +7,6 @@ import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import swp_compiler_ss13.common.ast.nodes.IdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.binary.AssignmentNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.LiteralNode;
@@ -20,7 +19,7 @@ import swp_compiler_ss13.common.types.derived.ArrayType;
 import swp_compiler_ss13.common.types.primitive.BooleanType;
 import swp_compiler_ss13.common.types.primitive.DoubleType;
 import swp_compiler_ss13.common.types.primitive.LongType;
-import swp_compiler_ss13.fuc.ast.LogicBinaryExpressionNodeImpl;
+import swp_compiler_ss13.fuc.ast.RelationExpressionNodeImpl;
 import swp_compiler_ss13.fuc.lexer.token.NumTokenImpl;
 import swp_compiler_ss13.fuc.lexer.token.TokenImpl;
 import swp_compiler_ss13.fuc.parser.errorHandling.ParserReportLogImpl;
@@ -280,12 +279,12 @@ public class ReduceImplTest {
 		
 		Object obj = action3.create(identifier, equalop, identifier2);
 		
-		assertTrue(obj instanceof LogicBinaryExpressionNodeImpl);
-		assertEquals(((LogicBinaryExpressionNodeImpl)obj).getLeftValue(),identifier);
-		assertEquals(((LogicBinaryExpressionNodeImpl)obj).getRightValue(),identifier2);
-		assertEquals(((LogicBinaryExpressionNodeImpl)obj).coverage().get(0), identifierToken);
-		assertEquals(((LogicBinaryExpressionNodeImpl)obj).coverage().get(1), equalop);
-		assertEquals(((LogicBinaryExpressionNodeImpl)obj).coverage().get(2), identifierToken2);
+		assertTrue(obj instanceof RelationExpressionNodeImpl);
+		assertEquals(((RelationExpressionNodeImpl)obj).getLeftValue(),identifier);
+		assertEquals(((RelationExpressionNodeImpl)obj).getRightValue(),identifier2);
+		assertEquals(((RelationExpressionNodeImpl)obj).coverage().get(0), identifierToken);
+		assertEquals(((RelationExpressionNodeImpl)obj).coverage().get(1), equalop);
+		assertEquals(((RelationExpressionNodeImpl)obj).coverage().get(2), identifierToken2);
 		
 	}
 	

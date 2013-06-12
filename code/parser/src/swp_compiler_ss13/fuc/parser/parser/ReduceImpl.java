@@ -37,6 +37,7 @@ import swp_compiler_ss13.fuc.ast.ArithmeticUnaryExpressionNodeImpl;
 import swp_compiler_ss13.fuc.ast.ArrayIdentifierNodeImpl;
 import swp_compiler_ss13.fuc.ast.AssignmentNodeImpl;
 import swp_compiler_ss13.fuc.ast.BasicIdentifierNodeImpl;
+import swp_compiler_ss13.fuc.ast.BinaryExpressionNodeImpl;
 import swp_compiler_ss13.fuc.ast.BlockNodeImpl;
 import swp_compiler_ss13.fuc.ast.BranchNodeImpl;
 import swp_compiler_ss13.fuc.ast.BreakNodeImpl;
@@ -45,6 +46,7 @@ import swp_compiler_ss13.fuc.ast.LiteralNodeImpl;
 import swp_compiler_ss13.fuc.ast.LogicBinaryExpressionNodeImpl;
 import swp_compiler_ss13.fuc.ast.LogicUnaryExpressionNodeImpl;
 import swp_compiler_ss13.fuc.ast.PrintNodeImpl;
+import swp_compiler_ss13.fuc.ast.RelationExpressionNodeImpl;
 import swp_compiler_ss13.fuc.ast.ReturnNodeImpl;
 import swp_compiler_ss13.fuc.ast.StructIdentifierNodeImpl;
 import swp_compiler_ss13.fuc.parser.grammar.Production;
@@ -296,34 +298,36 @@ public class ReduceImpl {
 
 				@Override
 				public Object create(Object... objs) throws ParserException {
+					Token ifToken = (Token)objs[0];
+					Token leftBrace = (Token)objs[1];
+					Object assign = objs[2];
+					Token rightBrace = (Token)objs[3];
+					Object stmtTrue = objs[4];
+
 					
 					BranchNodeImpl node = new BranchNodeImpl();
-					
-					Token ifToken = (Token)objs[0];
-					Token leftBranch = (Token)objs[1];
-					node.setCoverage(ifToken,leftBranch);
+					node.setCoverage(ifToken, leftBrace);
 					
 					
-					if(objs[2] instanceof ExpressionNode){
-						ExpressionNode condition = (ExpressionNode)objs[2];
+					if(assign instanceof ExpressionNode){
+						ExpressionNode condition = (ExpressionNode)assign;
 						node.setCondition(condition);
 						node.setCoverage(condition.coverage());
 					}else{
-						writeReportError(reportLog, objs[2], "Expression");
+						writeReportError(reportLog, assign, "Expression");
 					}
 					
-					Token rightBranch = (Token)objs[3];
-					node.setCoverage(rightBranch);
+					node.setCoverage(rightBrace);
 					
-					if(objs[4] instanceof BlockNode){
-						node.setStatementNodeOnTrue((BlockNode)objs[4]);
+					if(stmtTrue instanceof BlockNode){
+						node.setStatementNodeOnTrue((BlockNode)stmtTrue);
 					}else{
-						if(objs[4] instanceof StatementNode){
-							StatementNode block = (StatementNode)objs[4];
+						if(stmtTrue instanceof StatementNode){
+							StatementNode block = (StatementNode)stmtTrue;
 							node.setStatementNodeOnTrue(block);
 							node.setCoverage(block.coverage());
 						}else{
-							writeReportError(reportLog, objs[4], "Block or Statement");
+							writeReportError(reportLog, stmtTrue, "Block or Statement");
 						}
 					}
 					
@@ -336,52 +340,55 @@ public class ReduceImpl {
 
 				@Override
 				public Object create(Object... objs) throws ParserException {
+					Token ifToken = (Token)objs[0];
+					Token leftBrace = (Token)objs[1];
+					Object assign = objs[2];
+					Token rightBrace = (Token)objs[3];
+					Object stmtTrue = objs[4];
+					Token elsee = (Token)objs[5];
+					Object stmtFalse = objs[6];
+
 					
 					BranchNodeImpl node = new BranchNodeImpl();
+					node.setCoverage(ifToken, leftBrace);
 					
-					Token ifToken = (Token)objs[0];
-					Token leftBranch = (Token)objs[1];
-					node.setCoverage(ifToken,leftBranch);
-					
-					if(objs[2] instanceof ExpressionNode){
-						ExpressionNode condition = (ExpressionNode)objs[2];
+					if(assign instanceof ExpressionNode){
+						ExpressionNode condition = (ExpressionNode) assign;
 						node.setCondition(condition);
 						node.setCoverage(condition.coverage());
 					}else{
-						writeReportError(reportLog, objs[2], "Expression");
+						writeReportError(reportLog, assign, "Expression");
 					}
 					
-					Token rightBranch = (Token)objs[3];
-					node.setCoverage(rightBranch);
+					node.setCoverage(rightBrace);
 					
-					if(objs[4] instanceof BlockNode){
-						BlockNode block = (BlockNode)objs[4];
-						node.setStatementNodeOnFalse(block);
+					if(stmtTrue instanceof BlockNode){
+						BlockNode block = (BlockNode)stmtTrue;
+						node.setStatementNodeOnTrue(block);
 						node.setCoverage(block.coverage());
 					}else{
-						if(objs[4] instanceof StatementNode){
-							StatementNode block = (StatementNode)objs[4];
+						if(stmtTrue instanceof StatementNode){
+							StatementNode block = (StatementNode)stmtTrue;
 							node.setStatementNodeOnTrue(block);
 							node.setCoverage(block.coverage());
 						}else{
-							writeReportError(reportLog, objs[4], "Statement or BlockNode");
+							writeReportError(reportLog, stmtTrue, "Statement or BlockNode");
 						}
 					}
 					
-					Token elseToken = (Token)objs[5];
-					node.setCoverage(elseToken);
+					node.setCoverage(elsee);
 							
-					if(objs[6] instanceof BlockNode){
-						BlockNode block = (BlockNode)objs[6];
+					if(stmtFalse instanceof BlockNode){
+						BlockNode block = (BlockNode)stmtFalse;
 						node.setStatementNodeOnFalse(block);
 						node.setCoverage(block.coverage());
 					}else{
-						if(objs[6] instanceof StatementNode){
-							StatementNode block = (StatementNode)objs[6];
+						if(stmtFalse instanceof StatementNode){
+							StatementNode block = (StatementNode)stmtFalse;
 							node.setStatementNodeOnFalse(block);
 							node.setCoverage(block.coverage());						
 						}else{
-							writeReportError(reportLog, objs[6], "Block or Statement");
+							writeReportError(reportLog, stmtFalse, "Block or Statement");
 						}
 					}
 					return node;
@@ -575,7 +582,7 @@ public class ReduceImpl {
 			return new ReduceAction() {
 				@Override
 				public Object create(Object... objs) throws ParserException  {
-					return createLogicalBinaryExpr(reportLog, BinaryOperator.LOGICAL_OR, "||", objs);
+					return createBinaryExpr(reportLog, BinaryOperator.LOGICAL_OR, "||", objs);
 				}
 			};
 		case "bool -> join":
@@ -584,7 +591,7 @@ public class ReduceImpl {
 			return new ReduceAction() {
 				@Override
 				public Object create(Object... objs) throws ParserException  {
-					return createLogicalBinaryExpr(reportLog, BinaryOperator.LOGICAL_AND, "&&", objs);
+					return createBinaryExpr(reportLog, BinaryOperator.LOGICAL_AND, "&&", objs);
 				}
 			};
 		case "join -> equality":
@@ -594,14 +601,14 @@ public class ReduceImpl {
 			return new ReduceAction() {
 				@Override
 				public Object create(Object... objs) throws ParserException  {
-					return createLogicalBinaryExpr(reportLog, BinaryOperator.EQUAL, "==", objs);
+					return createBinaryExpr(reportLog, BinaryOperator.EQUAL, "==", objs);
 				}
 			};
 		case "equality -> equality != rel":
 			return new ReduceAction() {
 				@Override
 				public Object create(Object... objs) throws ParserException  {
-					return createLogicalBinaryExpr(reportLog, BinaryOperator.INEQUAL, "!=", objs);
+					return createBinaryExpr(reportLog, BinaryOperator.INEQUAL, "!=", objs);
 				}
 			};
 		case "equality -> rel":
@@ -610,28 +617,28 @@ public class ReduceImpl {
 			return new ReduceAction() {
 				@Override
 				public Object create(Object... objs) throws ParserException  {
-					return createLogicalBinaryExpr(reportLog, BinaryOperator.LESSTHAN, "<", objs);
+					return createBinaryExpr(reportLog, BinaryOperator.LESSTHAN, "<", objs);
 				}
 			};
 		case "rel -> expr > expr":
 			return new ReduceAction() {
 				@Override
 				public Object create(Object... objs) throws ParserException  {
-					return createLogicalBinaryExpr(reportLog, BinaryOperator.GREATERTHAN, "<", objs);
+					return createBinaryExpr(reportLog, BinaryOperator.GREATERTHAN, "<", objs);
 				}
 			};
 		case "rel -> expr >= expr":
 			return new ReduceAction() {
 				@Override
 				public Object create(Object... objs) throws ParserException  {
-					return createLogicalBinaryExpr(reportLog, BinaryOperator.GREATERTHANEQUAL, ">=", objs);
+					return createBinaryExpr(reportLog, BinaryOperator.GREATERTHANEQUAL, ">=", objs);
 				}
 			};
 		case "rel -> expr <= expr":
 			return new ReduceAction() {
 				@Override
 				public Object create(Object... objs) throws ParserException  {
-					return createLogicalBinaryExpr(reportLog, BinaryOperator.LESSTHANEQUAL, "<=", objs);
+					return createBinaryExpr(reportLog, BinaryOperator.LESSTHANEQUAL, "<=", objs);
 				}
 			};
 		case "rel -> expr":
@@ -1036,75 +1043,60 @@ public class ReduceImpl {
 	 * @param objs
 	 * @return
 	 */
-	private static Object createLogicalBinaryExpr(final ReportLog reportLog,  
-			final BinaryOperator op, String opStr,
-			Object... objs) {
-		
-		LogicBinaryExpressionNodeImpl binExpr = new LogicBinaryExpressionNodeImpl();
-		
-		if(!(objs[0] instanceof ExpressionNode)){
-			writeReportError(reportLog, objs[0], "Expression");
-		}
-		
-		ExpressionNode left = (ExpressionNode)objs[0];
-		binExpr.setLeftValue(left);
-		binExpr.setCoverage(left.coverage());
-		left.setParentNode(binExpr);
-		
-		if(!(objs[1] instanceof Token)){
-			writeReportError(reportLog, objs[1], "Token " + opStr);
-		}
-
-		binExpr.setCoverage((Token)objs[1]);					
-		binExpr.setOperator(op);
-		
-		if(!(objs[2] instanceof ExpressionNode)){
-			writeReportError(reportLog, objs[2], "Expression");
-		}
-		
-		ExpressionNode right = (ExpressionNode)objs[2];
-		binExpr.setRightValue(right);
-		binExpr.setCoverage(right.coverage());
-		right.setParentNode(binExpr);
-		
-		return binExpr;
-	}
-	
-	/**
-	 * @param reportLog
-	 * @param objs
-	 * @return
-	 */
 	private static Object createBinaryExpr(final ReportLog reportLog,  
 			final BinaryOperator op, String opStr,
 			Object... objs) {
-		
-		ArithmeticBinaryExpressionNodeImpl binExpr = new ArithmeticBinaryExpressionNodeImpl();
-		
 		if(!(objs[0] instanceof ExpressionNode)){
 			writeReportError(reportLog, objs[0], "Expression");
 		}
 		
-		ExpressionNode left = (ExpressionNode)objs[0];
-		binExpr.setLeftValue(left);
-		binExpr.setCoverage(left.coverage());
-		left.setParentNode(binExpr);
-		
 		if(!(objs[1] instanceof Token)){
 			writeReportError(reportLog, objs[1], "Token " + opStr);
 		}
-
-		binExpr.setCoverage((Token)objs[1]);					
-		binExpr.setOperator(op);
-		
 		if(!(objs[2] instanceof ExpressionNode)){
 			writeReportError(reportLog, objs[2], "Expression");
 		}
 		
-		ExpressionNode right = (ExpressionNode)objs[2];
-		binExpr.setRightValue(right);
-		binExpr.setCoverage(right.coverage());
-		right.setParentNode(binExpr);
+		ExpressionNode leftExpr = (ExpressionNode) objs[0];
+		Token opToken = (Token) objs[1];
+		ExpressionNode rightExpr = (ExpressionNode) objs[2];
+		
+		BinaryExpressionNodeImpl binExpr = null;
+		switch (op) {
+		case ADDITION:
+		case DIVISION:
+		case MULTIPLICATION:
+		case SUBSTRACTION:
+			binExpr = new ArithmeticBinaryExpressionNodeImpl();
+			break;
+		case EQUAL:
+		case GREATERTHAN:
+		case GREATERTHANEQUAL:
+		case LESSTHAN:
+		case LESSTHANEQUAL:
+			binExpr = new RelationExpressionNodeImpl();
+			break;
+		case INEQUAL:
+		case LOGICAL_AND:
+		case LOGICAL_OR:
+			binExpr = new LogicBinaryExpressionNodeImpl();
+			break;
+			default:
+				
+		}
+		
+		binExpr.setLeftValue(leftExpr);
+		binExpr.setCoverage(leftExpr.coverage());
+		leftExpr.setParentNode(binExpr);
+		
+
+		binExpr.setCoverage(opToken);					
+		binExpr.setOperator(op);
+		
+		
+		binExpr.setRightValue(rightExpr);
+		binExpr.setCoverage(rightExpr.coverage());
+		rightExpr.setParentNode(binExpr);
 		
 		return binExpr;
 	}

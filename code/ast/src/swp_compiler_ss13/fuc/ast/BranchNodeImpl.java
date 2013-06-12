@@ -36,7 +36,7 @@ public class BranchNodeImpl extends ASTNodeImpl implements BranchNode {
 	/**
 	 * The logger
 	 */
-	private static Logger logger = Logger.getLogger(BlockNodeImpl.class);
+	private static Logger logger = Logger.getLogger(BranchNodeImpl.class);
 
 	@Override
 	public ASTNodeType getNodeType() {

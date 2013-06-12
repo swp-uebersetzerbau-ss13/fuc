@@ -171,8 +171,10 @@ public class ASTComparator {
 		case BOOLEAN:
 		case DOUBLE:
 		case LONG:
-		case STRING:
 			compareBasicType(expected, actual);
+			break;
+		case STRING:
+			compareBasicType(expected, actual, false);
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown declaration type!");
@@ -180,9 +182,15 @@ public class ASTComparator {
 	}
 	
 	private static void compareBasicType(Type expected, Type actual) {
+		compareBasicType(expected, actual, true);
+	}
+	
+	private static void compareBasicType(Type expected, Type actual, boolean withWidth) {
 		assertEquals(expected.getKind(), actual.getKind());
 		assertEquals(expected.getTypeName(), actual.getTypeName());
-		assertEquals(expected.getWidth(), actual.getWidth());
+		if (withWidth) {
+			assertEquals(expected.getWidth(), actual.getWidth());
+		}
 	}
 
 	private static void compare(StructType expected, StructType actual) {

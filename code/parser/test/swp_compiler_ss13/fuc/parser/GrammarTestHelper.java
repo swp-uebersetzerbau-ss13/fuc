@@ -3,6 +3,7 @@ package swp_compiler_ss13.fuc.parser;
 import static org.junit.Assert.fail;
 import static org.junit.Assert.assertEquals;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
@@ -13,10 +14,24 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import swp_compiler_ss13.common.ast.AST;
+import swp_compiler_ss13.common.lexer.Lexer;
 import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
+import swp_compiler_ss13.common.report.ReportLog;
 import swp_compiler_ss13.fuc.errorLog.LogEntry;
+import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
+import swp_compiler_ss13.fuc.lexer.LexerImpl;
+import swp_compiler_ss13.fuc.parser.generator.ALRGenerator;
+import swp_compiler_ss13.fuc.parser.generator.LR1Generator;
+import swp_compiler_ss13.fuc.parser.generator.items.LR1Item;
+import swp_compiler_ss13.fuc.parser.generator.states.LR1State;
+import swp_compiler_ss13.fuc.parser.grammar.Grammar;
+import swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar;
 import swp_compiler_ss13.fuc.parser.grammar.Terminal;
+import swp_compiler_ss13.fuc.parser.parser.LRParser;
+import swp_compiler_ss13.fuc.parser.parser.LexerWrapper;
+import swp_compiler_ss13.fuc.parser.parser.tables.LRParsingTable;
 
 public class GrammarTestHelper {
 	private static final String TMP_FILE_PATH = "tmp";
@@ -42,6 +57,8 @@ public class GrammarTestHelper {
 	public static Token id(String value) {
 		return new TestToken(value, TokenType.ID);
 	}
+	
+	
 	
 	public static void compareReportLogEntries(List<LogEntry> expected, List<LogEntry> actual) {
 		compareReportLogEntries(expected, actual, true);
@@ -89,6 +106,26 @@ public class GrammarTestHelper {
 	public static List<Token> tokens(Token... tokens) {
 		return Arrays.asList(tokens);
 	}
+	
+
+	
+	public static AST parseToAst(String input) {
+		// Generate parsing table
+		Grammar grammar = new ProjectGrammar.Complete().getGrammar();
+		ALRGenerator<LR1Item, LR1State> generator = new LR1Generator(grammar);
+		LRParsingTable table = generator.getParsingTable();
+
+		// Simulate input
+		Lexer lexer = new LexerImpl();
+		lexer.setSourceStream(new ByteArrayInputStream(input.getBytes()));
+
+		// Run LR-parser with table
+		LRParser lrParser = new LRParser();
+		LexerWrapper lexWrapper = new LexerWrapper(lexer, grammar);
+		ReportLog reportLog = new ReportLogImpl();
+		return lrParser.parse(lexWrapper, reportLog, table);
+	}
+	
 	
 	
 	/**
