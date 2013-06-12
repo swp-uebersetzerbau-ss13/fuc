@@ -11,6 +11,12 @@ import swp_compiler_ss13.fuc.parser.grammar.Production;
 import swp_compiler_ss13.fuc.parser.grammar.Symbol;
 
 
+/**
+ * Implements {@link #goTo(Symbol)} and {@link #closure(GrammarInfo)} from
+ * {@link ALRState} for LR0 grammar generation.
+ * 
+ * @author Gero
+ */
 public class LR0State extends ALRState<LR0Item> {
    // --------------------------------------------------------------------------
    // --- variables and constants ----------------------------------------------

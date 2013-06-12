@@ -24,6 +24,7 @@ import swp_compiler_ss13.fuc.ir.test.ms2.PrintTest;
 		ParanthesesTest.class, CastingFactoryTest.class, ArrayTest.class,
 		AssignmentProgTest.class, CondTest.class, IdentifierShadowTest.class,
 		CastingTest.class, PrintTest.class, UnaryMinusTest.class,
-		DoubleOperatorTest.class })
+		DoubleOperatorTest.class, RelationTest.class, ExceptioTest.class,
+		BooleanTest.class })
 public class TestSuite {
 }

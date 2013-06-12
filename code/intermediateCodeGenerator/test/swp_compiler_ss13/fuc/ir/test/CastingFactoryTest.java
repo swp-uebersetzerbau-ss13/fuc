@@ -20,7 +20,7 @@ import swp_compiler_ss13.fuc.ir.IntermediateResult;
 public class CastingFactoryTest {
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() throws IntermediateCodeGeneratorException {
 	}
 
 	/**

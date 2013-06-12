@@ -25,6 +25,9 @@ public class LRTableKey {
    // --- constructors ---------------------------------------------------------
    // --------------------------------------------------------------------------
    public LRTableKey(LRParserState state, Symbol symbol) {
+	   if (state == null || symbol == null) {
+		   throw new NullPointerException("LRTableKey components must not be null!");
+	   }
       this.state = state;
       this.symbol = symbol;
       

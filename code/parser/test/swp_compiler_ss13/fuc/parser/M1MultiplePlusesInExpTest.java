@@ -1,17 +1,23 @@
 package swp_compiler_ss13.fuc.parser;
 
 import static org.junit.Assert.fail;
+import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.tokens;
 
 import java.io.ByteArrayInputStream;
-
-import swp_compiler_ss13.fuc.lexer.LexerImpl;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.apache.log4j.BasicConfigurator;
 import org.junit.Test;
 
 import swp_compiler_ss13.common.lexer.Lexer;
-import swp_compiler_ss13.common.report.ReportLog;
+import swp_compiler_ss13.common.lexer.TokenType;
+import swp_compiler_ss13.common.report.ReportType;
+import swp_compiler_ss13.fuc.errorLog.LogEntry;
+import swp_compiler_ss13.fuc.errorLog.LogEntry.Type;
 import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
+import swp_compiler_ss13.fuc.lexer.LexerImpl;
+import swp_compiler_ss13.fuc.lexer.token.TokenImpl;
 import swp_compiler_ss13.fuc.parser.generator.ALRGenerator;
 import swp_compiler_ss13.fuc.parser.generator.LR0Generator;
 import swp_compiler_ss13.fuc.parser.generator.items.LR0Item;
@@ -29,7 +35,7 @@ public class M1MultiplePlusesInExpTest {
 	}
 
 //	@Test
-//	public void testDoubleDecl() {
+//	public void testErrorMultiplePlusesInExp() {
 //
 //		// String input = "# return 27\n"
 //		// + "long l;\n"
@@ -60,15 +66,25 @@ public class M1MultiplePlusesInExpTest {
 //		LexerWrapper lexWrapper = new LexerWrapper(lexer, grammar);
 //		ReportLog reportLog = new ReportLogImpl();
 //		lrParser.parse(lexWrapper, reportLog, table);
+//	
+//		// Check output
+//		try {
+//			lrParser.parse(lexWrapper, reportLog, table);
+//			fail("Expected invalid ids error!");
+//		} catch (ParserException err) {
+//			// Check for correct error
+//			GrammarTestHelper.compareReportLogEntries(createExpectedEntries(), reportLog.getEntries(), false);
+//		}
 //	}
 
 	@Test
-	public void testErrorMultiplePlusesInExpOrgLexer() {
+	public void testErrorMultiplePlusesInExpOrgLexer() throws Exception {
 		String input = "# error: too many pluses in an expression\n"
 				+ "long foo;\n"
 				+ "long bar;\n"
 				+ "foo = 3;\n"
-				+ "bar = foo ++ 1;";
+				+ "bar = foo ++ 1;\n";
+		
 		// Generate parsing table
 		Grammar grammar = new ProjectGrammar.M1().getGrammar();
 		ALRGenerator<LR0Item, LR0State> generator = new LR0Generator(grammar);
@@ -81,14 +97,22 @@ public class M1MultiplePlusesInExpTest {
 		// Run LR-parser with table
 		LRParser lrParser = new LRParser();
 		LexerWrapper lexWrapper = new LexerWrapper(lexer, grammar);
-		ReportLog reportLog = new ReportLogImpl();
+		ReportLogImpl reportLog = new ReportLogImpl();
+		
+		// Check output
 		try {
-			if (lrParser.parse(lexWrapper, reportLog, table) == null) {
-				throw new ParserException("A parse exception!");
-			}
+			lrParser.parse(lexWrapper, reportLog, table);
 			fail("Expected invalid ids error!");
 		} catch (ParserException err) {
-			// Success
+			// Check for correct error
+			GrammarTestHelper.compareReportLogEntries(createExpectedEntries(), reportLog.getEntries());
 		}
+	}
+	
+	private static List<LogEntry> createExpectedEntries() {
+		// Expected entries
+		List<LogEntry> expected = new LinkedList<>();
+		expected.add(new LogEntry(Type.ERROR, ReportType.UNRECOGNIZED_TOKEN, tokens(new TokenImpl("++", TokenType.NOT_A_TOKEN, 5, 11)), ""));
+		return expected;
 	}
 }

@@ -1,0 +1,47 @@
+Protokoll Sitzung 06.06.2013
+
+1. Check TODOs/Status
+2. Mergen in den Master/Feature-Freeze
+3. Visualisierung
+4. Dokumentation
+5. Crosstesting/Integrationtests
+6. Controller
+7. Gruppeneinteilung
+8. Zeitplanung/TODOs
+
+1. Check TODOs/Status
+- alles erledigt
+- Parser + Lexer noch nicht komplett
+
+2. Mergen in den Master/Feature-Freeze
+- Änderungen zeitnahe in den Master-Branch
+- Nachziehen des Masters in anderen Branches ebenfalls zeitnahe (z.B. immer Mitte der Woche)
+
+3. Visualisierung
+- sieht gut aus!
+- wird weiter entwickelt
+
+4. Dokumenation
+- Form nicht bekannt
+- Javadoc + 1-2 Seiten zu jedem Modul, ins Wiki
+
+5. Crosstesting/Integrationtests
+- Projekt "Test" beinhaltet bisherige Beispiele als Runtime-Tests (alle Module)
+- kann beliebig erweitert werden
+- LLVM muss installiert sein
+
+6. Controller
+- siehe TODO
+
+7. Gruppeneinteilung
+- keine Änderung
+
+8. Zeitplanung/TODOs
+- Heute: Feature-Freeze
+- Alle: Bis Montag: Stand für M2-Präsentation feststellen -> E-Mail über Verteiler
+- 13.06.2013: Code-Freeze
+- 15.06.2013: BZA + Dokumentation (20 Uhr)
+- Sven: Einbau von Semantic-Analyzer in Controller
+- Jens: Einbau von Crosstest bzgl. verschiedener Komponenten (FUC/JB)
+- Strings konkatinieren in M3
+

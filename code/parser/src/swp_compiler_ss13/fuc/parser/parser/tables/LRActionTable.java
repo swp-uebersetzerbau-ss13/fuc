@@ -35,6 +35,11 @@ public class LRActionTable {
       }
    }
    
+   public ALRAction getWithNull(LRParserState curState, Terminal curTerminal) {
+      LRTableKey key = new LRTableKey(curState, curTerminal);
+      return table.get(key);
+   }
+   
    
    public void set(ALRAction action, LRParserState curState, Terminal curTerminal) throws DoubleEntryException {
       LRTableKey key = new LRTableKey(curState, curTerminal);
@@ -43,6 +48,11 @@ public class LRActionTable {
          throw new DoubleEntryException("There already is a state " + oldAction + " for the key " + key
                + "! (new state: " + action + ")");
       }
+      table.put(key, action);
+   }
+   
+   public void setHard(ALRAction action, LRParserState curState, Terminal curTerminal) throws DoubleEntryException {
+      LRTableKey key = new LRTableKey(curState, curTerminal);
       table.put(key, action);
    }
 }

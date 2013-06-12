@@ -1,7 +1,7 @@
 package swp_compiler_ss13.fuc.ast;
 
-import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import swp_compiler_ss13.common.ast.ASTNode;
@@ -21,9 +21,9 @@ public abstract class ASTNodeImpl implements ASTNode {
 	private ASTNode parent;
 	
 	/**
-	 * coverage list
+	 * coverage List
 	 */
-	private List<Token> coverage = new ArrayList<Token>();
+	private List<Token> coverage = new LinkedList<Token>();
 
 	@Override
 	public ASTNode getParentNode() {
@@ -58,4 +58,29 @@ public abstract class ASTNodeImpl implements ASTNode {
 			coverage.add(toke);
 		}
 	}
+	
+	/**
+	 * Gets a list of Token and set the coverage.
+	 * Only used in parser module, not implemented in 
+	 * ast interface.
+	 * @param token
+	 */
+	public void setCoverage(List<Token> tokenList){
+		coverage.addAll(tokenList);
+	}
+	
+	/**
+	 * Gets an array of Token and set the coverage in front
+	 * of the coverage list.
+	 * Only used in parser module, not implemented in 
+	 * ast interface.
+	 * @param token
+	 */
+	public void setCoverageAtFront(Token... token){
+		for(int i = token.length-1; i >= 0; i--){
+			coverage.add(0,token[i]);
+		}
+	}
+	
+	
 }

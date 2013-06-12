@@ -14,8 +14,10 @@ import swp_compiler_ss13.common.ast.nodes.IdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.StatementNode;
 import swp_compiler_ss13.common.ast.nodes.binary.ArithmeticBinaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.binary.AssignmentNode;
+import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode.BinaryOperator;
 import swp_compiler_ss13.common.ast.nodes.binary.DoWhileNode;
 import swp_compiler_ss13.common.ast.nodes.binary.LogicBinaryExpressionNode;
+import swp_compiler_ss13.common.ast.nodes.binary.RelationExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.binary.WhileNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.BreakNode;
@@ -29,6 +31,7 @@ import swp_compiler_ss13.common.ast.nodes.unary.LogicUnaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.unary.PrintNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ReturnNode;
 import swp_compiler_ss13.common.ast.nodes.unary.StructIdentifierNode;
+import swp_compiler_ss13.common.ast.nodes.unary.UnaryExpressionNode.UnaryOperator;
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
 import swp_compiler_ss13.common.ir.IntermediateCodeGenerator;
@@ -191,10 +194,103 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 		case WhileNode:
 			processWhileNode((WhileNode) node);
 			break;
+		case RelationExpressionNode:
+			processRelationExpressionNode((RelationExpressionNode) node);
+			break;
 		default:
 			throw new IntermediateCodeGeneratorException("Unknown node type: "
 					+ node.getNodeType().toString());
 		}
+	}
+
+	/**
+	 * Process a relationexpression node
+	 * 
+	 * @param node
+	 *            the node to process
+	 * @throws IntermediateCodeGeneratorException
+	 *             Something went wrong
+	 */
+	private void processRelationExpressionNode(RelationExpressionNode node)
+			throws IntermediateCodeGeneratorException {
+		BinaryOperator operator = node.getOperator();
+
+		ExpressionNode leftNode = node.getLeftValue();
+		ExpressionNode rightNode = node.getRightValue();
+
+		callProcessing(leftNode);
+		callProcessing(rightNode);
+
+		IntermediateResult rightResult = intermediateResults.pop();
+		IntermediateResult leftResult = intermediateResults.pop();
+
+		boolean castNeeded = CastingFactory.isCastNeeded(leftResult,
+				rightResult);
+		String castedleft = leftResult.getValue();
+		String castedright = rightResult.getValue();
+		Type type = leftResult.getType();
+		if (castNeeded) {
+			if (CastingFactory.isNumeric(leftResult)
+					&& CastingFactory.isNumeric(rightResult)) {
+				type = new DoubleType();
+				if (leftResult.getType().getKind() == Kind.LONG) {
+					castedleft = createAndSaveTemporaryIdentifier(type);
+					irCode.add(CastingFactory.createCast(leftResult.getType(),
+							leftResult.getValue(), type, castedleft));
+				}
+				if (rightResult.getType().getKind() == Kind.LONG) {
+					irCode.add(CastingFactory.createCast(rightResult.getType(),
+							rightResult.getValue(), type, castedright));
+				}
+			} else {
+				String err = String
+						.format("unsupported types %s %s and %s %s for relation expression",
+								leftResult.getType(), leftResult.getValue(),
+								rightResult.getType(), rightResult.getValue());
+				logger.fatal(err);
+				throw new IntermediateCodeGeneratorException(err);
+			}
+		}
+
+		String result = createAndSaveTemporaryIdentifier(new BooleanType());
+
+		switch (operator) {
+		case EQUAL:
+			irCode.add(QuadrupleFactory.relationEqual(castedleft, castedright,
+					result, type));
+			break;
+		case GREATERTHAN:
+			irCode.add(QuadrupleFactory.relationGreater(castedleft,
+					castedright, result, type));
+			break;
+		case GREATERTHANEQUAL:
+			irCode.add(QuadrupleFactory.relationGreaterEqual(castedleft,
+					castedright, result, type));
+			break;
+		case INEQUAL:
+			String tmp = createAndSaveTemporaryIdentifier(new BooleanType());
+			irCode.add(QuadrupleFactory.relationEqual(castedleft, castedright,
+					tmp, type));
+			irCode.add(QuadrupleFactory.booleanArithmetic(
+					UnaryOperator.LOGICAL_NEGATE, tmp, result));
+			break;
+		case LESSTHAN:
+			irCode.add(QuadrupleFactory.relationLess(castedleft, castedright,
+					result, type));
+			break;
+		case LESSTHANEQUAL:
+			irCode.add(QuadrupleFactory.relationLessEqual(castedleft,
+					castedright, result, type));
+			break;
+		default:
+			String err = "BinaryOperator %s is not allowed within a RelationExpressionNode";
+			String errf = String.format(err, operator);
+			logger.fatal(errf);
+			throw new IntermediateCodeGeneratorException(errf);
+		}
+
+		intermediateResults.push(new IntermediateResult(result,
+				new BooleanType()));
 	}
 
 	/**
@@ -372,7 +468,12 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 			break;
 		case STRING:
 			// Literal of type String needs to be in " and start with a #
-			// Replace all " in the string with \"
+			// If the lexer already gives a string in " and " do not add them
+			if (literal.startsWith("\"") && literal.endsWith("\"")
+					&& !literal.endsWith("\\\"")) {
+				literal = literal.substring(1, literal.length() - 1);
+			}
+			// Make C-Style escapings, only if they are not escaped already
 			literal = escapeString(literal, "\"", "\\\"");
 			literal = escapeString(literal, "\n", "\\n");
 			literal = escapeString(literal, "\r", "\\r");
@@ -405,7 +506,7 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 		int pos = 0;
 		while ((pos = literal.indexOf(search, fromIndex)) >= 0) {
 			if (pos > 0 && literal.charAt(pos - 1) == '\\') {
-				fromIndex = pos;
+				fromIndex = pos + 1;
 				continue;
 			}
 			fromIndex = pos + replace.length();

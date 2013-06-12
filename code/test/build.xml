@@ -79,7 +79,9 @@
 	<target name="run-tests" depends="build-tests" description="run the junit tests">
 		<junit
 			printsummary="on"
-			fork="true"
+			fork="yes"
+			forkmode="once"
+			showoutput="false"
 			haltonerror="true"
 			haltonfailure="true" >
 			<classpath>
@@ -88,11 +90,56 @@
 			<batchtest>
 				<fileset dir="${test.dir}">
 					<include name="**/*Test.java" />
+                    <exclude name="**/*RuntimeTest.java" />
+                    <exclude name="**/*CrossTest.java" />
 				</fileset>
 			</batchtest>
-			<formatter type="plain" usefile="no" />
 		</junit>
-	
 	</target>
+
+    <!-- === run runtime tests === -->
+    <target name="run-tests-runtime" depends="build-tests" description="run the junit runtime tests. needs LLVM installation">
+        <junit
+                printsummary="on"
+                fork="true"
+                haltonerror="true"
+                haltonfailure="true"
+                >
+            <classpath>
+                <path refid="classpath-test" />
+            </classpath>
+            <batchtest>
+                <fileset dir="${test.dir}">
+                    <include name="**/*Test.java" />
+                    <include name="**/*RuntimeTest.java" />
+                    <exclude name="**/*CrossTest.java" />
+                </fileset>
+            </batchtest>
+            <formatter type="plain" usefile="no" />
+        </junit>
+    </target>
+
+
+    <!-- === run cross tests === -->
+    <target name="run-tests-cross" depends="build-tests" description="run the junit cross tests. Needs the javabite lexer jar in code/dist">
+        <junit
+                printsummary="on"
+                fork="true"
+                haltonerror="true"
+                haltonfailure="true" >
+            <classpath>
+                <path refid="classpath-test" />
+                <fileset dir="../${dist.dir}">
+                    <include name="**/*.jar"/>
+                </fileset>
+            </classpath>
+            <batchtest>
+                <fileset dir="${test.dir}">
+                    <include name="**/M2CrossTest.java" />
+                </fileset>
+            </batchtest>
+            <formatter type="plain" usefile="no" />
+        </junit>
+    </target>
 
 </project>

@@ -1,5 +1,6 @@
 package swp_compiler_ss13.fuc.parser;
 
+import static org.junit.Assert.assertNotNull;
 import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.id;
 import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.num;
 import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.t;
@@ -12,18 +13,18 @@ import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.M1.sem;
 
 import java.io.ByteArrayInputStream;
 
-import swp_compiler_ss13.fuc.lexer.LexerImpl;
-
-import static org.junit.Assert.assertNotNull;
-
 import org.apache.log4j.BasicConfigurator;
 import org.junit.Test;
 
 import swp_compiler_ss13.common.ast.AST;
+import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode.BinaryOperator;
 import swp_compiler_ss13.common.lexer.Lexer;
 import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.common.report.ReportLog;
-import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
+import swp_compiler_ss13.common.types.primitive.LongType;
+import swp_compiler_ss13.fuc.ast.ASTFactory;
+import swp_compiler_ss13.fuc.lexer.LexerImpl;
+import swp_compiler_ss13.fuc.parser.errorHandling.ParserReportLogImpl;
 import swp_compiler_ss13.fuc.parser.generator.ALRGenerator;
 import swp_compiler_ss13.fuc.parser.generator.LR0Generator;
 import swp_compiler_ss13.fuc.parser.generator.items.LR0Item;
@@ -33,7 +34,6 @@ import swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar;
 import swp_compiler_ss13.fuc.parser.grammar.Terminal;
 import swp_compiler_ss13.fuc.parser.parser.LRParser;
 import swp_compiler_ss13.fuc.parser.parser.LexerWrapper;
-import swp_compiler_ss13.fuc.parser.parser.ParserException;
 import swp_compiler_ss13.fuc.parser.parser.tables.LRParsingTable;
 
 public class M1AddTest {
@@ -43,17 +43,6 @@ public class M1AddTest {
 
 	@Test
 	public void testAdd() {
-		// String input = "# return 27\n"
-		// + "long l;\n"
-		// + "l = 10 +\n"
-		// + "23 # - 23\n"
-		// + "- 23\n"
-		// + "+ 100 /\n"
-		// + "\n"
-		// + "2\n"
-		// + "- 30\n"
-		// + "- 9 / 3;\n"
-		// + "return l;\n";
 		// Generate parsing table
 		Grammar grammar = new ProjectGrammar.M1().getGrammar();
 		ALRGenerator<LR0Item, LR0State> generator = new LR0Generator(grammar);
@@ -70,31 +59,27 @@ public class M1AddTest {
 		// Run LR-parser with table
 		LRParser lrParser = new LRParser();
 		LexerWrapper lexWrapper = new LexerWrapper(lexer, grammar);
-		ReportLog reportLog = new ReportLogImpl();
-		AST ast = lrParser.parse(lexWrapper, reportLog, table);
+		ReportLog reportLog = new ParserReportLogImpl();
 
+		// Check output
+		AST ast = lrParser.parse(lexWrapper, reportLog, table);
 		checkAst(ast);
 	}
 
-	private static void checkAst(AST ast) {
-		assertNotNull(ast);
-		// TODO Validate ast
-	}
-
 	@Test
-	public void testAddOrgLexer() {
-
-		String input = "# return 27\n"
-				+ "long l;\n"
-				+ "l = 10 +\n"
-				+ "23 # - 23\n"
-				+ "- 23\n"
-				+ "+ 100 /\n"
-				+ "\n"
-				+ "2\n"
-				+ "- 30\n"
-				+ "- 9 / 3;\n"
-				+ "return l;\n";
+	public void testAddOrgLexer() throws Exception {
+		 String input = "# return 27\n"
+		 + "long l;\n"
+		 + "l = 10 +\n"
+		 + "23 # - 23\n"
+		 + "- 23\n"
+		 + "+ 100 /\n"
+		 + "\n"
+		 + "2\n"
+		 + "- 30\n"
+		 + "- 9 / 3;\n"
+		 + "return l;\n";
+		
 		// Generate parsing table
 		Grammar grammar = new ProjectGrammar.M1().getGrammar();
 		ALRGenerator<LR0Item, LR0State> generator = new LR0Generator(grammar);
@@ -107,12 +92,38 @@ public class M1AddTest {
 		// Run LR-parser with table
 		LRParser lrParser = new LRParser();
 		LexerWrapper lexWrapper = new LexerWrapper(lexer, grammar);
-		ReportLog reportLog = new ReportLogImpl();
-		try{
-			lrParser.parse(lexWrapper, reportLog, table);
-		}catch(ParserException e){
-			//well done
-		}
+		ReportLog reportLog = new ParserReportLogImpl();
+		
+		// Check output
+		AST ast = lrParser.parse(lexWrapper, reportLog, table);
+		checkAst(ast);
+	}
 
+	private static void checkAst(AST ast) {
+		assertNotNull(ast);
+		
+		// Create expected
+		ASTFactory factory = new ASTFactory();
+		factory.addDeclaration("l", new LongType());
+		factory.addAssignment(factory.newBasicIdentifier("l"),
+				factory.newBinaryExpression(BinaryOperator.SUBSTRACTION,
+				factory.newBinaryExpression(BinaryOperator.SUBSTRACTION,
+				factory.newBinaryExpression(BinaryOperator.ADDITION, 
+				factory.newBinaryExpression(BinaryOperator.SUBSTRACTION,
+				factory.newBinaryExpression(BinaryOperator.ADDITION,
+						factory.newLiteral("10", new LongType()),
+						factory.newLiteral("23", new LongType())),
+						factory.newLiteral("23", new LongType())),
+						factory.newBinaryExpression(BinaryOperator.DIVISION,
+								factory.newLiteral("100", new LongType()),
+								factory.newLiteral("2", new LongType()))),
+						factory.newLiteral("30", new LongType())),
+						factory.newBinaryExpression(BinaryOperator.DIVISION,
+								factory.newLiteral("9", new LongType()),
+								factory.newLiteral("3", new LongType()))));
+		factory.addReturn(factory.newBasicIdentifier("l"));
+		AST expected = factory.getAST();
+		
+		ASTComparator.compareAST(expected, ast);
 	}
 }

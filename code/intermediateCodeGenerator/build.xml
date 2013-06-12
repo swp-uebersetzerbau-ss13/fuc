@@ -82,7 +82,9 @@
 	<target name="run-tests" depends="build-tests" description="run the junit tests">
 		<junit
 			printsummary="on"
-			fork="true"
+			fork="yes"
+			forkmode="once"
+			showoutput="false"
 			haltonerror="true"
 			haltonfailure="true" >
 			<classpath>
@@ -93,7 +95,6 @@
 					<include name="**/*Test.java" />
 				</fileset>
 			</batchtest>
-			<formatter type="plain" usefile="no" />
 		</junit>
 	
 	</target>
