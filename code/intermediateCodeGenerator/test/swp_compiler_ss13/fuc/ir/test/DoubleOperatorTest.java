@@ -1,5 +1,7 @@
 package swp_compiler_ss13.fuc.ir.test;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.List;
 
 import junit.extensions.PA;
@@ -63,12 +65,26 @@ public class DoubleOperatorTest {
 		IntermediateCodeGeneratorImpl irg = new IntermediateCodeGeneratorImpl();
 		List<Quadruple> irc = irg.generateIntermediateCode(ast);
 
-		StringBuilder actual = new StringBuilder();
+		StringBuilder b = new StringBuilder();
 		for (Quadruple q : irc) {
-			actual.append(String.format("(%s|%s|%s|%s)\n", q.getOperator(),
+			b.append(String.format("(%s|%s|%s|%s)\n", q.getOperator(),
 					q.getArgument1(), q.getArgument2(), q.getResult()));
 		}
+		String actual = b.toString();
 		System.out.println(actual);
-	}
 
+		String expected = "(DECLARE_DOUBLE|!|!|a)" + "\n"
+				+ "(DECLARE_DOUBLE|!|!|b)" + "\n" + "(DECLARE_DOUBLE|!|!|c)"
+				+ "\n" + "(ASSIGN_DOUBLE|#4|!|a)" + "\n"
+				+ "(ASSIGN_DOUBLE|#3|!|b)" + "\n" + "(ASSIGN_DOUBLE|#2|!|c)"
+				+ "\n" + "(DECLARE_DOUBLE|!|!|tmp0)" + "\n"
+				+ "(DIV_DOUBLE|a|b|tmp0)" + "\n" + "(DECLARE_DOUBLE|!|!|tmp1)"
+				+ "\n" + "(MUL_DOUBLE|tmp0|c|tmp1)" + "\n"
+				+ "(ASSIGN_DOUBLE|tmp1|!|c)" + "\n" + "(RETURN|c|!|!)" + "\n"
+				+ "(DECLARE_DOUBLE|!|!|tmp2)" + "\n" + "(SUB_DOUBLE|a|b|tmp2)"
+				+ "\n" + "(DECLARE_DOUBLE|!|!|tmp3)" + "\n"
+				+ "(ADD_DOUBLE|tmp2|c|tmp3)" + "\n"
+				+ "(ASSIGN_DOUBLE|tmp3|!|c)" + "\n" + "(RETURN|c|!|!)" + "\n";
+		assertEquals(expected, actual);
+	}
 }

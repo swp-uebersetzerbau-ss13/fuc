@@ -1,5 +1,7 @@
 package swp_compiler_ss13.fuc.ir.test;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.List;
 
 import junit.extensions.PA;
@@ -62,14 +64,6 @@ public class CastingTest {
 						astf.newBasicIdentifier("c")));
 		astf.addReturn(astf.newBasicIdentifier("c"));
 
-		astf.addDeclaration("Long", new LongType());
-		astf.addDeclaration("Double", new DoubleType());
-
-		astf.addAssignment(astf.newBasicIdentifier("Long"),
-				astf.newLiteral("6", new DoubleType()));
-		astf.addAssignment(astf.newBasicIdentifier("Double"),
-				astf.newLiteral("6", new LongType()));
-
 		ast = astf.getAST();
 	}
 
@@ -78,11 +72,33 @@ public class CastingTest {
 		IntermediateCodeGeneratorImpl irg = new IntermediateCodeGeneratorImpl();
 		List<Quadruple> irc = irg.generateIntermediateCode(ast);
 
-		StringBuilder actual = new StringBuilder();
+		StringBuilder b = new StringBuilder();
 		for (Quadruple q : irc) {
-			actual.append(String.format("(%s|%s|%s|%s)\n", q.getOperator(),
+			b.append(String.format("(%s|%s|%s|%s)\n", q.getOperator(),
 					q.getArgument1(), q.getArgument2(), q.getResult()));
 		}
+		String actual = b.toString();
 		System.out.println(actual);
+
+		String expected = "(DECLARE_LONG|!|!|a)" + "\n"
+				+ "(DECLARE_LONG|!|!|b)" + "\n" + "(DECLARE_DOUBLE|!|!|c)"
+				+ "\n" + "(DECLARE_DOUBLE|!|!|d)" + "\n"
+				+ "(ASSIGN_LONG|#4|!|a)" + "\n" + "(ASSIGN_LONG|#3|!|b)" + "\n"
+				+ "(ASSIGN_DOUBLE|#2|!|c)" + "\n" + "(ASSIGN_DOUBLE|#6|!|d)"
+				+ "\n" + "(DECLARE_LONG|!|!|tmp0)" + "\n"
+				+ "(ADD_LONG|a|b|tmp0)" + "\n" + "(DECLARE_DOUBLE|!|!|tmp1)"
+				+ "\n" + "(DECLARE_DOUBLE|!|!|tmp2)" + "\n"
+				+ "(LONG_TO_DOUBLE|tmp0|!|tmp1)" + "\n"
+				+ "(ADD_DOUBLE|tmp1|c|tmp2)" + "\n"
+				+ "(ASSIGN_DOUBLE|tmp2|!|c)" + "\n" + "(RETURN|c|!|!)" + "\n"
+				+ "(DECLARE_DOUBLE|!|!|tmp3)" + "\n"
+				+ "(DECLARE_DOUBLE|!|!|tmp4)" + "\n"
+				+ "(LONG_TO_DOUBLE|a|!|tmp3)" + "\n"
+				+ "(ADD_DOUBLE|d|tmp3|tmp4)" + "\n"
+				+ "(DECLARE_DOUBLE|!|!|tmp5)" + "\n"
+				+ "(ADD_DOUBLE|tmp4|c|tmp5)" + "\n"
+				+ "(ASSIGN_DOUBLE|tmp5|!|c)" + "\n" + "(RETURN|c|!|!)" + "\n";
+
+		assertEquals(expected, actual);
 	}
 }

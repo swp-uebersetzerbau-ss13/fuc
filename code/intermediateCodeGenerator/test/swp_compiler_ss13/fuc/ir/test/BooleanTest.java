@@ -1,5 +1,7 @@
 package swp_compiler_ss13.fuc.ir.test;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.List;
 
 import junit.extensions.PA;
@@ -46,12 +48,23 @@ public class BooleanTest {
 		IntermediateCodeGeneratorImpl irg = new IntermediateCodeGeneratorImpl();
 		List<Quadruple> irc = irg.generateIntermediateCode(ast);
 
-		StringBuilder actual = new StringBuilder();
+		StringBuilder b = new StringBuilder();
 		for (Quadruple q : irc) {
-			actual.append(String.format("(%s|%s|%s|%s)\n", q.getOperator(),
+			b.append(String.format("(%s|%s|%s|%s)\n", q.getOperator(),
 					q.getArgument1(), q.getArgument2(), q.getResult()));
 		}
+		String actual = b.toString();
 		System.out.println(actual);
+
+		String expected = "(DECLARE_BOOLEAN|!|!|b)" + "\n"
+				+ "(DECLARE_BOOLEAN|!|!|c)" + "\n"
+				+ "(ASSIGN_BOOLEAN|#TRUE|!|b)" + "\n"
+				+ "(ASSIGN_BOOLEAN|#FALSE|!|c)" + "\n"
+				+ "(DECLARE_BOOLEAN|!|!|tmp0)" + "\n"
+				+ "(AND_BOOLEAN|b|c|tmp0)" + "\n" + "(ASSIGN_BOOLEAN|tmp0|!|b)"
+				+ "\n";
+
+		assertEquals(expected, actual);
 	}
 
 }

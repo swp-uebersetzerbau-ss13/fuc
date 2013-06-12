@@ -32,6 +32,7 @@ public class RelationTest {
 	private AST astDLessE;
 	private AST astEqual;
 	private AST astDEqual;
+	private AST astInEqual;
 
 	@Before
 	public void setUp() throws Exception {
@@ -155,6 +156,18 @@ public class RelationTest {
 						astf10.newLiteral("5", new DoubleType())));
 		astDEqual = astf10.getAST();
 
+		ASTFactory astf11 = new ASTFactory();
+		astf11.addDeclaration("l", new LongType());
+		astf11.addDeclaration("r", new BooleanType());
+		astf11.addAssignment(astf11.newBasicIdentifier("l"),
+				astf11.newLiteral("10", new LongType()));
+		astf11.addAssignment(
+				astf11.newBasicIdentifier("r"),
+				astf11.newBinaryExpression(BinaryOperator.INEQUAL,
+						astf11.newBasicIdentifier("l"),
+						astf11.newLiteral("5", new LongType())));
+		astInEqual = astf11.getAST();
+
 	}
 
 	@Test
@@ -206,12 +219,21 @@ public class RelationTest {
 		IntermediateCodeGeneratorImpl irg = new IntermediateCodeGeneratorImpl();
 		List<Quadruple> irc = irg.generateIntermediateCode(astDGreater);
 
-		StringBuilder actual = new StringBuilder();
+		StringBuilder b = new StringBuilder();
 		for (Quadruple q : irc) {
-			actual.append(String.format("(%s|%s|%s|%s)\n", q.getOperator(),
+			b.append(String.format("(%s|%s|%s|%s)\n", q.getOperator(),
 					q.getArgument1(), q.getArgument2(), q.getResult()));
 		}
+		String actual = b.toString();
 		System.out.println(actual);
+
+		String expected = "(DECLARE_DOUBLE|!|!|g)" + "\n"
+				+ "(DECLARE_BOOLEAN|!|!|r)" + "\n" + "(ASSIGN_DOUBLE|#10|!|g)"
+				+ "\n" + "(DECLARE_BOOLEAN|!|!|tmp0)" + "\n"
+				+ "(COMPARE_DOUBLE_G|g|#5|tmp0)" + "\n"
+				+ "(ASSIGN_BOOLEAN|tmp0|!|r)" + "\n";
+
+		assertEquals(expected, actual);
 	}
 
 	@Test
@@ -219,12 +241,21 @@ public class RelationTest {
 		IntermediateCodeGeneratorImpl irg = new IntermediateCodeGeneratorImpl();
 		List<Quadruple> irc = irg.generateIntermediateCode(astDLess);
 
-		StringBuilder actual = new StringBuilder();
+		StringBuilder b = new StringBuilder();
 		for (Quadruple q : irc) {
-			actual.append(String.format("(%s|%s|%s|%s)\n", q.getOperator(),
+			b.append(String.format("(%s|%s|%s|%s)\n", q.getOperator(),
 					q.getArgument1(), q.getArgument2(), q.getResult()));
 		}
+		String actual = b.toString();
 		System.out.println(actual);
+
+		String expected = "(DECLARE_DOUBLE|!|!|l)" + "\n"
+				+ "(DECLARE_BOOLEAN|!|!|r)" + "\n" + "(ASSIGN_DOUBLE|#10|!|l)"
+				+ "\n" + "(DECLARE_BOOLEAN|!|!|tmp0)" + "\n"
+				+ "(COMPARE_DOUBLE_L|l|#5|tmp0)" + "\n"
+				+ "(ASSIGN_BOOLEAN|tmp0|!|r)" + "\n";
+
+		assertEquals(expected, actual);
 	}
 
 	@Test
@@ -232,12 +263,21 @@ public class RelationTest {
 		IntermediateCodeGeneratorImpl irg = new IntermediateCodeGeneratorImpl();
 		List<Quadruple> irc = irg.generateIntermediateCode(astDGreaterE);
 
-		StringBuilder actual = new StringBuilder();
+		StringBuilder b = new StringBuilder();
 		for (Quadruple q : irc) {
-			actual.append(String.format("(%s|%s|%s|%s)\n", q.getOperator(),
+			b.append(String.format("(%s|%s|%s|%s)\n", q.getOperator(),
 					q.getArgument1(), q.getArgument2(), q.getResult()));
 		}
+		String actual = b.toString();
 		System.out.println(actual);
+
+		String expected = "(DECLARE_DOUBLE|!|!|g)" + "\n"
+				+ "(DECLARE_BOOLEAN|!|!|r)" + "\n" + "(ASSIGN_DOUBLE|#10|!|g)"
+				+ "\n" + "(DECLARE_BOOLEAN|!|!|tmp0)" + "\n"
+				+ "(COMPARE_DOUBLE_GE|g|#5|tmp0)" + "\n"
+				+ "(ASSIGN_BOOLEAN|tmp0|!|r)" + "\n";
+
+		assertEquals(expected, actual);
 	}
 
 	@Test
@@ -245,12 +285,21 @@ public class RelationTest {
 		IntermediateCodeGeneratorImpl irg = new IntermediateCodeGeneratorImpl();
 		List<Quadruple> irc = irg.generateIntermediateCode(astDLessE);
 
-		StringBuilder actual = new StringBuilder();
+		StringBuilder b = new StringBuilder();
 		for (Quadruple q : irc) {
-			actual.append(String.format("(%s|%s|%s|%s)\n", q.getOperator(),
+			b.append(String.format("(%s|%s|%s|%s)\n", q.getOperator(),
 					q.getArgument1(), q.getArgument2(), q.getResult()));
 		}
+		String actual = b.toString();
 		System.out.println(actual);
+
+		String expected = "(DECLARE_DOUBLE|!|!|l)" + "\n"
+				+ "(DECLARE_BOOLEAN|!|!|r)" + "\n" + "(ASSIGN_DOUBLE|#10|!|l)"
+				+ "\n" + "(DECLARE_BOOLEAN|!|!|tmp0)" + "\n"
+				+ "(COMPARE_DOUBLE_LE|l|#5|tmp0)" + "\n"
+				+ "(ASSIGN_BOOLEAN|tmp0|!|r)" + "\n";
+
+		assertEquals(expected, actual);
 	}
 
 	@Test
@@ -258,12 +307,21 @@ public class RelationTest {
 		IntermediateCodeGeneratorImpl irg = new IntermediateCodeGeneratorImpl();
 		List<Quadruple> irc = irg.generateIntermediateCode(astGreaterE);
 
-		StringBuilder actual = new StringBuilder();
+		StringBuilder b = new StringBuilder();
 		for (Quadruple q : irc) {
-			actual.append(String.format("(%s|%s|%s|%s)\n", q.getOperator(),
+			b.append(String.format("(%s|%s|%s|%s)\n", q.getOperator(),
 					q.getArgument1(), q.getArgument2(), q.getResult()));
 		}
+		String actual = b.toString();
 		System.out.println(actual);
+
+		String expected = "(DECLARE_LONG|!|!|l)" + "\n"
+				+ "(DECLARE_BOOLEAN|!|!|r)" + "\n" + "(ASSIGN_LONG|#10|!|l)"
+				+ "\n" + "(DECLARE_BOOLEAN|!|!|tmp0)" + "\n"
+				+ "(COMPARE_LONG_GE|l|#5|tmp0)" + "\n"
+				+ "(ASSIGN_BOOLEAN|tmp0|!|r)" + "\n";
+
+		assertEquals(expected, actual);
 	}
 
 	@Test
@@ -271,12 +329,21 @@ public class RelationTest {
 		IntermediateCodeGeneratorImpl irg = new IntermediateCodeGeneratorImpl();
 		List<Quadruple> irc = irg.generateIntermediateCode(astLessE);
 
-		StringBuilder actual = new StringBuilder();
+		StringBuilder b = new StringBuilder();
 		for (Quadruple q : irc) {
-			actual.append(String.format("(%s|%s|%s|%s)\n", q.getOperator(),
+			b.append(String.format("(%s|%s|%s|%s)\n", q.getOperator(),
 					q.getArgument1(), q.getArgument2(), q.getResult()));
 		}
+		String actual = b.toString();
 		System.out.println(actual);
+
+		String expected = "(DECLARE_LONG|!|!|l)" + "\n"
+				+ "(DECLARE_BOOLEAN|!|!|r)" + "\n" + "(ASSIGN_LONG|#10|!|l)"
+				+ "\n" + "(DECLARE_BOOLEAN|!|!|tmp0)" + "\n"
+				+ "(COMPARE_LONG_LE|l|#5|tmp0)" + "\n"
+				+ "(ASSIGN_BOOLEAN|tmp0|!|r)" + "\n";
+
+		assertEquals(expected, actual);
 	}
 
 	@Test
@@ -284,12 +351,21 @@ public class RelationTest {
 		IntermediateCodeGeneratorImpl irg = new IntermediateCodeGeneratorImpl();
 		List<Quadruple> irc = irg.generateIntermediateCode(astDEqual);
 
-		StringBuilder actual = new StringBuilder();
+		StringBuilder b = new StringBuilder();
 		for (Quadruple q : irc) {
-			actual.append(String.format("(%s|%s|%s|%s)\n", q.getOperator(),
+			b.append(String.format("(%s|%s|%s|%s)\n", q.getOperator(),
 					q.getArgument1(), q.getArgument2(), q.getResult()));
 		}
+		String actual = b.toString();
 		System.out.println(actual);
+
+		String expected = "(DECLARE_DOUBLE|!|!|g)" + "\n"
+				+ "(DECLARE_BOOLEAN|!|!|r)" + "\n" + "(ASSIGN_DOUBLE|#10|!|g)"
+				+ "\n" + "(DECLARE_BOOLEAN|!|!|tmp0)" + "\n"
+				+ "(COMPARE_DOUBLE_E|g|#5|tmp0)" + "\n"
+				+ "(ASSIGN_BOOLEAN|tmp0|!|r)" + "\n";
+
+		assertEquals(expected, actual);
 	}
 
 	@Test
@@ -297,12 +373,44 @@ public class RelationTest {
 		IntermediateCodeGeneratorImpl irg = new IntermediateCodeGeneratorImpl();
 		List<Quadruple> irc = irg.generateIntermediateCode(astEqual);
 
-		StringBuilder actual = new StringBuilder();
+		StringBuilder b = new StringBuilder();
 		for (Quadruple q : irc) {
-			actual.append(String.format("(%s|%s|%s|%s)\n", q.getOperator(),
+			b.append(String.format("(%s|%s|%s|%s)\n", q.getOperator(),
 					q.getArgument1(), q.getArgument2(), q.getResult()));
 		}
+		String actual = b.toString();
 		System.out.println(actual);
+
+		String expected = "(DECLARE_LONG|!|!|l)" + "\n"
+				+ "(DECLARE_BOOLEAN|!|!|r)" + "\n" + "(ASSIGN_LONG|#10|!|l)"
+				+ "\n" + "(DECLARE_BOOLEAN|!|!|tmp0)" + "\n"
+				+ "(COMPARE_LONG_E|l|#5|tmp0)" + "\n"
+				+ "(ASSIGN_BOOLEAN|tmp0|!|r)" + "\n";
+
+		assertEquals(expected, actual);
 	}
 
+	@Test
+	public void testInEqual() throws IntermediateCodeGeneratorException {
+		IntermediateCodeGeneratorImpl irg = new IntermediateCodeGeneratorImpl();
+		List<Quadruple> irc = irg.generateIntermediateCode(astInEqual);
+
+		StringBuilder b = new StringBuilder();
+		for (Quadruple q : irc) {
+			b.append(String.format("(%s|%s|%s|%s)\n", q.getOperator(),
+					q.getArgument1(), q.getArgument2(), q.getResult()));
+		}
+		String actual = b.toString();
+		System.out.println(actual);
+
+		String expected = "(DECLARE_LONG|!|!|l)" + "\n"
+				+ "(DECLARE_BOOLEAN|!|!|r)" + "\n" + "(ASSIGN_LONG|#10|!|l)"
+				+ "\n" + "(DECLARE_BOOLEAN|!|!|tmp0)" + "\n"
+				+ "(DECLARE_BOOLEAN|!|!|tmp1)" + "\n"
+				+ "(COMPARE_LONG_E|l|#5|tmp1)" + "\n"
+				+ "(NOT_BOOLEAN|tmp1|!|tmp0)" + "\n"
+				+ "(ASSIGN_BOOLEAN|tmp0|!|r)" + "\n";
+
+		assertEquals(expected, actual);
+	}
 }
