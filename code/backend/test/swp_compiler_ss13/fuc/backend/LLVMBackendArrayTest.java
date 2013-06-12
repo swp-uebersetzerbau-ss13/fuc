@@ -205,4 +205,28 @@ public class LLVMBackendArrayTest extends TestBase {
 		           "  ret i64 0"+"\n",
 				   generateCodeAsString(tac));
     }
+
+	@Test public void arrays__strings() throws IOException, BackendException {
+		tac.add(new QuadrupleImpl(Operator.DECLARE_ARRAY, "#4", EmptyArgument, "a"));
+		tac.add(new QuadrupleImpl(Operator.DECLARE_STRING, EmptyArgument, EmptyArgument, null));
+		tac.add(new QuadrupleImpl(Operator.DECLARE_STRING, EmptyArgument, EmptyArgument, "x"));
+		tac.add(new QuadrupleImpl(Operator.ARRAY_SET_STRING, "a", "#2", "#\"Hello, World!\""));
+		tac.add(new QuadrupleImpl(Operator.ARRAY_GET_STRING, "a", "#2", "x"));
+		tac.add(new QuadrupleImpl(Operator.PRINT_STRING, "x", EmptyArgument, EmptyArgument));
+		expectMain(
+				   "  %a = alloca [4 x i8*]" + "\n" +
+				   "  %x = alloca i8*" + "\n" +
+				   "  %.tmp.0 = getelementptr [4 x i8*]* %a, i64 0, i64 2" + "\n" +
+				   "  %.string_0 = alloca [14 x i8]" + "\n" +
+				   "  store [14 x i8] [i8 72, i8 101, i8 108, i8 108, i8 111, i8 44, i8 32, i8 87, i8 111, i8 114, i8 108, i8 100, i8 33, i8 0], [14 x i8]* %.string_0" + "\n" +
+				   "  %.tmp.1 = getelementptr [14 x i8]* %.string_0, i64 0, i64 0" + "\n" +
+				   "  store i8* %.tmp.1, i8** %.tmp.0" + "\n" +
+				   "  %.tmp.2 = getelementptr [4 x i8*]* %a, i64 0, i64 2" + "\n" +
+				   "  %.tmp.3 = load i8** %.tmp.2" + "\n" +
+				   "  store i8* %.tmp.3, i8** %x" + "\n" +
+				   "  %x.0 = load i8** %x" + "\n" +
+				   "  call i32 (i8*, ...)* @printf(i8* %x.0)" + "\n" +
+				   "  ret i64 0" + "\n" ,
+				   generateCodeAsString(tac));
+    }	
 }

@@ -139,6 +139,11 @@ public class LLVMBackend implements Backend
 					case DECLARE_BOOLEAN:
 						final_type = Type.Kind.BOOLEAN;
 						break;
+					case DECLARE_STRING:
+						final_type = Type.Kind.STRING;
+						break;
+					default:
+						throw new BackendException("LOLWUT!?! Final Array Type unknown!!!");
 					}
 					m.addArrayDeclare(final_type,array_sizes,array_name);
 					array_sizes=new LinkedList();
@@ -233,6 +238,7 @@ public class LLVMBackend implements Backend
 				case ARRAY_GET_LONG:
 				case ARRAY_GET_DOUBLE:
 				case ARRAY_GET_BOOLEAN:
+				case ARRAY_GET_STRING:
 				case ARRAY_GET_REFERENCE:
 					m.addArrayGet(
 						q.getArgument1(),
@@ -242,6 +248,7 @@ public class LLVMBackend implements Backend
 				case ARRAY_SET_LONG:
 				case ARRAY_SET_DOUBLE:
 				case ARRAY_SET_BOOLEAN:
+				case ARRAY_SET_STRING:
 					m.addArraySet(
 						q.getArgument1(),
 						Integer.parseInt(q.getArgument2().substring(1)),

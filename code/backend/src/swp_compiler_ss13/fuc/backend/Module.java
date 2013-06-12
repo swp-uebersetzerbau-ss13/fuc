@@ -539,7 +539,18 @@ public class Module
 	private String cdl(String constantOrIdentifier, Kind type) throws BackendException {
 		if(constantOrIdentifier.charAt(0) == '#')
 			// constant
-			return constantOrIdentifier.substring(1);
+			if(type==Kind.STRING)
+			{
+				int literalID = addStringLiteral(constantOrIdentifier.substring(1));
+				String literalIdentifier = getStringLiteralIdentifier(literalID);
+				String literalType = getStringLiteralType(literalID);
+				String variableUseIdentifier = getUseIdentifierForVariable(".tmp");
+				gen(variableUseIdentifier + " = getelementptr " + literalType + "* " + literalIdentifier + ", i64 0, i64 0");
+
+				return variableUseIdentifier;
+			}
+			else
+				return constantOrIdentifier.substring(1);
 		else {
 			// identifier
 			String id = getUseIdentifierForVariable(constantOrIdentifier);
@@ -596,7 +607,7 @@ public class Module
 		realarray = "%" + arrayName;
 		ArrayType arType = arNamespace.get(arrayName);
 		if(arType.dimensions.size() > 1)
-			throw new BackendException("you cannot use a reference for an ARRAY_SET_* operation");
+			throw new BackendException("you cannot use a multidimensional array with an ARRAY_SET_* operation");
 		// construct getelementptr instruction
 		String ptrId = getUseIdentifierForVariable(".tmp");
 		String arrayTypeStr = getIRAType(arType.storage_type,arType.dimensions);
