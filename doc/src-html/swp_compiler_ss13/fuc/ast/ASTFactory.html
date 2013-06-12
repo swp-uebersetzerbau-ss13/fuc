@@ -336,130 +336,147 @@
 <span class="sourceLineNo">328</span>                rightExpression.setParentNode(binaryExpression);<a name="line.328"></a>
 <span class="sourceLineNo">329</span>                return binaryExpression;<a name="line.329"></a>
 <span class="sourceLineNo">330</span>        }<a name="line.330"></a>
-<span class="sourceLineNo">331</span><a name="line.331"></a>
+<span class="sourceLineNo">331</span>        <a name="line.331"></a>
 <span class="sourceLineNo">332</span>        /**<a name="line.332"></a>
-<span class="sourceLineNo">333</span>         * creates a new UnaryExpressionNode and sets the relations to the children<a name="line.333"></a>
+<span class="sourceLineNo">333</span>         * Creates a new {@link PrintNode} with the given {@link IdentifierNode} as right value.<a name="line.333"></a>
 <span class="sourceLineNo">334</span>         * <a name="line.334"></a>
-<span class="sourceLineNo">335</span>         * @param operator<a name="line.335"></a>
-<span class="sourceLineNo">336</span>         *            the UnaryOperator<a name="line.336"></a>
-<span class="sourceLineNo">337</span>         * @param expression<a name="line.337"></a>
-<span class="sourceLineNo">338</span>         *            the expression<a name="line.338"></a>
-<span class="sourceLineNo">339</span>         * @return the created UnaryExpressionNode<a name="line.339"></a>
-<span class="sourceLineNo">340</span>         */<a name="line.340"></a>
-<span class="sourceLineNo">341</span>        public UnaryExpressionNode newUnaryExpression(UnaryOperator operator, ExpressionNode expression) {<a name="line.341"></a>
-<span class="sourceLineNo">342</span>                UnaryExpressionNode unaryExpression = null;<a name="line.342"></a>
-<span class="sourceLineNo">343</span>                switch (operator) {<a name="line.343"></a>
-<span class="sourceLineNo">344</span>                case LOGICAL_NEGATE:<a name="line.344"></a>
-<span class="sourceLineNo">345</span>                        unaryExpression = new LogicUnaryExpressionNodeImpl();<a name="line.345"></a>
-<span class="sourceLineNo">346</span>                        break;<a name="line.346"></a>
-<span class="sourceLineNo">347</span>                case MINUS:<a name="line.347"></a>
-<span class="sourceLineNo">348</span>                        unaryExpression = new ArithmeticUnaryExpressionNodeImpl();<a name="line.348"></a>
-<span class="sourceLineNo">349</span>                        break;<a name="line.349"></a>
-<span class="sourceLineNo">350</span>                default:<a name="line.350"></a>
-<span class="sourceLineNo">351</span>                        assert (false);<a name="line.351"></a>
-<span class="sourceLineNo">352</span>                        break;<a name="line.352"></a>
-<span class="sourceLineNo">353</span>                }<a name="line.353"></a>
-<span class="sourceLineNo">354</span>                unaryExpression.setOperator(operator);<a name="line.354"></a>
-<span class="sourceLineNo">355</span>                unaryExpression.setRightValue(expression);<a name="line.355"></a>
-<span class="sourceLineNo">356</span>                expression.setParentNode(unaryExpression);<a name="line.356"></a>
-<span class="sourceLineNo">357</span>                return unaryExpression;<a name="line.357"></a>
-<span class="sourceLineNo">358</span>        }<a name="line.358"></a>
-<span class="sourceLineNo">359</span><a name="line.359"></a>
-<span class="sourceLineNo">360</span>        /**<a name="line.360"></a>
-<span class="sourceLineNo">361</span>         * creates a literal<a name="line.361"></a>
-<span class="sourceLineNo">362</span>         * <a name="line.362"></a>
-<span class="sourceLineNo">363</span>         * @param literal<a name="line.363"></a>
-<span class="sourceLineNo">364</span>         *            the name of the literal<a name="line.364"></a>
-<span class="sourceLineNo">365</span>         * @param type<a name="line.365"></a>
-<span class="sourceLineNo">366</span>         *            the type of the literal<a name="line.366"></a>
-<span class="sourceLineNo">367</span>         * @return the created LiteralNode<a name="line.367"></a>
-<span class="sourceLineNo">368</span>         */<a name="line.368"></a>
-<span class="sourceLineNo">369</span>        public LiteralNode newLiteral(String literal, Type type) {<a name="line.369"></a>
-<span class="sourceLineNo">370</span>                LiteralNode literalNode = new LiteralNodeImpl();<a name="line.370"></a>
-<span class="sourceLineNo">371</span>                literalNode.setLiteral(literal);<a name="line.371"></a>
-<span class="sourceLineNo">372</span>                literalNode.setLiteralType(type);<a name="line.372"></a>
-<span class="sourceLineNo">373</span>                return literalNode;<a name="line.373"></a>
-<span class="sourceLineNo">374</span>        }<a name="line.374"></a>
-<span class="sourceLineNo">375</span><a name="line.375"></a>
-<span class="sourceLineNo">376</span>        /**<a name="line.376"></a>
-<span class="sourceLineNo">377</span>         * creates a AssignmentNode and sets the relations to the children<a name="line.377"></a>
-<span class="sourceLineNo">378</span>         * <a name="line.378"></a>
-<span class="sourceLineNo">379</span>         * @param identifier<a name="line.379"></a>
-<span class="sourceLineNo">380</span>         *            the identifier to be assigned<a name="line.380"></a>
-<span class="sourceLineNo">381</span>         * @param expression<a name="line.381"></a>
-<span class="sourceLineNo">382</span>         *            the expression which is assigned<a name="line.382"></a>
-<span class="sourceLineNo">383</span>         * @return the created AssignmentNode<a name="line.383"></a>
-<span class="sourceLineNo">384</span>         */<a name="line.384"></a>
-<span class="sourceLineNo">385</span>        public AssignmentNode newAssignment(IdentifierNode identifier, ExpressionNode expression) {<a name="line.385"></a>
-<span class="sourceLineNo">386</span>                AssignmentNode assignment = new AssignmentNodeImpl();<a name="line.386"></a>
-<span class="sourceLineNo">387</span>                identifier.setParentNode(assignment);<a name="line.387"></a>
-<span class="sourceLineNo">388</span>                expression.setParentNode(assignment);<a name="line.388"></a>
-<span class="sourceLineNo">389</span>                assignment.setLeftValue(identifier);<a name="line.389"></a>
-<span class="sourceLineNo">390</span>                assignment.setRightValue(expression);<a name="line.390"></a>
-<span class="sourceLineNo">391</span>                return assignment;<a name="line.391"></a>
-<span class="sourceLineNo">392</span>        }<a name="line.392"></a>
-<span class="sourceLineNo">393</span><a name="line.393"></a>
-<span class="sourceLineNo">394</span>        /**<a name="line.394"></a>
-<span class="sourceLineNo">395</span>         * creates a AssignmentNode and adds it to the current node<a name="line.395"></a>
-<span class="sourceLineNo">396</span>         * <a name="line.396"></a>
-<span class="sourceLineNo">397</span>         * @param identifier<a name="line.397"></a>
-<span class="sourceLineNo">398</span>         *            the identifier to be assigned<a name="line.398"></a>
-<span class="sourceLineNo">399</span>         * @param expression<a name="line.399"></a>
-<span class="sourceLineNo">400</span>         *            the expression which is assigned<a name="line.400"></a>
-<span class="sourceLineNo">401</span>         * @return the created AssignmentNode<a name="line.401"></a>
-<span class="sourceLineNo">402</span>         */<a name="line.402"></a>
-<span class="sourceLineNo">403</span>        public AssignmentNode addAssignment(IdentifierNode identifier, ExpressionNode expression) {<a name="line.403"></a>
-<span class="sourceLineNo">404</span>                return (AssignmentNode) this.addExpression(this.newAssignment(identifier, expression));<a name="line.404"></a>
-<span class="sourceLineNo">405</span>        }<a name="line.405"></a>
-<span class="sourceLineNo">406</span><a name="line.406"></a>
-<span class="sourceLineNo">407</span>        /**<a name="line.407"></a>
-<span class="sourceLineNo">408</span>         * creates a BasicIdentifierNode<a name="line.408"></a>
-<span class="sourceLineNo">409</span>         * <a name="line.409"></a>
-<span class="sourceLineNo">410</span>         * @param identifier<a name="line.410"></a>
-<span class="sourceLineNo">411</span>         *            the name of the identifier<a name="line.411"></a>
-<span class="sourceLineNo">412</span>         * @return the created BasicIdentifierNode<a name="line.412"></a>
-<span class="sourceLineNo">413</span>         */<a name="line.413"></a>
-<span class="sourceLineNo">414</span>        public BasicIdentifierNode newBasicIdentifier(String identifier) {<a name="line.414"></a>
-<span class="sourceLineNo">415</span>                BasicIdentifierNode basicIdentifier = new BasicIdentifierNodeImpl();<a name="line.415"></a>
-<span class="sourceLineNo">416</span>                basicIdentifier.setIdentifier(identifier);<a name="line.416"></a>
-<span class="sourceLineNo">417</span>                return basicIdentifier;<a name="line.417"></a>
-<span class="sourceLineNo">418</span>        }<a name="line.418"></a>
-<span class="sourceLineNo">419</span><a name="line.419"></a>
-<span class="sourceLineNo">420</span>        /**<a name="line.420"></a>
-<span class="sourceLineNo">421</span>         * creates a ArrayIdentifierNode<a name="line.421"></a>
-<span class="sourceLineNo">422</span>         * <a name="line.422"></a>
-<span class="sourceLineNo">423</span>         * @param index<a name="line.423"></a>
-<span class="sourceLineNo">424</span>         *            the index of the identifier in the array<a name="line.424"></a>
-<span class="sourceLineNo">425</span>         * @param identifier<a name="line.425"></a>
-<span class="sourceLineNo">426</span>         *            the IdentifierNode in the array<a name="line.426"></a>
-<span class="sourceLineNo">427</span>         * @return the created ArrayIdentifierNode<a name="line.427"></a>
-<span class="sourceLineNo">428</span>         */<a name="line.428"></a>
-<span class="sourceLineNo">429</span>        public ArrayIdentifierNode newArrayIdentifier(Integer index, IdentifierNode identifier) {<a name="line.429"></a>
-<span class="sourceLineNo">430</span>                ArrayIdentifierNode arrayIdentifier = new ArrayIdentifierNodeImpl();<a name="line.430"></a>
-<span class="sourceLineNo">431</span>                arrayIdentifier.setIndex(index);<a name="line.431"></a>
-<span class="sourceLineNo">432</span>                arrayIdentifier.setIdentifierNode(identifier);<a name="line.432"></a>
-<span class="sourceLineNo">433</span>                identifier.setParentNode(arrayIdentifier);<a name="line.433"></a>
-<span class="sourceLineNo">434</span>                return arrayIdentifier;<a name="line.434"></a>
+<span class="sourceLineNo">335</span>         * @param id May be &lt;code&gt;null&lt;/code&gt;<a name="line.335"></a>
+<span class="sourceLineNo">336</span>         * @return<a name="line.336"></a>
+<span class="sourceLineNo">337</span>         */<a name="line.337"></a>
+<span class="sourceLineNo">338</span>        public PrintNode newPrint(IdentifierNode id) {<a name="line.338"></a>
+<span class="sourceLineNo">339</span>           PrintNode print = new PrintNodeImpl();<a name="line.339"></a>
+<span class="sourceLineNo">340</span>           if (id == null) {<a name="line.340"></a>
+<span class="sourceLineNo">341</span>              print.setRightValue(null);<a name="line.341"></a>
+<span class="sourceLineNo">342</span>           } else {<a name="line.342"></a>
+<span class="sourceLineNo">343</span>              id.setParentNode(print);<a name="line.343"></a>
+<span class="sourceLineNo">344</span>         print.setRightValue(id);<a name="line.344"></a>
+<span class="sourceLineNo">345</span>           }<a name="line.345"></a>
+<span class="sourceLineNo">346</span>           return print;<a name="line.346"></a>
+<span class="sourceLineNo">347</span>        }<a name="line.347"></a>
+<span class="sourceLineNo">348</span><a name="line.348"></a>
+<span class="sourceLineNo">349</span>        /**<a name="line.349"></a>
+<span class="sourceLineNo">350</span>         * creates a new UnaryExpressionNode and sets the relations to the children<a name="line.350"></a>
+<span class="sourceLineNo">351</span>         * <a name="line.351"></a>
+<span class="sourceLineNo">352</span>         * @param operator<a name="line.352"></a>
+<span class="sourceLineNo">353</span>         *            the UnaryOperator<a name="line.353"></a>
+<span class="sourceLineNo">354</span>         * @param expression<a name="line.354"></a>
+<span class="sourceLineNo">355</span>         *            the expression<a name="line.355"></a>
+<span class="sourceLineNo">356</span>         * @return the created UnaryExpressionNode<a name="line.356"></a>
+<span class="sourceLineNo">357</span>         */<a name="line.357"></a>
+<span class="sourceLineNo">358</span>        public UnaryExpressionNode newUnaryExpression(UnaryOperator operator, ExpressionNode expression) {<a name="line.358"></a>
+<span class="sourceLineNo">359</span>                UnaryExpressionNode unaryExpression = null;<a name="line.359"></a>
+<span class="sourceLineNo">360</span>                switch (operator) {<a name="line.360"></a>
+<span class="sourceLineNo">361</span>                case LOGICAL_NEGATE:<a name="line.361"></a>
+<span class="sourceLineNo">362</span>                        unaryExpression = new LogicUnaryExpressionNodeImpl();<a name="line.362"></a>
+<span class="sourceLineNo">363</span>                        break;<a name="line.363"></a>
+<span class="sourceLineNo">364</span>                case MINUS:<a name="line.364"></a>
+<span class="sourceLineNo">365</span>                        unaryExpression = new ArithmeticUnaryExpressionNodeImpl();<a name="line.365"></a>
+<span class="sourceLineNo">366</span>                        break;<a name="line.366"></a>
+<span class="sourceLineNo">367</span>                default:<a name="line.367"></a>
+<span class="sourceLineNo">368</span>                        assert (false);<a name="line.368"></a>
+<span class="sourceLineNo">369</span>                        break;<a name="line.369"></a>
+<span class="sourceLineNo">370</span>                }<a name="line.370"></a>
+<span class="sourceLineNo">371</span>                unaryExpression.setOperator(operator);<a name="line.371"></a>
+<span class="sourceLineNo">372</span>                unaryExpression.setRightValue(expression);<a name="line.372"></a>
+<span class="sourceLineNo">373</span>                expression.setParentNode(unaryExpression);<a name="line.373"></a>
+<span class="sourceLineNo">374</span>                return unaryExpression;<a name="line.374"></a>
+<span class="sourceLineNo">375</span>        }<a name="line.375"></a>
+<span class="sourceLineNo">376</span><a name="line.376"></a>
+<span class="sourceLineNo">377</span>        /**<a name="line.377"></a>
+<span class="sourceLineNo">378</span>         * creates a literal<a name="line.378"></a>
+<span class="sourceLineNo">379</span>         * <a name="line.379"></a>
+<span class="sourceLineNo">380</span>         * @param literal<a name="line.380"></a>
+<span class="sourceLineNo">381</span>         *            the name of the literal<a name="line.381"></a>
+<span class="sourceLineNo">382</span>         * @param type<a name="line.382"></a>
+<span class="sourceLineNo">383</span>         *            the type of the literal<a name="line.383"></a>
+<span class="sourceLineNo">384</span>         * @return the created LiteralNode<a name="line.384"></a>
+<span class="sourceLineNo">385</span>         */<a name="line.385"></a>
+<span class="sourceLineNo">386</span>        public LiteralNode newLiteral(String literal, Type type) {<a name="line.386"></a>
+<span class="sourceLineNo">387</span>                LiteralNode literalNode = new LiteralNodeImpl();<a name="line.387"></a>
+<span class="sourceLineNo">388</span>                literalNode.setLiteral(literal);<a name="line.388"></a>
+<span class="sourceLineNo">389</span>                literalNode.setLiteralType(type);<a name="line.389"></a>
+<span class="sourceLineNo">390</span>                return literalNode;<a name="line.390"></a>
+<span class="sourceLineNo">391</span>        }<a name="line.391"></a>
+<span class="sourceLineNo">392</span><a name="line.392"></a>
+<span class="sourceLineNo">393</span>        /**<a name="line.393"></a>
+<span class="sourceLineNo">394</span>         * creates a AssignmentNode and sets the relations to the children<a name="line.394"></a>
+<span class="sourceLineNo">395</span>         * <a name="line.395"></a>
+<span class="sourceLineNo">396</span>         * @param identifier<a name="line.396"></a>
+<span class="sourceLineNo">397</span>         *            the identifier to be assigned<a name="line.397"></a>
+<span class="sourceLineNo">398</span>         * @param expression<a name="line.398"></a>
+<span class="sourceLineNo">399</span>         *            the expression which is assigned<a name="line.399"></a>
+<span class="sourceLineNo">400</span>         * @return the created AssignmentNode<a name="line.400"></a>
+<span class="sourceLineNo">401</span>         */<a name="line.401"></a>
+<span class="sourceLineNo">402</span>        public AssignmentNode newAssignment(IdentifierNode identifier, ExpressionNode expression) {<a name="line.402"></a>
+<span class="sourceLineNo">403</span>                AssignmentNode assignment = new AssignmentNodeImpl();<a name="line.403"></a>
+<span class="sourceLineNo">404</span>                identifier.setParentNode(assignment);<a name="line.404"></a>
+<span class="sourceLineNo">405</span>                expression.setParentNode(assignment);<a name="line.405"></a>
+<span class="sourceLineNo">406</span>                assignment.setLeftValue(identifier);<a name="line.406"></a>
+<span class="sourceLineNo">407</span>                assignment.setRightValue(expression);<a name="line.407"></a>
+<span class="sourceLineNo">408</span>                return assignment;<a name="line.408"></a>
+<span class="sourceLineNo">409</span>        }<a name="line.409"></a>
+<span class="sourceLineNo">410</span><a name="line.410"></a>
+<span class="sourceLineNo">411</span>        /**<a name="line.411"></a>
+<span class="sourceLineNo">412</span>         * creates a AssignmentNode and adds it to the current node<a name="line.412"></a>
+<span class="sourceLineNo">413</span>         * <a name="line.413"></a>
+<span class="sourceLineNo">414</span>         * @param identifier<a name="line.414"></a>
+<span class="sourceLineNo">415</span>         *            the identifier to be assigned<a name="line.415"></a>
+<span class="sourceLineNo">416</span>         * @param expression<a name="line.416"></a>
+<span class="sourceLineNo">417</span>         *            the expression which is assigned<a name="line.417"></a>
+<span class="sourceLineNo">418</span>         * @return the created AssignmentNode<a name="line.418"></a>
+<span class="sourceLineNo">419</span>         */<a name="line.419"></a>
+<span class="sourceLineNo">420</span>        public AssignmentNode addAssignment(IdentifierNode identifier, ExpressionNode expression) {<a name="line.420"></a>
+<span class="sourceLineNo">421</span>                return (AssignmentNode) this.addExpression(this.newAssignment(identifier, expression));<a name="line.421"></a>
+<span class="sourceLineNo">422</span>        }<a name="line.422"></a>
+<span class="sourceLineNo">423</span><a name="line.423"></a>
+<span class="sourceLineNo">424</span>        /**<a name="line.424"></a>
+<span class="sourceLineNo">425</span>         * creates a BasicIdentifierNode<a name="line.425"></a>
+<span class="sourceLineNo">426</span>         * <a name="line.426"></a>
+<span class="sourceLineNo">427</span>         * @param identifier<a name="line.427"></a>
+<span class="sourceLineNo">428</span>         *            the name of the identifier<a name="line.428"></a>
+<span class="sourceLineNo">429</span>         * @return the created BasicIdentifierNode<a name="line.429"></a>
+<span class="sourceLineNo">430</span>         */<a name="line.430"></a>
+<span class="sourceLineNo">431</span>        public BasicIdentifierNode newBasicIdentifier(String identifier) {<a name="line.431"></a>
+<span class="sourceLineNo">432</span>                BasicIdentifierNode basicIdentifier = new BasicIdentifierNodeImpl();<a name="line.432"></a>
+<span class="sourceLineNo">433</span>                basicIdentifier.setIdentifier(identifier);<a name="line.433"></a>
+<span class="sourceLineNo">434</span>                return basicIdentifier;<a name="line.434"></a>
 <span class="sourceLineNo">435</span>        }<a name="line.435"></a>
 <span class="sourceLineNo">436</span><a name="line.436"></a>
 <span class="sourceLineNo">437</span>        /**<a name="line.437"></a>
-<span class="sourceLineNo">438</span>         * creates a StructIdentifierNode<a name="line.438"></a>
+<span class="sourceLineNo">438</span>         * creates a ArrayIdentifierNode<a name="line.438"></a>
 <span class="sourceLineNo">439</span>         * <a name="line.439"></a>
-<span class="sourceLineNo">440</span>         * @param fieldName<a name="line.440"></a>
-<span class="sourceLineNo">441</span>         *            the fieldName of the identifier in the struct<a name="line.441"></a>
+<span class="sourceLineNo">440</span>         * @param index<a name="line.440"></a>
+<span class="sourceLineNo">441</span>         *            the index of the identifier in the array<a name="line.441"></a>
 <span class="sourceLineNo">442</span>         * @param identifier<a name="line.442"></a>
-<span class="sourceLineNo">443</span>         *            the IdentifierNode in the struct<a name="line.443"></a>
-<span class="sourceLineNo">444</span>         * @return the created StructIdentifierNode<a name="line.444"></a>
+<span class="sourceLineNo">443</span>         *            the IdentifierNode in the array<a name="line.443"></a>
+<span class="sourceLineNo">444</span>         * @return the created ArrayIdentifierNode<a name="line.444"></a>
 <span class="sourceLineNo">445</span>         */<a name="line.445"></a>
-<span class="sourceLineNo">446</span>        public StructIdentifierNode newStructIdentifier(String fieldName, IdentifierNode identifier) {<a name="line.446"></a>
-<span class="sourceLineNo">447</span>                StructIdentifierNode structIdentifier = new StructIdentifierNodeImpl();<a name="line.447"></a>
-<span class="sourceLineNo">448</span>                structIdentifier.setFieldName(fieldName);<a name="line.448"></a>
-<span class="sourceLineNo">449</span>                structIdentifier.setIdentifierNode(identifier);<a name="line.449"></a>
-<span class="sourceLineNo">450</span>                identifier.setParentNode(structIdentifier);<a name="line.450"></a>
-<span class="sourceLineNo">451</span>                return structIdentifier;<a name="line.451"></a>
+<span class="sourceLineNo">446</span>        public ArrayIdentifierNode newArrayIdentifier(Integer index, IdentifierNode identifier) {<a name="line.446"></a>
+<span class="sourceLineNo">447</span>                ArrayIdentifierNode arrayIdentifier = new ArrayIdentifierNodeImpl();<a name="line.447"></a>
+<span class="sourceLineNo">448</span>                arrayIdentifier.setIndex(index);<a name="line.448"></a>
+<span class="sourceLineNo">449</span>                arrayIdentifier.setIdentifierNode(identifier);<a name="line.449"></a>
+<span class="sourceLineNo">450</span>                identifier.setParentNode(arrayIdentifier);<a name="line.450"></a>
+<span class="sourceLineNo">451</span>                return arrayIdentifier;<a name="line.451"></a>
 <span class="sourceLineNo">452</span>        }<a name="line.452"></a>
 <span class="sourceLineNo">453</span><a name="line.453"></a>
-<span class="sourceLineNo">454</span>}<a name="line.454"></a>
+<span class="sourceLineNo">454</span>        /**<a name="line.454"></a>
+<span class="sourceLineNo">455</span>         * creates a StructIdentifierNode<a name="line.455"></a>
+<span class="sourceLineNo">456</span>         * <a name="line.456"></a>
+<span class="sourceLineNo">457</span>         * @param fieldName<a name="line.457"></a>
+<span class="sourceLineNo">458</span>         *            the fieldName of the identifier in the struct<a name="line.458"></a>
+<span class="sourceLineNo">459</span>         * @param identifier<a name="line.459"></a>
+<span class="sourceLineNo">460</span>         *            the IdentifierNode in the struct<a name="line.460"></a>
+<span class="sourceLineNo">461</span>         * @return the created StructIdentifierNode<a name="line.461"></a>
+<span class="sourceLineNo">462</span>         */<a name="line.462"></a>
+<span class="sourceLineNo">463</span>        public StructIdentifierNode newStructIdentifier(String fieldName, IdentifierNode identifier) {<a name="line.463"></a>
+<span class="sourceLineNo">464</span>                StructIdentifierNode structIdentifier = new StructIdentifierNodeImpl();<a name="line.464"></a>
+<span class="sourceLineNo">465</span>                structIdentifier.setFieldName(fieldName);<a name="line.465"></a>
+<span class="sourceLineNo">466</span>                structIdentifier.setIdentifierNode(identifier);<a name="line.466"></a>
+<span class="sourceLineNo">467</span>                identifier.setParentNode(structIdentifier);<a name="line.467"></a>
+<span class="sourceLineNo">468</span>                return structIdentifier;<a name="line.468"></a>
+<span class="sourceLineNo">469</span>        }<a name="line.469"></a>
+<span class="sourceLineNo">470</span><a name="line.470"></a>
+<span class="sourceLineNo">471</span>}<a name="line.471"></a>
 
 
 
