@@ -22,9 +22,10 @@ import swp_compiler_ss13.fuc.symbolTable.SymbolTableImpl;
 public class CastingTest {
 
 	private AST ast;
+	private AST ast2;
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() throws IntermediateCodeGeneratorException {
 		PA.setValue(SymbolTableImpl.class, "ext", 0);
 		ASTFactory astf = new ASTFactory();
 		astf.addDeclaration("a", new LongType());
@@ -65,6 +66,7 @@ public class CastingTest {
 		astf.addReturn(astf.newBasicIdentifier("c"));
 
 		ast = astf.getAST();
+
 	}
 
 	@Test
@@ -101,4 +103,5 @@ public class CastingTest {
 
 		assertEquals(expected, actual);
 	}
+
 }

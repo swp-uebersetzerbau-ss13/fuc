@@ -23,7 +23,7 @@ public class DoubleOperatorTest {
 	private AST ast;
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() throws IntermediateCodeGeneratorException {
 		PA.setValue(SymbolTableImpl.class, "ext", 0);
 		ASTFactory astf = new ASTFactory();
 		astf.addDeclaration("a", new DoubleType());

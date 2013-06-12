@@ -19,7 +19,8 @@ import swp_compiler_ss13.fuc.symbolTable.SymbolTableImpl;
 
 public class ArrayTest {
 
-	private List<Quadruple> generateQuadruples(AST ast) throws IntermediateCodeGeneratorException {
+	private List<Quadruple> generateQuadruples(AST ast)
+			throws IntermediateCodeGeneratorException {
 		IntermediateCodeGenerator gen = new IntermediateCodeGeneratorImpl();
 		return gen.generateIntermediateCode(ast);
 	}
@@ -27,18 +28,21 @@ public class ArrayTest {
 	private String textifyQuadruples(List<Quadruple> quadruples) {
 		StringBuilder textQuadruples = new StringBuilder();
 		for (Quadruple q : quadruples) {
-			textQuadruples.append(String.format("(%s|%s|%s|%s)\n", q.getOperator(), q.getArgument1(), q.getArgument2(),
+			textQuadruples.append(String.format("(%s|%s|%s|%s)\n",
+					q.getOperator(), q.getArgument1(), q.getArgument2(),
 					q.getResult()));
 		}
 		return textQuadruples.toString();
 	}
 
-	private String textifyQuadruples(AST ast) throws IntermediateCodeGeneratorException {
-		return this.textifyQuadruples(this.generateQuadruples(ast));
+	private String textifyQuadruples(AST ast)
+			throws IntermediateCodeGeneratorException {
+		return this.textifyQuadruples(generateQuadruples(ast));
 	}
 
 	@Test
-	public void itCanDeclareOneDimensionalArrays() throws IntermediateCodeGeneratorException {
+	public void itCanDeclareOneDimensionalArrays()
+			throws IntermediateCodeGeneratorException {
 		ASTFactory f = new ASTFactory();
 		// Long array[10];
 		f.addDeclaration("array", new ArrayType(new LongType(), 10));
@@ -50,10 +54,12 @@ public class ArrayTest {
 	}
 
 	@Test
-	public void itCanDeclareMultiDimensionalArrays() throws IntermediateCodeGeneratorException {
+	public void itCanDeclareMultiDimensionalArrays()
+			throws IntermediateCodeGeneratorException {
 		ASTFactory f = new ASTFactory();
 		// Long array[3][10];
-		f.addDeclaration("array", new ArrayType(new ArrayType(new DoubleType(), 3), 10));
+		f.addDeclaration("array", new ArrayType(new ArrayType(new DoubleType(),
+				3), 10));
 
 		String expected = "";
 		expected += "(DECLARE_ARRAY|#10|!|array)" + "\n";
@@ -63,14 +69,16 @@ public class ArrayTest {
 	}
 
 	@Test
-	public void itCanReturnOneDimensionalArrays() throws IntermediateCodeGeneratorException {
+	public void itCanReturnOneDimensionalArrays()
+			throws IntermediateCodeGeneratorException {
 		ASTFactory f = new ASTFactory();
 		// Long array[10];
 		f.addDeclaration("array", new ArrayType(new LongType(), 10));
 		// return array[3];
 		f.addReturn(f.newArrayIdentifier(3, f.newBasicIdentifier("array")));
 
-		long tmp_n = Long.parseLong(new SymbolTableImpl().getNextFreeTemporary().replaceFirst("\\D*", ""));
+		long tmp_n = Long.parseLong(new SymbolTableImpl()
+				.getNextFreeTemporary().replaceFirst("\\D*", ""));
 		String tmp0 = "tmp" + ++tmp_n;
 		String expected = "";
 		expected += "(DECLARE_ARRAY|#10|!|array)" + "\n";
@@ -82,14 +90,18 @@ public class ArrayTest {
 	}
 
 	@Test
-	public void itCanReturnMultiDimensionalArrays() throws IntermediateCodeGeneratorException {
+	public void itCanReturnMultiDimensionalArrays()
+			throws IntermediateCodeGeneratorException {
 		ASTFactory f = new ASTFactory();
 		// Long array[5][10];
-		f.addDeclaration("array", new ArrayType(new ArrayType(new LongType(), 5), 10));
+		f.addDeclaration("array", new ArrayType(
+				new ArrayType(new LongType(), 5), 10));
 		// return array[3][6];
-		f.addReturn(f.newArrayIdentifier(6, f.newArrayIdentifier(3, f.newBasicIdentifier("array"))));
+		f.addReturn(f.newArrayIdentifier(6,
+				f.newArrayIdentifier(3, f.newBasicIdentifier("array"))));
 
-		long tmp_n = Long.parseLong(new SymbolTableImpl().getNextFreeTemporary().replaceFirst("\\D*", ""));
+		long tmp_n = Long.parseLong(new SymbolTableImpl()
+				.getNextFreeTemporary().replaceFirst("\\D*", ""));
 		String tmp0 = "tmp" + ++tmp_n;
 		String tmp1 = "tmp" + ++tmp_n;
 		String expected = "";
@@ -105,14 +117,17 @@ public class ArrayTest {
 	}
 
 	@Test
-	public void itCanAssignConstantToOneDimensionalArrays() throws IntermediateCodeGeneratorException {
+	public void itCanAssignConstantToOneDimensionalArrays()
+			throws IntermediateCodeGeneratorException {
 		ASTFactory f = new ASTFactory();
 		// Long array[10];
 		f.addDeclaration("array", new ArrayType(new LongType(), 10));
 		// array[5] = 3;
-		f.addAssignment(f.newArrayIdentifier(5, f.newBasicIdentifier("array")), f.newLiteral("3", new LongType()));
+		f.addAssignment(f.newArrayIdentifier(5, f.newBasicIdentifier("array")),
+				f.newLiteral("3", new LongType()));
 
-		Long.parseLong(new SymbolTableImpl().getNextFreeTemporary().replaceFirst("\\D*", ""));
+		Long.parseLong(new SymbolTableImpl().getNextFreeTemporary()
+				.replaceFirst("\\D*", ""));
 		String expected = "";
 		expected += "(DECLARE_ARRAY|#10|!|array)" + "\n";
 		expected += "(DECLARE_LONG|!|!|!)" + "\n";
@@ -122,15 +137,20 @@ public class ArrayTest {
 	}
 
 	@Test
-	public void itCanAssignConstantToMultiDimensionalArrays() throws IntermediateCodeGeneratorException {
+	public void itCanAssignConstantToMultiDimensionalArrays()
+			throws IntermediateCodeGeneratorException {
 		ASTFactory f = new ASTFactory();
 		// Long array[5][10];
-		f.addDeclaration("array", new ArrayType(new ArrayType(new LongType(), 5), 10));
+		f.addDeclaration("array", new ArrayType(
+				new ArrayType(new LongType(), 5), 10));
 		// array[3][6] = 9;
-		f.addAssignment(f.newArrayIdentifier(6, f.newArrayIdentifier(3, f.newBasicIdentifier("array"))),
+		f.addAssignment(
+				f.newArrayIdentifier(6,
+						f.newArrayIdentifier(3, f.newBasicIdentifier("array"))),
 				f.newLiteral("9", new LongType()));
 
-		long tmp_n = Long.parseLong(new SymbolTableImpl().getNextFreeTemporary().replaceFirst("\\D*", ""));
+		long tmp_n = Long.parseLong(new SymbolTableImpl()
+				.getNextFreeTemporary().replaceFirst("\\D*", ""));
 		String tmp0 = "tmp" + ++tmp_n;
 		String expected = "";
 		expected += "(DECLARE_ARRAY|#10|!|array)" + "\n";
@@ -143,14 +163,16 @@ public class ArrayTest {
 	}
 
 	@Test
-	public void itCanAssignVariableToOneDimensionalArrays() throws IntermediateCodeGeneratorException {
+	public void itCanAssignVariableToOneDimensionalArrays()
+			throws IntermediateCodeGeneratorException {
 		ASTFactory f = new ASTFactory();
 		// Long array[10];
 		f.addDeclaration("array", new ArrayType(new LongType(), 10));
 		// Long variable;
 		f.addDeclaration("variable", new LongType());
 		// array[5] = variable;
-		f.addAssignment(f.newArrayIdentifier(5, f.newBasicIdentifier("array")), f.newBasicIdentifier("variable"));
+		f.addAssignment(f.newArrayIdentifier(5, f.newBasicIdentifier("array")),
+				f.newBasicIdentifier("variable"));
 
 		String expected = "";
 		expected += "(DECLARE_ARRAY|#10|!|array)" + "\n";
@@ -161,17 +183,22 @@ public class ArrayTest {
 	}
 
 	@Test
-	public void itCanAssignVariableToMultiDimensionalArrays() throws IntermediateCodeGeneratorException {
+	public void itCanAssignVariableToMultiDimensionalArrays()
+			throws IntermediateCodeGeneratorException {
 		ASTFactory f = new ASTFactory();
 		// Long array[5][10];
-		f.addDeclaration("array", new ArrayType(new ArrayType(new LongType(), 5), 10));
+		f.addDeclaration("array", new ArrayType(
+				new ArrayType(new LongType(), 5), 10));
 		// Long variable;
 		f.addDeclaration("variable", new LongType());
 		// array[3][6] = variable;
-		f.addAssignment(f.newArrayIdentifier(6, f.newArrayIdentifier(3, f.newBasicIdentifier("array"))),
+		f.addAssignment(
+				f.newArrayIdentifier(6,
+						f.newArrayIdentifier(3, f.newBasicIdentifier("array"))),
 				f.newBasicIdentifier("variable"));
 
-		long tmp_n = Long.parseLong(new SymbolTableImpl().getNextFreeTemporary().replaceFirst("\\D*", ""));
+		long tmp_n = Long.parseLong(new SymbolTableImpl()
+				.getNextFreeTemporary().replaceFirst("\\D*", ""));
 		String tmp0 = "tmp" + ++tmp_n;
 		String expected = "";
 		expected += "(DECLARE_ARRAY|#10|!|array)" + "\n";
@@ -185,14 +212,16 @@ public class ArrayTest {
 	}
 
 	@Test
-	public void itCanAssignOneDimensionalArrayToVariable() throws IntermediateCodeGeneratorException {
+	public void itCanAssignOneDimensionalArrayToVariable()
+			throws IntermediateCodeGeneratorException {
 		ASTFactory f = new ASTFactory();
 		// Long array[10];
 		f.addDeclaration("array", new ArrayType(new LongType(), 10));
 		// Long variable;
 		f.addDeclaration("variable", new LongType());
 		// variable = array[7];
-		f.addAssignment(f.newBasicIdentifier("variable"), f.newArrayIdentifier(7, f.newBasicIdentifier("array")));
+		f.addAssignment(f.newBasicIdentifier("variable"),
+				f.newArrayIdentifier(7, f.newBasicIdentifier("array")));
 
 		String expected = "";
 		expected += "(DECLARE_ARRAY|#10|!|array)" + "\n";
@@ -203,17 +232,22 @@ public class ArrayTest {
 	}
 
 	@Test
-	public void itCanAssignMultiDimensionalArrayToVariable() throws IntermediateCodeGeneratorException {
+	public void itCanAssignMultiDimensionalArrayToVariable()
+			throws IntermediateCodeGeneratorException {
 		ASTFactory f = new ASTFactory();
 		// Long array[5][10];
-		f.addDeclaration("array", new ArrayType(new ArrayType(new LongType(), 5), 10));
+		f.addDeclaration("array", new ArrayType(
+				new ArrayType(new LongType(), 5), 10));
 		// Long variable;
 		f.addDeclaration("variable", new LongType());
 		// array[3][6] = variable;
-		f.addAssignment(f.newArrayIdentifier(6, f.newArrayIdentifier(3, f.newBasicIdentifier("array"))),
+		f.addAssignment(
+				f.newArrayIdentifier(6,
+						f.newArrayIdentifier(3, f.newBasicIdentifier("array"))),
 				f.newBasicIdentifier("variable"));
 
-		long tmp_n = Long.parseLong(new SymbolTableImpl().getNextFreeTemporary().replaceFirst("\\D*", ""));
+		long tmp_n = Long.parseLong(new SymbolTableImpl()
+				.getNextFreeTemporary().replaceFirst("\\D*", ""));
 		String tmp0 = "tmp" + ++tmp_n;
 		String expected = "";
 		expected += "(DECLARE_ARRAY|#10|!|array)" + "\n";
@@ -227,7 +261,8 @@ public class ArrayTest {
 	}
 
 	@Test
-	public void itCanAssignArrayToArray() throws IntermediateCodeGeneratorException {
+	public void itCanAssignArrayToArray()
+			throws IntermediateCodeGeneratorException {
 		ASTFactory f = new ASTFactory();
 		// Long array[10];
 		f.addDeclaration("array", new ArrayType(new LongType(), 10));
@@ -237,7 +272,8 @@ public class ArrayTest {
 		f.addAssignment(f.newArrayIdentifier(5, f.newBasicIdentifier("array")),
 				f.newArrayIdentifier(3, f.newBasicIdentifier("arrei")));
 
-		long tmp_n = Long.parseLong(new SymbolTableImpl().getNextFreeTemporary().replaceFirst("\\D*", ""));
+		long tmp_n = Long.parseLong(new SymbolTableImpl()
+				.getNextFreeTemporary().replaceFirst("\\D*", ""));
 		String tmp0 = "tmp" + ++tmp_n;
 		String expected = "";
 		expected += "(DECLARE_ARRAY|#10|!|array)" + "\n";
@@ -251,16 +287,19 @@ public class ArrayTest {
 	}
 
 	@Test
-	public void itCanAssignArrayToVariableWithCast() throws IntermediateCodeGeneratorException {
+	public void itCanAssignArrayToVariableWithCast()
+			throws IntermediateCodeGeneratorException {
 		ASTFactory f = new ASTFactory();
 		// Long array[10];
 		f.addDeclaration("array", new ArrayType(new LongType(), 10));
 		// Double variable;
 		f.addDeclaration("variable", new DoubleType());
 		// variable = array[7];
-		f.addAssignment(f.newBasicIdentifier("variable"), f.newArrayIdentifier(7, f.newBasicIdentifier("array")));
+		f.addAssignment(f.newBasicIdentifier("variable"),
+				f.newArrayIdentifier(7, f.newBasicIdentifier("array")));
 
-		long tmp_n = Long.parseLong(new SymbolTableImpl().getNextFreeTemporary().replaceFirst("\\D*", ""));
+		long tmp_n = Long.parseLong(new SymbolTableImpl()
+				.getNextFreeTemporary().replaceFirst("\\D*", ""));
 		String tmp0 = "tmp" + ++tmp_n;
 		String expected = "";
 		expected += "(DECLARE_ARRAY|#10|!|array)" + "\n";
@@ -273,16 +312,19 @@ public class ArrayTest {
 	}
 
 	@Test
-	public void itCanAssignVariableToArrayWithCast() throws IntermediateCodeGeneratorException {
+	public void itCanAssignVariableToArrayWithCast()
+			throws IntermediateCodeGeneratorException {
 		ASTFactory f = new ASTFactory();
 		// Long array[10];
 		f.addDeclaration("array", new ArrayType(new LongType(), 10));
 		// Double variable;
 		f.addDeclaration("variable", new DoubleType());
 		// array[7] = variable;
-		f.addAssignment(f.newArrayIdentifier(7, f.newBasicIdentifier("array")), f.newBasicIdentifier("variable"));
+		f.addAssignment(f.newArrayIdentifier(7, f.newBasicIdentifier("array")),
+				f.newBasicIdentifier("variable"));
 
-		long tmp_n = Long.parseLong(new SymbolTableImpl().getNextFreeTemporary().replaceFirst("\\D*", ""));
+		long tmp_n = Long.parseLong(new SymbolTableImpl()
+				.getNextFreeTemporary().replaceFirst("\\D*", ""));
 		String tmp0 = "tmp" + ++tmp_n;
 		String expected = "";
 		expected += "(DECLARE_ARRAY|#10|!|array)" + "\n";
@@ -295,7 +337,8 @@ public class ArrayTest {
 	}
 
 	@Test
-	public void itCanAssignArrayToArrayWithCast() throws IntermediateCodeGeneratorException {
+	public void itCanAssignArrayToArrayWithCast()
+			throws IntermediateCodeGeneratorException {
 		ASTFactory f = new ASTFactory();
 		// Long array[10];
 		f.addDeclaration("array", new ArrayType(new LongType(), 10));
@@ -305,7 +348,8 @@ public class ArrayTest {
 		f.addAssignment(f.newArrayIdentifier(5, f.newBasicIdentifier("array")),
 				f.newArrayIdentifier(3, f.newBasicIdentifier("arrei")));
 
-		long tmp_n = Long.parseLong(new SymbolTableImpl().getNextFreeTemporary().replaceFirst("\\D*", ""));
+		long tmp_n = Long.parseLong(new SymbolTableImpl()
+				.getNextFreeTemporary().replaceFirst("\\D*", ""));
 		String tmp0 = "tmp" + ++tmp_n;
 		String tmp1 = "tmp" + ++tmp_n;
 		String expected = "";
@@ -320,4 +364,26 @@ public class ArrayTest {
 		expected += "(ARRAY_SET_LONG|array|#5|" + tmp1 + ")" + "\n";
 		assertEquals(expected, this.textifyQuadruples(f.getAST()));
 	}
+
+	@Test
+	public void itCanReturnOneDimensionalArraysD()
+			throws IntermediateCodeGeneratorException {
+		ASTFactory f = new ASTFactory();
+		// Double array[10];
+		f.addDeclaration("array", new ArrayType(new DoubleType(), 10));
+		// return array[3];
+		f.addReturn(f.newArrayIdentifier(3, f.newBasicIdentifier("array")));
+
+		long tmp_n = Long.parseLong(new SymbolTableImpl()
+				.getNextFreeTemporary().replaceFirst("\\D*", ""));
+		String tmp0 = "tmp" + ++tmp_n;
+		String expected = "";
+		expected += "(DECLARE_ARRAY|#10|!|array)" + "\n";
+		expected += "(DECLARE_DOUBLE|!|!|!)" + "\n";
+		expected += "(DECLARE_DOUBLE|!|!|" + tmp0 + ")" + "\n";
+		expected += "(ARRAY_GET_DOUBLE|array|#3|" + tmp0 + ")" + "\n";
+		expected += "(RETURN|" + tmp0 + "|!|!)" + "\n";
+		assertEquals(expected, this.textifyQuadruples(f.getAST()));
+	}
+
 }

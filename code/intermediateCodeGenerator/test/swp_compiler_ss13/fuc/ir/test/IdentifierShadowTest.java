@@ -24,7 +24,7 @@ public class IdentifierShadowTest {
 	private AST ast;
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() throws IntermediateCodeGeneratorException {
 		PA.setValue(SymbolTableImpl.class, "ext", 0);
 		ASTFactory astf = new ASTFactory();
 		astf.addDeclaration("shadow", new BooleanType());
@@ -45,13 +45,13 @@ public class IdentifierShadowTest {
 		astf.addPrint(astf.newBasicIdentifier("shadow"));
 		astf.goToParent();
 		astf.addPrint(astf.newBasicIdentifier("shadow"));
-		this.ast = astf.getAST();
+		ast = astf.getAST();
 	}
 
 	@Test
 	public void test() throws IntermediateCodeGeneratorException {
 		IntermediateCodeGeneratorImpl irg = new IntermediateCodeGeneratorImpl();
-		List<Quadruple> irc = irg.generateIntermediateCode(this.ast);
+		List<Quadruple> irc = irg.generateIntermediateCode(ast);
 
 		StringBuilder b = new StringBuilder();
 		for (Quadruple q : irc) {

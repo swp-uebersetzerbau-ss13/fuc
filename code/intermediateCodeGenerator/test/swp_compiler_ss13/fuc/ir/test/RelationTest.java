@@ -33,9 +33,10 @@ public class RelationTest {
 	private AST astEqual;
 	private AST astDEqual;
 	private AST astInEqual;
+	private AST astEX;
 
 	@Before
-	public void setUp() throws Exception {
+	public void setUp() throws IntermediateCodeGeneratorException {
 		PA.setValue(SymbolTableImpl.class, "ext", 0);
 
 		ASTFactory astf = new ASTFactory();
@@ -168,6 +169,17 @@ public class RelationTest {
 						astf11.newLiteral("5", new LongType())));
 		astInEqual = astf11.getAST();
 
+		ASTFactory astf12 = new ASTFactory();
+		astf12.addDeclaration("l", new LongType());
+		astf12.addDeclaration("r", new BooleanType());
+		astf12.addAssignment(astf12.newBasicIdentifier("l"),
+				astf12.newLiteral("10", new LongType()));
+		astf12.addAssignment(
+				astf12.newBasicIdentifier("r"),
+				astf12.newBinaryExpression(BinaryOperator.ADDITION,
+						astf12.newBasicIdentifier("l"),
+						astf12.newLiteral("5", new LongType())));
+		astEX = astf12.getAST();
 	}
 
 	@Test
@@ -413,4 +425,26 @@ public class RelationTest {
 
 		assertEquals(expected, actual);
 	}
+
+	@Test
+	public void testEX() {
+		try {
+			IntermediateCodeGeneratorImpl irg = new IntermediateCodeGeneratorImpl();
+			List<Quadruple> irc = irg.generateIntermediateCode(astEX);
+
+			StringBuilder b = new StringBuilder();
+			for (Quadruple q : irc) {
+				b.append(String.format("(%s|%s|%s|%s)\n", q.getOperator(),
+						q.getArgument1(), q.getArgument2(), q.getResult()));
+			}
+			String actual = b.toString();
+			System.out.println(actual);
+
+		} catch (IntermediateCodeGeneratorException x) {
+			System.out.println(x);
+			return;
+		}
+
+	}
+
 }
