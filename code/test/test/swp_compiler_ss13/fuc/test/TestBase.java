@@ -76,14 +76,14 @@ public abstract class TestBase {
 	}
 
 	protected void testProgCompilation(Object[] prog) throws BackendException, IntermediateCodeGeneratorException, IOException, InterruptedException {
-		InputStream res = compile((String)prog[0]);
+		InputStream res = compile((String) prog[0]);
 		assertTrue(res != null);
 	}
 
 	protected void testProgRuntime(Object[] prog) throws BackendException, IntermediateCodeGeneratorException, IOException, InterruptedException {
 		TACExecutor.ExecutionResult res = compileAndExecute((String)prog[0]);
-		assertEquals(prog[1], res.exitCode);
 		assertEquals(prog[2], res.output);
+		assertEquals(prog[1], res.exitCode);
 	}
 
 	protected void testProgHasError(Object[] prog) throws BackendException, IntermediateCodeGeneratorException, IOException, InterruptedException {

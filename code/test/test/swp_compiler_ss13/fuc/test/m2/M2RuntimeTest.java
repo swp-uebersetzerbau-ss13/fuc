@@ -58,15 +58,20 @@ public class M2RuntimeTest extends TestBase {
 	}
 
 	@Test
-	@Ignore("fails")
+	@Ignore("fails due to bug in backend")
 	public void testCondProg() throws Exception {
 		testProgRuntime(ExampleProgs.condProg());
 	}
 
 	@Test
-	@Ignore("fails")
 	public void testPrintProg() throws Exception {
 		testProgRuntime(ExampleProgs.printProg());
+	}
+
+	/* regression test against return bug */
+	@Test
+	public void testReturnProg() throws Exception {
+		testProgRuntime(ExampleProgs.returnProg());
 	}
 
 }

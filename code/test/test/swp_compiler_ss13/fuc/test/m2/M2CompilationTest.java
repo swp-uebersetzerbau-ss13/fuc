@@ -46,7 +46,7 @@ public class M2CompilationTest extends TestBase {
 
 	@Test
 	public void testAssignmentProg() throws Exception {
-		testProgRuntime(ExampleProgs.assignmentProg());
+		testProgCompilation(ExampleProgs.assignmentProg());
 	}
 
 	@Test
@@ -55,9 +55,14 @@ public class M2CompilationTest extends TestBase {
 	}
 
 	@Test
-	@Ignore("fails")
 	public void testPrintProg() throws Exception {
-		testProgRuntime(ExampleProgs.printProg());
+		testProgCompilation(ExampleProgs.printProg());
+	}
+
+	/* regression test against return bug */
+	@Test
+	public void testReturnProg() throws Exception {
+		testProgCompilation(ExampleProgs.returnProg());
 	}
 
 }

@@ -106,8 +106,18 @@ public class ExampleProgs {
 		String expectedOutput = "" +
 				"true\n" +
 				"18121313223\n" +
-				"-2.323e-99\n" +
-				"jagÄrEttString\"";
+				"-2.323000e-99\n" +
+				"jagÄrEttString\"\n";
+		return new Object[]{prog, expectedExitcode, expectedOutput};
+	}
+
+	/* M2 additional progs */
+
+	/* test prog for regression test against return bug */
+	public static Object[] returnProg() {
+		String prog = "return;";
+		int expectedExitcode = 0;
+		String expectedOutput = "";
 		return new Object[]{prog, expectedExitcode, expectedOutput};
 	}
 
