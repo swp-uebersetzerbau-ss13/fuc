@@ -26,7 +26,7 @@ public class PrintProgTest {
 		"# true\n" +
 		"# 18121313223\n" +
 		"# -2.323e-99\n" +
-		"# jagÄrEttString\"\n" +
+		"# jagÃ„rEttString\"\n" +
 		"\n" +
 		"long l;\n" +
 		"double d;\n" +
@@ -39,7 +39,7 @@ public class PrintProgTest {
 		"b = true;\n" +
 		"l = 18121313223;\n" +
 		"d = -23.23e-100;\n" +
-		"s = \"jagÄrEttString\\\"\\n\";  # c-like escaping in strings\n" +
+		"s = \"jagÃ„rEttString\\\"\\n\";  # c-like escaping in strings\n" +
 		"\n" +
 		"print b; print linebreak;\n" +
 		"print l; print linebreak;       # print one digit left of the radix point\n" +
@@ -65,7 +65,7 @@ public class PrintProgTest {
 			new TokenImpl("# true", TokenType.COMMENT, 3, 1),
 			new TokenImpl("# 18121313223", TokenType.COMMENT, 4, 1),
 			new TokenImpl("# -2.323e-99", TokenType.COMMENT, 5, 1),
-			new TokenImpl("# jagÄrEttString\"", TokenType.COMMENT, 6, 1),
+			new TokenImpl("# jagÃ„rEttString\"", TokenType.COMMENT, 6, 1),
 			new TokenImpl("long", TokenType.LONG_SYMBOL, 8, 1),
 			new TokenImpl("l", TokenType.ID, 8, 6),
 			new TokenImpl(";", TokenType.SEMICOLON, 8, 7),
@@ -98,7 +98,7 @@ public class PrintProgTest {
 			new TokenImpl(";", TokenType.SEMICOLON, 18, 16),
 			new TokenImpl("s", TokenType.ID, 19, 1),
 			new TokenImpl("=", TokenType.ASSIGNOP, 19, 3),
-			new TokenImpl("\"jagÄrEttString\\\"\\n\"", TokenType.STRING, 19, 5),
+			new TokenImpl("\"jagÃ„rEttString\\\"\\n\"", TokenType.STRING, 19, 5),
 			new TokenImpl(";", TokenType.SEMICOLON, 19, 25),
 			new TokenImpl("# c-like escaping in strings", TokenType.COMMENT, 19, 28),
 			new TokenImpl("print", TokenType.PRINT, 21, 1),
@@ -138,7 +138,7 @@ public class PrintProgTest {
 		do {
 			comparisontoken = list.remove(0);
 			token = this.lexer.getNextToken();
-			
+			System.out.println(comparisontoken.getValue());
 			assertTrue(token != null);
 			if (token.getLine() == 6 && token.getColumn() == 1 || token.getLine() == 19 && token.getColumn() == 5) {
 				assertEquals(comparisontoken.getValue().length(), token.getValue().length());	
