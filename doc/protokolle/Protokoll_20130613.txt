@@ -1,0 +1,33 @@
+Protokoll Sitzung 13.06.2013
+
+1. Check TODOs/Status
+2. Fehler
+3. M2-Planung Final
+4. M2-Feier
+5. M3-Planung
+
+1. Check TODOs/Status
+- TODOs erledigt
+- Parser: Versucht Arrays noch fertig zu stellen, Tests zu schreiben zur Code 
+- Lexer: Aufgaben für M3 offen, Tests werden noch weiter geschrieben
+- Semantik: Noch ein Bug (wird gefixt)
+- Crosstests: Funktionieren (Lexer sind z.B. austauschbar)
+- IR: läuft
+- GUI: fertig, nächsten Schritte in M3
+- Backend: Exception-Handling bzgl. Arrays noch nicht drin -> M3
+
+2. Fehler
+- direktere Kommunikation bei Fehlern über E-Mail-Verteiler
+
+3. M2-Planung Final
+- bis Samstag Doku im Wiki
+- E-Mail an Projektleiter, wenn alles fertig ist (gruppenweise)
+
+4. M2-Feier
+- nächsten Donnerstag, 20.06.2013
+- Selbstversorgung
+
+5. M3-Planung
+- verschoben auf nächste Sitzung
+
+
