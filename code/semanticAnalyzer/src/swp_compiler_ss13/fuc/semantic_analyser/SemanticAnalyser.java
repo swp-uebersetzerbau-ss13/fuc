@@ -65,7 +65,7 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 		CODE_STATE
 	}
 	private static final String IS_INITIALIZED = "1";
-	private static final String NO_ATTRIBUTE_VALUE = "no Value";
+	private static final String NO_ATTRIBUTE_VALUE = "undefined";
 	private static final String CAN_BREAK = "true";
 	private static final String TYPE_MISMATCH = "type mismatch";
 	private static final String DEAD_CODE = "dead";
@@ -399,6 +399,11 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 				setAttribute(node, Attribute.TYPE_CHECK, TYPE_MISMATCH);
 				errorLog.reportError(ReportType.TYPE_MISMATCH, node.coverage(),
 					"Operator " + node.getOperator() + " expects numeric operands.");
+			} else {
+				/*
+				 * A ReleationExpression results in a boolean.
+				 */
+				setAttribute(node, Attribute.TYPE, Type.Kind.BOOLEAN.name());
 			}
 		}
 	}
@@ -467,7 +472,10 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 		} else {
 			markIdentifierAsInitialized(table, getAttribute(node.getLeftValue(), Attribute.IDENTIFIER));
 			setAttribute(node, Attribute.TYPE, getAttribute(node.getLeftValue(), Attribute.TYPE));
-		}
+			
+			logger.debug("Assignment: " + getAttribute(node.getLeftValue(), Attribute.IDENTIFIER) +
+				":" + getType(node.getLeftValue()) + " := " + getType(node.getRightValue()));
+		}	
 	}
 
 	/*
