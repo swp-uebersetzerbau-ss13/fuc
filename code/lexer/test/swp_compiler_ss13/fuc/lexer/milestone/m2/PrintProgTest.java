@@ -138,13 +138,9 @@ public class PrintProgTest {
 		do {
 			comparisontoken = list.remove(0);
 			token = this.lexer.getNextToken();
-			System.out.println(comparisontoken.getValue());
+
 			assertTrue(token != null);
-			if (token.getLine() == 6 && token.getColumn() == 1 || token.getLine() == 19 && token.getColumn() == 5) {
-				assertEquals(comparisontoken.getValue().length(), token.getValue().length());	
-			} else {	
-				assertEquals(comparisontoken.getValue(), token.getValue());		
-			}
+			assertEquals(comparisontoken.getValue(), token.getValue());		
 			assertEquals(comparisontoken.getTokenType(), token.getTokenType());
 			
 		} while (token.getTokenType() != TokenType.EOF);
