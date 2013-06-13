@@ -25,7 +25,7 @@ public class M1ErrorTest extends TestBase {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		Logger.getRootLogger().setLevel(Level.ERROR);
+		Logger.getRootLogger().setLevel(Level.INFO);
 	}
 
 	@Before
@@ -59,7 +59,7 @@ public class M1ErrorTest extends TestBase {
 
 	@Test
 	public void testUndefReturn() throws Exception {
-		testProgForErrorMsg(ExampleProgs.undefReturn());
+		testProgForErrorMsg(ExampleProgs.undefReturnProg());
 	}
 
 }

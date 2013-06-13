@@ -116,7 +116,7 @@ public class M2CrossTest extends TestBase {
 
 	@Test
 	public void testUndefReturn() throws Exception {
-		testProgHasError(ExampleProgs.undefReturn());
+		testProgHasError(ExampleProgs.undefReturnProg());
 	}
 
 	/* M2 progs */

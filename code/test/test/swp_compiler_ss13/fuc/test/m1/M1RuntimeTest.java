@@ -1,25 +1,23 @@
 package swp_compiler_ss13.fuc.test.m1;
 
-import java.io.*;
-import java.util.Enumeration;
-
-import org.apache.log4j.Appender;
 import org.apache.log4j.Level;
-import org.junit.experimental.categories.Category;
-import swp_compiler_ss13.fuc.lexer.LexerImpl;
-
 import org.apache.log4j.Logger;
-import org.junit.*;
-
-import swp_compiler_ss13.fuc.semantic_analyser.SemanticAnalyser;
-import swp_compiler_ss13.fuc.test.ExampleProgs;
-import swp_compiler_ss13.fuc.test.TestBase;
+import org.junit.Assume;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import swp_compiler_ss13.common.backend.BackendException;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 import swp_compiler_ss13.fuc.backend.LLVMBackend;
-import swp_compiler_ss13.fuc.ir.IntermediateCodeGeneratorImpl;
-import swp_compiler_ss13.fuc.parser.ParserImpl;
 import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
+import swp_compiler_ss13.fuc.ir.IntermediateCodeGeneratorImpl;
+import swp_compiler_ss13.fuc.lexer.LexerImpl;
+import swp_compiler_ss13.fuc.parser.ParserImpl;
+import swp_compiler_ss13.fuc.semantic_analyser.SemanticAnalyser;
+import swp_compiler_ss13.fuc.test.ExampleProgs;
+import swp_compiler_ss13.fuc.test.TestBase;
+
+import java.io.IOException;
 
 /**
  * <p>

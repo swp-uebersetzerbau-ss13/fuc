@@ -1,8 +1,6 @@
 package swp_compiler_ss13.fuc.test;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.List;
 import java.util.Map;
 
