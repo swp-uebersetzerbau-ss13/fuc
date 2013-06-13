@@ -1,4 +1,4 @@
-﻿/**
+/**
  * 
  */
 package swp_compiler_ss13.fuc.lexer.milestone.m2;
