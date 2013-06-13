@@ -1,17 +1,39 @@
 package swp_compiler_ss13.fuc.gui.sourcecode;
 
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
+import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
+import javax.swing.JTextPane;
 import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.text.Document;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
 
 import org.apache.log4j.Logger;
 
+import swp_compiler_ss13.common.lexer.Token;
+import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.fuc.gui.ide.mvc.Controller;
 import swp_compiler_ss13.fuc.gui.ide.mvc.IDE;
 import swp_compiler_ss13.fuc.gui.ide.mvc.Position;
@@ -19,7 +41,7 @@ import swp_compiler_ss13.fuc.gui.ide.mvc.View;
 
 /**
  * @author "Eduard Wolf"
- *
+ * 
  */
 public class SourceCodeView implements View {
 
@@ -27,15 +49,46 @@ public class SourceCodeView implements View {
 
 	private final SourceCodeController controller;
 
-	private final JTextArea sourceCodeField;
+	private final JTextPane sourceCodeField;
 	private final JScrollPane component;
+	private final SimpleAttributeSet keywordAttributes = new SimpleAttributeSet();
+	private final SimpleAttributeSet stringAttributes = new SimpleAttributeSet();
+	private final SimpleAttributeSet commentAttributes = new SimpleAttributeSet();
+	private final SimpleAttributeSet defaultAttributes = new SimpleAttributeSet();
+	private final SimpleAttributeSet errorAttributes = new SimpleAttributeSet();
+	private final List<TokenType> highlightedKeywords = Arrays.asList(TokenType.BOOL_SYMBOL,
+			TokenType.BREAK, TokenType.DO, TokenType.DOUBLE_SYMBOL, TokenType.ELSE,
+			TokenType.FALSE, TokenType.IF, TokenType.LONG_SYMBOL, TokenType.PRINT,
+			TokenType.RECORD_SYMBOL, TokenType.RETURN, TokenType.STRING_SYMBOL, TokenType.TRUE,
+			TokenType.WHILE);
+	private final TokenType highlightedString = TokenType.STRING;
+	private final TokenType highlightedComment = TokenType.COMMENT;
+	private final TokenType highlightedError = TokenType.NOT_A_TOKEN;
+	private final Map<TokenType, SimpleAttributeSet> attributes;
+
+	private boolean setSourceCode = false;
+	private final Lock sourceCodeLock = new ReentrantLock();
 
 	public SourceCodeView(SourceCodeController controller) {
 		this.controller = controller;
-		sourceCodeField = new JTextArea();
+		sourceCodeField = new JTextPane();
 		sourceCodeField.setEditable(true);
 		component = new JScrollPane();
 		component.setViewportView(sourceCodeField);
+		StyleConstants.setBold(keywordAttributes, true);
+		StyleConstants.setForeground(keywordAttributes, new Color(127, 0, 85));
+		StyleConstants.setForeground(stringAttributes, new Color(42, 0, 255));
+		StyleConstants.setItalic(commentAttributes, true);
+		StyleConstants.setForeground(commentAttributes, Color.GRAY);
+		StyleConstants.setUnderline(errorAttributes, true);
+		StyleConstants.setForeground(errorAttributes, new Color(127, 0, 0));
+		attributes = new HashMap<>();
+		for (TokenType type : highlightedKeywords) {
+			attributes.put(type, keywordAttributes);
+		}
+		attributes.put(highlightedString, stringAttributes);
+		attributes.put(highlightedComment, commentAttributes);
+		attributes.put(highlightedError, errorAttributes);
 	}
 
 	@Override
@@ -58,11 +111,20 @@ public class SourceCodeView implements View {
 		return controller;
 	}
 
-	void setSourceCode(final String code) {}
+	void setSourceCode(final String code) {
+		if (setSourceCode) {
+			sourceCodeField.setText(code);
+		}
+	}
 
 	@Override
 	public void initComponents(IDE ide) {
 		sourceCodeField.getDocument().addDocumentListener(new CopyListener(ide));
+		JMenu menu = new JMenu("File");
+		JMenuItem loadFile = new JMenuItem("Open File...");
+		loadFile.addActionListener(new LoadFileListener(ide));
+		menu.add(loadFile);
+		ide.addMenu(menu, Position.SOURCE_CODE, true);
 	}
 
 	private class CopyListener implements ActionListener, DocumentListener {
@@ -79,7 +141,48 @@ public class SourceCodeView implements View {
 
 				@Override
 				public void run() {
-					ide.setSourceCode(sourceCodeField.getText());
+					String text = sourceCodeField.getText();
+					int caretPosition = sourceCodeField.getCaretPosition();
+					SimpleAttributeSet attrs;
+					Document document = sourceCodeField.getDocument();
+					document.removeDocumentListener(CopyListener.this);
+					try {
+						document.remove(0, document.getLength());
+						document.insertString(0, text, defaultAttributes);
+						List<Token> tokens = ide.runLexer(text, true);
+						String[] lines = text.split("\n");
+						int[] lineLength = new int[lines.length];
+						lineLength[0] = 0;
+						for (int i = 0; i < lines.length - 1; i++) {
+							lineLength[i + 1] = lineLength[i] + 1 + lines[i].length();
+						}
+
+						int tokenstart;
+						for (Token token : tokens) {
+							attrs = attributes.get(token.getTokenType());
+							if (attrs != null) {
+								tokenstart = lineLength[token.getLine() - 1] + token.getColumn()
+										- 1;
+								document.remove(tokenstart, token.getValue().length());
+								document.insertString(tokenstart, token.getValue(), attrs);
+							}
+						}
+						sourceCodeField.setCaretPosition(caretPosition);
+					} catch (Exception e) {
+						LOG.warn("error durring highlighting", e);
+					} finally {
+						document.addDocumentListener(CopyListener.this);
+					}
+					sourceCodeLock.lock();
+					try {
+						boolean oldValue = setSourceCode;
+						setSourceCode = false;
+						LOG.info("send sourcecode");
+						ide.setSourceCode(text);
+						setSourceCode = oldValue;
+					} finally {
+						sourceCodeLock.unlock();
+					}
 				}
 			});
 		}
@@ -102,6 +205,71 @@ public class SourceCodeView implements View {
 		@Override
 		public void changedUpdate(DocumentEvent e) {
 			statusChanged();
+		}
+
+	}
+
+	private class LoadFileListener implements ActionListener {
+
+		private final IDE ide;
+
+		public LoadFileListener(IDE ide) {
+			this.ide = ide;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			SwingUtilities.invokeLater(new Runnable() {
+
+				@Override
+				public void run() {
+					JFileChooser chooser = new JFileChooser();
+					chooser.setFileFilter(new FileNameExtensionFilter("choose a prog file", "prog"));
+					int showOpenDialog = chooser.showOpenDialog(component);
+					switch (showOpenDialog) {
+					case JFileChooser.APPROVE_OPTION:
+						File file = chooser.getSelectedFile();
+						BufferedReader reader = null;
+						StringBuilder sourceCode = new StringBuilder();
+						String line;
+						try {
+							reader = new BufferedReader(new InputStreamReader(new FileInputStream(
+									file)));
+							while ((line = reader.readLine()) != null) {
+								sourceCode.append(line);
+								sourceCode.append('\n');
+							}
+							sourceCodeLock.lock();
+							try {
+								boolean oldValue = setSourceCode;
+								setSourceCode = true;
+								ide.setSourceCode(sourceCode.substring(0, sourceCode.length() - 1));
+								setSourceCode = oldValue;
+							} finally {
+								sourceCodeLock.unlock();
+							}
+						} catch (FileNotFoundException e1) {
+							LOG.error("choosen file doesn't exist", e1);
+						} catch (IOException e1) {
+							LOG.error("error while reading from file", e1);
+						} finally {
+							if (reader != null) {
+								try {
+									reader.close();
+								} catch (IOException e1) {
+									LOG.error("error while closing file", e1);
+								}
+							}
+						}
+					case JFileChooser.CANCEL_OPTION:
+					case JFileChooser.ERROR_OPTION:
+						break;
+					default:
+						LOG.warn("unknown result while choosing the load file");
+						break;
+					}
+				}
+			});
 		}
 
 	}

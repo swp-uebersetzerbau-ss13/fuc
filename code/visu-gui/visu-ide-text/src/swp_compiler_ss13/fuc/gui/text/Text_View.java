@@ -88,6 +88,7 @@ public class Text_View implements View {
 				this.log.error("Error while adding text to View component", e);
 			}
 		}
+		area.setEditable(false);
 		this.contentPanel.add(area);
 	}
 
