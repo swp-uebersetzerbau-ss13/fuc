@@ -171,7 +171,7 @@ public class LRParser {
 				list.add(token);
 				reportLog.reportError(ReportType.UNDEFINED,list,
 						"An error occurred: " + error.getMsg());
-						throw new ParserException("Get Error State from Actiontable");
+						throw new ParserException("Got Error State from Actiontable");
 			}
 			}
 		}
