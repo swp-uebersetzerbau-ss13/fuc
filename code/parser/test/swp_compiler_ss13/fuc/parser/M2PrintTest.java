@@ -1,6 +1,7 @@
 package swp_compiler_ss13.fuc.parser;
 
 import static org.junit.Assert.assertNotNull;
+import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.b;
 import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.id;
 import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.num;
 import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.t;
@@ -8,7 +9,6 @@ import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.assig
 import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.print;
 import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.returnn;
 import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.sem;
-import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.truee;
 
 import java.io.ByteArrayInputStream;
 
@@ -26,6 +26,7 @@ import swp_compiler_ss13.common.types.primitive.StringType;
 import swp_compiler_ss13.fuc.ast.ASTFactory;
 import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
 import swp_compiler_ss13.fuc.lexer.LexerImpl;
+import swp_compiler_ss13.fuc.lexer.token.RealTokenImpl;
 import swp_compiler_ss13.fuc.parser.generator.ALRGenerator;
 import swp_compiler_ss13.fuc.parser.generator.LR1Generator;
 import swp_compiler_ss13.fuc.parser.generator.items.LR1Item;
@@ -52,9 +53,9 @@ public class M2PrintTest {
 		t("bool", TokenType.BOOL_SYMBOL), id("b"), t(sem),
 		t("string", TokenType.STRING_SYMBOL), id("linebreak"), t(sem),
 		id("linebreak"), t(assignop),t("\"\\n\"", TokenType.STRING), t(sem),
-		id("b"), t(assignop), t(truee), t(sem),
+		id("b"), t(assignop), b(true), t(sem),
 		id("l"), t(assignop), num(18121313223L), t(sem),
-		id("d"), t(assignop), t("-23.23e-100", TokenType.REAL), t(sem),
+		id("d"), t(assignop), new RealTokenImpl("-23.23e-100", TokenType.REAL, -1, -1), t(sem),
 		id("s"), t(assignop), t("\"jagÄrEttString\\\"\\n\"", TokenType.STRING), t(sem),
 		t(print), id("b"), t(sem),t(print), id("linebreak"), t(sem),
 		t(print), id("l"), t(sem),t(print), id("linebreak"), t(sem),

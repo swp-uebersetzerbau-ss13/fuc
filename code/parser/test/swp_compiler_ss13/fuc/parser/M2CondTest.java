@@ -1,12 +1,12 @@
 package swp_compiler_ss13.fuc.parser;
 
 import static org.junit.Assert.assertNotNull;
+import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.b;
 import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.id;
 import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.num;
 import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.t;
 import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.assignop;
 import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.elsee;
-import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.falsee;
 import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.iff;
 import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.lb;
 import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.not;
@@ -15,7 +15,6 @@ import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.print
 import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.rb;
 import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.returnn;
 import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.sem;
-import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.truee;
 
 import java.io.ByteArrayInputStream;
 
@@ -66,8 +65,8 @@ public class M2CondTest {
 				t("long", TokenType.LONG_SYMBOL), id("l"), t(sem),
 				t("string", TokenType.STRING_SYMBOL), id("bla"), t(sem),
 				id("bla"), t(assignop), t("\"bla\"", TokenType.STRING), t(sem),
-				id("b"), t(assignop), t(truee), t(sem),
-				id("c"), t(assignop), t(falsee), t(sem),
+				id("b"), t(assignop), b(true), t(sem),
+				id("c"), t(assignop), b(false), t(sem),
 				id("l"), t(assignop), num(4), t(sem),
 				t(iff), t(lb), id("b"), t(rb),
 				t(iff), t(lb), id("c"), t(orop), t(not), id("b"), t(rb),

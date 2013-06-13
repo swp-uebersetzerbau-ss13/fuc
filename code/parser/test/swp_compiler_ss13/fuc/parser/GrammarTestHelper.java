@@ -22,6 +22,7 @@ import swp_compiler_ss13.common.report.ReportLog;
 import swp_compiler_ss13.fuc.errorLog.LogEntry;
 import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
 import swp_compiler_ss13.fuc.lexer.LexerImpl;
+import swp_compiler_ss13.fuc.lexer.token.BoolTokenImpl;
 import swp_compiler_ss13.fuc.lexer.token.NumTokenImpl;
 import swp_compiler_ss13.fuc.lexer.token.RealTokenImpl;
 import swp_compiler_ss13.fuc.lexer.token.TokenImpl;
@@ -47,6 +48,11 @@ public class GrammarTestHelper {
 	// for  double
 	public static Token real(double i) {
 		return new RealTokenImpl(i + "", TokenType.REAL, -1, -1);
+	}
+
+	// for  bool
+	public static Token b(boolean b) {
+		return new BoolTokenImpl(b + "", b ? TokenType.TRUE : TokenType.FALSE, -1, -1);
 	}
 
 	public static Token t(Terminal terminal) {
