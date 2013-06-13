@@ -21,9 +21,9 @@ import org.junit.Test;
  */
 public class Error_Undef_ReturnProgTest {
 	private String prog =
-			"# error: id spam is not initialized and returned\n" +
-			"long spam;\n" +
-			"return spam;";
+		"# error: id spam is not initialized and returned\n" +
+		"long spam;\n" +
+		"return spam;";
 	private InputStream stream;
 	private LexerImpl lexer;
 	private ArrayList<Token> list;

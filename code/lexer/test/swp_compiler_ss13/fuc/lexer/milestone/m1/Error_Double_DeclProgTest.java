@@ -21,9 +21,9 @@ import org.junit.Test;
  */
 public class Error_Double_DeclProgTest {
 	private String prog = 
-			"# error: two decls for same id i\n" +
-			"long i;\n" +
-			"long i;";
+		"# error: two decls for same id i\n" +
+		"long i;\n" +
+		"long i;";
 	private InputStream stream;
 	private LexerImpl lexer;
 	private ArrayList<Token> list;
