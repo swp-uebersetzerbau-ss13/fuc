@@ -48,9 +48,9 @@ public class M2AssignmentTest {
 
 		// Simulate input
 		Lexer lexer = new TestLexer(
-				new TestToken("long", TokenType.LONG_SYMBOL), id("a"), t(sem),
-				new TestToken("long", TokenType.LONG_SYMBOL), id("b"), t(sem),
-				new TestToken("long", TokenType.LONG_SYMBOL), id("c"), t(sem),
+				t("long", TokenType.LONG_SYMBOL), id("a"), t(sem),
+				t("long", TokenType.LONG_SYMBOL), id("b"), t(sem),
+				t("long", TokenType.LONG_SYMBOL), id("c"), t(sem),
 				id("a"), t(assignop), num(4), t(sem),
 				id("b"), t(assignop), num(3), t(sem),
 				id("c"), t(assignop), num(2), t(sem),

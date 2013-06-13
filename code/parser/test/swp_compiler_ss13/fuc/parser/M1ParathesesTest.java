@@ -52,8 +52,8 @@ public class M1ParathesesTest {
 		LRParsingTable table = generator.getParsingTable();
 
 		// Simulate input
-		Lexer lexer = new TestLexer(new TestToken("", TokenType.COMMENT),
-				new TestToken("long", TokenType.LONG_SYMBOL), id("l"), t(sem),
+		Lexer lexer = new TestLexer(t("", TokenType.COMMENT),
+				t("long", TokenType.LONG_SYMBOL), id("l"), t(sem),
 				id("l"), t(assignop), t(lb), num(3), t(plus), num(3), t(rb),
 				t(times), num(2), t(minus), t(lb), id("l"), t(assignop), t(lb),
 				num(2), t(plus), t(lb), num(16), t(div), num(8), t(rb), t(rb),

@@ -50,7 +50,7 @@ public class M1AddTest {
 
 		// Simulate input
 		Lexer lexer = new TestLexer(
-				new TestToken("long", TokenType.LONG_SYMBOL), id("l"), t(sem),
+				t("long", TokenType.LONG_SYMBOL), id("l"), t(sem),
 				id("l"), t(assignop), num(10), t(plus), num(23), t(minus),
 				num(23), t(plus), num(100), t(div), num(2), t(minus), num(30),
 				t(minus), num(9), t(div), num(3), t(sem), t(returnn), id("l"),

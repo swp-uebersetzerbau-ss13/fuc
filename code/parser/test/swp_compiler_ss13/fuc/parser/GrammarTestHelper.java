@@ -22,6 +22,9 @@ import swp_compiler_ss13.common.report.ReportLog;
 import swp_compiler_ss13.fuc.errorLog.LogEntry;
 import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
 import swp_compiler_ss13.fuc.lexer.LexerImpl;
+import swp_compiler_ss13.fuc.lexer.token.NumTokenImpl;
+import swp_compiler_ss13.fuc.lexer.token.RealTokenImpl;
+import swp_compiler_ss13.fuc.lexer.token.TokenImpl;
 import swp_compiler_ss13.fuc.parser.generator.ALRGenerator;
 import swp_compiler_ss13.fuc.parser.generator.LR1Generator;
 import swp_compiler_ss13.fuc.parser.generator.items.LR1Item;
@@ -38,24 +41,28 @@ public class GrammarTestHelper {
 	
 	// for long	
 	public static Token num(long i) {
-		return new TestToken(i + "", TokenType.NUM);
+		return new NumTokenImpl(i + "", TokenType.NUM, -1, -1);
 	}
 
 	// for  double
 	public static Token real(double i) {
-		return new TestToken(i + "", TokenType.REAL);
+		return new RealTokenImpl(i + "", TokenType.REAL, -1, -1);
 	}
 
 	public static Token t(Terminal terminal) {
 		// TODO Handle special terminals better
 		if (terminal == Terminal.EOF) {
-			return new TestToken(terminal.getId(), TokenType.EOF);
+			return new TokenImpl(terminal.getId(), TokenType.EOF, -1, -1);
 		}
-		return new TestToken(terminal.getId(), terminal.getTokenTypes().next());
+		return new TokenImpl(terminal.getId(), terminal.getTokenTypes().next(), -1, -1);
+	}
+	
+	public static Token t(String value, TokenType type) {
+		return new TokenImpl(value, type, -1, -1);
 	}
 
 	public static Token id(String value) {
-		return new TestToken(value, TokenType.ID);
+		return new TokenImpl(value, TokenType.ID, -1, -1);
 	}
 	
 	

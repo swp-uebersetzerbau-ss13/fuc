@@ -61,11 +61,11 @@ public class M2CondTest {
 
 		// Simulate input
 		Lexer lexer = new TestLexer(
-				new TestToken("bool", TokenType.BOOL_SYMBOL), id("b"), t(sem),
-				new TestToken("bool", TokenType.BOOL_SYMBOL), id("c"), t(sem),
-				new TestToken("long", TokenType.LONG_SYMBOL), id("l"), t(sem),
-				new TestToken("string", TokenType.STRING_SYMBOL), id("bla"), t(sem),
-				id("bla"), t(assignop), new TestToken("\"bla\"", TokenType.STRING), t(sem),
+				t("bool", TokenType.BOOL_SYMBOL), id("b"), t(sem),
+				t("bool", TokenType.BOOL_SYMBOL), id("c"), t(sem),
+				t("long", TokenType.LONG_SYMBOL), id("l"), t(sem),
+				t("string", TokenType.STRING_SYMBOL), id("bla"), t(sem),
+				id("bla"), t(assignop), t("\"bla\"", TokenType.STRING), t(sem),
 				id("b"), t(assignop), t(truee), t(sem),
 				id("c"), t(assignop), t(falsee), t(sem),
 				id("l"), t(assignop), num(4), t(sem),
