@@ -99,6 +99,7 @@ public class AssignmentProgTest {
 		do {
 			comparisontoken = list.remove(0);
 			token = this.lexer.getNextToken();
+			
 			assertTrue(token != null);
 			assertEquals(comparisontoken.getValue(), token.getValue());
 			assertEquals(comparisontoken.getTokenType(), token.getTokenType());

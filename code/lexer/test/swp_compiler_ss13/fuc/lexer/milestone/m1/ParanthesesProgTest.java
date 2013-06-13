@@ -21,10 +21,10 @@ import org.junit.Test;
  */
 public class ParanthesesProgTest {
 	private String prog = 
-			"# returns 8 or does it?\n" +
-			"long l;\n" +
-			"l = ( 3 + 3 ) * 2 - ( l = ( 2 + ( 16 / 8 ) ) );\n" +
-			"return l;";
+		"# returns 8 or does it?\n" +
+		"long l;\n" +
+		"l = ( 3 + 3 ) * 2 - ( l = ( 2 + ( 16 / 8 ) ) );\n" +
+		"return l;";
 	private InputStream stream;
 	private LexerImpl lexer;
 	private ArrayList<Token> list;

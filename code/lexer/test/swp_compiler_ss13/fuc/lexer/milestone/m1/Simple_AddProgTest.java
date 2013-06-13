@@ -21,10 +21,10 @@ import org.junit.Test;
  */
 public class Simple_AddProgTest {
 	private String prog = 
-			"# returns 6\n" +
-			"long l;\n" +
-			"l = 3 + 3;\n" +
-			"return l;";
+		"# returns 6\n" +
+		"long l;\n" +
+		"l = 3 + 3;\n" +
+		"return l;";
 	private InputStream stream;
 	private LexerImpl lexer;
 	private ArrayList<Token> list;
