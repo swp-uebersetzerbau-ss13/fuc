@@ -2,6 +2,9 @@ package swp_compiler_ss13.fuc.parser.grammar;
 
 import org.apache.log4j.Logger;
 
+import swp_compiler_ss13.common.lexer.BoolToken;
+import swp_compiler_ss13.common.lexer.NumToken;
+import swp_compiler_ss13.common.lexer.RealToken;
 import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
 
@@ -19,7 +22,7 @@ public class TokenEx implements Token {
 	// --------------------------------------------------------------------------
 	private static final Logger log = Logger.getLogger(TokenEx.class);
 
-	private final Token token;
+	protected final Token token;
 	private final Terminal terminal;
 
 	// --------------------------------------------------------------------------
@@ -32,7 +35,8 @@ public class TokenEx implements Token {
 	}
 
 	/**
-	 * Associates the given {@link Token} with a {@link Terminal} as specified in the {@link Grammar}
+	 * Associates the given {@link Token} with a {@link Terminal} as specified
+	 * in the {@link Grammar}
 	 * 
 	 * @param token
 	 * @param grammar
@@ -60,7 +64,18 @@ public class TokenEx implements Token {
 				log.warn("Unable to find a terminal for token: "
 						+ tokenToStringFull(token));
 			}
-			return new TokenEx(token, terminal);
+
+			switch (token.getTokenType()) {
+			case NUM:
+				return new NumTokenEx((NumToken) token, terminal);
+			case TRUE:
+			case FALSE:
+				return new BoolTokenEx((BoolToken) token, terminal);
+			case REAL:
+				return new RealTokenEx((RealToken) token, terminal);
+			default:
+				return new TokenEx(token, terminal);
+			}
 		}
 	}
 
@@ -107,7 +122,40 @@ public class TokenEx implements Token {
 
 	@Override
 	public String toString() {
-		return "TokenEx: " + tokenToString(token) + "|"
+		return "Token: " + tokenToString(token) + "|"
 				+ (terminal != null ? terminal.toString() : "");
+	}
+
+	public static class NumTokenEx extends TokenEx implements NumToken {
+		public NumTokenEx(NumToken token, Terminal terminal) {
+			super(token, terminal);
+		}
+
+		@Override
+		public Long getLongValue() {
+			return ((NumToken) token).getLongValue();
+		}
+	}
+
+	public static class RealTokenEx extends TokenEx implements RealToken {
+		public RealTokenEx(RealToken token, Terminal terminal) {
+			super(token, terminal);
+		}
+
+		@Override
+		public Double getDoubleValue() {
+			return ((RealToken) token).getDoubleValue();
+		}
+	}
+
+	public static class BoolTokenEx extends TokenEx implements BoolToken {
+		public BoolTokenEx(BoolToken token, Terminal terminal) {
+			super(token, terminal);
+		}
+
+		@Override
+		public Boolean getBooleanValue() {
+			return ((BoolToken) token).getBooleanValue();
+		}
 	}
 }
