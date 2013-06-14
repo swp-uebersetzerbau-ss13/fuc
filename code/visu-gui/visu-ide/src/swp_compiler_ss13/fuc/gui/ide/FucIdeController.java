@@ -56,6 +56,7 @@ public class FucIdeController {
 	 * The view
 	 */
 	private FucIdeView view;
+	private WriterAppender appender;
 
 	private static Logger logger = Logger.getLogger(FucIdeController.class);
 
@@ -76,10 +77,10 @@ public class FucIdeController {
 
 	private void redirectSystemStreams() {
 		final StringWriter consoleWriter = new StringWriter();
-		WriterAppender appender = new WriterAppender(new PatternLayout("%d{ISO8601} %p - %m%n"), consoleWriter);
-		appender.setName("GUI_APPENDER");
-		appender.setThreshold(org.apache.log4j.Level.DEBUG);
-		Logger.getRootLogger().addAppender(appender);
+		this.appender = new WriterAppender(new PatternLayout("%d{ISO8601} %p - %m%n"), consoleWriter);
+		this.appender.setName("GUI_APPENDER");
+		this.appender.setThreshold(org.apache.log4j.Level.INFO);
+		Logger.getRootLogger().addAppender(this.appender);
 
 		new Thread() {
 			@Override
@@ -735,5 +736,10 @@ public class FucIdeController {
 				FucIdeController.this.view.showTab(controller);
 			}
 		});
+	}
+
+	public void onLogLevelSelected(org.apache.log4j.Level level) {
+		this.appender.setThreshold(level);
+		logger.info("LegLevel now set to " + level);
 	}
 }
