@@ -58,7 +58,6 @@ public class M2RuntimeTest extends TestBase {
 	}
 
 	@Test
-	@Ignore("fails due to bug in backend")
 	public void testCondProg() throws Exception {
 		testProgRuntime(ExampleProgs.condProg());
 	}
