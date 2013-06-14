@@ -189,13 +189,21 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 	}
 
 	protected Type.Kind getType(ASTNode node) {
-		return Type.Kind.valueOf(getAttribute(node, Attribute.TYPE));
+		String attr = getAttribute(node, Attribute.TYPE);
+		if (attr != NO_ATTRIBUTE_VALUE)
+			return Type.Kind.valueOf(attr);
+		else
+			return null;
 	}
 
 	protected Type.Kind leastUpperBoundType(ASTNode left, ASTNode right) {
 		TreeSet<Type.Kind> types = new TreeSet<>();
-		types.add(getType(left));
-		types.add(getType(right));
+		Type.Kind leftType = getType(left);
+		Type.Kind rightType = getType(right);
+		if (leftType == null || rightType == null)
+			return null;
+		types.add(leftType);
+		types.add(rightType);
 
 		if (types.size() == 1) {
 			return types.first();
@@ -448,7 +456,7 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 		for (StatementNode child : node.getStatementList()) {
 			if (hasAttribute(node, Attribute.CODE_STATE, DEAD_CODE)) {
 				errorLog.reportError(ReportType.UNDEFINED, child.coverage(),
-					"Unreachable statement, see previous “return” in block.");
+					"Unreachable statement, see previous \"return\" in block.");
 			}
 
 			this.traverse(child, blockScope);
@@ -495,8 +503,8 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 
 		if (t == null) {
 			setAttribute(node, Attribute.TYPE_CHECK, TYPE_MISMATCH);
-			errorLog.reportError(ReportType.UNDEFINED, node.coverage(),
-				"Identifier “" + identifier + "” has not been declared.");
+			errorLog.reportError(ReportType.UNDECLARED_VARIABLE_USAGE, node.coverage(),
+				"Identifier \"" + identifier + "\" has not been declared.");
 
 			return;
 		}
@@ -518,7 +526,7 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 		
 		if (reportInitialization && !initialzed) {
 			errorLog.reportWarning(ReportType.UNDEFINED, node.coverage(),
-				"Variable “" + identifier + "” may be used without initialization.");
+				"Variable \"" + identifier + "\" may be used without initialization.");
 		}
 	}
 
