@@ -110,6 +110,8 @@ public class FucIdeModel implements IDE {
 
 	private String sourcecode;
 
+	private Map<String, InputStream> executable;
+
 	/**
 	 * Initialize the model
 	 * 
@@ -358,5 +360,13 @@ public class FucIdeModel implements IDE {
 	@Override
 	public String runProgram(Map<String, InputStream> program, boolean silent) {
 		return this.controller.runProgram(program, silent);
+	}
+
+	public Map<String, InputStream> getExecutable() {
+		return this.executable;
+	}
+
+	public void setExecutable(Map<String, InputStream> executable) {
+		this.executable = executable;
 	}
 }

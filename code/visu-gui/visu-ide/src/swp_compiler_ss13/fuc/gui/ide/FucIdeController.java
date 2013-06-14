@@ -379,6 +379,10 @@ public class FucIdeController {
 
 	public void notifySourceCodeChanged() {
 		logger.info("Source code was changed");
+
+		this.model.setExecutable(null);
+		this.view.disableExecuteButton();
+
 		for (Controller c : this.model.getGUIControllers()) {
 			if (c.getModel().setSourceCode(this.model.getSourceCode())) {
 				c.notifyModelChanged();
@@ -432,18 +436,20 @@ public class FucIdeController {
 
 		List<Token> tokens = this.runLexer(sourceCode, silent, reportlog);
 		this.notifyTokensChanged(tokens);
-		if (tokens != null) {
+		if (tokens != null && !this.reportLogContainsErrors(reportlog)) {
 			AST ast = this.runParser(tokens, silent, reportlog);
 			this.notifyASTChanged(ast);
-			if (ast != null) {
+			if (ast != null && !this.reportLogContainsErrors(reportlog)) {
 				AST checkedAST = this.runSemanticAnalysis(ast, silent, reportlog);
 				this.notifyASTChanged(ast);
-				if (checkedAST != null) {
+				if (checkedAST != null && !this.reportLogContainsErrors(reportlog)) {
 					List<Quadruple> tac = this.runIntermediateCodeGenerator(checkedAST, silent, reportlog);
 					this.notifyTACChanged(tac);
-					if (tac == null) {
+					if (tac != null && !this.reportLogContainsErrors(reportlog)) {
 						Map<String, InputStream> target = this.runBackend(tac, silent, reportlog);
 						this.notifyTargetChanged(target);
+						this.model.setExecutable(target);
+						this.view.enableExecuteButton();
 					}
 				}
 			}
@@ -451,6 +457,10 @@ public class FucIdeController {
 		if (!silent) {
 			this.setLogEntries(reportlog);
 		}
+	}
+
+	private boolean reportLogContainsErrors(ReportLogImpl reportlog) {
+		return reportlog.getErrors().size() > 0;
 	}
 
 	public List<Token> runLexer(String sourceCode, boolean silent) {
@@ -585,6 +595,11 @@ public class FucIdeController {
 		return null;
 	}
 
+	public String runProgram(Map<String, InputStream> program, boolean silent) {
+		System.out.println(program);
+		return "";
+	}
+
 	private void setLogEntries(final ReportLogImpl reportlog) {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
@@ -624,10 +639,5 @@ public class FucIdeController {
 				FucIdeController.this.view.showTab(controller);
 			}
 		});
-	}
-
-	public String runProgram(Map<String, InputStream> program, boolean silent) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 }

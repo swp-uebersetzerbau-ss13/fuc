@@ -102,6 +102,7 @@ public class FucIdeView extends JFrame {
 	private JScrollPane scrollPane_1;
 	private JList<String> errorReportList;
 	private Logger logger = Logger.getLogger(FucIdeView.class);
+	private JButton execButton;
 
 	/**
 	 * Create the frame.
@@ -185,7 +186,7 @@ public class FucIdeView extends JFrame {
 		this.panel.add(this.buttonPanel);
 		this.buttonPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
 
-		this.runButton = new JButton("run");
+		this.runButton = new JButton("compile");
 		this.runButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -193,8 +194,16 @@ public class FucIdeView extends JFrame {
 			}
 		});
 		this.runButton
-				.setIcon(new ImageIcon(FucIdeView.class.getResource("/swp_compiler_ss13/fuc/gui/ide/assets/run.png")));
+				.setIcon(new ImageIcon(FucIdeView.class
+						.getResource("/swp_compiler_ss13/fuc/gui/ide/assets/compile.png")));
 		this.buttonPanel.add(this.runButton);
+
+		this.execButton = new JButton("execute");
+		this.execButton.setEnabled(false);
+		this.execButton.setToolTipText("Please compile first!");
+		this.execButton.setIcon(new ImageIcon(FucIdeView.class
+				.getResource("/swp_compiler_ss13/fuc/gui/ide/assets/execute.png")));
+		this.buttonPanel.add(this.execButton);
 
 		this.panel_1 = new JPanel();
 		this.panel.add(this.panel_1, BorderLayout.SOUTH);
@@ -463,5 +472,15 @@ public class FucIdeView extends JFrame {
 
 	public void showTab(Controller controller) {
 		this.componentTabs.setSelectedComponent(controller.getView().getComponent());
+	}
+
+	public void enableExecuteButton() {
+		this.execButton.setEnabled(true);
+		this.execButton.setToolTipText("");
+	}
+
+	public void disableExecuteButton() {
+		this.execButton.setEnabled(false);
+		this.execButton.setToolTipText("Please compile first!");
 	}
 }
