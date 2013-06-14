@@ -9,6 +9,7 @@ import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -435,10 +436,25 @@ public class FucIdeController {
 	public void notifyTargetChanged(Map<String, InputStream> target) {
 		logger.info("target was changed");
 		for (Controller c : this.model.getGUIControllers()) {
-			if (c.getModel().setTargetCode(target)) {
+
+			Map<String, InputStream> clonedTarget = this.deepCloneTargetMap(target);
+
+			if (c.getModel().setTargetCode(clonedTarget)) {
 				c.notifyModelChanged();
 			}
 		}
+	}
+
+	private Map<String, InputStream> deepCloneTargetMap(Map<String, InputStream> target) {
+		HashMap<String, InputStream> clonedMap = new HashMap<>();
+		for (Entry<String, InputStream> entry : target.entrySet()) {
+			InputStream[] copy = this.cloneInputStream(entry.getValue());
+			InputStream copy1 = copy[0];
+			InputStream copy2 = copy[1];
+			target.put(entry.getKey(), copy1);
+			clonedMap.put(entry.getKey(), copy2);
+		}
+		return clonedMap;
 	}
 
 	public void notifyExecutableChanged(String output) {
@@ -625,8 +641,9 @@ public class FucIdeController {
 			for (Entry<String, InputStream> file : program.entrySet()) {
 				String filename = file.getKey();
 				InputStream filecontent = file.getValue();
-				InputStream copy1 = this.cloneInputStream(filecontent);
-				InputStream copy2 = this.cloneInputStream(copy1);
+				InputStream[] copy = this.cloneInputStream(filecontent);
+				InputStream copy1 = copy[0];
+				InputStream copy2 = copy[1];
 				program.put(filename, copy1);
 
 				if (filename.endsWith(".ll")) {
@@ -662,7 +679,7 @@ public class FucIdeController {
 		}
 	}
 
-	private InputStream cloneInputStream(InputStream input) {
+	private InputStream[] cloneInputStream(InputStream input) {
 		try {
 			ByteArrayOutputStream bout = new ByteArrayOutputStream();
 			byte buffer[] = new byte[1024];
@@ -671,7 +688,8 @@ public class FucIdeController {
 				bout.write(buffer, 0, len);
 			}
 			bout.flush();
-			return new ByteArrayInputStream(bout.toByteArray());
+			return new InputStream[] { new ByteArrayInputStream(bout.toByteArray()),
+					new ByteArrayInputStream(bout.toByteArray()) };
 		} catch (IOException e) {
 			new FucIdeCriticalError(this.view, e, true);
 		}
