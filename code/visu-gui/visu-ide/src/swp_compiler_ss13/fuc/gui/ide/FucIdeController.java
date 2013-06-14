@@ -2,6 +2,8 @@ package swp_compiler_ss13.fuc.gui.ide;
 
 import java.awt.Component;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
@@ -10,6 +12,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.swing.SwingUtilities;
 
@@ -26,6 +29,8 @@ import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.common.parser.Parser;
 import swp_compiler_ss13.common.semanticAnalysis.SemanticAnalyser;
+import swp_compiler_ss13.fuc.backend.TACExecutor;
+import swp_compiler_ss13.fuc.backend.TACExecutor.ExecutionResult;
 import swp_compiler_ss13.fuc.errorLog.LogEntry;
 import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
 import swp_compiler_ss13.fuc.gui.ide.data.FucIdeButton;
@@ -352,6 +357,16 @@ public class FucIdeController {
 		this.run(false);
 	}
 
+	public void onExecPressed() {
+		if (this.model.getExecutable() == null) {
+			new FucIdeCriticalError(this.view, "There is nothing to execute. Please press 'compile' before 'execute'!",
+					true);
+		}
+
+		String output = this.runProgram(this.model.getExecutable(), false);
+		this.notifyExecutableChanged(output);
+	}
+
 	public void onLexerSelected(Lexer lexer) {
 		logger.info("Lexer component active: " + lexer.getClass().getName());
 		this.model.setActiveLexer(lexer);
@@ -421,6 +436,15 @@ public class FucIdeController {
 		logger.info("target was changed");
 		for (Controller c : this.model.getGUIControllers()) {
 			if (c.getModel().setTargetCode(target)) {
+				c.notifyModelChanged();
+			}
+		}
+	}
+
+	public void notifyExecutableChanged(String output) {
+		logger.info("executable output was changed");
+		for (Controller c : this.model.getGUIControllers()) {
+			if (c.getModel().setProgramResult(output)) {
 				c.notifyModelChanged();
 			}
 		}
@@ -596,8 +620,62 @@ public class FucIdeController {
 	}
 
 	public String runProgram(Map<String, InputStream> program, boolean silent) {
-		System.out.println(program);
-		return "";
+		try {
+			StringBuilder output = new StringBuilder();
+			for (Entry<String, InputStream> file : program.entrySet()) {
+				String filename = file.getKey();
+				InputStream filecontent = file.getValue();
+				InputStream copy1 = this.cloneInputStream(filecontent);
+				InputStream copy2 = this.cloneInputStream(copy1);
+				program.put(filename, copy1);
+
+				if (filename.endsWith(".ll")) {
+					ExecutionResult r = TACExecutor.runIR(copy2);
+					output.append("Executing ").append(filename).append(":\n\n");
+					output.append(r.output);
+					output.append("\nExit Code: ");
+					output.append(r.exitCode);
+					output.append("\n\n\n");
+				}
+
+				if (filename.endsWith(".class")) {
+					throw new UnsupportedOperationException(
+							"Execution of Code is currently only supported for LLVM. Please use LLVM Backend!");
+				}
+			}
+
+			return output.toString();
+		} catch (Throwable th) {
+			if (silent) {
+				return null;
+			}
+			if (th instanceof IOException) {
+				new FucIdeCriticalError(
+						this.view,
+						"It seems you are missing the program 'lli'. 'lli' is required to execute LLVM Code.\nPlease install 'lli' or check your path if it is already installed!",
+						true);
+			}
+			else {
+				new FucIdeCriticalError(this.view, th, true);
+			}
+			return null;
+		}
+	}
+
+	private InputStream cloneInputStream(InputStream input) {
+		try {
+			ByteArrayOutputStream bout = new ByteArrayOutputStream();
+			byte buffer[] = new byte[1024];
+			int len;
+			while ((len = input.read(buffer)) > 0) {
+				bout.write(buffer, 0, len);
+			}
+			bout.flush();
+			return new ByteArrayInputStream(bout.toByteArray());
+		} catch (IOException e) {
+			new FucIdeCriticalError(this.view, e, true);
+		}
+		return null;
 	}
 
 	private void setLogEntries(final ReportLogImpl reportlog) {

@@ -199,6 +199,12 @@ public class FucIdeView extends JFrame {
 		this.buttonPanel.add(this.runButton);
 
 		this.execButton = new JButton("execute");
+		this.execButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				controller.onExecPressed();
+			}
+		});
 		this.execButton.setEnabled(false);
 		this.execButton.setToolTipText("Please compile first!");
 		this.execButton.setIcon(new ImageIcon(FucIdeView.class

@@ -3,12 +3,14 @@
 		<pathelement location="${src.dir}" />
 		<pathelement location="../../${interfaces.dir}/${src.dir}" />
 		<pathelement location="../../${errorLog.dir}/${src.dir}" />
+		<pathelement location="../../${backend.dir}/${src.dir}" />
 	</path>
 
 	<path id="classpath">
 		<pathelement location="${bin.dir}" />
 		<pathelement location="../../${interfaces.dir}/${bin.dir}" />
 		<pathelement location="../../${errorLog.dir}/${bin.dir}" />
+		<pathelement location="../../${backend.dir}/${bin.dir}" />
 		<pathelement location="../../${lib.dir}/log4jprops.jar" />
 		<pathelement location="../../${lib.dir}/log4j-1.2.17.jar" />
 	</path>
