@@ -40,6 +40,7 @@ import swp_compiler_ss13.fuc.ast.ReturnNodeImpl;
 import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
 import swp_compiler_ss13.fuc.symbolTable.SymbolTableImpl;
 
+// TODO refine ASTs
 public class M2Tests {
 
 	private SemanticAnalyser analyser;
