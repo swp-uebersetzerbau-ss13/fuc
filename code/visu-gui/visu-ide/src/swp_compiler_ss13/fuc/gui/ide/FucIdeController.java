@@ -625,4 +625,9 @@ public class FucIdeController {
 			}
 		});
 	}
+
+	public String runProgram(Map<String, InputStream> program, boolean silent) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

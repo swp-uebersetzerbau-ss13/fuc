@@ -354,4 +354,9 @@ public class FucIdeModel implements IDE {
 	public void showTab(Controller controller) {
 		this.controller.showTab(controller);
 	}
+
+	@Override
+	public String runProgram(Map<String, InputStream> program, boolean silent) {
+		return this.controller.runProgram(program, silent);
+	}
 }
