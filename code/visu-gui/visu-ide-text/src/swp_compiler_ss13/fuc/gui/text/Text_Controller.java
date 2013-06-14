@@ -43,7 +43,7 @@ public class Text_Controller implements Controller {
 	 */
 	@Override
 	public View getView() {
-		return view;
+		return this.view;
 	}
 
 	/**
@@ -51,8 +51,8 @@ public class Text_Controller implements Controller {
 	 */
 	@Override
 	public Model getModel() {
-		chackModel();
-		return model;
+		this.chackModel();
+		return this.model;
 	}
 
 	/**
@@ -60,9 +60,9 @@ public class Text_Controller implements Controller {
 	 */
 	@Override
 	public void notifyModelChanged() {
-		chackModel();
+		this.chackModel();
 		final ModelType type;
-		switch (view.getPosition()) {
+		switch (this.view.getPosition()) {
 		case TOKENS:
 			type = ModelType.TOKEN;
 			break;
@@ -76,11 +76,14 @@ public class Text_Controller implements Controller {
 		case TARGET_CODE:
 			type = ModelType.TARGET;
 			break;
+		case RESULT:
+			type = ModelType.RESULT;
+			break;
 		default:
 			type = null;
 			break;
 		}
-		view.setViewInformation(model.getViewInformation(type));
+		this.view.setViewInformation(this.model.getViewInformation(type));
 	}
 
 	/**
@@ -88,11 +91,11 @@ public class Text_Controller implements Controller {
 	 */
 	@Override
 	public void init(IDE ide) {
-		view.initComponents(ide);
+		this.view.initComponents(ide);
 	}
 
 	private void chackModel() {
-		if (model == null) {
+		if (this.model == null) {
 			throw new IllegalStateException("model isn't initialized");
 		}
 	}

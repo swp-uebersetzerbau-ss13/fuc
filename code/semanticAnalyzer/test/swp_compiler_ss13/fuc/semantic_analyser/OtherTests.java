@@ -13,12 +13,15 @@ import swp_compiler_ss13.common.ast.nodes.binary.AssignmentNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.LiteralNode;
 import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
+import swp_compiler_ss13.common.ast.nodes.ternary.BranchNode;
 import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ReturnNode;
 import swp_compiler_ss13.common.parser.SymbolTable;
 import swp_compiler_ss13.common.report.ReportType;
 import swp_compiler_ss13.common.types.primitive.BooleanType;
 import swp_compiler_ss13.common.types.primitive.LongType;
+import swp_compiler_ss13.common.types.primitive.StringType;
+import swp_compiler_ss13.fuc.ast.ASTFactory;
 import swp_compiler_ss13.fuc.ast.ASTImpl;
 import swp_compiler_ss13.fuc.ast.AssignmentNodeImpl;
 import swp_compiler_ss13.fuc.ast.BasicIdentifierNodeImpl;
@@ -53,8 +56,7 @@ public class OtherTests {
 
 	/**
 	 * # error: statement after return<br/>
-	 * bool b;
-	 * return;<br/>
+	 * bool b; return;<br/>
 	 * b = true;
 	 */
 	@Test
@@ -202,5 +204,52 @@ public class OtherTests {
 
 		System.out.println(log);
 		assertEquals(log.getErrors().size(), 3);
+	}
+
+	/**
+	 * <pre>
+	 * if ( true )
+	 *   print bla;
+	 * return;
+	 * </pre>
+	 */
+	@Test
+	public void testUndeclaredVariableInIfBranch() {
+		ASTFactory factory = new ASTFactory();
+		BranchNode iff = factory.addBranch(factory.newLiteral("true", new BooleanType()));
+		iff.setStatementNodeOnTrue(factory.newPrint(factory.newBasicIdentifier("bla")));
+		factory.goToParent();
+		factory.addReturn(null);
+
+		AST expected = factory.getAST();
+		analyser.analyse(expected);
+
+		assertEquals(1, log.getErrors().size());
+		LogEntry entry = log.getErrors().get(0);
+
+		assertEquals(LogEntry.Type.ERROR, entry.getLogType());
+		assertEquals(ReportType.UNDECLARED_VARIABLE_USAGE, entry.getReportType());
+	}
+
+	/**
+	 * <pre>
+	 * bla = "bla";
+	 * return;
+	 * </pre>
+	 */
+	@Test
+	public void testUndeclaredVariableAssign() {
+		ASTFactory factory = new ASTFactory();
+		factory.addAssignment(factory.newBasicIdentifier("bla"), factory.newLiteral("\"bla\"", new StringType(7L)));
+		factory.addReturn(null);
+
+		AST expected = factory.getAST();
+		analyser.analyse(expected);
+
+		assertEquals(1, log.getErrors().size());
+		LogEntry entry = log.getErrors().get(0);
+
+		assertEquals(LogEntry.Type.ERROR, entry.getLogType());
+		assertEquals(ReportType.UNDECLARED_VARIABLE_USAGE, entry.getReportType());
 	}
 }

@@ -100,6 +100,51 @@ public class LLVMBackend implements Backend
 	private String  array_name = "";
 
 	/**
+	 * This is a pass the backend performs on the TAC
+	 * to ensure it is correct before generating any code.
+	 * This pass in particular ensures that all basic blocks
+	 * are terminated by a valid Quadruple, which is either
+	 * a <code>Quadruple.Operator.RETURN</code> or a <code>Quadruple.Operator.BRANCH</code>,
+	 * by adding them where necessary.
+	 *
+	 * @param tac the program in TAC format to perform the pass on
+	 * @return the program in TAC format after the pass has been performed
+	 */
+	private List<Quadruple> basicBlocksTerminatedPass(List<Quadruple> tac) {
+
+		/* Whenever a label is not preceded by a terminator instruction,
+		 * add a branching instruction to the label before it. */
+		for(int i = 0; i < tac.size(); i += 1) {
+			Quadruple q = tac.get(i);
+			Quadruple.Operator op = q.getOperator();
+			if((op == Quadruple.Operator.LABEL)) {
+				Quadruple.Operator last_op = tac.get(i-1).getOperator();
+				if(! ((last_op == Quadruple.Operator.RETURN) ||
+				      (last_op == Quadruple.Operator.BRANCH))) {
+					tac.add(i, new QuadrupleImpl(
+						        Quadruple.Operator.BRANCH,
+						        q.getArgument1(),
+						        Quadruple.EmptyArgument,
+						        Quadruple.EmptyArgument));
+					i += 1;
+				}
+			}
+		}
+
+		/* If the program is not terminated by a proper return,
+		 * add such a return with the default value of 0 (indicating
+		 * successful termination). */
+		if(tac.size() == 0 || tac.get(tac.size() - 1).getOperator() != Quadruple.Operator.RETURN) {
+			tac.add(new QuadrupleImpl(Quadruple.Operator.RETURN,
+			                          "#0",
+			                          Quadruple.EmptyArgument,
+			                          Quadruple.EmptyArgument));
+		}
+
+		return tac;
+	}
+
+	/**
 	 * This function generates LLVM IR code for
 	 * given three address code.
 	 *
@@ -110,6 +155,9 @@ public class LLVMBackend implements Backend
 	public Map<String, InputStream> generateTargetCode(String baseFileName, List<Quadruple> tac) throws BackendException {
 		ByteArrayOutputStream outStream = new ByteArrayOutputStream();
 		PrintWriter out = new PrintWriter(outStream);
+
+		/* Run passes on the three address code to ensure it is correct. */
+		tac = basicBlocksTerminatedPass(tac);
 
 		Module m = new Module(out);
 
@@ -476,12 +524,6 @@ public class LLVMBackend implements Backend
 					m.addPrint(Module.toIRString(q.getArgument1()), Type.Kind.STRING);
 					break;
 			}
-		}
-
-		/* Write return 0 if last operation is not a return */
-		if(tac.size() == 0 || tac.get(tac.size() - 1).getOperator() != Quadruple.Operator.RETURN)
-		{
-			out.println("  ret i64 0");
 		}
 
 		/* Write handler for uncaught exceptions */

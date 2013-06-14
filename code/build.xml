@@ -37,6 +37,7 @@
 		<ant antfile="build.xml" dir="${visu.gui.ide.ast.dir}" target="clean" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.gui.ide.text.token.dir}" target="clean" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.gui.ide.text.tac.dir}" target="clean" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.gui.ide.text.result.dir}" target="clean" inheritall="false" />
 	</target>
 	
 	<!-- === build all projects === -->
@@ -63,6 +64,7 @@
 		<ant antfile="build.xml" dir="${visu.gui.ide.ast.dir}" target="build" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.gui.ide.text.token.dir}" target="build" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.gui.ide.text.tac.dir}" target="build" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.gui.ide.text.result.dir}" target="build" inheritall="false" />
 	</target>
 	
 	<!-- === doc all projects === -->
@@ -89,6 +91,7 @@
 		<ant antfile="build.xml" dir="${visu.gui.ide.ast.dir}" target="doc" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.gui.ide.text.token.dir}" target="doc" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.gui.ide.text.tac.dir}" target="doc" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.gui.ide.text.result.dir}" target="doc" inheritall="false" />
 	</target>
 	
 	<!-- === build all tests === -->
@@ -253,9 +256,15 @@
 			<zipfileset dir="${dist.dir}/temp" includes="swp_compiler_ss13.fuc.gui.ide.mvc.Controller" fullpath="META-INF/services/swp_compiler_ss13.fuc.gui.ide.mvc.Controller" />
 		</jar>
 		
-		<!-- create the visu-gui-ide-text-token package -->
+		<!-- create the visu-gui-ide-text-tac package -->
 		<echo message="swp_compiler_ss13.fuc.gui.text.tac.TextGUITacVisualizationController" file="${dist.dir}/temp/swp_compiler_ss13.fuc.gui.ide.mvc.Controller" />
 		<jar destfile="${dist.dir}/Fuc-Gui-Ide-Text-Tac.jar" basedir="${visu.gui.ide.text.tac.dir}/${bin.dir}">
+			<zipfileset dir="${dist.dir}/temp" includes="swp_compiler_ss13.fuc.gui.ide.mvc.Controller" fullpath="META-INF/services/swp_compiler_ss13.fuc.gui.ide.mvc.Controller" />
+		</jar>
+		
+		<!-- create the visu-gui-ide-text-result package -->
+		<echo message="swp_compiler_ss13.fuc.gui.text.result.TextGUIResultVisualizationController" file="${dist.dir}/temp/swp_compiler_ss13.fuc.gui.ide.mvc.Controller" />
+		<jar destfile="${dist.dir}/Fuc-Gui-Ide-Text-Result.jar" basedir="${visu.gui.ide.text.result.dir}/${bin.dir}">
 			<zipfileset dir="${dist.dir}/temp" includes="swp_compiler_ss13.fuc.gui.ide.mvc.Controller" fullpath="META-INF/services/swp_compiler_ss13.fuc.gui.ide.mvc.Controller" />
 		</jar>
 		
@@ -408,6 +417,12 @@
 		<jar destfile="${dist.dir}/Fuc-Gui-Ide-Text-Token.jar" basedir="${visu.gui.ide.text.token.dir}/${bin.dir}">
 			<zipfileset dir="${visu.gui.ide.text.token.dir}/${src.dir}" prefix="src" />
 			<zipfileset dir="${visu.gui.ide.text.token.dir}/${doc.dir}" prefix="doc" />
+		</jar>
+		
+		<!-- create the visu-gui-ide-text-result package -->
+		<jar destfile="${dist.dir}/Fuc-Gui-Ide-Text-Result.jar" basedir="${visu.gui.ide.text.result.dir}/${bin.dir}">
+			<zipfileset dir="${visu.gui.ide.text.result.dir}/${src.dir}" prefix="src" />
+			<zipfileset dir="${visu.gui.ide.text.result.dir}/${doc.dir}" prefix="doc" />
 		</jar>
 	</target>
 	

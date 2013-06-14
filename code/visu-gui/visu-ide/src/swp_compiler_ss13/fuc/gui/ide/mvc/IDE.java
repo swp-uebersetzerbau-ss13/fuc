@@ -143,6 +143,18 @@ public interface IDE {
 	public Map<String, InputStream> runBackend(List<Quadruple> tac, boolean silent);
 
 	/**
+	 * Run the given Program
+	 * 
+	 * @param program
+	 *            The program to execute
+	 * @param silent
+	 *            if set to true no output of the compiler is shown in the gui
+	 *            (no errorLog and no exceptions shown).
+	 * @return The output of the executed program
+	 */
+	public String runProgram(Map<String, InputStream> program, boolean silent);
+
+	/**
 	 * Show the tab for the given controller (select it, make it active)
 	 * 
 	 * @param controller
