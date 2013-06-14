@@ -88,7 +88,7 @@ public class AssignmentTests {
 		System.out.println(log);
 		List<LogEntry> errors = log.getErrors();
 		assertEquals(errors.size(), 1);
-		assertEquals(errors.get(0).getReportType(), ReportType.UNDEFINED);
+		assertEquals(errors.get(0).getReportType(), ReportType.UNDECLARED_VARIABLE_USAGE);
 	}
 	
 	/**
