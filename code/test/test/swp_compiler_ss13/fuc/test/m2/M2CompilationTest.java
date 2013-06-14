@@ -3,6 +3,7 @@ package swp_compiler_ss13.fuc.test.m2;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.junit.*;
+import org.junit.Test;
 import swp_compiler_ss13.fuc.backend.LLVMBackend;
 import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
 import swp_compiler_ss13.fuc.ir.IntermediateCodeGeneratorImpl;
@@ -65,4 +66,26 @@ public class M2CompilationTest extends TestBase {
 		testProgCompilation(ExampleProgs.returnProg());
 	}
 
+	@Test
+	@Ignore("fails in Semnatic Analyser")
+	public void testArrayProg1() throws Exception {
+		testProgCompilation(ExampleProgs.arrayProg1());
+	}
+
+	@Test
+	public void testArrayProg2() throws Exception {
+		testProgCompilation(ExampleProgs.arrayProg2());
+	}
+
+	@Test
+	@Ignore("fails in Semnatic Analyser")
+	public void testArrayProg3() throws Exception {
+		testProgCompilation(ExampleProgs.arrayProg3());
+	}
+
+	@Test
+	@Ignore("not yet implemented")
+	public void testReturnBooleProg() throws Exception {
+		testProgCompilation(ExampleProgs.returnBool());
+	}
 }
