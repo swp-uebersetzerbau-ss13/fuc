@@ -74,4 +74,27 @@ public class M2RuntimeTest extends TestBase {
 		testProgRuntime(ExampleProgs.returnProg());
 	}
 
+	@Test
+	@Ignore("fails in Semnatic Analyser")
+	public void testArrayProg1() throws Exception {
+		testProgCompilation(ExampleProgs.arrayProg1());
+	}
+
+	@Test
+	public void testArrayProg2() throws Exception {
+		testProgRuntime(ExampleProgs.arrayProg2());
+	}
+
+	@Test
+	@Ignore("not yet implemented")
+	public void testArrayProg3() throws Exception {
+		testProgRuntime(ExampleProgs.arrayProg3());
+	}
+
+	@Test
+	@Ignore("not yet implemented")
+	public void testReturnBooleProg() throws Exception {
+		testProgRuntime(ExampleProgs.returnBool());
+	}
+
 }
