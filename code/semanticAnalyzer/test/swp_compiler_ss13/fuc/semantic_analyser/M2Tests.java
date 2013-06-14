@@ -560,6 +560,7 @@ public class M2Tests {
 		symbolTable.insert("d", new DoubleType());
 		symbolTable.insert("b", new BooleanType());
 		symbolTable.insert("s", new StringType(new Long(20)));
+		symbolTable.insert("linebreak", new StringType(new Long(20)));
 
 		BlockNode blockNode = new BlockNodeImpl();
 		blockNode.addDeclaration(declaration_l);
