@@ -238,8 +238,9 @@ public abstract class Text_Model implements Model {
 	 */
 	@Override
 	public boolean setProgramResult(String result) {
-		if (this.types.contains(ModelType.PROGRAM)) {
-			this.viewInformation.put(ModelType.PROGRAM, this.resultToViewInformation(result));
+		if (this.types.contains(ModelType.RESULT)) {
+			this.viewInformation.put(ModelType.RESULT, Arrays.asList(new StringColourPair()
+					.setText(result)));
 			return true;
 		} else {
 			return false;
@@ -269,7 +270,7 @@ public abstract class Text_Model implements Model {
 	}
 
 	protected enum ModelType {
-		SOURCE_CODE, TOKEN, AST, TAC, TARGET, PROGRAM;
+		SOURCE_CODE, TOKEN, AST, TAC, TARGET, RESULT;
 	}
 
 }

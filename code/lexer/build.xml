@@ -29,6 +29,8 @@
 	<target name="build" depends="clean, interfaces" description="build the source files">
 		<mkdir dir="${bin.dir}" />
 		<javac 
+			debug="true"
+			debuglevel="lines,vars,source"
 			srcdir="${src.dir}"
 			destdir="${bin.dir}"
 			target="1.7"
