@@ -9,9 +9,17 @@ import swp_compiler_ss13.fuc.gui.text.Text_Controller;
  */
 public class TextGUITokenVisualizationController extends Text_Controller {
 
+	private final TextGUITokenVisualizationModel tokenModel;
+
 	public TextGUITokenVisualizationController() {
 		super(Position.TOKENS);
-		initModel(new TextGUITokenVisualizationModel(this));
+		tokenModel = new TextGUITokenVisualizationModel(this);
+		initModel(tokenModel);
+	}
+
+	public void toggleLineColumnInfo() {
+		tokenModel.toggleLineColumnInfo();
+		notifyModelChanged();
 	}
 
 }

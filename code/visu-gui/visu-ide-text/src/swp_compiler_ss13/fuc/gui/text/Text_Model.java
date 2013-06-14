@@ -26,8 +26,8 @@ import swp_compiler_ss13.fuc.gui.ide.mvc.Model;
  */
 public abstract class Text_Model implements Model {
 
-	private Text_Controller controller;
-	private List<ModelType> types;
+	private final Text_Controller controller;
+	private final List<ModelType> types;
 	private final Map<ModelType, List<StringColourPair>> viewInformation;
 
 	/**
@@ -39,7 +39,7 @@ public abstract class Text_Model implements Model {
 	public Text_Model(Text_Controller controller, ModelType... types) {
 		this.controller = controller;
 		this.types = Arrays.asList(types);
-		this.viewInformation = new HashMap<>();
+		this.viewInformation = new HashMap<>(types.length);
 	}
 
 	/**
@@ -56,7 +56,8 @@ public abstract class Text_Model implements Model {
 	@Override
 	public boolean setSourceCode(String sourceCode) {
 		if (this.types.contains(ModelType.SOURCE_CODE)) {
-			this.viewInformation.put(ModelType.SOURCE_CODE, this.sourceCodeToViewInformation(sourceCode));
+			this.viewInformation.put(ModelType.SOURCE_CODE, this
+					.sourceCodeToViewInformation(sourceCode));
 			return true;
 		} else {
 			return false;
@@ -221,7 +222,7 @@ public abstract class Text_Model implements Model {
 	 * changes the target to a representation for the {@link Text_View}
 	 * 
 	 * @param target
-	 *            from three target code generator
+	 *            from the target code generator
 	 * @return representation for {@link Text_View}
 	 */
 	protected List<StringColourPair> targetToViewInformation(Map<String, InputStream> target) {
@@ -237,8 +238,27 @@ public abstract class Text_Model implements Model {
 	 */
 	@Override
 	public boolean setProgramResult(String result) {
-		// TODO: IMPLEMENT ME
-		return false;
+		if (this.types.contains(ModelType.PROGRAM)) {
+			this.viewInformation.put(ModelType.PROGRAM, this.resultToViewInformation(result));
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * changes the result to a representation for the {@link Text_View}
+	 * 
+	 * @param result
+	 *            from the backend
+	 * @return representation for {@link Text_View}
+	 */
+	protected List<StringColourPair> resultToViewInformation(String result) {
+		return Arrays.asList(new StringColourPair().setText(resultToString(result)));
+	}
+
+	protected String resultToString(String target) {
+		throw new UnsupportedOperationException();
 	}
 
 	public List<StringColourPair> getViewInformation(ModelType type) {
