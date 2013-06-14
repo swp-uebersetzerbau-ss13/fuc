@@ -8,15 +8,13 @@ import org.junit.Test;
 import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.types.derived.ArrayType;
 import swp_compiler_ss13.common.types.primitive.BooleanType;
+import swp_compiler_ss13.common.types.primitive.LongType;
 import swp_compiler_ss13.fuc.ast.ASTFactory;
-import swp_compiler_ss13.fuc.parser.errorHandling.ParserASTXMLVisualization;
 
 public class ArrayTest {
 	static {
 		BasicConfigurator.configure();
 	}
-
-
 
 	@Test
 	public void testArrayTest() throws Exception {
@@ -27,12 +25,7 @@ public class ArrayTest {
 
 		// Run LR-parser
 		AST ast = GrammarTestHelper.parseToAst(input);
-		checkAst(ast);
-	}
-
-	private static void checkAst(AST ast) {
 		assertNotNull(ast);
-		System.out.println(new ParserASTXMLVisualization().visualizeAST(ast));
 
 		// Create reference AST
 		ASTFactory factory = new ASTFactory();
@@ -42,6 +35,30 @@ public class ArrayTest {
 		factory.addAssignment(factory.newBasicIdentifier("a"), factory.newArrayIdentifier(2, factory.newBasicIdentifier("b")));
 		
 		factory.addReturn(null);
+		
+		AST expected = factory.getAST();
+		ASTComparator.compareAST(expected, ast);
+	}
+
+	@Test
+	public void testArrayTest2() throws Exception {
+		String input = "long [ 3 ] a; a [ 0 ] = 42; return a [ 0 ];";
+
+		// Run LR-parser
+		AST ast = GrammarTestHelper.parseToAst(input);
+		assertNotNull(ast);
+
+		// Create reference AST
+		ASTFactory factory = new ASTFactory();
+		factory.addDeclaration("a", new ArrayType(new LongType(), 3));
+
+		factory.addAssignment(
+				factory.newArrayIdentifier(0, factory.newBasicIdentifier("a")),
+				factory.newLiteral("42", new LongType()));
+		
+		factory.addReturn(
+				factory.newArrayIdentifier(0,
+						factory.newBasicIdentifier("a")));
 		
 		AST expected = factory.getAST();
 		ASTComparator.compareAST(expected, ast);

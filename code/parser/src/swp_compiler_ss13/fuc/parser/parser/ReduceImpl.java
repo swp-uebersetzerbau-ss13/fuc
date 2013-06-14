@@ -586,7 +586,7 @@ public class ReduceImpl {
 				}
 			};
 		case "bool -> join":
-			break;
+			break;	// Nothing to do here
 		case "join -> join && equality":
 			return new ReduceAction() {
 				@Override
@@ -757,7 +757,7 @@ public class ReduceImpl {
 			};
 		case "unary -> factor":
 		case "factor -> loc":
-			break;
+			break;	// Nothing to do here
 		case "factor -> num":
 			return new ReduceAction() {
 				@Override
