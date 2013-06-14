@@ -74,22 +74,22 @@ public class M2CrossTest extends TestBase {
 	
 	@Test
 	public void testSimpleAddProg() throws IOException, InterruptedException, BackendException, IntermediateCodeGeneratorException {
-		testProg(ExampleProgs.simpleAddProg());
+		testProgRuntime(ExampleProgs.simpleAddProg());
 	}
 
 	@Test
 	public void testAddProg() throws IOException, InterruptedException, BackendException, IntermediateCodeGeneratorException {
-		testProg(ExampleProgs.addProg());
+		testProgRuntime(ExampleProgs.addProg());
 	}
 
 	@Test
 	public void testSimpleMulProg() throws IOException, InterruptedException, BackendException, IntermediateCodeGeneratorException {
-		testProg(ExampleProgs.simpleMulProg());
+		testProgRuntime(ExampleProgs.simpleMulProg());
 	}
 
 	@Test
 	public void testParenthesesProg() throws IOException, InterruptedException, BackendException, IntermediateCodeGeneratorException {
-		testProg(ExampleProgs.parenthesesProg());
+		testProgRuntime(ExampleProgs.parenthesesProg());
 	}
 
 	/* M1 progs producing errors */
@@ -116,26 +116,26 @@ public class M2CrossTest extends TestBase {
 
 	@Test
 	public void testUndefReturn() throws Exception {
-		testProgHasError(ExampleProgs.undefReturn());
+		testProgHasError(ExampleProgs.undefReturnProg());
 	}
 
 	/* M2 progs */
 
 	@Test
 	public void testAssignmentProg() throws Exception {
-		testProg(ExampleProgs.assignmentProg());
+		testProgRuntime(ExampleProgs.assignmentProg());
 	}
 
 	@Test
 	@Ignore("Not yet implemented")
 	public void testCondProg() throws Exception {
-		testProg(ExampleProgs.condProg());
+		testProgRuntime(ExampleProgs.condProg());
 	}
 
 	@Test
 	@Ignore("Not yet implemented")
 	public void testPrintProg() throws Exception {
-		testProg(ExampleProgs.printProg());
+		testProgRuntime(ExampleProgs.printProg());
 	}
 
 }

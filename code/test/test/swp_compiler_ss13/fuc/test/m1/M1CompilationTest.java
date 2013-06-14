@@ -21,32 +21,26 @@ import java.io.IOException;
 
 /**
  * <p>
- * Runtime tests for the M1 examples.
+ * Compilations tests for the M2 examples. Tests, if the examples compile, that
+ * doesn't necessarily imply correct results. See runtime tests for testing
+ * correct exitcodes or output.
  * </p>
  * <p>
- * The runtime tests check for results (return values and output) of the
- * execution of the translated examples. The tests require a LLVM installation
- * for executing the LLVM IR. All tests are ignored if no <code>lli</code> is
- * found.
+ * All example progs can be found in
+ * {@link swp_compiler_ss13.fuc.test.ExampleProgs}.
  * </p>
- * <p>
- * All example progs can be found in {@link ExampleProgs}.
- * </p>
- *
+ * 
  * @author Jens V. Fischer
  */
-public class M1RuntimeTest extends TestBase {
+public class M1CompilationTest extends TestBase {
 
-	private static Logger logger = Logger.getLogger(M1RuntimeTest.class);
+	private static Logger logger = Logger.getLogger(M1CompilationTest.class);
 
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 
-		Logger.getRootLogger().setLevel(Level.ERROR);
-
-		 /* only run tests if lli (dynamic compiler from LLVM) is found */
-		Assume.assumeTrue(checkForLLIInstallation());
+		Logger.getRootLogger().setLevel(Level.WARN);
 	}
 
 	@Before
@@ -61,22 +55,22 @@ public class M1RuntimeTest extends TestBase {
 
 	@Test
 	public void testSimpleAddProg() throws IOException, InterruptedException, BackendException, IntermediateCodeGeneratorException {
-		testProgRuntime(ExampleProgs.simpleAddProg());
+		testProgCompilation(ExampleProgs.simpleAddProg());
 	}
 
 	@Test
 	public void testAddProg() throws IOException, InterruptedException, BackendException, IntermediateCodeGeneratorException {
-		testProgRuntime(ExampleProgs.addProg());
+		testProgCompilation(ExampleProgs.addProg());
 	}
 
 	@Test
 	public void testSimpleMulProg() throws IOException, InterruptedException, BackendException, IntermediateCodeGeneratorException {
-		testProgRuntime(ExampleProgs.simpleMulProg());
+		testProgCompilation(ExampleProgs.simpleMulProg());
 	}
 
 	@Test
 	public void testParenthesesProg() throws IOException, InterruptedException, BackendException, IntermediateCodeGeneratorException {
-		testProgRuntime(ExampleProgs.parenthesesProg());
+		testProgCompilation(ExampleProgs.parenthesesProg());
 	}
 
 }

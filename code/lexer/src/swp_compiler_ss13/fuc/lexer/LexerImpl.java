@@ -576,10 +576,6 @@ public class LexerImpl implements Lexer {
 
 			this.actualTokenType = TokenType.ID;
 
-		} else if (this.actualTokenValue == "$") {
-
-			this.actualTokenType = TokenType.EOF;
-
 		} else {
 
 			this.actualTokenType = TokenType.NOT_A_TOKEN;

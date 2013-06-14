@@ -64,10 +64,21 @@
 		<delete dir="${bin.dir}" />
 	</target>
 
-	<!-- === build tests === -->
-	<target name="build-tests" depends="clean, interfaces, lexer, parser, ast, symbolTable, errorLog, semanticanalyzer, intermediateCodeGenerator, backend" description="build the junit tests">
+    <!-- === copy example progs === -->
+    <target name="copy" depends="" description="copy example progs from common/examples to bin">
+        <copy todir="${bin.dir}/swp_compiler_ss13/fuc/test/" flatten="true">
+            <fileset dir="../${common.dir}/examples/">
+                <include name="**/*.prog" />
+            </fileset>
+        </copy>
+    </target>
+
+    <!-- === build tests === -->
+	<target name="build-tests" depends="clean, interfaces, lexer, parser, ast, symbolTable, errorLog, semanticanalyzer, intermediateCodeGenerator, backend, copy" description="build the junit tests">
 		<mkdir dir="${bin.dir}" />
 		<javac
+                debug="true"
+                debuglevel="lines,vars,source"
 			srcdir="${test.dir}"
 			destdir="${bin.dir}"
 			target="1.7"
@@ -81,7 +92,7 @@
 			printsummary="on"
 			fork="yes"
 			forkmode="once"
-			showoutput="false"
+			showoutput="true"
 			haltonerror="true"
 			haltonfailure="true" >
 			<classpath>
@@ -94,7 +105,8 @@
                     <exclude name="**/*CrossTest.java" />
 				</fileset>
 			</batchtest>
-		</junit>
+            <formatter type="plain" usefile="no" />
+        </junit>
 	</target>
 
     <!-- === run runtime tests === -->

@@ -7,10 +7,14 @@ import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.ast.ASTNode;
 import swp_compiler_ss13.common.ast.ASTNode.ASTNodeType;
 import swp_compiler_ss13.common.ast.nodes.binary.ArithmeticBinaryExpressionNode;
+import swp_compiler_ss13.common.ast.nodes.binary.LogicBinaryExpressionNode;
+import swp_compiler_ss13.common.ast.nodes.binary.RelationExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.LiteralNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ArithmeticUnaryExpressionNode;
+import swp_compiler_ss13.common.ast.nodes.unary.ArrayIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
+import swp_compiler_ss13.common.ast.nodes.unary.LogicUnaryExpressionNode;
 import swp_compiler_ss13.common.visualization.ASTVisualization;
 
 /**
@@ -58,7 +62,7 @@ public class ASTXMLVisualization implements ASTVisualization {
 			attributes = " operator=\"" + ((ArithmeticUnaryExpressionNode) node).getOperator().toString() + "\"";
 			break;
 		case ArrayIdentifierNode:
-			// TODO
+			attributes = " index=\"" + ((ArrayIdentifierNode) node).getIndex().toString() + "\"";
 			break;
 		case AssignmentNode:
 			// nothing to do here
@@ -70,10 +74,10 @@ public class ASTXMLVisualization implements ASTVisualization {
 			// nothing to do here
 			break;
 		case BranchNode:
-			// TODO
+			// nothing to do here
 			break;
 		case BreakNode:
-			// TODO
+			// nothing to do here
 			break;
 		case DeclarationNode:
 			attributes = " identifier=\"" + ((DeclarationNode) node).getIdentifier().toString() + "\"";
@@ -86,16 +90,18 @@ public class ASTXMLVisualization implements ASTVisualization {
 			value = ((LiteralNode) node).getLiteral();
 			break;
 		case LogicBinaryExpressionNode:
-			// TODO
+			attributes = " operator=\""
+					+ ((LogicBinaryExpressionNode) node).getOperator().toString().replaceFirst("LOGICAL_", "") + "\"";
 			break;
 		case LogicUnaryExpressionNode:
-			// TODO
+			attributes = " operator=\""
+					+ ((LogicUnaryExpressionNode) node).getOperator().toString().replaceFirst("LOGICAL_", "") + "\"";
 			break;
 		case PrintNode:
-			// TODO
+			// nothing to do here
 			break;
 		case RelationExpressionNode:
-			// TODO
+			attributes = " operator=\"" + ((RelationExpressionNode) node).getOperator().toString() + "\"";
 			break;
 		case ReturnNode:
 			// nothing to do here

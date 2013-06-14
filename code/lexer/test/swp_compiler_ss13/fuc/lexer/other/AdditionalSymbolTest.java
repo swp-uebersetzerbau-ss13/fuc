@@ -31,7 +31,7 @@ public class AdditionalSymbolTest {
 	}
 
 	/**
-	 * Test for matching of semicolon, comment and EOF
+	 * Test for matching of semicolon, comment
 	 */
 	@Test
 	public void matchingSemicolonAndEOFTest() {
@@ -53,9 +53,6 @@ public class AdditionalSymbolTest {
 		 * PA.getValue(this.lexer, "actualTokenType"));
 		 */
 
-		PA.setValue(this.lexer, "actualTokenValue", Constants.EOF);
-		PA.invokeMethod(this.lexer, "matchToken()");
-		assertEquals(TokenType.EOF, PA.getValue(this.lexer, "actualTokenType"));
 	}
 
 	/**
