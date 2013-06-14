@@ -189,13 +189,21 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 	}
 
 	protected Type.Kind getType(ASTNode node) {
-		return Type.Kind.valueOf(getAttribute(node, Attribute.TYPE));
+		String attr = getAttribute(node, Attribute.TYPE);
+		if (attr != NO_ATTRIBUTE_VALUE)
+			return Type.Kind.valueOf(attr);
+		else
+			return null;
 	}
 
 	protected Type.Kind leastUpperBoundType(ASTNode left, ASTNode right) {
 		TreeSet<Type.Kind> types = new TreeSet<>();
-		types.add(getType(left));
-		types.add(getType(right));
+		Type.Kind leftType = getType(left);
+		Type.Kind rightType = getType(right);
+		if (leftType == null || rightType == null)
+			return null;
+		types.add(leftType);
+		types.add(rightType);
 
 		if (types.size() == 1) {
 			return types.first();
