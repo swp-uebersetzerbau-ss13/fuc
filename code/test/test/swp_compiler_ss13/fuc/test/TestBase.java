@@ -25,7 +25,7 @@ import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
 import static org.junit.Assert.*;
 
 /**
- * Runtime tests base class.
+ * Base class for tests, providing methods used in the integration tests.
  * <p>
  * The runtime tests require a LLVM installation for executing the LLVM IR. All
  * tests are ignored if no <code>lli</code> is found.

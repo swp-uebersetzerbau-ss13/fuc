@@ -8,7 +8,7 @@ import java.util.Scanner;
  * 
  * 
  * Example programs with expected exitcodes and expected output, including the
- * examples from common/examples
+ * examples from common/examples.
  * 
  * 
  * @author Jens V. Fischer
