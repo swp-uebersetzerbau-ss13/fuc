@@ -22,6 +22,7 @@ public class TextGUITokenVisualizationModel extends Text_Model {
 
 	private final Map<TokenType, ColorWrapper> tokenColor;
 	private boolean showLineColumnInformation = true;
+	private List<Token> lastToken;
 
 	public TextGUITokenVisualizationModel(Text_Controller controller) {
 		super(controller, ModelType.TOKEN);
@@ -97,6 +98,7 @@ public class TextGUITokenVisualizationModel extends Text_Model {
 
 	@Override
 	protected List<StringColourPair> tokenToViewInformation(List<Token> tokens) {
+		lastToken = tokens;
 		if (tokens == null) {
 			return new ArrayList<>(Arrays.asList(new StringColourPair()));
 		}
@@ -129,6 +131,7 @@ public class TextGUITokenVisualizationModel extends Text_Model {
 
 	public void toggleLineColumnInfo() {
 		showLineColumnInformation = !showLineColumnInformation;
+		setTokens(lastToken);
 	}
 
 }
