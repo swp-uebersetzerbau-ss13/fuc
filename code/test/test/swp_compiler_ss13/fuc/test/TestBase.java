@@ -95,6 +95,11 @@ public abstract class TestBase {
 		assertTrue(log.hasErrors());
 	}
 
+	protected void testProgHasWarings(Object[] prog) throws BackendException, IntermediateCodeGeneratorException, IOException, InterruptedException {
+		ReportLogImpl log = compileForError((String) prog[0]);
+		assertTrue(log.hasWarnings());
+	}
+
 	protected void testProgForErrorMsg(Object[] prog) throws BackendException, IntermediateCodeGeneratorException, IOException, InterruptedException {
 		LogEntry logEntry = compileForError((String) prog[0]).getEntries().get(0);
 		assertEquals(prog[2], logEntry.toString());

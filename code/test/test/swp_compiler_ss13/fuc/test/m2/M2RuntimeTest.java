@@ -76,7 +76,7 @@ public class M2RuntimeTest extends TestBase {
 	@Test
 	@Ignore("fails in Semnatic Analyser")
 	public void testArrayProg1() throws Exception {
-		testProgCompilation(ExampleProgs.arrayProg1());
+		testProgRuntime(ExampleProgs.arrayProg1());
 	}
 
 	@Test
