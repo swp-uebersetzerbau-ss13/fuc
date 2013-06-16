@@ -171,7 +171,7 @@ public class M2CrossTest extends TestBase {
 
 	@Test
 	public void testUndefReturn() throws Exception {
-		testProgHasWarings(ExampleProgs.undefReturnProg());
+		testProgHasWarnings(ExampleProgs.undefReturnProg());
 	}
 
 	/* M2 progs */
