@@ -176,7 +176,7 @@ public class PrintProgTest {
 						boolToken.getBooleanValue());
 
 			}
-			
+
 		} while (token.getTokenType() != TokenType.EOF);
 	}
 
