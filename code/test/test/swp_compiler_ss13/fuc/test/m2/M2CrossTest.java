@@ -19,7 +19,7 @@ import swp_compiler_ss13.fuc.parser.ParserImpl;
 import swp_compiler_ss13.fuc.semantic_analyser.SemanticAnalyser;
 import swp_compiler_ss13.fuc.test.ExampleProgs;
 import swp_compiler_ss13.fuc.test.TestBase;
-import swp_compiler_ss13.javabite.backend.BackendJB;
+import swp_compiler_ss13.javabite.backend.BackendJb;
 import swp_compiler_ss13.javabite.codegen.IntermediateCodeGeneratorJb;
 import swp_compiler_ss13.javabite.lexer.LexerJb;
 import swp_compiler_ss13.javabite.parser.ParserJb;
@@ -89,7 +89,7 @@ public class M2CrossTest extends TestBase {
 		Class[] parserClasses = new Class[]{ParserJb.class, ParserImpl.class};
 		Class[] analyserClasses = new Class[]{SemanticAnalyserJb.class, SemanticAnalyser.class};
 		Class[] irgenClasses = new Class[]{IntermediateCodeGeneratorJb.class, IntermediateCodeGeneratorImpl.class};
-		Class[] backendClasses = new Class[]{BackendJB.class, LLVMBackend.class};
+		Class[] backendClasses = new Class[]{BackendJb.class, LLVMBackend.class};
 		ArrayList classes = new ArrayList();
 		for (Class lexer : lexerClasses) {
 			for (Class parser : parserClasses) {
