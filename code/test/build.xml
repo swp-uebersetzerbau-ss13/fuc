@@ -77,14 +77,29 @@
 	<target name="build-tests" depends="clean, interfaces, lexer, parser, ast, symbolTable, errorLog, semanticanalyzer, intermediateCodeGenerator, backend, copy" description="build the junit tests">
 		<mkdir dir="${bin.dir}" />
 		<javac
-                debug="true"
-                debuglevel="lines,vars,source"
+            excludes="**/*CrossTest.java"
+            debug="true"
+            debuglevel="lines,vars,source"
 			srcdir="${test.dir}"
 			destdir="${bin.dir}"
 			target="1.7"
 			classpathref="classpath-test"
 			includeantruntime="false" />
 	</target>
+
+    <!-- === build cross tests === -->
+    <target name="build-tests-cross" depends="clean, interfaces, copy" description="build the junit cross tests">
+        <mkdir dir="${bin.dir}" />
+        <javac
+                includes="**/*CrossTest.java"
+                debug="true"
+                debuglevel="lines,vars,source"
+                srcdir="${test.dir}"
+                destdir="${bin.dir}"
+                target="1.7"
+                classpathref="classpath-test"
+                includeantruntime="false" />
+    </target>
 
 	<!-- === run tests === -->
 	<target name="run-tests" depends="build-tests" description="run the junit tests">
@@ -133,7 +148,7 @@
 
 
     <!-- === run cross tests === -->
-    <target name="run-tests-cross" depends="build-tests" description="run the junit cross tests. Needs the javabite lexer jar in code/dist">
+    <target name="run-tests-cross" depends="build-tests-cross" description="run the junit cross tests. Needs the javabite lexer jar in code/dist">
         <mkdir dir="${test.results.dir}" />
         <junit
                 printsummary="on"
