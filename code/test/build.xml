@@ -76,6 +76,7 @@
     <!-- === build tests === -->
 	<target name="build-tests" depends="clean, interfaces, lexer, parser, ast, symbolTable, errorLog, semanticanalyzer, intermediateCodeGenerator, backend, copy" description="build the junit tests">
 		<mkdir dir="${bin.dir}" />
+        <mkdir dir="../${dist.dir}" />
 		<javac
             excludes="**/*CrossTest.java"
             debug="true"
