@@ -71,7 +71,7 @@ public class Multiline_String_PrintProgTest {
 			new TokenImpl("=", TokenType.ASSIGNOP, 12, 3),
 			new TokenImpl("\"fü-", TokenType.NOT_A_TOKEN, 12, 5),
 			new TokenImpl("berlin", TokenType.ID, 13, 1),
-			new TokenImpl("\n\"", TokenType.NOT_A_TOKEN, 14, 1),
+			new TokenImpl("\\n\"", TokenType.NOT_A_TOKEN, 14, 1),
 			new TokenImpl(";", TokenType.SEMICOLON, 14, 4),
 			new TokenImpl("# c-like escaping in multiline string", TokenType.COMMENT, 14, 7),
 			new TokenImpl("print", TokenType.PRINT, 16, 1),
