@@ -315,10 +315,13 @@ public class SourceCodeView implements View {
 
 		private final IDE ide;
 		private final SaveFileListener listener;
+		private final JFileChooser chooser;
 
 		public LoadFileListener(IDE ide, SaveFileListener listener) {
 			this.ide = ide;
 			this.listener = listener;
+			this.chooser = new JFileChooser();
+			this.chooser.setFileFilter(new FileNameExtensionFilter("choose a prog file", "prog"));
 		}
 
 		@Override
@@ -327,8 +330,6 @@ public class SourceCodeView implements View {
 
 				@Override
 				public void run() {
-					JFileChooser chooser = new JFileChooser();
-					chooser.setFileFilter(new FileNameExtensionFilter("choose a prog file", "prog"));
 					int showOpenDialog = chooser.showOpenDialog(component);
 					switch (showOpenDialog) {
 					case JFileChooser.APPROVE_OPTION:
@@ -385,6 +386,12 @@ public class SourceCodeView implements View {
 
 		private static final String SAFE_NEW_FILE = "safe new";
 		private static final String SAFE_OLD_FILE = "safe old";
+		private final JFileChooser chooser;
+
+		public SaveFileListener() {
+			this.chooser = new JFileChooser();
+			this.chooser.setFileFilter(new FileNameExtensionFilter("choose a filename", "prog"));
+		}
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
@@ -397,13 +404,11 @@ public class SourceCodeView implements View {
 					public void run() {
 						File newFile = file;
 						if (safeNew || newFile == null) {
-							JFileChooser chooser = new JFileChooser();
-							chooser.setFileFilter(new FileNameExtensionFilter("choose a filename",
-									"prog"));
 							int showOpenDialog = chooser.showSaveDialog(component);
 							switch (showOpenDialog) {
 							case JFileChooser.APPROVE_OPTION:
-								newFile = chooser.getSelectedFile();
+								newFile = new File(chooser.getSelectedFile().getPath()
+										.replaceFirst("(|\\.prog)\\Z", ".prog"));
 								if (!newFile.exists()) {
 									try {
 										newFile.createNewFile();
