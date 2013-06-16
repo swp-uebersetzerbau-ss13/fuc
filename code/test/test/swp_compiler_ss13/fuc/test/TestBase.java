@@ -129,7 +129,7 @@ public abstract class TestBase {
 		AST ast2 = analyser.analyse(ast);
 		List<Quadruple> tac = irgen.generateIntermediateCode(ast2);
 		Map<String, InputStream> targets = backend.generateTargetCode("", tac);
-		return targets.get(".ll");
+		return targets.get(targets.keySet().iterator().next());
 	}
 
 	protected TACExecutor.ExecutionResult compileAndExecute(String prog) throws BackendException,

@@ -134,24 +134,31 @@
 
     <!-- === run cross tests === -->
     <target name="run-tests-cross" depends="build-tests" description="run the junit cross tests. Needs the javabite lexer jar in code/dist">
+        <mkdir dir="${test.results.dir}" />
         <junit
                 printsummary="on"
                 fork="true"
-                haltonerror="true"
-                haltonfailure="true" >
+                haltonerror="false"
+                haltonfailure="false" >
             <classpath>
                 <path refid="classpath-test" />
-                <fileset dir="../${dist.dir}">
-                    <include name="**/*.jar"/>
-                </fileset>
             </classpath>
-            <batchtest>
+            <batchtest todir="${test.results.dir}">
                 <fileset dir="${test.dir}">
                     <include name="**/M2CrossTest.java" />
                 </fileset>
             </batchtest>
             <formatter type="plain" usefile="no" />
+            <formatter type="xml" usefile="yes"/>
         </junit>
+
+        <!-- Generate HTML report -->
+        <junitreport todir="${test.results.dir}">
+            <fileset dir="${test.results.dir}">
+                <include name="TEST-*.xml" />
+            </fileset>
+            <report format="noframes" todir="${test.reports.dir}" />
+        </junitreport>
     </target>
 
 </project>
