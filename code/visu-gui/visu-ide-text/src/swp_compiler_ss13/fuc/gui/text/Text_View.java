@@ -96,7 +96,6 @@ public class Text_View implements View {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void initComponents(IDE ide) {
-	}
+	public void initComponents(IDE ide) {}
 
 }

@@ -30,6 +30,7 @@ import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
 import swp_compiler_ss13.common.ast.nodes.ternary.BranchNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ArithmeticUnaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.unary.LogicUnaryExpressionNode;
+import swp_compiler_ss13.common.ast.nodes.unary.PrintNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ReturnNode;
 import swp_compiler_ss13.common.ast.nodes.unary.UnaryExpressionNode;
 import swp_compiler_ss13.common.report.ReportLog;
@@ -90,17 +91,17 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 
 	protected Map<SymbolTable, Set<String>> copy(Map<SymbolTable, Set<String>> m) {
 		Map<SymbolTable, Set<String>> c = new HashMap<>(m);
-		
-		for (SymbolTable x: m.keySet()) {
+
+		for (SymbolTable x : m.keySet()) {
 			Set<String> i = new HashSet<>();
-			
+
 			for (String y : m.get(x)) {
 				i.add(y);
 			}
-			
+
 			c.put(x, i);
 		}
-		
+
 		return c;
 	}
 
@@ -149,6 +150,7 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 				handleNode((LogicUnaryExpressionNode) node, table);
 				break;
 			case PrintNode:
+				handleNode((PrintNode) node, table);
 				break;
 			case ReturnNode:
 				logger.trace("handle ReturnNode");
@@ -190,18 +192,22 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 
 	protected Type.Kind getType(ASTNode node) {
 		String attr = getAttribute(node, Attribute.TYPE);
-		if (attr != NO_ATTRIBUTE_VALUE)
+		if (!attr.equals(NO_ATTRIBUTE_VALUE)) {
 			return Type.Kind.valueOf(attr);
-		else
+		} else {
 			return null;
+		}
 	}
 
 	protected Type.Kind leastUpperBoundType(ASTNode left, ASTNode right) {
 		TreeSet<Type.Kind> types = new TreeSet<>();
 		Type.Kind leftType = getType(left);
 		Type.Kind rightType = getType(right);
-		if (leftType == null || rightType == null)
+		
+		if (leftType == null || rightType == null) {
 			return null;
+		}
+		
 		types.add(leftType);
 		types.add(rightType);
 
@@ -480,10 +486,10 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 		} else {
 			markIdentifierAsInitialized(table, getAttribute(node.getLeftValue(), Attribute.IDENTIFIER));
 			setAttribute(node, Attribute.TYPE, getAttribute(node.getLeftValue(), Attribute.TYPE));
-			
-			logger.debug("Assignment: " + getAttribute(node.getLeftValue(), Attribute.IDENTIFIER) +
-				":" + getType(node.getLeftValue()) + " := " + getType(node.getRightValue()));
-		}	
+
+			logger.debug("Assignment: " + getAttribute(node.getLeftValue(), Attribute.IDENTIFIER)
+				+ ":" + getType(node.getLeftValue()) + " := " + getType(node.getRightValue()));
+		}
 	}
 
 	/*
@@ -503,7 +509,7 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 
 		if (t == null) {
 			setAttribute(node, Attribute.TYPE_CHECK, TYPE_MISMATCH);
-			errorLog.reportError(ReportType.UNDEFINED, node.coverage(),
+			errorLog.reportError(ReportType.UNDECLARED_VARIABLE_USAGE, node.coverage(),
 				"Identifier “" + identifier + "” has not been declared.");
 
 			return;
@@ -516,14 +522,14 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 		 * checks
 		 */
 		boolean reportInitialization = false;
-		
+
 		if (node.getParentNode() instanceof AssignmentNode) {
-			AssignmentNode p = (AssignmentNode)node.getParentNode();
+			AssignmentNode p = (AssignmentNode) node.getParentNode();
 			reportInitialization = p.getLeftValue() != node;
 		} else if (node.getParentNode().getNodeType() != ASTNode.ASTNodeType.AssignmentNode) {
 			reportInitialization = true;
 		}
-		
+
 		if (reportInitialization && !initialzed) {
 			errorLog.reportWarning(ReportType.UNDEFINED, node.coverage(),
 				"Variable “" + identifier + "” may be used without initialization.");
@@ -543,6 +549,11 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 		}
 
 		setAttribute(node.getParentNode(), Attribute.CODE_STATE, DEAD_CODE);
+	}
+	
+	protected void handleNode(PrintNode node, SymbolTable table) {
+		IdentifierNode identifier = node.getRightValue();
+		traverse(identifier, table);
 	}
 
 	private boolean isInitialized(SymbolTable table, String identifier) {

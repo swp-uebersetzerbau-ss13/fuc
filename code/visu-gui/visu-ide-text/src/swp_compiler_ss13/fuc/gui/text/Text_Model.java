@@ -26,8 +26,8 @@ import swp_compiler_ss13.fuc.gui.ide.mvc.Model;
  */
 public abstract class Text_Model implements Model {
 
-	private Text_Controller controller;
-	private List<ModelType> types;
+	private final Text_Controller controller;
+	private final List<ModelType> types;
 	private final Map<ModelType, List<StringColourPair>> viewInformation;
 
 	/**
@@ -39,7 +39,7 @@ public abstract class Text_Model implements Model {
 	public Text_Model(Text_Controller controller, ModelType... types) {
 		this.controller = controller;
 		this.types = Arrays.asList(types);
-		viewInformation = new HashMap<>();
+		this.viewInformation = new HashMap<>(types.length);
 	}
 
 	/**
@@ -47,7 +47,7 @@ public abstract class Text_Model implements Model {
 	 */
 	@Override
 	public Controller getController() {
-		return controller;
+		return this.controller;
 	}
 
 	/**
@@ -55,8 +55,9 @@ public abstract class Text_Model implements Model {
 	 */
 	@Override
 	public boolean setSourceCode(String sourceCode) {
-		if (types.contains(ModelType.SOURCE_CODE)) {
-			viewInformation.put(ModelType.SOURCE_CODE, sourceCodeToViewInformation(sourceCode));
+		if (this.types.contains(ModelType.SOURCE_CODE)) {
+			this.viewInformation.put(ModelType.SOURCE_CODE, this
+					.sourceCodeToViewInformation(sourceCode));
 			return true;
 		} else {
 			return false;
@@ -71,7 +72,7 @@ public abstract class Text_Model implements Model {
 	 * @return representation for {@link Text_View}
 	 */
 	protected List<StringColourPair> sourceCodeToViewInformation(String sourceCode) {
-		return Arrays.asList(new StringColourPair().setText(sourceCodeToString(sourceCode)));
+		return Arrays.asList(new StringColourPair().setText(this.sourceCodeToString(sourceCode)));
 	}
 
 	protected String sourceCodeToString(String sourceCode) {
@@ -83,8 +84,8 @@ public abstract class Text_Model implements Model {
 	 */
 	@Override
 	public boolean setTokens(List<Token> tokens) {
-		if (types.contains(ModelType.TOKEN)) {
-			viewInformation.put(ModelType.TOKEN, tokenToViewInformation(tokens));
+		if (this.types.contains(ModelType.TOKEN)) {
+			this.viewInformation.put(ModelType.TOKEN, this.tokenToViewInformation(tokens));
 			return true;
 		} else {
 			return false;
@@ -102,11 +103,11 @@ public abstract class Text_Model implements Model {
 		List<StringColourPair> result;
 		if (tokens == null) {
 			result = new ArrayList<>(1);
-			result.add(tokenToViewInformation((Token) null));
+			result.add(this.tokenToViewInformation((Token) null));
 		} else {
 			result = new ArrayList<>(tokens.size());
 			for (Token token : tokens) {
-				result.add(tokenToViewInformation(token));
+				result.add(this.tokenToViewInformation(token));
 			}
 		}
 		return result;
@@ -120,7 +121,7 @@ public abstract class Text_Model implements Model {
 	 * @return representation for {@link Text_View}
 	 */
 	protected StringColourPair tokenToViewInformation(Token token) {
-		return new StringColourPair().setText(tokenToString(token));
+		return new StringColourPair().setText(this.tokenToString(token));
 	}
 
 	protected String tokenToString(Token token) {
@@ -132,8 +133,8 @@ public abstract class Text_Model implements Model {
 	 */
 	@Override
 	public boolean setAST(AST ast) {
-		if (types.contains(ModelType.AST)) {
-			viewInformation.put(ModelType.AST, astToViewInformation(ast));
+		if (this.types.contains(ModelType.AST)) {
+			this.viewInformation.put(ModelType.AST, this.astToViewInformation(ast));
 			return true;
 		} else {
 			return false;
@@ -148,7 +149,7 @@ public abstract class Text_Model implements Model {
 	 * @return representation for {@link Text_View}
 	 */
 	protected List<StringColourPair> astToViewInformation(AST ast) {
-		return Arrays.asList(new StringColourPair().setText(astToString(ast)));
+		return Arrays.asList(new StringColourPair().setText(this.astToString(ast)));
 	}
 
 	protected String astToString(AST ast) {
@@ -160,8 +161,8 @@ public abstract class Text_Model implements Model {
 	 */
 	@Override
 	public boolean setTAC(List<Quadruple> tac) {
-		if (types.contains(ModelType.TAC)) {
-			viewInformation.put(ModelType.TAC, tacToViewInformation(tac));
+		if (this.types.contains(ModelType.TAC)) {
+			this.viewInformation.put(ModelType.TAC, this.tacToViewInformation(tac));
 			return true;
 		} else {
 			return false;
@@ -179,11 +180,11 @@ public abstract class Text_Model implements Model {
 		List<StringColourPair> result;
 		if (tac == null) {
 			result = new ArrayList<>(1);
-			result.add(tacToViewInformation((Quadruple) null));
+			result.add(this.tacToViewInformation((Quadruple) null));
 		} else {
 			result = new ArrayList<>(tac.size());
 			for (Quadruple quadruple : tac) {
-				result.add(tacToViewInformation(quadruple));
+				result.add(this.tacToViewInformation(quadruple));
 			}
 		}
 		return result;
@@ -197,7 +198,7 @@ public abstract class Text_Model implements Model {
 	 * @return representation for {@link Text_View}
 	 */
 	protected StringColourPair tacToViewInformation(Quadruple quadruple) {
-		return new StringColourPair().setText(tacToString(quadruple));
+		return new StringColourPair().setText(this.tacToString(quadruple));
 	}
 
 	protected String tacToString(Quadruple tac) {
@@ -209,8 +210,8 @@ public abstract class Text_Model implements Model {
 	 */
 	@Override
 	public boolean setTargetCode(Map<String, InputStream> target) {
-		if (types.contains(ModelType.TARGET)) {
-			viewInformation.put(ModelType.TARGET, targetToViewInformation(target));
+		if (this.types.contains(ModelType.TARGET)) {
+			this.viewInformation.put(ModelType.TARGET, this.targetToViewInformation(target));
 			return true;
 		} else {
 			return false;
@@ -221,14 +222,43 @@ public abstract class Text_Model implements Model {
 	 * changes the target to a representation for the {@link Text_View}
 	 * 
 	 * @param target
-	 *            from three target code generator
+	 *            from the target code generator
 	 * @return representation for {@link Text_View}
 	 */
 	protected List<StringColourPair> targetToViewInformation(Map<String, InputStream> target) {
-		return Arrays.asList(new StringColourPair().setText(targetToString(target)));
+		return Arrays.asList(new StringColourPair().setText(this.targetToString(target)));
 	}
 
 	protected String targetToString(Map<String, InputStream> target) {
+		throw new UnsupportedOperationException();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean setProgramResult(String result) {
+		if (this.types.contains(ModelType.RESULT)) {
+			this.viewInformation.put(ModelType.RESULT, Arrays.asList(new StringColourPair()
+					.setText(result)));
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * changes the result to a representation for the {@link Text_View}
+	 * 
+	 * @param result
+	 *            from the backend
+	 * @return representation for {@link Text_View}
+	 */
+	protected List<StringColourPair> resultToViewInformation(String result) {
+		return Arrays.asList(new StringColourPair().setText(resultToString(result)));
+	}
+
+	protected String resultToString(String target) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -236,11 +266,11 @@ public abstract class Text_Model implements Model {
 		if (type == null) {
 			throw new NullPointerException("type cannot be null");
 		}
-		return viewInformation.get(type);
+		return this.viewInformation.get(type);
 	}
 
 	protected enum ModelType {
-		SOURCE_CODE, TOKEN, AST, TAC, TARGET;
+		SOURCE_CODE, TOKEN, AST, TAC, TARGET, RESULT;
 	}
 
 }

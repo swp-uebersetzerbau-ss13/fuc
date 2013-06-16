@@ -56,6 +56,10 @@ public enum Position {
 	 */
 	TARGET_CODE,
 	/**
+	 * The program result
+	 */
+	RESULT,
+	/**
 	 * After all components
 	 */
 	LAST

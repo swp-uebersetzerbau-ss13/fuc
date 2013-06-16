@@ -58,7 +58,6 @@ public class M2RuntimeTest extends TestBase {
 	}
 
 	@Test
-	@Ignore("fails due to bug in backend")
 	public void testCondProg() throws Exception {
 		testProgRuntime(ExampleProgs.condProg());
 	}
@@ -72,6 +71,29 @@ public class M2RuntimeTest extends TestBase {
 	@Test
 	public void testReturnProg() throws Exception {
 		testProgRuntime(ExampleProgs.returnProg());
+	}
+
+	@Test
+	@Ignore("fails in Semnatic Analyser")
+	public void testArrayProg1() throws Exception {
+		testProgRuntime(ExampleProgs.arrayProg1());
+	}
+
+	@Test
+	public void testArrayProg2() throws Exception {
+		testProgRuntime(ExampleProgs.arrayProg2());
+	}
+
+	@Test
+	@Ignore("not yet implemented")
+	public void testArrayProg3() throws Exception {
+		testProgRuntime(ExampleProgs.arrayProg3());
+	}
+
+	@Test
+	@Ignore("not yet implemented")
+	public void testReturnBooleProg() throws Exception {
+		testProgRuntime(ExampleProgs.returnBool());
 	}
 
 }

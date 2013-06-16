@@ -1,6 +1,6 @@
-<project basedir="." name="FUC Controller" default="help">
+<project basedir="." name="FUC Visualisation - Program Result to text" default="help">
 	<!-- === load the properties === -->
-	<loadproperties srcFile="../build.properties" />
+	<loadproperties srcFile="../../build.properties" />
 
 	<!-- === import paths === -->
 	<import file="path.xml" />
@@ -16,13 +16,18 @@
 
 	<!-- === depends on the interfaces === -->
 	<target name="interfaces" description="Build the interfaces">
-		<ant antfile="interfaces.xml" dir=".." target="build" inheritall="false" />
+		<ant antfile="interfaces.xml" dir="../.." target="build" inheritall="false" />
 	</target>
 
-	<!-- === depends on the errorLog === -->
-	<target name="errorLog" description="Build the errorLog">
-		<ant antfile="build.xml" dir="../${errorLog.dir}" target="build" inheritall="false" />
+	<!-- === depends on the ide === -->
+	<target name="ide" description="Build the ide">
+		<ant antfile="build.xml" dir="../../${visu.gui.ide.dir}" target="build" inheritall="false" />
 	</target>
+	
+	<!-- === depends on the text ide === -->
+		<target name="text-ide" description="Build the text ide">
+			<ant antfile="build.xml" dir="../../${visu.gui.ide.text.dir}" target="build" inheritall="false" />
+		</target>
 
 	<!-- === clean === -->
 	<target name="clean" description="clean this project">
@@ -31,7 +36,7 @@
 	</target>
 
 	<!-- === build === -->
-	<target name="build" depends="clean, interfaces, errorLog" description="build the source files">
+	<target name="build" depends="clean, interfaces, ide, text-ide" description="build the source files">
 		<mkdir dir="${bin.dir}" />
 		<javac 
 			debug="true"
@@ -66,22 +71,22 @@
 	</target>
 
 	<!-- === build tests === -->
-	<target name="build-tests" depends="build" description="build the junit tests">
+	<!--
+	<target name="build-tests" depends="symboltable,ast,build" description="build the junit tests">
 		<javac
 			srcdir="${test.dir}"
 			destdir="${bin.dir}"
 			target="1.7"
 			classpathref="classpath-test"
 			includeantruntime="false" />
-	</target>
+	</target> -->
 
 	<!-- === run tests === -->
+	<!--
 	<target name="run-tests" depends="build-tests" description="run the junit tests">
 		<junit
 			printsummary="on"
-			fork="yes"
-			forkmode="once"
-			showoutput="false"
+			fork="true"
 			haltonerror="true"
 			haltonfailure="true" >
 			<classpath>
@@ -92,8 +97,9 @@
 					<include name="**/*Test.java" />
 				</fileset>
 			</batchtest>
+			<formatter type="plain" usefile="no" />
 		</junit>
 	
-	</target>
+	</target> -->
 
 </project>

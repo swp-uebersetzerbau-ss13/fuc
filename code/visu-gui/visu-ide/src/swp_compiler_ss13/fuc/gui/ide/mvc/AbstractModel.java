@@ -55,4 +55,12 @@ public abstract class AbstractModel implements Model {
 	public boolean setTargetCode(Map<String, InputStream> target) {
 		return false;
 	};
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean setProgramResult(String result) {
+		return false;
+	};
 }

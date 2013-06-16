@@ -87,6 +87,7 @@ public class FucIdeView extends JFrame {
 	private ButtonGroup semanticGroup = new ButtonGroup();
 	private ButtonGroup irgenGroup = new ButtonGroup();
 	private ButtonGroup backendGroup = new ButtonGroup();
+	private ButtonGroup logGroup = new ButtonGroup();
 
 	private List<JMenu> customMenus = new LinkedList<>();
 	private JPanel panel;
@@ -102,6 +103,14 @@ public class FucIdeView extends JFrame {
 	private JScrollPane scrollPane_1;
 	private JList<String> errorReportList;
 	private Logger logger = Logger.getLogger(FucIdeView.class);
+	private JButton execButton;
+	private JMenu logLevelMenu;
+	private JRadioButtonMenuItem rdbtnmntmAll;
+	private JRadioButtonMenuItem rdbtnmntmError;
+	private JRadioButtonMenuItem rdbtnmntmErrorWarn;
+	private JRadioButtonMenuItem rdbtnmntmErrorWarnInfo;
+	private JRadioButtonMenuItem rdbtnmntmErrorWarnInfoDebug;
+	private JRadioButtonMenuItem rdbtnmntmOff;
 
 	/**
 	 * Create the frame.
@@ -129,6 +138,79 @@ public class FucIdeView extends JFrame {
 				new FucIdeAboutView().setVisible(true);
 			}
 		});
+
+		this.logLevelMenu = new JMenu("Log Verbosity");
+		this.ideMenu.add(this.logLevelMenu);
+
+		this.rdbtnmntmOff = new JRadioButtonMenuItem("OFF");
+		this.logLevelMenu.add(this.rdbtnmntmOff);
+
+		this.rdbtnmntmError = new JRadioButtonMenuItem("ERROR");
+		this.logLevelMenu.add(this.rdbtnmntmError);
+
+		this.rdbtnmntmErrorWarn = new JRadioButtonMenuItem("ERROR, WARN");
+		this.logLevelMenu.add(this.rdbtnmntmErrorWarn);
+
+		this.rdbtnmntmErrorWarnInfo = new JRadioButtonMenuItem("ERROR, WARN, INFO");
+		this.logLevelMenu.add(this.rdbtnmntmErrorWarnInfo);
+
+		this.rdbtnmntmErrorWarnInfoDebug = new JRadioButtonMenuItem("ERROR, WARN, INFO, DEBUG");
+		this.logLevelMenu.add(this.rdbtnmntmErrorWarnInfoDebug);
+
+		this.rdbtnmntmAll = new JRadioButtonMenuItem("ALL");
+		this.logLevelMenu.add(this.rdbtnmntmAll);
+
+		this.logGroup.add(this.rdbtnmntmOff);
+		this.logGroup.add(this.rdbtnmntmError);
+		this.logGroup.add(this.rdbtnmntmErrorWarn);
+		this.logGroup.add(this.rdbtnmntmErrorWarnInfo);
+		this.logGroup.add(this.rdbtnmntmErrorWarnInfoDebug);
+		this.logGroup.add(this.rdbtnmntmAll);
+
+		this.rdbtnmntmErrorWarnInfo.setSelected(true);
+
+		this.rdbtnmntmOff.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				FucIdeView.this.controller.onLogLevelSelected(org.apache.log4j.Level.OFF);
+			}
+		});
+
+		this.rdbtnmntmError.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				FucIdeView.this.controller.onLogLevelSelected(org.apache.log4j.Level.ERROR);
+			}
+		});
+
+		this.rdbtnmntmErrorWarn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				FucIdeView.this.controller.onLogLevelSelected(org.apache.log4j.Level.WARN);
+			}
+		});
+
+		this.rdbtnmntmErrorWarnInfo.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				FucIdeView.this.controller.onLogLevelSelected(org.apache.log4j.Level.INFO);
+			}
+		});
+
+		this.rdbtnmntmErrorWarnInfoDebug.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				FucIdeView.this.controller.onLogLevelSelected(org.apache.log4j.Level.DEBUG);
+			}
+		});
+
+		this.rdbtnmntmAll.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				FucIdeView.this.controller.onLogLevelSelected(org.apache.log4j.Level.ALL);
+			}
+		});
+
 		this.aboutMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, InputEvent.CTRL_MASK));
 		this.aboutMenuItem.setMnemonic(KeyEvent.VK_A);
 		this.ideMenu.add(this.aboutMenuItem);
@@ -185,7 +267,7 @@ public class FucIdeView extends JFrame {
 		this.panel.add(this.buttonPanel);
 		this.buttonPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
 
-		this.runButton = new JButton("run");
+		this.runButton = new JButton("compile");
 		this.runButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -193,8 +275,22 @@ public class FucIdeView extends JFrame {
 			}
 		});
 		this.runButton
-				.setIcon(new ImageIcon(FucIdeView.class.getResource("/swp_compiler_ss13/fuc/gui/ide/assets/run.png")));
+				.setIcon(new ImageIcon(FucIdeView.class
+						.getResource("/swp_compiler_ss13/fuc/gui/ide/assets/compile.png")));
 		this.buttonPanel.add(this.runButton);
+
+		this.execButton = new JButton("execute");
+		this.execButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				controller.onExecPressed();
+			}
+		});
+		this.execButton.setEnabled(false);
+		this.execButton.setToolTipText("Please compile first!");
+		this.execButton.setIcon(new ImageIcon(FucIdeView.class
+				.getResource("/swp_compiler_ss13/fuc/gui/ide/assets/execute.png")));
+		this.buttonPanel.add(this.execButton);
 
 		this.panel_1 = new JPanel();
 		this.panel.add(this.panel_1, BorderLayout.SOUTH);
@@ -463,5 +559,15 @@ public class FucIdeView extends JFrame {
 
 	public void showTab(Controller controller) {
 		this.componentTabs.setSelectedComponent(controller.getView().getComponent());
+	}
+
+	public void enableExecuteButton() {
+		this.execButton.setEnabled(true);
+		this.execButton.setToolTipText("");
+	}
+
+	public void disableExecuteButton() {
+		this.execButton.setEnabled(false);
+		this.execButton.setToolTipText("Please compile first!");
 	}
 }

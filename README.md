@@ -20,6 +20,7 @@ FU Berlin Compiler group
 4. [Semantic Analysis](https://github.com/swp-uebersetzerbau-ss13/fuc/wiki/Semantic-Analysis)
 5. [Intermediate Code Generator](https://github.com/swp-uebersetzerbau-ss13/fuc/wiki/Intermediate-Code-Generator)
 6. [Backend](https://github.com/swp-uebersetzerbau-ss13/fuc/wiki/Backend)
+7. [Testing](https://github.com/swp-uebersetzerbau-ss13/fuc/wiki/Testing)
 
 ===
 

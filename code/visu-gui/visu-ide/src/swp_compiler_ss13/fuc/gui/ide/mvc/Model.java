@@ -71,4 +71,14 @@ public interface Model {
 	 *         notifyModelChanged on the controller. return false otherwise.
 	 */
 	public boolean setTargetCode(Map<String, InputStream> target);
+
+	/**
+	 * Set the executed program result
+	 * 
+	 * @param result
+	 *            the result
+	 * @return return true if the new value is used. true will trigger a
+	 *         notifyModelChanged on the controller. return false otherwise.
+	 */
+	public boolean setProgramResult(String result);
 }

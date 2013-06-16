@@ -22,11 +22,10 @@ import swp_compiler_ss13.fuc.backend.TACExecutor;
 import swp_compiler_ss13.fuc.errorLog.LogEntry;
 import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
- * Runtime tests base class.
+ * Base class for tests, providing methods used in the integration tests.
  * <p>
  * The runtime tests require a LLVM installation for executing the LLVM IR. All
  * tests are ignored if no <code>lli</code> is found.
@@ -76,38 +75,48 @@ public abstract class TestBase {
 	}
 
 	protected void testProgCompilation(Object[] prog) throws BackendException, IntermediateCodeGeneratorException, IOException, InterruptedException {
+		ReportLogImpl log = compileForError( (String) prog[0]);
+		String msg = null;
+		if (log.hasErrors())
+			msg = "ReportLog Error (first only): " + log.getErrors().get(0).getMessage();
+		assertFalse(msg, log.hasErrors());
 		InputStream res = compile((String) prog[0]);
 		assertTrue(res != null);
 	}
 
 	protected void testProgRuntime(Object[] prog) throws BackendException, IntermediateCodeGeneratorException, IOException, InterruptedException {
 		TACExecutor.ExecutionResult res = compileAndExecute((String)prog[0]);
-		assertEquals(prog[2], res.output);
 		assertEquals(prog[1], res.exitCode);
+		assertEquals(prog[2], res.output);
 	}
 
 	protected void testProgHasError(Object[] prog) throws BackendException, IntermediateCodeGeneratorException, IOException, InterruptedException {
-		List<LogEntry> logEntries = compileForError((String) prog[0]);
-		assertTrue(logEntries.size()>0);
+		ReportLogImpl log = compileForError((String) prog[0]);
+		assertTrue(log.hasErrors());
+	}
+
+	protected void testProgHasWarings(Object[] prog) throws BackendException, IntermediateCodeGeneratorException, IOException, InterruptedException {
+		ReportLogImpl log = compileForError((String) prog[0]);
+		assertTrue(log.hasWarnings());
 	}
 
 	protected void testProgForErrorMsg(Object[] prog) throws BackendException, IntermediateCodeGeneratorException, IOException, InterruptedException {
-		LogEntry logEntry = compileForError((String) prog[0]).get(0);
+		LogEntry logEntry = compileForError((String) prog[0]).getEntries().get(0);
 		assertEquals(prog[2], logEntry.toString());
 	}
 
-	protected List<LogEntry> compileForError(String prog) throws BackendException,
+	protected ReportLogImpl compileForError(String prog) throws BackendException,
 			IntermediateCodeGeneratorException, IOException, InterruptedException {
 		lexer.setSourceStream(new ByteArrayInputStream(prog.getBytes("UTF-8")));
 		parser.setLexer(lexer);
 		parser.setReportLog(errlog);
 		AST ast = parser.getParsedAST();
 		if (errlog.hasErrors()){
-			return errlog.getErrors();
+			return errlog;
 		}
 		analyser.setReportLog(errlog);
 		analyser.analyse(ast);
-		return errlog.getEntries();
+		return errlog;
 	}
 
 	protected InputStream compile(String prog) throws BackendException,
@@ -116,7 +125,9 @@ public abstract class TestBase {
 		parser.setLexer(lexer);
 		parser.setReportLog(errlog);
 		AST ast = parser.getParsedAST();
-		List<Quadruple> tac = irgen.generateIntermediateCode(ast);
+		analyser.setReportLog(errlog);
+		AST ast2 = analyser.analyse(ast);
+		List<Quadruple> tac = irgen.generateIntermediateCode(ast2);
 		Map<String, InputStream> targets = backend.generateTargetCode("", tac);
 		return targets.get(".ll");
 	}

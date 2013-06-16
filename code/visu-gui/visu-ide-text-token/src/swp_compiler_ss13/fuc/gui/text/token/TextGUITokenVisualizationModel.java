@@ -21,6 +21,8 @@ import swp_compiler_ss13.fuc.gui.text.Text_Model;
 public class TextGUITokenVisualizationModel extends Text_Model {
 
 	private final Map<TokenType, ColorWrapper> tokenColor;
+	private boolean showLineColumnInformation = true;
+	private List<Token> lastToken;
 
 	public TextGUITokenVisualizationModel(Text_Controller controller) {
 		super(controller, ModelType.TOKEN);
@@ -96,25 +98,40 @@ public class TextGUITokenVisualizationModel extends Text_Model {
 
 	@Override
 	protected List<StringColourPair> tokenToViewInformation(List<Token> tokens) {
+		lastToken = tokens;
 		if (tokens == null) {
 			return new ArrayList<>(Arrays.asList(new StringColourPair()));
 		}
 		List<StringColourPair> result = new ArrayList<>();
 		Integer line = tokens.get(0).getLine();
-		String text;
+		StringBuilder text;
 		for (Token token : tokens) {
-			text = token.getLine().equals(line) ? "" : "\n";
+			text = new StringBuilder();
+			text.append(token.getLine().equals(line) ? "" : "\n");
+			text.append('<');
 			line = token.getLine();
 			if (token.getTokenType() == TokenType.NUM || token.getTokenType() == TokenType.REAL
 					|| token.getTokenType() == TokenType.ID) {
-				text += "<" + token.getTokenType() + ", " + token.getValue() + ">";
-			} else {
-				text += "<" + token.getValue() + ">";
+				text.append(token.getTokenType());
+				text.append(", ");
+			} else {}
+			text.append(token.getValue());
+			if (showLineColumnInformation) {
+				text.append(", ");
+				text.append(token.getLine());
+				text.append(", ");
+				text.append(token.getColumn());
 			}
-			result.add(new StringColourPair().setText(text).setColor(
+			text.append('>');
+			result.add(new StringColourPair().setText(text.toString()).setColor(
 					tokenColor.get(token.getTokenType())));
 		}
 		return result;
+	}
+
+	public void toggleLineColumnInfo() {
+		showLineColumnInformation = !showLineColumnInformation;
+		setTokens(lastToken);
 	}
 
 }

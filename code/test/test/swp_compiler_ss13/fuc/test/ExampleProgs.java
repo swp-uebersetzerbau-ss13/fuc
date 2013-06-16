@@ -8,7 +8,7 @@ import java.util.Scanner;
  * 
  * 
  * Example programs with expected exitcodes and expected output, including the
- * examples from common/examples
+ * examples from common/examples.
  * 
  * 
  * @author Jens V. Fischer
@@ -118,6 +118,38 @@ public class ExampleProgs {
 		String prog = "return;";
 		int expectedExitcode = 0;
 		String expectedOutput = "";
+		return new Object[]{prog, expectedExitcode, expectedOutput};
+	}
+
+	/* array test prog 1 */
+	public static Object[] arrayProg1() {
+		String prog = "long l; long [ 3 ] a; a [ 0 ] = 42; l = a [ 0 ]; return l;";
+		int expectedExitcode = 42;
+		String expectedOutput = "";
+		return new Object[]{prog, expectedExitcode, expectedOutput};
+	}
+
+	/* array test prog 2 */
+	public static Object[] arrayProg2() {
+		String prog = "long [ 3 ] a; a [ 0 ] = 42; print a [ 0 ]; return; ";
+		int expectedExitcode = 0;
+		String expectedOutput = "42\n";
+		return new Object[]{prog, expectedExitcode, expectedOutput};
+	}
+
+	/* array test prog 2 */
+	public static Object[] arrayProg3() {
+		String prog = "long [ 3 ] a; a [ 0 ] = 42; return a [ 0 ];";
+		int expectedExitcode = 0;
+		String expectedOutput = "42\n";
+		return new Object[]{prog, expectedExitcode, expectedOutput};
+	}
+
+	/* array test return Bool */
+	public static Object[] returnBool() {
+		String prog = "bool b; b = true; return b";
+		int expectedExitcode = 0;
+		String expectedOutput = "42\n";
 		return new Object[]{prog, expectedExitcode, expectedOutput};
 	}
 

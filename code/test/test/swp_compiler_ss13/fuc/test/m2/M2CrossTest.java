@@ -116,7 +116,7 @@ public class M2CrossTest extends TestBase {
 
 	@Test
 	public void testUndefReturn() throws Exception {
-		testProgHasError(ExampleProgs.undefReturnProg());
+		testProgHasWarings(ExampleProgs.undefReturnProg());
 	}
 
 	/* M2 progs */
@@ -127,15 +127,37 @@ public class M2CrossTest extends TestBase {
 	}
 
 	@Test
-	@Ignore("Not yet implemented")
 	public void testCondProg() throws Exception {
 		testProgRuntime(ExampleProgs.condProg());
 	}
 
 	@Test
-	@Ignore("Not yet implemented")
 	public void testPrintProg() throws Exception {
 		testProgRuntime(ExampleProgs.printProg());
 	}
 
+	/* M2: additional progs */
+
+	/* regression test against return bug */
+	@Test
+	public void testReturnProg() throws Exception {
+		testProgRuntime(ExampleProgs.returnProg());
+	}
+
+	@Test
+	@Ignore("fails in Semnatic Analyser")
+	public void testArrayProg1() throws Exception {
+		testProgRuntime(ExampleProgs.arrayProg1());
+	}
+
+	@Test
+	public void testArrayProg2() throws Exception {
+		testProgRuntime(ExampleProgs.arrayProg2());
+	}
+
+	@Test
+	@Ignore("not yet implemented")
+	public void testArrayProg3() throws Exception {
+		testProgRuntime(ExampleProgs.arrayProg3());
+	}
 }
