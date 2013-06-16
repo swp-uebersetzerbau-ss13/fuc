@@ -1,7 +1,7 @@
 /**
  * 
  */
-package swp_compiler_ss13.fuc.lexer.milestone.m1;
+package swp_compiler_ss13.fuc.lexer.milestone.m2;
 
 import swp_compiler_ss13.common.lexer.BoolToken;
 import swp_compiler_ss13.common.lexer.NumToken;
@@ -26,44 +26,62 @@ import org.junit.Test;
  * @author Tay, Ho Phuong
  * 
  */
-public class Error_Multiple_Pluses_in_expProgTest {
-	private String prog = 
-		"# error: too many pluses in an expression\n" +
-		"long foo;\n" +
-		"long bar;\n" +
-		"foo = 3;\n" +
-		"bar = foo ++ 1;";
+public class Multiline_String_PrintProgTest {
+	private String prog =
+		"# return false\n" +
+		"# if\n" +
+		"# true\n" +
+		"# then\n" +
+		"# System.out.println(\"Hello World\")\n" +
+		"# else\n" +
+		"# System.out.println(\"Hello Hell\")\n" +
+		"# System.out.println(\"fü-berlin\")\n" +
+		"\n" +
+		"string s;\n" +
+		"\n" +
+		"s = \"fü-\n" +
+		"berlin\n" +
+		"\\n\";  # c-like escaping in multiline string\n" +
+		"\n" +
+		"print s;\n" +
+		"\n" +
+		"return;                    # equivalent to return EXIT_SUCCESS";
 	private InputStream stream;
 	private LexerImpl lexer;
 	private ArrayList<Token> list;
 
-	/**
-	 * @throws java.lang.Exception
-	 */
 	@Before
 	public void setUp() throws Exception {
 		this.stream = new ByteArrayInputStream(prog.getBytes());
 		this.lexer = new swp_compiler_ss13.fuc.lexer.LexerImpl();
 		this.lexer.setSourceStream(this.stream);
 		this.list = new ArrayList<Token>(Arrays.asList(
-			new TokenImpl("# error: too many pluses in an expression", TokenType.COMMENT, 1, 1),
-			new TokenImpl("long", TokenType.LONG_SYMBOL, 1, 1),
-			new TokenImpl("foo", TokenType.ID, 1, 1),
-			new TokenImpl(";", TokenType.SEMICOLON, 1, 1),
-			new TokenImpl("long", TokenType.LONG_SYMBOL, 1, 1),
-			new TokenImpl("bar", TokenType.ID, 1, 1),
-			new TokenImpl(";", TokenType.SEMICOLON, 1, 1),
-			new TokenImpl("foo", TokenType.ID, 1, 1),
-			new TokenImpl("=", TokenType.ASSIGNOP, 1, 1),
-			new TokenImpl("3", TokenType.NUM, 1, 1),
-			new TokenImpl(";", TokenType.SEMICOLON, 1, 1),
-			new TokenImpl("bar", TokenType.ID, 1, 1),
-			new TokenImpl("=", TokenType.ASSIGNOP, 1, 1),
-			new TokenImpl("foo", TokenType.ID, 1, 1),
-			new TokenImpl("++", TokenType.NOT_A_TOKEN, 1, 1),
-			new TokenImpl("1", TokenType.NUM, 1, 1),
-			new TokenImpl(";", TokenType.SEMICOLON, 1, 1),
-			new TokenImpl("$", TokenType.EOF, 1, 1)
+			new TokenImpl("# return false", TokenType.COMMENT, 1, 1),
+			new TokenImpl("# if", TokenType.COMMENT, 2, 1),
+			new TokenImpl("# true", TokenType.COMMENT, 3, 1),
+			new TokenImpl("# then", TokenType.COMMENT, 4, 1),
+			new TokenImpl("# System.out.println(\"Hello World\")", TokenType.COMMENT, 5, 1),
+			new TokenImpl("# else", TokenType.COMMENT, 6, 1),
+			new TokenImpl("# System.out.println(\"Hello Hell\")", TokenType.COMMENT, 7, 1),
+			new TokenImpl("# System.out.println(\"fü-berlin\")", TokenType.COMMENT, 8, 1),
+			new TokenImpl("string", TokenType.STRING_SYMBOL, 10, 1),
+			new TokenImpl("s", TokenType.ID, 10, 8),
+			new TokenImpl(";", TokenType.SEMICOLON, 10, 9),
+			new TokenImpl("s", TokenType.ID, 12, 1),
+			new TokenImpl("=", TokenType.ASSIGNOP, 12, 3),
+			new TokenImpl("\"fü-", TokenType.NOT_A_TOKEN, 12, 5),
+			new TokenImpl("berlin", TokenType.ID, 13, 1),
+			new TokenImpl("\n\"", TokenType.NOT_A_TOKEN, 14, 1),
+			new TokenImpl(";", TokenType.SEMICOLON, 14, 4),
+			new TokenImpl("# c-like escaping in multiline string", TokenType.COMMENT, 14, 7),
+			new TokenImpl("print", TokenType.PRINT, 16, 1),
+			new TokenImpl("s", TokenType.ID, 16, 7),
+			new TokenImpl(";", TokenType.SEMICOLON, 16, 8),
+			new TokenImpl("return", TokenType.RETURN, 18, 1),
+			new TokenImpl(";", TokenType.SEMICOLON, 18, 7),
+			new TokenImpl("# equivalent to return EXIT_SUCCESS", TokenType.COMMENT, 18, 28),
+			new TokenImpl("$", TokenType.EOF, 19, 1)
+
 		));
 	}
 
@@ -77,7 +95,7 @@ public class Error_Multiple_Pluses_in_expProgTest {
 			token = this.lexer.getNextToken();
 
 			assertTrue(token != null);
-			assertEquals(comparisonToken.getValue(), token.getValue());
+			assertEquals(comparisonToken.getValue(), token.getValue());		
 			assertEquals(comparisonToken.getTokenType(), token.getTokenType());
 			
 			if (token.getTokenType().equals(TokenType.NUM)) {
