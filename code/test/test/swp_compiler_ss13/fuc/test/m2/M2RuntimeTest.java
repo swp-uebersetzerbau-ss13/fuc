@@ -65,12 +65,6 @@ public class M2RuntimeTest extends TestBase {
 	@Test
 	public void testPrintProg() throws Exception {
 		testProgRuntime(ExampleProgs.printProg());
-	}
-
-	@Test
-	public void testMultilineStringProg() throws Exception {
-		testProgRuntime(ExampleProgs.multilineStringProg());
-	}
 
 	/* regression test against return bug */
 	@Test

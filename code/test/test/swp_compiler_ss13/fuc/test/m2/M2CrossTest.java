@@ -192,11 +192,6 @@ public class M2CrossTest extends TestBase {
 	}
 
 	/* M2: additional progs */
-	
-	@Test
-	public void testMultilineStringProg() throws Exception {
-		testProgCompilation(ExampleProgs.multilineStringProg());
-	}
 
 	/* regression test against return bug */
 	@Test
