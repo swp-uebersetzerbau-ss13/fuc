@@ -4,6 +4,10 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.junit.*;
 import org.junit.Test;
+import swp_compiler_ss13.common.ast.AST;
+import swp_compiler_ss13.common.backend.BackendException;
+import swp_compiler_ss13.common.backend.Quadruple;
+import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 import swp_compiler_ss13.fuc.backend.LLVMBackend;
 import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
 import swp_compiler_ss13.fuc.ir.IntermediateCodeGeneratorImpl;
@@ -12,6 +16,16 @@ import swp_compiler_ss13.fuc.parser.ParserImpl;
 import swp_compiler_ss13.fuc.semantic_analyser.SemanticAnalyser;
 import swp_compiler_ss13.fuc.test.ExampleProgs;
 import swp_compiler_ss13.fuc.test.TestBase;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * <p>
@@ -67,9 +81,9 @@ public class M2CompilationTest extends TestBase {
 	}
 
 	@Test
-	@Ignore("fails in Semnatic Analyser")
+	/* Compilation with Semantic Analyser fails */
 	public void testArrayProg1() throws Exception {
-		testProgCompilation(ExampleProgs.arrayProg1());
+		testProgCompilationWOAnalyser(ExampleProgs.arrayProg1());
 	}
 
 	@Test
@@ -78,9 +92,9 @@ public class M2CompilationTest extends TestBase {
 	}
 
 	@Test
-	@Ignore("fails in Semnatic Analyser")
+	/* Compilation with Semantic Analyser fails */
 	public void testArrayProg3() throws Exception {
-		testProgCompilation(ExampleProgs.arrayProg3());
+		testProgCompilationWOAnalyser(ExampleProgs.arrayProg3());
 	}
 
 	@Test

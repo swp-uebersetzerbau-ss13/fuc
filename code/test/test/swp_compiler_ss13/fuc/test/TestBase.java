@@ -84,8 +84,19 @@ public abstract class TestBase {
 		assertTrue(res != null);
 	}
 
+	protected void testProgCompilationWOAnalyser(Object[] prog) throws BackendException, IntermediateCodeGeneratorException, IOException, InterruptedException {
+		InputStream res = compileWOAnalyser((String) prog[0]);
+		assertTrue(res != null);
+	}
+
 	protected void testProgRuntime(Object[] prog) throws BackendException, IntermediateCodeGeneratorException, IOException, InterruptedException {
-		TACExecutor.ExecutionResult res = compileAndExecute((String)prog[0]);
+		TACExecutor.ExecutionResult res = execute(compile( (String) prog[0]) );
+		assertEquals(prog[1], res.exitCode);
+		assertEquals(prog[2], res.output);
+	}
+
+	protected void testProgRuntimeWOAnalyser(Object[] prog) throws BackendException, IntermediateCodeGeneratorException, IOException, InterruptedException {
+		TACExecutor.ExecutionResult res = execute(compileWOAnalyser( (String) prog[0]) );
 		assertEquals(prog[1], res.exitCode);
 		assertEquals(prog[2], res.output);
 	}
@@ -132,9 +143,20 @@ public abstract class TestBase {
 		return targets.get(targets.keySet().iterator().next());
 	}
 
-	protected TACExecutor.ExecutionResult compileAndExecute(String prog) throws BackendException,
+	protected InputStream compileWOAnalyser(String prog) throws BackendException,
 			IntermediateCodeGeneratorException, IOException, InterruptedException {
-		return TACExecutor.runIR(compile(prog));
+		lexer.setSourceStream(new ByteArrayInputStream(prog.getBytes("UTF-8")));
+		parser.setLexer(lexer);
+		parser.setReportLog(errlog);
+		AST ast = parser.getParsedAST();
+		List<Quadruple> tac = irgen.generateIntermediateCode(ast);
+		Map<String, InputStream> targets = backend.generateTargetCode("", tac);
+		return targets.get(targets.keySet().iterator().next());
+	}
+
+	protected TACExecutor.ExecutionResult execute(InputStream prog) throws BackendException,
+			IntermediateCodeGeneratorException, IOException, InterruptedException {
+		return TACExecutor.runIR(prog);
 	}
 
 }
