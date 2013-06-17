@@ -90,10 +90,4 @@ public class M2RuntimeTest extends TestBase {
 		testProgRuntimeWOAnalyser(ExampleProgs.arrayProg3());
 	}
 
-	@Test
-	@Ignore("not yet implemented")
-	public void testReturnBooleProg() throws Exception {
-		testProgRuntime(ExampleProgs.returnBool());
-	}
-
 }

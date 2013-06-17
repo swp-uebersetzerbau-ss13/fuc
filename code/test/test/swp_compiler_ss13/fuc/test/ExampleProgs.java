@@ -156,6 +156,13 @@ public class ExampleProgs {
 	}
 
 	/* array test return Bool */
+
+	/**
+	 * As the compiler does not implement functions yet, the return statement is
+	 * effectivly the exit code of the implicit main function. As OS'es usually
+	 * allow only positive natural numbers as exit codes, only returning longs
+	 * is specified and implemented yet.
+	 */
 	public static Object[] returnBool() {
 		String prog = "bool b; b = true; return b";
 		int expectedExitcode = 0;
