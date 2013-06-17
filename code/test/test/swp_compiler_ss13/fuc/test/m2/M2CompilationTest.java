@@ -59,11 +59,6 @@ public class M2CompilationTest extends TestBase {
 	public void testPrintProg() throws Exception {
 		testProgCompilation(ExampleProgs.printProg());
 
-	@Test
-	public void testMultilineStringProg() throws Exception {
-		testProgCompilation(ExampleProgs.multilineStringProg());
-	}
-
 	/* regression test against return bug */
 	@Test
 	public void testReturnProg() throws Exception {
