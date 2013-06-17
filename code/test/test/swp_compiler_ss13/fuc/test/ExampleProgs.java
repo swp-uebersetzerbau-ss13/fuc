@@ -150,8 +150,8 @@ public class ExampleProgs {
 	/* array test prog 2 */
 	public static Object[] arrayProg3() {
 		String prog = "long [ 3 ] a; a [ 0 ] = 42; return a [ 0 ];";
-		int expectedExitcode = 0;
-		String expectedOutput = "42\n";
+		int expectedExitcode = 42;
+		String expectedOutput = "";
 		return new Object[]{prog, expectedExitcode, expectedOutput};
 	}
 
