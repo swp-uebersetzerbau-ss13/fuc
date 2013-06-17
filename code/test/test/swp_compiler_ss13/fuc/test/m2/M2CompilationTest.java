@@ -58,6 +58,7 @@ public class M2CompilationTest extends TestBase {
 	@Test
 	public void testPrintProg() throws Exception {
 		testProgCompilation(ExampleProgs.printProg());
+	}
 
 	/* regression test against return bug */
 	@Test
