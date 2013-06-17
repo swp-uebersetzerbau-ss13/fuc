@@ -210,12 +210,6 @@ public class M2CrossTest extends TestBase {
 		testProgCompilation(ExampleProgs.arrayProg2());
 	}
 
-	@Test
-	@Ignore("not yet implemented")
-	public void testArrayProg3() throws Exception {
-		testProgCompilation(ExampleProgs.arrayProg3());
-	}
-
 	private Object getModule(Class moduleClass, Class implClass){
 		ServiceLoader serviceLoader = ServiceLoader.load(moduleClass);
 		Iterator iterator = serviceLoader.iterator();

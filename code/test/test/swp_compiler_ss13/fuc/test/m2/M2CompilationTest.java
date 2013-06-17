@@ -96,10 +96,4 @@ public class M2CompilationTest extends TestBase {
 	public void testArrayProg3() throws Exception {
 		testProgCompilationWOAnalyser(ExampleProgs.arrayProg3());
 	}
-
-	@Test
-	@Ignore("not yet implemented")
-	public void testReturnBooleProg() throws Exception {
-		testProgCompilation(ExampleProgs.returnBool());
-	}
 }
