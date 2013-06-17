@@ -84,6 +84,16 @@ public class ExampleProgs {
 		return new Object[]{prog, expectedExitcode, expectedOutput};
 	}
 
+	/* M1 additional progs */
+
+	/* test empty prog */
+	public static Object[] emptyProg() {
+		String prog = "";
+		int expectedExitcode = 0;
+		String expectedOutput = "";
+		return new Object[]{prog, expectedExitcode, expectedOutput};
+	}
+
 	/* M2 progs */
 
 	public static Object[] assignmentProg(){
@@ -112,6 +122,32 @@ public class ExampleProgs {
 	}
 
 	/* M2 additional progs */
+
+	/* test prog against multiline strings */
+	public static Object[] multilineStringProg() {
+		String prog = "" +
+			"# return false\n" +
+			"# if\n" +
+			"# true\n" +
+			"# then\n" +
+			"# System.out.println(\"Hello World\")\n" +
+			"# else\n" +
+			"# System.out.println(\"Hello Hell\")\n" +
+			"# System.out.println(\"fü-berlin\")\n" +
+			"\n" +
+			"string s;\n" +
+			"\n" +
+			"s = \"fü-\n" +
+			"berlin\n" +
+			"\\n\";  # c-like escaping in multiline string\n" +
+			"\n" +
+			"print s;\n" +
+			"\n" +
+			"return;                    # equivalent to return EXIT_SUCCESS";
+		int expectedExitcode = 1;
+		String expectedOutput = "some Error";
+		return new Object[]{prog, expectedExitcode, expectedOutput};
+	}
 
 	/* test prog for regression test against return bug */
 	public static Object[] returnProg() {

@@ -73,4 +73,9 @@ public class M1CompilationTest extends TestBase {
 		testProgCompilation(ExampleProgs.parenthesesProg());
 	}
 
+	@Test
+	public void testEmptyProg() throws IOException, InterruptedException, BackendException, IntermediateCodeGeneratorException {
+		testProgCompilation(ExampleProgs.emptyProg());
+	}
+
 }
