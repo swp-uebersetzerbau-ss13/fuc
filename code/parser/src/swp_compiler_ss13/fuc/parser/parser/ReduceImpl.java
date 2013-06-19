@@ -982,36 +982,6 @@ public class ReduceImpl {
 		
 		return newBlock;
 	}
-
-//	/**
-//	 * Creates a binary operation as ArithmeticBinaryExpressionNode.
-//	 * Add the coverage token to the node.
-//	 * @param leftExpr
-//	 * @param opSign
-//	 * @param rightExpr
-//	 * @param op
-//	 * @return
-//	 */
-//	private static ArithmeticBinaryExpressionNode binop(Object leftExpr, Object opSign,
-//			Object rightExpr, final BinaryOperator op) {
-//		ExpressionNode left = (ExpressionNode) leftExpr;
-//		ExpressionNode right = (ExpressionNode) rightExpr;
-//
-//		ArithmeticBinaryExpressionNode binop = new ArithmeticBinaryExpressionNodeImpl();
-//		binop.setLeftValue(left);
-//		binop.setRightValue(right);
-//		binop.setOperator(op);
-//		left.setParentNode(binop);
-//		right.setParentNode(binop);
-//
-//		//set coverage
-//		ArithmeticBinaryExpressionNodeImpl binopImpl = ((ArithmeticBinaryExpressionNodeImpl)binop);
-//		binopImpl.setCoverage(left.coverage());
-//		binopImpl.setCoverage((Token)opSign);
-//		binopImpl.setCoverage(right.coverage());
-//		
-//		return binop;
-//	}
 	
 	/**
 	 * Gets ReportLog, the Object, thats made some trouble and the message whats expected instead.

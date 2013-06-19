@@ -1,12 +1,9 @@
 package swp_compiler_ss13.fuc.parser.parser;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import swp_compiler_ss13.fuc.parser.parser.ParserException;
-import swp_compiler_ss13.fuc.parser.parser.tables.actions.Reduce;
 
 public class ParserExceptionTest {
 	static String test = "Test";
