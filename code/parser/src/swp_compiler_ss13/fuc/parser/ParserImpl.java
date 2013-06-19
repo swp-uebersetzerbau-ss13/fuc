@@ -10,7 +10,6 @@ import swp_compiler_ss13.fuc.parser.generator.items.LR1Item;
 import swp_compiler_ss13.fuc.parser.generator.states.LR1State;
 import swp_compiler_ss13.fuc.parser.grammar.Grammar;
 import swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar;
-import swp_compiler_ss13.fuc.parser.parser.DoubleIdentifierException;
 import swp_compiler_ss13.fuc.parser.parser.LRParser;
 import swp_compiler_ss13.fuc.parser.parser.LexerWrapper;
 import swp_compiler_ss13.fuc.parser.parser.ParserException;
@@ -38,6 +37,11 @@ public class ParserImpl implements Parser {
 	// --------------------------------------------------------------------------
 	@Override
 	public AST getParsedAST() {
+		// Check preconditions
+		if (reportLog == null || lexer == null) {
+			throw new NullPointerException("ReportLog and Lexer must not be null!");
+		}
+		
 		// Generate parsing table
 		Grammar grammar = new ProjectGrammar.Complete().getGrammar();
 		ALRGenerator<LR1Item, LR1State> generator = new LR1Generator(grammar);
@@ -48,14 +52,8 @@ public class ParserImpl implements Parser {
 		LexerWrapper lexWrapper = new LexerWrapper(this.lexer, grammar);
 		AST ast = null;
 		
-		if (reportLog == null) {
-			throw new NullPointerException("reportLog is not set");
-		}
-		
 		try	{
 			ast = lrParser.parse(lexWrapper, this.reportLog, table);
-		} catch (DoubleIdentifierException e) {
-			return null;
 		} catch (ParserException e) {
 			return null;
 		}

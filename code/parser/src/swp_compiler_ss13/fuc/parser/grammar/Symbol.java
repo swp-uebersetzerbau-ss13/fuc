@@ -7,6 +7,9 @@ package swp_compiler_ss13.fuc.parser.grammar;
  * @author Gero
  */
 public abstract class Symbol {
+	/**
+	 * The different types a symbol may have
+	 */
 	public enum SymbolType {
 		TERMINAL, NONTERMINAL;
 	}
@@ -14,23 +17,45 @@ public abstract class Symbol {
 	private final SymbolType type;
 	private final String id;
 
+	/**
+	 * Creates a {@link Symbol} of the given type identified by the given id
+	 * 
+	 * @param type
+	 * @param id
+	 */
 	Symbol(SymbolType type, String id) {
+		if (type == null || id == null) {
+			throw new NullPointerException("SymbolType and id must not be null!");
+		}
 		this.type = type;
 		this.id = id;
 	}
 
+	/**
+	 * @return <code>true</code> iff this {@link Symbol} is of type {@link SymbolType#TERMINAL}
+	 */
 	public boolean isTerminal() {
 		return type == SymbolType.TERMINAL;
 	}
 
+
+	/**
+	 * @return <code>true</code> iff this {@link Symbol} is of type {@link SymbolType#NONTERMINAL}
+	 */
 	public boolean isNonTerminal() {
 		return type == SymbolType.NONTERMINAL;
 	}
 
+	/**
+	 * @return The {@link SymbolType} of this {@link Symbol}
+	 */
 	public SymbolType getType() {
 		return type;
 	}
 
+	/**
+	 * @return The unique identifier of this {@link Symbol}
+	 */
 	public String getId() {
 		return id;
 	}
@@ -53,10 +78,7 @@ public abstract class Symbol {
 		if (!(obj instanceof Symbol))
 			return false;
 		Symbol other = (Symbol) obj;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
+		if (!id.equals(other.id))
 			return false;
 		if (type != other.type)
 			return false;

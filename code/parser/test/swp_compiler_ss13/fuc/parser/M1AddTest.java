@@ -4,12 +4,12 @@ import static org.junit.Assert.assertNotNull;
 import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.id;
 import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.num;
 import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.t;
-import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.M1.assignop;
-import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.M1.div;
-import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.M1.minus;
-import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.M1.plus;
-import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.M1.returnn;
-import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.M1.sem;
+import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.assignop;
+import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.div;
+import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.minus;
+import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.plus;
+import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.returnn;
+import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.sem;
 
 import org.apache.log4j.BasicConfigurator;
 import org.junit.Test;

@@ -21,12 +21,21 @@ import swp_compiler_ss13.fuc.lexer.token.BoolTokenImpl;
 import swp_compiler_ss13.fuc.lexer.token.NumTokenImpl;
 import swp_compiler_ss13.fuc.lexer.token.RealTokenImpl;
 import swp_compiler_ss13.fuc.lexer.token.TokenImpl;
+import swp_compiler_ss13.fuc.parser.generator.ALRGenerator;
 import swp_compiler_ss13.fuc.parser.generator.LR1Generator;
+import swp_compiler_ss13.fuc.parser.generator.items.LR1Item;
+import swp_compiler_ss13.fuc.parser.generator.states.LR1State;
+import swp_compiler_ss13.fuc.parser.grammar.Grammar;
+import swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar;
 import swp_compiler_ss13.fuc.parser.grammar.Terminal;
 import swp_compiler_ss13.fuc.parser.parser.LRParser;
 import swp_compiler_ss13.fuc.parser.parser.LexerWrapper;
+import swp_compiler_ss13.fuc.parser.parser.tables.LRParsingTable;
 
 public class GrammarTestHelper {
+	// ------------------------------------------------------------------------
+	// --- Token factory methods ----------------------------------------------
+	// ------------------------------------------------------------------------
 	// for long
 	public static Token num(long i) {
 		return new NumTokenImpl(i + "", TokenType.NUM, -1, -1);
@@ -60,6 +69,10 @@ public class GrammarTestHelper {
 		return new TokenImpl(value, TokenType.ID, -1, -1);
 	}
 
+	
+	// ------------------------------------------------------------------------
+	// --- Comparison of LogEntries -------------------------------------------
+	// ------------------------------------------------------------------------
 	public static void compareReportLogEntries(List<LogEntry> expected,
 			List<LogEntry> actual) {
 		compareReportLogEntries(expected, actual, true);
@@ -111,6 +124,17 @@ public class GrammarTestHelper {
 		return Arrays.asList(tokens);
 	}
 
+
+	// ------------------------------------------------------------------------
+	// --- Parser shortcuts ---------------------------------------------------
+	// ------------------------------------------------------------------------
+	/**
+	 * @see #parseToAst(String, ReportLog)
+	 */
+	public static AST parseToAst(String input) {
+		return parseToAst(input, new ReportLogImpl());
+	}
+	
 	/**
 	 * Uses {@link LR1Generator}, {@link LexerImpl} (wrapped by
 	 * {@link LexerWrapper}) and {@link LRParser} to parse the given input
@@ -118,27 +142,43 @@ public class GrammarTestHelper {
 	 * @param input
 	 * @return
 	 */
-	public static AST parseToAst(String input) {
+	public static AST parseToAst(String input, ReportLog reportLog) {
 		// Simulate input
 		Lexer lexer = new LexerImpl();
 		lexer.setSourceStream(new ByteArrayInputStream(input.getBytes()));
 
-		return parseToAst(lexer);
+		return parseToAst(lexer, reportLog);
+	}
+	
+	/**
+	 * @see #parseToAst(Lexer, ReportLog)
+	 */
+	public static AST parseToAst(Lexer lexer) {
+		// Run the ParserImpl
+		Parser parser = new ParserImpl();
+		parser.setLexer(lexer);
+		parser.setReportLog(new ReportLogImpl());
+		return parser.getParsedAST();
 	}
 
 	/**
 	 * Uses {@link LR1Generator}, the given {@link Lexer} (wrapped by
-	 * {@link LexerWrapper}) and {@link LRParser} to parse the given input
+	 * {@link LexerWrapper}), the given {@link ReportLog} and {@link LRParser}
+	 * to parse the given input
 	 * 
-	 * @param input
+	 * @param lexer
+	 * @param reportLog
 	 * @return
 	 */
-	public static AST parseToAst(Lexer lexer) {
-		// Run the ParserImpl
-		ReportLog reportLog = new ReportLogImpl();
-		Parser parser = new ParserImpl();
-		parser.setLexer(lexer);
-		parser.setReportLog(reportLog);
-		return parser.getParsedAST();
+	public static AST parseToAst(Lexer lexer, ReportLog reportLog) {
+		// Generate parsing table
+		Grammar grammar = new ProjectGrammar.Complete().getGrammar();
+		ALRGenerator<LR1Item, LR1State> generator = new LR1Generator(grammar);
+		LRParsingTable table = generator.getParsingTable();
+
+		// Run LR-parser with table
+		LRParser lrParser = new LRParser();
+		LexerWrapper lexWrapper = new LexerWrapper(lexer, grammar);
+		return lrParser.parse(lexWrapper, reportLog, table);
 	}
 }
