@@ -30,6 +30,7 @@ import swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar;
 import swp_compiler_ss13.fuc.parser.grammar.Terminal;
 import swp_compiler_ss13.fuc.parser.parser.LRParser;
 import swp_compiler_ss13.fuc.parser.parser.LexerWrapper;
+import swp_compiler_ss13.fuc.parser.parser.ParserException;
 import swp_compiler_ss13.fuc.parser.parser.tables.LRParsingTable;
 
 public class GrammarTestHelper {
@@ -151,6 +152,7 @@ public class GrammarTestHelper {
 	}
 	
 	/**
+	 * directly uses {@link ParserImpl}, and such DOES NOT throw exceptions
 	 * @see #parseToAst(Lexer, ReportLog)
 	 */
 	public static AST parseToAst(Lexer lexer) {
@@ -168,6 +170,7 @@ public class GrammarTestHelper {
 	 * 
 	 * @param lexer
 	 * @param reportLog
+	 * @throws ParserException
 	 * @return
 	 */
 	public static AST parseToAst(Lexer lexer, ReportLog reportLog) {

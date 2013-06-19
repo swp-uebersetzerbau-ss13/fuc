@@ -166,6 +166,7 @@ public class LRParser {
 			}
 
 			case ERROR: {
+				// TODO Inser error recovery here
 				Error error = (Error) action;
 				List<Token> list = new ArrayList<Token>();
 				list.add(token);

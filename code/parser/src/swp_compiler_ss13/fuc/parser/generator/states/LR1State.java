@@ -17,10 +17,11 @@ import swp_compiler_ss13.fuc.parser.grammar.Production;
 import swp_compiler_ss13.fuc.parser.grammar.Symbol;
 
 /**
- * TODO Gero, add comment! - What should this type do (in one sentence)? - If
- * not intuitive: A simple example how to use this class
- * 
- * @author Gero
+ * This class represents a generator state for a LR(1) grammar, and thus consists of a set of LR(1) items. It
+ * furthermore holds the {@link #kernel} (LR(0)) state and a map {@link #itemsWithKernels}, which allows to identify
+ * the LR(1)-items of this set by their LR(0)-kernels, which is good for speed up, as LR(1)-items change their identity
+ * while their {@link LR1Item#getLookaheads()} are constructed. Finally, it has it own implementations of
+ * {@link #goTo(Symbol)} and {@link #closure(GrammarInfo)}
  */
 public class LR1State extends ALRState<LR1Item> {
 	// --------------------------------------------------------------------------
@@ -38,6 +39,10 @@ public class LR1State extends ALRState<LR1Item> {
 	// --- constructors
 	// ---------------------------------------------------------
 	// --------------------------------------------------------------------------
+	/**
+	 * @see LR1State
+	 * @param items
+	 */
 	public LR1State(Set<LR1Item> items) {
 		super(items);
 
@@ -52,6 +57,10 @@ public class LR1State extends ALRState<LR1Item> {
 		hashCode = tmpHashCode;
 	}
 	
+	/**
+	 * @see LR1State
+	 * @param items
+	 */
 	public LR1State(LR1Item... items) {
 		super(items);
 

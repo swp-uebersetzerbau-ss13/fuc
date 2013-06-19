@@ -24,7 +24,12 @@ public class LRTableKey {
    // --------------------------------------------------------------------------
    // --- constructors ---------------------------------------------------------
    // --------------------------------------------------------------------------
-   public LRTableKey(LRParserState state, Symbol symbol) {
+   /**
+	 * @see LRTableKey
+	 * @param state
+	 * @param symbol
+	 */
+	public LRTableKey(LRParserState state, Symbol symbol) {
 	   if (state == null || symbol == null) {
 		   throw new NullPointerException("LRTableKey components must not be null!");
 	   }
@@ -41,17 +46,18 @@ public class LRTableKey {
    
    
    // --------------------------------------------------------------------------
-   // --- methods --------------------------------------------------------------
-   // --------------------------------------------------------------------------
-   
-   
-   // --------------------------------------------------------------------------
    // --- getter/setter --------------------------------------------------------
    // --------------------------------------------------------------------------
+   /**
+	 * @return The {@link LRParserState}-part of this key
+	 */
    public LRParserState getState() {
       return state;
    }
-   
+
+   /**
+	 * @return The {@link Symbol}-part of this key
+	 */
    public Symbol getSymbol() {
       return symbol;
    }
@@ -70,15 +76,9 @@ public class LRTableKey {
       if (getClass() != obj.getClass())
          return false;
       LRTableKey other = (LRTableKey) obj;
-      if (state == null) {
-         if (other.state != null)
-            return false;
-      } else if (!state.equals(other.state))
+      if (!state.equals(other.state))
          return false;
-      if (symbol == null) {
-         if (other.symbol != null)
-            return false;
-      } else if (!symbol.equals(other.symbol))
+      if (!symbol.equals(other.symbol))
          return false;
       return true;
    }

@@ -206,8 +206,7 @@ public abstract class ALRGenerator<I extends Item, S extends ALRState<I>> {
 				if (item.isShiftable()) {
 					Symbol symbol = item.getNextSymbol();
 					if (symbol.equals(Terminal.EOF)) {
-						// $: We accept...? TODO Is the simplest solution,
-						// but... sufficient?
+						// $: We accept! Simple AND sufficient! ;-)
 						dfa.getEdges().add(
 								DfaEdge.createAcceptEdge(kernel, symbol));
 					} else {
