@@ -914,12 +914,10 @@ public class ReduceImpl {
 	 */
 	private static void insertDecl(BlockNode block, DeclarationNode decl, final ReportLog reportLog) throws ParserException {
 		//Here is no coverage to set.
-		
 		SymbolTable symbolTable = block.getSymbolTable();
-		// TODO M2: Shadowing allowed???
 		if (symbolTable.isDeclaredInCurrentScope(decl.getIdentifier())) {
 			reportLog.reportError(ReportType.DOUBLE_DECLARATION, decl.coverage(), "The variable '" + 
-			decl.getIdentifier() + "' of type '" + decl.getType() + "' has been declared twice!");
+			decl.getIdentifier() + "' of type '" + decl.getType() + "' has been declared twice in this scope!");
 			throw new ParserException("double id exception");
 		}
 		block.addDeclaration(decl);

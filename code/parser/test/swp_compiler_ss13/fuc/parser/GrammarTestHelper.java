@@ -22,6 +22,7 @@ import swp_compiler_ss13.fuc.lexer.token.NumTokenImpl;
 import swp_compiler_ss13.fuc.lexer.token.RealTokenImpl;
 import swp_compiler_ss13.fuc.lexer.token.TokenImpl;
 import swp_compiler_ss13.fuc.parser.generator.ALRGenerator;
+import swp_compiler_ss13.fuc.parser.generator.GeneratorException;
 import swp_compiler_ss13.fuc.parser.generator.LR1Generator;
 import swp_compiler_ss13.fuc.parser.generator.items.LR1Item;
 import swp_compiler_ss13.fuc.parser.generator.states.LR1State;
@@ -176,7 +177,12 @@ public class GrammarTestHelper {
 	public static AST parseToAst(Lexer lexer, ReportLog reportLog) {
 		// Generate parsing table
 		Grammar grammar = new ProjectGrammar.Complete().getGrammar();
-		ALRGenerator<LR1Item, LR1State> generator = new LR1Generator(grammar);
+		ALRGenerator<LR1Item, LR1State> generator = null;
+		try {
+			generator = new LR1Generator(grammar);
+		} catch (GeneratorException err) {
+			throw new RuntimeException("An unexpected parser generator exception occured: ", err);
+		}
 		LRParsingTable table = generator.getParsingTable();
 
 		// Run LR-parser with table
