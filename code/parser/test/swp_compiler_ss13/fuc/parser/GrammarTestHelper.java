@@ -125,7 +125,7 @@ public class GrammarTestHelper {
 	}
 
 	/**
-	 * Usses {@link LR1Generator}, {@link LexerImpl} (wrapped by
+	 * Uses {@link LR1Generator}, {@link LexerImpl} (wrapped by
 	 * {@link LexerWrapper}) and {@link LRParser} to parse the given input
 	 * 
 	 * @param input
@@ -140,6 +140,26 @@ public class GrammarTestHelper {
 		// Simulate input
 		Lexer lexer = new LexerImpl();
 		lexer.setSourceStream(new ByteArrayInputStream(input.getBytes()));
+
+		// Run LR-parser with table
+		LRParser lrParser = new LRParser();
+		LexerWrapper lexWrapper = new LexerWrapper(lexer, grammar);
+		ReportLog reportLog = new ReportLogImpl();
+		return lrParser.parse(lexWrapper, reportLog, table);
+	}
+
+	/**
+	 * Uses {@link LR1Generator}, the given {@link Lexer} (wrapped by
+	 * {@link LexerWrapper}) and {@link LRParser} to parse the given input
+	 * 
+	 * @param input
+	 * @return
+	 */
+	public static AST parseToAst(Lexer lexer) {
+		// Generate parsing table
+		Grammar grammar = new ProjectGrammar.Complete().getGrammar();
+		ALRGenerator<LR1Item, LR1State> generator = new LR1Generator(grammar);
+		LRParsingTable table = generator.getParsingTable();
 
 		// Run LR-parser with table
 		LRParser lrParser = new LRParser();
