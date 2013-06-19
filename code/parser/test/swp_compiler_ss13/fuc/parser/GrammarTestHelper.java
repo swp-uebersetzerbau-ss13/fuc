@@ -1,15 +1,9 @@
 package swp_compiler_ss13.fuc.parser;
 
-import static org.junit.Assert.fail;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -18,6 +12,7 @@ import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.lexer.Lexer;
 import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
+import swp_compiler_ss13.common.parser.Parser;
 import swp_compiler_ss13.common.report.ReportLog;
 import swp_compiler_ss13.fuc.errorLog.LogEntry;
 import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
@@ -26,20 +21,12 @@ import swp_compiler_ss13.fuc.lexer.token.BoolTokenImpl;
 import swp_compiler_ss13.fuc.lexer.token.NumTokenImpl;
 import swp_compiler_ss13.fuc.lexer.token.RealTokenImpl;
 import swp_compiler_ss13.fuc.lexer.token.TokenImpl;
-import swp_compiler_ss13.fuc.parser.generator.ALRGenerator;
 import swp_compiler_ss13.fuc.parser.generator.LR1Generator;
-import swp_compiler_ss13.fuc.parser.generator.items.LR1Item;
-import swp_compiler_ss13.fuc.parser.generator.states.LR1State;
-import swp_compiler_ss13.fuc.parser.grammar.Grammar;
-import swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar;
 import swp_compiler_ss13.fuc.parser.grammar.Terminal;
 import swp_compiler_ss13.fuc.parser.parser.LRParser;
 import swp_compiler_ss13.fuc.parser.parser.LexerWrapper;
-import swp_compiler_ss13.fuc.parser.parser.tables.LRParsingTable;
 
 public class GrammarTestHelper {
-	private static final String TMP_FILE_PATH = "tmp";
-
 	// for long
 	public static Token num(long i) {
 		return new NumTokenImpl(i + "", TokenType.NUM, -1, -1);
@@ -132,20 +119,11 @@ public class GrammarTestHelper {
 	 * @return
 	 */
 	public static AST parseToAst(String input) {
-		// Generate parsing table
-		Grammar grammar = new ProjectGrammar.Complete().getGrammar();
-		ALRGenerator<LR1Item, LR1State> generator = new LR1Generator(grammar);
-		LRParsingTable table = generator.getParsingTable();
-
 		// Simulate input
 		Lexer lexer = new LexerImpl();
 		lexer.setSourceStream(new ByteArrayInputStream(input.getBytes()));
 
-		// Run LR-parser with table
-		LRParser lrParser = new LRParser();
-		LexerWrapper lexWrapper = new LexerWrapper(lexer, grammar);
-		ReportLog reportLog = new ReportLogImpl();
-		return lrParser.parse(lexWrapper, reportLog, table);
+		return parseToAst(lexer);
 	}
 
 	/**
@@ -156,76 +134,11 @@ public class GrammarTestHelper {
 	 * @return
 	 */
 	public static AST parseToAst(Lexer lexer) {
-		// Generate parsing table
-		Grammar grammar = new ProjectGrammar.Complete().getGrammar();
-		ALRGenerator<LR1Item, LR1State> generator = new LR1Generator(grammar);
-		LRParsingTable table = generator.getParsingTable();
-
-		// Run LR-parser with table
-		LRParser lrParser = new LRParser();
-		LexerWrapper lexWrapper = new LexerWrapper(lexer, grammar);
+		// Run the ParserImpl
 		ReportLog reportLog = new ReportLogImpl();
-		return lrParser.parse(lexWrapper, reportLog, table);
-	}
-
-	/**
-	 * Loads the file content from the file with the given relative path
-	 * 
-	 * @param name
-	 * @return
-	 * @throws Exception
-	 */
-	public static String loadExample(String name) throws Exception {
-		String relPath = name;
-		File file = new File(relPath);
-		if (!file.exists()) {
-			throw new RuntimeException("No file at: '" + relPath + "'");
-		}
-
-		return readFromFile(file);
-	}
-
-	private static String readFromFile(File file) throws IOException {
-		FileInputStream fis = new FileInputStream(file);
-		FileChannel fc = fis.getChannel();
-		ByteBuffer bb = ByteBuffer.allocate((int) file.length());
-		fc.read(bb);
-		fis.close();
-
-		return new String(bb.array());
-	}
-
-	/**
-	 * Stores the given string in a temporary file and loads it as file content
-	 * with a {@link FileInputStream}
-	 * 
-	 * @param input
-	 * @return
-	 */
-	public static String loadFromString(String input) {
-		try {
-			File tmp = new File(TMP_FILE_PATH);
-			if (tmp.exists()) {
-				throw new RuntimeException("File '" + TMP_FILE_PATH
-						+ "' already exists!");
-			}
-
-			if (!tmp.createNewFile()) {
-				throw new RuntimeException("Unable to create tmp file!");
-			}
-
-			FileWriter fw = new FileWriter(tmp);
-			fw.write(input);
-			fw.close();
-
-			String result = readFromFile(tmp);
-
-			tmp.delete();
-
-			return result;
-		} catch (IOException err) {
-			err.printStackTrace();
-			throw new RuntimeException("Unable to load test from string!");
-		}
+		Parser parser = new ParserImpl();
+		parser.setLexer(lexer);
+		parser.setReportLog(reportLog);
+		return parser.getParsedAST();
 	}
 }

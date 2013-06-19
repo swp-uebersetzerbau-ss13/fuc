@@ -1,4 +1,4 @@
-package swp_compiler_ss13.fuc.parser;
+package swp_compiler_ss13.fuc.parser.parser.tables.actions;
 
 import static org.junit.Assert.*;
 
