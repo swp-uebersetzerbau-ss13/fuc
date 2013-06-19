@@ -14,6 +14,8 @@ public class LRErrorState extends LRParserState {
 	// --- variables and constants
 	// ----------------------------------------------
 	// --------------------------------------------------------------------------
+	public static final int ERROR_ID = -1;
+	
 	private final String msg;
 
 	// --------------------------------------------------------------------------
@@ -21,7 +23,7 @@ public class LRErrorState extends LRParserState {
 	// ---------------------------------------------------------
 	// --------------------------------------------------------------------------
 	public LRErrorState(String msg) {
-		super(-1);
+		super(ERROR_ID);
 		this.msg = msg;
 	}
 

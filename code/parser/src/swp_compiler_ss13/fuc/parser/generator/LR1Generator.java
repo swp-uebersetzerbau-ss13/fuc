@@ -47,7 +47,6 @@ public class LR1Generator extends ALRGenerator<LR1Item, LR1State> {
 		// LR (1): Set action not for all FOLLOW symbols but all lookaheads
 		Reduce reduce = new Reduce(item.getProduction());
 		for (Terminal lookahead : item.getLookaheads().getTerminals()) {
-//			table.set(reduce, fromState, lookahead);	// TODO Feels right, but...? :-P
 			setReduceAction(table, reduce, fromState, lookahead);
 		}
 	}
