@@ -42,7 +42,6 @@ public class Terminal extends Symbol {
 		}
 	}
 
-	/** TODO This is more a hack then anything else - find better solution! */
 	private final List<TokenType> tokenTypes;
 
 	public Terminal(String id, TokenType... tokenTypes) {

@@ -21,7 +21,7 @@ public class LR1Generator extends ALRGenerator<LR1Item, LR1State> {
 	// --- constructors
 	// ---------------------------------------------------------
 	// --------------------------------------------------------------------------
-	public LR1Generator(Grammar grammar) throws RuntimeException {
+	public LR1Generator(Grammar grammar) throws GeneratorException {
 		super(grammar);
 	}
 

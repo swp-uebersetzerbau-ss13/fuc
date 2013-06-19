@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.junit.Test;
 
+import swp_compiler_ss13.fuc.parser.generator.items.LR0Item;
 import swp_compiler_ss13.fuc.parser.generator.items.LR1Item;
 import swp_compiler_ss13.fuc.parser.generator.states.LR1State;
 import swp_compiler_ss13.fuc.parser.generator.states.LR1StateTest;
@@ -18,7 +19,8 @@ public class DfaTest {
 	@Test
 	public void testDfa() {
 		Dfa<LR1Item, LR1State> dfa = new Dfa<>(LR1StateTest.state);
-		DfaEdge<LR1State> edge = new DfaEdge<>(dfa.getStartState(), t, dfa.getStartState(), LR1StateTest.lr1Item.getLR0Kernel());
+		LR0Item srcItem = LR1StateTest.lr1Item.getLR0Kernel();
+		DfaEdge<LR1State> edge = new DfaEdge<>(dfa.getStartState(), t, dfa.getStartState(), srcItem);
 		dfa.getEdges().add(edge);
 		
 		List<DfaEdge<LR1State>> edgesFrom = dfa.getEdgesFrom(dfa.getStartState());
@@ -28,6 +30,12 @@ public class DfaTest {
 		List<DfaEdge<LR1State>> edgesTo = dfa.getEdgesTo(dfa.getStartState());
 		assertEquals(1, edgesTo.size());
 		assertEdge(edge, edgesTo.get(0));
+		
+		assertFalse(edge.equals(null));
+		assertFalse(edge.equals(new Object()));
+		assertTrue(edge.equals(edge));
+		
+		assertFalse(new DfaEdge<>(null, t, dfa.getStartState(), srcItem).equals(new DfaEdge<>(dfa.getStartState(), t, dfa.getStartState(), srcItem)));
 	}
 	
 	private static void assertEdge(DfaEdge<LR1State> expected, DfaEdge<LR1State> actual) {
