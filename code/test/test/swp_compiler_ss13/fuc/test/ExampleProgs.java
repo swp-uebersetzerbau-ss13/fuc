@@ -52,7 +52,7 @@ public class ExampleProgs {
 		String prog = loadExample("error_double_decl.prog");
 
 		int expectedExitcode = -1;
-		String expectedOutput = "ERROR (DOUBLE_DECLARATION): The variable 'i' of type 'LongType' has been declared twice!";
+		String expectedOutput = "ERROR (DOUBLE_DECLARATION): The variable 'i' of type 'LongType' has been declared twice in this scope!";
 		return new Object[]{prog, expectedExitcode, expectedOutput};
 	}
 
@@ -73,7 +73,7 @@ public class ExampleProgs {
 	public static Object[] multiplePlusesInExp(){
 		String prog = loadExample("error_multiple_pluses_in_exp.prog");
 		int expectedExitcode = -1;
-		String expectedOutput = "ERROR (UNRECOGNIZED_TOKEN): Found undefined token '++'!";
+		String expectedOutput = "An error occurred: No entry for + in parsetable!";
 		return new Object[]{prog, expectedExitcode, expectedOutput};
 	}
 

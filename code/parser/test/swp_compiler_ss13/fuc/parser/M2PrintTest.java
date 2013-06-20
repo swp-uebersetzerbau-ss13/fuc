@@ -10,33 +10,20 @@ import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.print
 import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.returnn;
 import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.sem;
 
-import java.io.ByteArrayInputStream;
-
 import org.apache.log4j.BasicConfigurator;
 import org.junit.Test;
 
 import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.lexer.Lexer;
 import swp_compiler_ss13.common.lexer.TokenType;
-import swp_compiler_ss13.common.report.ReportLog;
 import swp_compiler_ss13.common.types.primitive.BooleanType;
 import swp_compiler_ss13.common.types.primitive.DoubleType;
 import swp_compiler_ss13.common.types.primitive.LongType;
 import swp_compiler_ss13.common.types.primitive.StringType;
 import swp_compiler_ss13.fuc.ast.ASTFactory;
-import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
-import swp_compiler_ss13.fuc.lexer.LexerImpl;
 import swp_compiler_ss13.fuc.lexer.token.RealTokenImpl;
-import swp_compiler_ss13.fuc.parser.generator.ALRGenerator;
-import swp_compiler_ss13.fuc.parser.generator.LR1Generator;
-import swp_compiler_ss13.fuc.parser.generator.items.LR1Item;
-import swp_compiler_ss13.fuc.parser.generator.states.LR1State;
-import swp_compiler_ss13.fuc.parser.grammar.Grammar;
-import swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar;
 import swp_compiler_ss13.fuc.parser.grammar.Terminal;
 import swp_compiler_ss13.fuc.parser.parser.LRParser;
-import swp_compiler_ss13.fuc.parser.parser.LexerWrapper;
-import swp_compiler_ss13.fuc.parser.parser.tables.LRParsingTable;
 
 public class M2PrintTest {
 	static {
@@ -61,18 +48,10 @@ public class M2PrintTest {
 		t(print), id("l"), t(sem),t(print), id("linebreak"), t(sem),
 		t(print), id("d"), t(sem),t(print), id("linebreak"), t(sem),
 		t(print), id("s"), t(sem),
-		t(returnn),t(sem),t(Terminal.EOF));		
+		t(returnn),t(sem),t(Terminal.EOF));
 		
-		// Generate parsing table
-		Grammar grammar = new ProjectGrammar.Complete().getGrammar();
-		ALRGenerator<LR1Item, LR1State> generator = new LR1Generator(grammar);
-		LRParsingTable table = generator.getParsingTable();
- 
- 		// Run LR-parser with table
-		LRParser lrParser = new LRParser();
-		LexerWrapper lexWrapper = new LexerWrapper(lexer, grammar);
-		ReportLog reportLog = new ReportLogImpl();
-		AST ast = lrParser.parse(lexWrapper, reportLog, table);
+		// Check output
+		AST ast = GrammarTestHelper.parseToAst(lexer);
 		checkAst(ast);
 	}
 
@@ -106,20 +85,8 @@ public class M2PrintTest {
 				+ "return;                    # equivalent to return EXIT_SUCCESS";
 //		String input = GrammarTestHelper.loadExample("print.prog");
 		
-		// Generate parsing table
-		Grammar grammar = new ProjectGrammar.Complete().getGrammar();
-		ALRGenerator<LR1Item, LR1State> generator = new LR1Generator(grammar);
-		LRParsingTable table = generator.getParsingTable();
-
-		// Simulate input
-		Lexer lexer = new LexerImpl();
-		lexer.setSourceStream(new ByteArrayInputStream(input.getBytes()));
-
-		// Run LR-parser with table
-		LRParser lrParser = new LRParser();
-		LexerWrapper lexWrapper = new LexerWrapper(lexer, grammar);
-		ReportLog reportLog = new ReportLogImpl();
-		AST ast = lrParser.parse(lexWrapper, reportLog, table);
+		// Check output
+		AST ast = GrammarTestHelper.parseToAst(input);
 		checkAst(ast);
 	}
 

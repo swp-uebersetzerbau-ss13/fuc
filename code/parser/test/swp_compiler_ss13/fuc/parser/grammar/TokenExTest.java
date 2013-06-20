@@ -1,4 +1,4 @@
-package swp_compiler_ss13.fuc.parser;
+package swp_compiler_ss13.fuc.parser.grammar;
 
 import static org.junit.Assert.*;
 

@@ -42,6 +42,7 @@ import swp_compiler_ss13.fuc.ast.BlockNodeImpl;
 import swp_compiler_ss13.fuc.ast.BranchNodeImpl;
 import swp_compiler_ss13.fuc.ast.BreakNodeImpl;
 import swp_compiler_ss13.fuc.ast.DeclarationNodeImpl;
+import swp_compiler_ss13.fuc.ast.DoWhileNodeImpl;
 import swp_compiler_ss13.fuc.ast.LiteralNodeImpl;
 import swp_compiler_ss13.fuc.ast.LogicBinaryExpressionNodeImpl;
 import swp_compiler_ss13.fuc.ast.LogicUnaryExpressionNodeImpl;
@@ -49,6 +50,7 @@ import swp_compiler_ss13.fuc.ast.PrintNodeImpl;
 import swp_compiler_ss13.fuc.ast.RelationExpressionNodeImpl;
 import swp_compiler_ss13.fuc.ast.ReturnNodeImpl;
 import swp_compiler_ss13.fuc.ast.StructIdentifierNodeImpl;
+import swp_compiler_ss13.fuc.ast.WhileNodeImpl;
 import swp_compiler_ss13.fuc.parser.grammar.Production;
 import swp_compiler_ss13.fuc.symbolTable.SymbolTableImpl;
 
@@ -397,9 +399,98 @@ public class ReduceImpl {
 			};
 			
 		case "stmt -> while ( assign ) stmt":
+			return new ReduceAction() {
+				@Override
+				public Object create(Object... objs) throws ParserException  {
+					WhileNodeImpl whileImpl = new WhileNodeImpl();
+					
+					Token whileToken = (Token)objs[0];
+					Token paraLeft = (Token)objs[1];
+					
+					whileImpl.setCoverage(whileToken,paraLeft);
+					
+					Object assign = objs[2];
+					
+					if(assign instanceof ExpressionNode){
+						ExpressionNode expression = (ExpressionNode) assign;
+						whileImpl.setCondition(expression);
+						whileImpl.setCoverage(expression.coverage());
+					}else{
+						writeReportError(reportLog, assign, "Expression");
+					}
+					
+					Token paraRight = (Token)objs[3];
+					
+					whileImpl.setCoverage(paraRight);
+					
+					Object stmt = objs[2];
+					
+					if(stmt instanceof StatementNode){
+						StatementNode block = (StatementNode) stmt;
+						//TODO: whileImpl.setLoopBody(block);
+						whileImpl.setCoverage(block.coverage());
+					}else{
+						if(stmt instanceof BlockNode){
+							BlockNode block = (BlockNode) stmt;
+							whileImpl.setLoopBody(block);
+							whileImpl.setCoverage(block.coverage());
+						}
+						writeReportError(reportLog, stmt, "Statement");
+					}
+					
+					return whileImpl;
+				}
+
+			};
+			
 		case "stmt -> do stmt while ( assign )":
-			// TODO M3
-			break;
+			return new ReduceAction() {
+				@Override
+				public Object create(Object... objs) throws ParserException  {
+					DoWhileNodeImpl whileImpl = new DoWhileNodeImpl();
+					
+					Token doToken = (Token)objs[0];
+					
+					whileImpl.setCoverage(doToken);
+					
+					Object stmt = objs[1];
+					
+					if(stmt instanceof StatementNode){
+						StatementNode block = (StatementNode) stmt;
+						//TODO: whileImpl.setLoopBody(block);
+						whileImpl.setCoverage(block.coverage());
+					}else{
+						if(stmt instanceof BlockNode){
+							BlockNode block = (BlockNode) stmt;
+							whileImpl.setLoopBody(block);
+							whileImpl.setCoverage(block.coverage());
+						}
+						writeReportError(reportLog, stmt, "Statement");
+					}
+					
+					Token whileToken = (Token)objs[3];
+					Token paraLeft = (Token)objs[4];
+					
+					whileImpl.setCoverage(whileToken,paraLeft);
+
+					Object assign = objs[2];
+					
+					if(assign instanceof ExpressionNode){
+						ExpressionNode expression = (ExpressionNode) assign;
+						whileImpl.setCondition(expression);
+						whileImpl.setCoverage(expression.coverage());
+					}else{
+						writeReportError(reportLog, assign, "Expression");
+					}
+					
+					Token paraRight = (Token)objs[3];
+					
+					whileImpl.setCoverage(paraRight);
+					
+					return whileImpl;
+				}
+
+			};
 
 		case "stmt -> break ;":
 			return new ReduceAction() {
@@ -914,12 +1005,10 @@ public class ReduceImpl {
 	 */
 	private static void insertDecl(BlockNode block, DeclarationNode decl, final ReportLog reportLog) throws ParserException {
 		//Here is no coverage to set.
-		
 		SymbolTable symbolTable = block.getSymbolTable();
-		// TODO M2: Shadowing allowed???
 		if (symbolTable.isDeclaredInCurrentScope(decl.getIdentifier())) {
 			reportLog.reportError(ReportType.DOUBLE_DECLARATION, decl.coverage(), "The variable '" + 
-			decl.getIdentifier() + "' of type '" + decl.getType() + "' has been declared twice!");
+			decl.getIdentifier() + "' of type '" + decl.getType() + "' has been declared twice in this scope!");
 			throw new ParserException("double id exception");
 		}
 		block.addDeclaration(decl);
@@ -982,36 +1071,6 @@ public class ReduceImpl {
 		
 		return newBlock;
 	}
-
-//	/**
-//	 * Creates a binary operation as ArithmeticBinaryExpressionNode.
-//	 * Add the coverage token to the node.
-//	 * @param leftExpr
-//	 * @param opSign
-//	 * @param rightExpr
-//	 * @param op
-//	 * @return
-//	 */
-//	private static ArithmeticBinaryExpressionNode binop(Object leftExpr, Object opSign,
-//			Object rightExpr, final BinaryOperator op) {
-//		ExpressionNode left = (ExpressionNode) leftExpr;
-//		ExpressionNode right = (ExpressionNode) rightExpr;
-//
-//		ArithmeticBinaryExpressionNode binop = new ArithmeticBinaryExpressionNodeImpl();
-//		binop.setLeftValue(left);
-//		binop.setRightValue(right);
-//		binop.setOperator(op);
-//		left.setParentNode(binop);
-//		right.setParentNode(binop);
-//
-//		//set coverage
-//		ArithmeticBinaryExpressionNodeImpl binopImpl = ((ArithmeticBinaryExpressionNodeImpl)binop);
-//		binopImpl.setCoverage(left.coverage());
-//		binopImpl.setCoverage((Token)opSign);
-//		binopImpl.setCoverage(right.coverage());
-//		
-//		return binop;
-//	}
 	
 	/**
 	 * Gets ReportLog, the Object, thats made some trouble and the message whats expected instead.

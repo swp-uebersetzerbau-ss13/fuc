@@ -166,6 +166,7 @@ public class LRParser {
 			}
 
 			case ERROR: {
+				// TODO Inser error recovery here
 				Error error = (Error) action;
 				List<Token> list = new ArrayList<Token>();
 				list.add(token);
@@ -178,17 +179,6 @@ public class LRParser {
 	}
 
 	private static Object[] arr(List<Object> objs) {
-//		for (Object obj : objs) {
-//			if (obj instanceof BlockNode) {
-//				BlockNode node = (BlockNode) obj;
-//				if (node.getDeclarationList().size() != 0) {
-//					System.out.println();
-//				}
-//			}
-//			if (obj instanceof ReturnNode) {
-//				System.out.println();
-//			}
-//		}
 		return objs.toArray(new Object[objs.size()]);
 	}
 
