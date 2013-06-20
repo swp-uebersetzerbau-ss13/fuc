@@ -52,6 +52,7 @@ public class M1ErrorTest extends TestBase {
 		testProgForErrorMsg(ExampleProgs.multipleMinusENotation());
 	}
 
+  @Ignore
 	@Test
 	public void testMultiplePlusesInExp() throws Exception {
 		testProgForErrorMsg(ExampleProgs.multiplePlusesInExp());
