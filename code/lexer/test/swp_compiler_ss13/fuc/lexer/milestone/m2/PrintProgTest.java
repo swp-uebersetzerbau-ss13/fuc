@@ -135,7 +135,6 @@ public class PrintProgTest {
 		));
 	}
 
-	@Ignore
 	@Test
 	public void testgetNextToken() {
 		Token token = null;
