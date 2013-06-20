@@ -61,8 +61,7 @@ public class M1MultiplePlusesInExpTest {
 //			GrammarTestHelper.compareReportLogEntries(createExpectedEntries(), reportLog.getEntries(), false);
 //		}
 //	}
-	@Ignore
-	@Test
+
 	//TODO failed on Travis
 	public void testErrorMultiplePlusesInExpOrgLexer() throws Exception {
 		String input = "# error: too many pluses in an expression\n"
