@@ -73,7 +73,7 @@ public class ExampleProgs {
 	public static Object[] multiplePlusesInExp(){
 		String prog = loadExample("error_multiple_pluses_in_exp.prog");
 		int expectedExitcode = -1;
-		String expectedOutput = "An error occurred: No entry for [Key 411|+]!";
+		String expectedOutput = "An error occurred: No entry for + in parsetable!";
 		return new Object[]{prog, expectedExitcode, expectedOutput};
 	}
 
