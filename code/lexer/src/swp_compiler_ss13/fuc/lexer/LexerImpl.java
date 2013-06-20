@@ -25,7 +25,6 @@ import swp_compiler_ss13.fuc.lexer.token.TokenImpl;
  */
 public class LexerImpl implements Lexer {
 
-	private Token actualToken;
 	private ArrayList<String> convertedLines;
 	private String actualLineValue;
 	private String actualTokenValue;
@@ -34,7 +33,10 @@ public class LexerImpl implements Lexer {
 	private Integer actualColumn;
 	private boolean isEOF;
 	private final static Pattern NEXT_CHARACTER = Pattern.compile("[^\\s]+");
-	private final static Pattern NEXT_WHITESPACE = Pattern.compile("\\s");
+	private final static Pattern NEXT_SEPARATOR = Pattern
+			.compile(
+					"(\\s|==|\\&\\&|\\|\\||!=|<=|>=|=|<|>|\\+|\\-|\\*|\\/|!|\\.|;|\\(|\\)|\\{|\\}|\\[|\\]|\\n)",
+					Pattern.CANON_EQ);
 
 	/**
 	 * Default constructor initializes class variables
@@ -45,7 +47,7 @@ public class LexerImpl implements Lexer {
 
 	/**
 	 * Method sets an {@link InputStream} for the lexer and splits it line by
-	 * line into an {@link ArrayList} while removing the tabs with whitespaces
+	 * line into an {@link ArrayList}
 	 */
 	@Override
 	public void setSourceStream(InputStream stream) {
@@ -67,7 +69,6 @@ public class LexerImpl implements Lexer {
 		 */
 		if (this.convertedLines.size() == 0) {
 
-			this.isEOF = true;
 			this.actualTokenValue = "$";
 			this.actualTokenType = TokenType.EOF;
 
@@ -92,7 +93,6 @@ public class LexerImpl implements Lexer {
 		this.actualTokenType = TokenType.EOF;
 		this.actualLine = 1;
 		this.actualColumn = 1;
-		this.actualToken = null;
 		this.isEOF = true;
 
 	}
@@ -122,38 +122,31 @@ public class LexerImpl implements Lexer {
 		}
 
 		/*
-		 * analyse the actual type of token
+		 * analyze the actual type of token
 		 */
 		switch (this.actualTokenType.name()) {
 
 		case "NUM":
-			this.actualToken = new NumTokenImpl(this.actualTokenValue,
+			return new NumTokenImpl(this.actualTokenValue,
 					this.actualTokenType, this.actualLine, this.actualColumn);
-			break;
 
 		case "REAL":
-			this.actualToken = new RealTokenImpl(this.actualTokenValue,
+			return new RealTokenImpl(this.actualTokenValue,
 					this.actualTokenType, this.actualLine, this.actualColumn);
-			break;
 
 		case "TRUE":
-			this.actualToken = new BoolTokenImpl(this.actualTokenValue,
+			return new BoolTokenImpl(this.actualTokenValue,
 					this.actualTokenType, this.actualLine, this.actualColumn);
-			break;
 
 		case "FALSE":
-			this.actualToken = new BoolTokenImpl(this.actualTokenValue,
+			return new BoolTokenImpl(this.actualTokenValue,
 					this.actualTokenType, this.actualLine, this.actualColumn);
-			break;
 
 		default:
-			this.actualToken = new TokenImpl(this.actualTokenValue,
-					this.actualTokenType, this.actualLine, this.actualColumn);
-			break;
+			return new TokenImpl(this.actualTokenValue, this.actualTokenType,
+					this.actualLine, this.actualColumn);
 
 		}
-
-		return this.actualToken;
 
 	}
 
@@ -197,8 +190,8 @@ public class LexerImpl implements Lexer {
 			this.actualLineValue = this.actualLineValue.replaceAll("^\\s+", "");
 
 			/*
-			 * check if the next token is a string (starts with an apostrophe),
-			 * a comment or another type
+			 * check if the next token is a string (starts and ends with an
+			 * apostrophe), a comment or another type
 			 */
 			if (this.actualLineValue.startsWith("\"")
 					&& this.actualLineValue.indexOf("\"", 1) != -1) {
@@ -218,7 +211,7 @@ public class LexerImpl implements Lexer {
 				} else {
 
 					/*
-					 * loop as long as the next unescaped apostrophe is found
+					 * loop as long as the next not escaped apostrophe is found
 					 */
 					while (!this.checkEscapeStatus(indexOfNextApostrophe)) {
 
@@ -244,88 +237,99 @@ public class LexerImpl implements Lexer {
 
 			} else {
 
-				Matcher matchNextWhitespace = NEXT_WHITESPACE
+				Matcher matchNextSeparator = NEXT_SEPARATOR
 						.matcher(this.actualLineValue);
-				boolean hasNextWhitespace = false;
-
 				/*
-				 * check if a whitespace in line is existent and abstract the
-				 * token value from beginning of the line to the next whitespace
+				 * check if a separator character is in line
 				 */
-				while (matchNextWhitespace.find()) {
+				boolean hasNextSeparator = false;
 
-					this.actualTokenValue = this.actualLineValue.substring(0,
-							matchNextWhitespace.start());
-					hasNextWhitespace = true;
+				while (matchNextSeparator.find()) {
+
+					int indexOfNextSeparator = matchNextSeparator.start();
+					int endOfNextSeparator = matchNextSeparator.end();
+
+					System.out.println("End: " + endOfNextSeparator
+							+ ", start: " + indexOfNextSeparator);
+
+					/*
+					 * check if the next separator character is to match as
+					 * token or another token is in front of it
+					 */
+					if (indexOfNextSeparator == 0) {
+
+						/*
+						 * check if the separator is a minus, then it could be a
+						 * signed number
+						 */
+						if (String.valueOf(
+								this.actualLineValue
+										.charAt(indexOfNextSeparator)).equals(
+								"-")
+								&& this.actualLineValue.matches("\\-\\d+.*")) {
+
+							System.out.println("continue");
+							continue;
+
+						} else {
+
+							this.actualTokenValue = this.actualLineValue
+									.substring(0, endOfNextSeparator);
+							hasNextSeparator = true;
+
+						}
+
+					} else {
+
+						/*
+						 * check if separator is a dot or a minus, then it could
+						 * be in a number
+						 */
+						if (String.valueOf(
+								this.actualLineValue
+										.charAt(indexOfNextSeparator)).equals(
+								".")
+								&& this.actualLineValue.matches("(-)?\\d+.*")) {
+
+							continue;
+
+						} else if (String.valueOf(
+								this.actualLineValue
+										.charAt(indexOfNextSeparator)).equals(
+								"-")
+								&& this.actualLineValue
+										.matches("(-)?\\d+(\\.\\d+)?(e|E)?-.*")) {
+
+							continue;
+
+						} else {
+
+							this.actualTokenValue = this.actualLineValue
+									.substring(0, matchNextSeparator.start());
+							hasNextSeparator = true;
+
+						}
+
+					}
+
 					break;
 
 				}
 
 				/*
-				 * if no whitespace is in line, the rest of the line is the
-				 * token value
+				 * if no separator character is in line, the rest of the line is
+				 * the token value
 				 */
-				if (!hasNextWhitespace) {
+				if (!hasNextSeparator) {
 
 					this.actualTokenValue = this.actualLineValue;
 
 				}
 
 				/*
-				 * check if a semicolon is at the end of the token
-				 */
-				if (this.actualTokenValue.contains(";")
-						&& this.actualTokenValue.length() > 1) {
-
-					if (this.actualTokenValue.startsWith(";")) {
-
-						this.actualTokenValue = String
-								.valueOf(this.actualTokenValue.charAt(0));
-
-					} else {
-
-						this.actualTokenValue = this.actualTokenValue
-								.substring(0,
-										this.actualTokenValue.indexOf(";"));
-
-					}
-
-				}
-
-				/*
-				 * try to match the token value
+				 * match the token value
 				 */
 				this.matchToken();
-
-				if (this.actualTokenType == TokenType.NOT_A_TOKEN) {
-
-					/*
-					 * check if a dot is in the token value and the value is not
-					 * a number
-					 */
-					if (this.actualTokenValue.contains(".")
-							&& this.actualTokenValue.length() > 1
-							&& this.actualTokenValue
-									.matches(".*\\.[a-zA-Z]\\w*")) {
-
-						if (this.actualTokenValue.startsWith(".")) {
-
-							this.actualTokenValue = String
-									.valueOf(this.actualTokenValue.charAt(0));
-
-						} else {
-
-							this.actualTokenValue = this.actualTokenValue
-									.substring(0,
-											this.actualTokenValue.indexOf("."));
-
-						}
-
-						this.matchToken();
-
-					}
-
-				}
 
 			}
 
@@ -418,13 +422,12 @@ public class LexerImpl implements Lexer {
 	 */
 	private void matchToken() {
 
-		if (this.actualTokenValue
-				.matches("(\\+|-)?[0-9]+((e|E)(\\+|-)?[0-9]+)?")) {
+		if (this.actualTokenValue.matches("(-)?[0-9]+((e|E)(-)?[0-9]+)?")) {
 
 			this.actualTokenType = TokenType.NUM;
 
 		} else if (this.actualTokenValue
-				.matches("(\\+|-)?[0-9]+\\.[0-9]+((e|E)(\\+|-)?[0-9]+)?")) {
+				.matches("(-)?[0-9]+\\.[0-9]+((e|E)(-)?[0-9]+)?")) {
 
 			this.actualTokenType = TokenType.REAL;
 

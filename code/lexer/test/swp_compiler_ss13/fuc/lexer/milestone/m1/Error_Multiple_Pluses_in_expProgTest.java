@@ -37,9 +37,6 @@ public class Error_Multiple_Pluses_in_expProgTest {
 	private LexerImpl lexer;
 	private ArrayList<Token> list;
 
-	/**
-	 * @throws java.lang.Exception
-	 */
 	@Before
 	public void setUp() throws Exception {
 		this.stream = new ByteArrayInputStream(prog.getBytes());
@@ -60,7 +57,8 @@ public class Error_Multiple_Pluses_in_expProgTest {
 			new TokenImpl("bar", TokenType.ID, 1, 1),
 			new TokenImpl("=", TokenType.ASSIGNOP, 1, 1),
 			new TokenImpl("foo", TokenType.ID, 1, 1),
-			new TokenImpl("++", TokenType.NOT_A_TOKEN, 1, 1),
+			new TokenImpl("+", TokenType.PLUS, 1, 1),
+			new TokenImpl("+", TokenType.PLUS, 1, 1),
 			new TokenImpl("1", TokenType.NUM, 1, 1),
 			new TokenImpl(";", TokenType.SEMICOLON, 1, 1),
 			new TokenImpl("$", TokenType.EOF, 1, 1)
