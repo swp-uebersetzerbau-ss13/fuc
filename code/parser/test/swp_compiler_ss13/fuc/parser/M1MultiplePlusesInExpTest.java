@@ -17,7 +17,7 @@ import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
 import swp_compiler_ss13.fuc.lexer.token.TokenImpl;
 import swp_compiler_ss13.fuc.parser.parser.ParserException;
 
-public class M1MultiplePlusesInExp {
+public class M1MultiplePlusesInExpTest {
 	static {
 		BasicConfigurator.configure();
 	}
