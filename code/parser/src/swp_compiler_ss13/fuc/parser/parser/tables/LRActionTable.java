@@ -43,7 +43,7 @@ public class LRActionTable {
 		LRTableKey key = new LRTableKey(curState, curTerminal);
 		ALRAction result = table.get(key);
 		if (result == null) {
-			return new Error("No entry for " + key + "!");
+			return new Error("No entry for " + key.getSymbol() + " in parsetable!");
 		} else {
 			return result;
 		}
