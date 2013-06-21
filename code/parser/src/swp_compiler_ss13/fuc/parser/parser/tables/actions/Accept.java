@@ -17,9 +17,4 @@ public class Accept extends ALRAction {
 		}
 		return false;
 	}
-
-	@Override
-	public String toString() {
-		return "accept";
-	}
 }

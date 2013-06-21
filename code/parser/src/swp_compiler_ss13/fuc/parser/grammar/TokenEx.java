@@ -29,6 +29,13 @@ public class TokenEx implements Token {
 	// --- constructors
 	// ---------------------------------------------------------
 	// --------------------------------------------------------------------------
+	/**
+	 * @see TokenEx
+	 * @param token
+	 *            The {@link Token} to wrap
+	 * @param terminal
+	 *            The {@link Terminal} the token should by extended with
+	 */
 	public TokenEx(Token token, Terminal terminal) {
 		this.token = token;
 		this.terminal = terminal;
@@ -52,17 +59,15 @@ public class TokenEx implements Token {
 			Terminal terminal = null;
 			TokenType newType = token.getTokenType();
 			for (Terminal t : grammar.getTerminals()) {
-				for (TokenType type : t.getTokenTypes()) {
-					if (type == newType) {
-						terminal = t;
-						break;
-					}
+				if (t.isTerminalFor(newType)) {
+					terminal = t;
+					break;
 				}
 			}
 
 			if (terminal == null) {
 				log.warn("Unable to find a terminal for token: "
-						+ tokenToStringFull(token));
+						+ token.toString());
 			}
 
 			switch (token.getTokenType()) {
@@ -83,10 +88,16 @@ public class TokenEx implements Token {
 	// --- getter/setter
 	// --------------------------------------------------------
 	// --------------------------------------------------------------------------
+	/**
+	 * @return The base token
+	 */
 	public Token getToken() {
 		return token;
 	}
 
+	/**
+	 * @return The {@link Terminal} this token represents
+	 */
 	public Terminal getTerminal() {
 		return terminal;
 	}
@@ -111,21 +122,18 @@ public class TokenEx implements Token {
 		return token.getColumn();
 	}
 
-	public static String tokenToString(Token t) {
-		return t.getValue();
-	}
-
-	public static String tokenToStringFull(Token t) {
-		return "[Token: '" + t.getValue() + "|Type: '" + t.getTokenType()
-				+ "'|At: line " + t.getLine() + ", col " + t.getColumn() + "]";
-	}
-
 	@Override
 	public String toString() {
-		return "Token: " + tokenToString(token) + "|"
-				+ (terminal != null ? terminal.toString() : "");
+		return "[Token: '" + token.getValue() + "' |type: '"
+				+ token.getTokenType() + "' |terminal: '"
+				+ (terminal != null ? terminal.toString() : "<null>")
+				+ "' |at: line " + token.getLine() + ", col "
+				+ token.getColumn() + "]";
 	}
 
+	/**
+	 * {@link NumToken} implementation of {@link TokenEx}
+	 */
 	public static class NumTokenEx extends TokenEx implements NumToken {
 		public NumTokenEx(NumToken token, Terminal terminal) {
 			super(token, terminal);
@@ -137,6 +145,9 @@ public class TokenEx implements Token {
 		}
 	}
 
+	/**
+	 * {@link RealToken} implementation of {@link TokenEx}
+	 */
 	public static class RealTokenEx extends TokenEx implements RealToken {
 		public RealTokenEx(RealToken token, Terminal terminal) {
 			super(token, terminal);
@@ -148,6 +159,9 @@ public class TokenEx implements Token {
 		}
 	}
 
+	/**
+	 * {@link BoolToken} implementation of {@link TokenEx}
+	 */
 	public static class BoolTokenEx extends TokenEx implements BoolToken {
 		public BoolTokenEx(BoolToken token, Terminal terminal) {
 			super(token, terminal);
