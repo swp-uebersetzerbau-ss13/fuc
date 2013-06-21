@@ -10,6 +10,7 @@ import swp_compiler_ss13.fuc.lexer.LexerImpl;
 import swp_compiler_ss13.fuc.parser.ParserImpl;
 import swp_compiler_ss13.fuc.test.ExampleProgs;
 import swp_compiler_ss13.fuc.test.TestBase;
+import org.junit.Ignore;
 
 /**
  * <p>
@@ -52,6 +53,7 @@ public class M1ErrorTest extends TestBase {
 		testProgForErrorMsg(ExampleProgs.multipleMinusENotation());
 	}
 
+  @Ignore
 	@Test
 	public void testMultiplePlusesInExp() throws Exception {
 		testProgForErrorMsg(ExampleProgs.multiplePlusesInExp());

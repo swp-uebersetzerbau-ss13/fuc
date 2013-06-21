@@ -42,6 +42,7 @@ import swp_compiler_ss13.fuc.ast.BlockNodeImpl;
 import swp_compiler_ss13.fuc.ast.BranchNodeImpl;
 import swp_compiler_ss13.fuc.ast.BreakNodeImpl;
 import swp_compiler_ss13.fuc.ast.DeclarationNodeImpl;
+import swp_compiler_ss13.fuc.ast.DoWhileNodeImpl;
 import swp_compiler_ss13.fuc.ast.LiteralNodeImpl;
 import swp_compiler_ss13.fuc.ast.LogicBinaryExpressionNodeImpl;
 import swp_compiler_ss13.fuc.ast.LogicUnaryExpressionNodeImpl;
@@ -49,6 +50,7 @@ import swp_compiler_ss13.fuc.ast.PrintNodeImpl;
 import swp_compiler_ss13.fuc.ast.RelationExpressionNodeImpl;
 import swp_compiler_ss13.fuc.ast.ReturnNodeImpl;
 import swp_compiler_ss13.fuc.ast.StructIdentifierNodeImpl;
+import swp_compiler_ss13.fuc.ast.WhileNodeImpl;
 import swp_compiler_ss13.fuc.parser.grammar.Production;
 import swp_compiler_ss13.fuc.symbolTable.SymbolTableImpl;
 
@@ -397,9 +399,98 @@ public class ReduceImpl {
 			};
 			
 		case "stmt -> while ( assign ) stmt":
+			return new ReduceAction() {
+				@Override
+				public Object create(Object... objs) throws ParserException  {
+					WhileNodeImpl whileImpl = new WhileNodeImpl();
+					
+					Token whileToken = (Token)objs[0];
+					Token paraLeft = (Token)objs[1];
+					
+					whileImpl.setCoverage(whileToken,paraLeft);
+					
+					Object assign = objs[2];
+					
+					if(assign instanceof ExpressionNode){
+						ExpressionNode expression = (ExpressionNode) assign;
+						whileImpl.setCondition(expression);
+						whileImpl.setCoverage(expression.coverage());
+					}else{
+						writeReportError(reportLog, assign, "Expression");
+					}
+					
+					Token paraRight = (Token)objs[3];
+					
+					whileImpl.setCoverage(paraRight);
+					
+					Object stmt = objs[2];
+					
+					if(stmt instanceof StatementNode){
+						StatementNode block = (StatementNode) stmt;
+						//TODO: whileImpl.setLoopBody(block);
+						whileImpl.setCoverage(block.coverage());
+					}else{
+						if(stmt instanceof BlockNode){
+							BlockNode block = (BlockNode) stmt;
+							whileImpl.setLoopBody(block);
+							whileImpl.setCoverage(block.coverage());
+						}
+						writeReportError(reportLog, stmt, "Statement");
+					}
+					
+					return whileImpl;
+				}
+
+			};
+			
 		case "stmt -> do stmt while ( assign )":
-			// TODO M3
-			break;
+			return new ReduceAction() {
+				@Override
+				public Object create(Object... objs) throws ParserException  {
+					DoWhileNodeImpl whileImpl = new DoWhileNodeImpl();
+					
+					Token doToken = (Token)objs[0];
+					
+					whileImpl.setCoverage(doToken);
+					
+					Object stmt = objs[1];
+					
+					if(stmt instanceof StatementNode){
+						StatementNode block = (StatementNode) stmt;
+						//TODO: whileImpl.setLoopBody(block);
+						whileImpl.setCoverage(block.coverage());
+					}else{
+						if(stmt instanceof BlockNode){
+							BlockNode block = (BlockNode) stmt;
+							whileImpl.setLoopBody(block);
+							whileImpl.setCoverage(block.coverage());
+						}
+						writeReportError(reportLog, stmt, "Statement");
+					}
+					
+					Token whileToken = (Token)objs[3];
+					Token paraLeft = (Token)objs[4];
+					
+					whileImpl.setCoverage(whileToken,paraLeft);
+
+					Object assign = objs[2];
+					
+					if(assign instanceof ExpressionNode){
+						ExpressionNode expression = (ExpressionNode) assign;
+						whileImpl.setCondition(expression);
+						whileImpl.setCoverage(expression.coverage());
+					}else{
+						writeReportError(reportLog, assign, "Expression");
+					}
+					
+					Token paraRight = (Token)objs[3];
+					
+					whileImpl.setCoverage(paraRight);
+					
+					return whileImpl;
+				}
+
+			};
 
 		case "stmt -> break ;":
 			return new ReduceAction() {
