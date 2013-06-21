@@ -73,10 +73,6 @@ public class RealTokenTest {
 		PA.setValue(this.lexer, "actualTokenValue", Constants.DOUBLESTRING9);
 		PA.invokeMethod(this.lexer, "matchToken()");
 		assertEquals(TokenType.REAL, PA.getValue(this.lexer, "actualTokenType"));
-
-		PA.setValue(this.lexer, "actualTokenValue", Constants.DOUBLESTRING10);
-		PA.invokeMethod(this.lexer, "matchToken()");
-		assertEquals(TokenType.REAL, PA.getValue(this.lexer, "actualTokenType"));
 	}
 
 	/**
@@ -92,8 +88,7 @@ public class RealTokenTest {
 				+ Constants.DOUBLESTRING2 + " " + Constants.DOUBLESTRING3 + " "
 				+ Constants.DOUBLESTRING4 + " " + Constants.DOUBLESTRING5 + " "
 				+ Constants.DOUBLESTRING6 + " " + Constants.DOUBLESTRING7 + " "
-				+ Constants.DOUBLESTRING8 + " " + Constants.DOUBLESTRING9 + " "
-				+ Constants.DOUBLESTRING10;
+				+ Constants.DOUBLESTRING8 + " " + Constants.DOUBLESTRING9 + " ";
 		this.lexer.setSourceStream(new ByteArrayInputStream(realString
 				.getBytes("UTF-8")));
 
@@ -117,8 +112,7 @@ public class RealTokenTest {
 				+ Constants.DOUBLESTRING2 + " " + Constants.DOUBLESTRING3 + " "
 				+ Constants.DOUBLESTRING4 + " " + Constants.DOUBLESTRING5 + " "
 				+ Constants.DOUBLESTRING6 + " " + Constants.DOUBLESTRING7 + " "
-				+ Constants.DOUBLESTRING8 + " " + Constants.DOUBLESTRING9 + " "
-				+ Constants.DOUBLESTRING10;
+				+ Constants.DOUBLESTRING8 + " " + Constants.DOUBLESTRING9 + " ";
 
 		this.lexer.setSourceStream(new ByteArrayInputStream(simpleNumString
 				.getBytes("UTF-8")));
@@ -195,13 +189,6 @@ public class RealTokenTest {
 		assertTrue(token.getDoubleValue() == Double.valueOf(
 				Constants.DOUBLESTRING9).doubleValue());
 
-		token = (RealToken) this.lexer.getNextToken();
-		assertEquals(Constants.DOUBLESTRING10, token.getValue());
-		assertEquals(TokenType.REAL, token.getTokenType());
-		assertEquals(1, token.getLine().intValue());
-		assertEquals(94, token.getColumn().intValue());
-		assertTrue(token.getDoubleValue() == Double.valueOf(
-				"-12312.300000000001").doubleValue());
 	}
 
 	/**
@@ -217,5 +204,31 @@ public class RealTokenTest {
 		token = new RealTokenImpl(Constants.DOUBLESTRINGOUTOFRANGE2, null,
 				null, null);
 		assertTrue(token.getDoubleValue() == null);
+	}
+
+	/**
+	 * Test for tokenizing of a real value with semicolon at the end
+	 * 
+	 * @throws UnsupportedEncodingException
+	 *             : UTF-8 encoding not supported
+	 */
+	@Test
+	public void tokenizeRealValueWithSemicolonAtEndTest()
+			throws UnsupportedEncodingException {
+		String simpleRealString = Constants.DOUBLESTRING1 + Constants.SEMICOLON;
+		this.lexer.setSourceStream(new ByteArrayInputStream(simpleRealString
+				.getBytes("UTF-8")));
+
+		Token token = this.lexer.getNextToken();
+		assertEquals(Constants.DOUBLESTRING1, token.getValue());
+		assertEquals(TokenType.REAL, token.getTokenType());
+		assertEquals(1, token.getLine().intValue());
+		assertEquals(1, token.getColumn().intValue());
+
+		token = this.lexer.getNextToken();
+		assertEquals(Constants.SEMICOLON, token.getValue());
+		assertEquals(TokenType.SEMICOLON, token.getTokenType());
+		assertEquals(1, token.getLine().intValue());
+		assertEquals(8, token.getColumn().intValue());
 	}
 }

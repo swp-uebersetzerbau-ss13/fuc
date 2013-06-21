@@ -1,10 +1,21 @@
 package swp_compiler_ss13.fuc.parser.parser.states;
 
+import swp_compiler_ss13.fuc.parser.grammar.Symbol;
+import swp_compiler_ss13.fuc.parser.parser.tables.LRParsingTable;
+
+/**
+ * Returned from {@link LRParsingTable}s to show that there is no valid entry
+ * for the given {@link Symbol}-{@link LRParserState} combination.
+ * 
+ * @author Gero
+ */
 public class LRErrorState extends LRParserState {
 	// --------------------------------------------------------------------------
 	// --- variables and constants
 	// ----------------------------------------------
 	// --------------------------------------------------------------------------
+	public static final int ERROR_ID = -1;
+	
 	private final String msg;
 
 	// --------------------------------------------------------------------------
@@ -12,7 +23,7 @@ public class LRErrorState extends LRParserState {
 	// ---------------------------------------------------------
 	// --------------------------------------------------------------------------
 	public LRErrorState(String msg) {
-		super(-1);
+		super(ERROR_ID);
 		this.msg = msg;
 	}
 

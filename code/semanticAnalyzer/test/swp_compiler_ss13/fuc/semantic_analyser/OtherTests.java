@@ -2,6 +2,8 @@ package swp_compiler_ss13.fuc.semantic_analyser;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.List;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,11 +13,15 @@ import swp_compiler_ss13.common.ast.nodes.binary.AssignmentNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.LiteralNode;
 import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
+import swp_compiler_ss13.common.ast.nodes.ternary.BranchNode;
 import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ReturnNode;
 import swp_compiler_ss13.common.parser.SymbolTable;
+import swp_compiler_ss13.common.report.ReportType;
 import swp_compiler_ss13.common.types.primitive.BooleanType;
 import swp_compiler_ss13.common.types.primitive.LongType;
+import swp_compiler_ss13.common.types.primitive.StringType;
+import swp_compiler_ss13.fuc.ast.ASTFactory;
 import swp_compiler_ss13.fuc.ast.ASTImpl;
 import swp_compiler_ss13.fuc.ast.AssignmentNodeImpl;
 import swp_compiler_ss13.fuc.ast.BasicIdentifierNodeImpl;
@@ -23,6 +29,7 @@ import swp_compiler_ss13.fuc.ast.BlockNodeImpl;
 import swp_compiler_ss13.fuc.ast.DeclarationNodeImpl;
 import swp_compiler_ss13.fuc.ast.LiteralNodeImpl;
 import swp_compiler_ss13.fuc.ast.ReturnNodeImpl;
+import swp_compiler_ss13.fuc.errorLog.LogEntry;
 import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
 import swp_compiler_ss13.fuc.symbolTable.SymbolTableImpl;
 
@@ -37,7 +44,8 @@ public class OtherTests {
 	@Before
 	public void setUp() {
 		log = new ReportLogImpl();
-		analyser = new SemanticAnalyser(this.log);
+		analyser = new SemanticAnalyser();
+		analyser.setReportLog(log);
 	}
 
 	@After
@@ -48,8 +56,7 @@ public class OtherTests {
 
 	/**
 	 * # error: statement after return<br/>
-	 * bool b;
-	 * return;<br/>
+	 * bool b; return;<br/>
 	 * b = true;
 	 */
 	@Test
@@ -93,9 +100,10 @@ public class OtherTests {
 		ast.setRootNode(blockNode);
 		analyser.analyse(ast);
 
-		// TODO better error check
 		System.out.println(log);
-		assertEquals(log.getErrors().size(), 1);
+		List<LogEntry> errors = log.getErrors();
+		assertEquals(errors.size(), 1);
+		assertEquals(errors.get(0).getReportType(), ReportType.UNDEFINED);
 	}
 
 	/**
@@ -134,9 +142,10 @@ public class OtherTests {
 		ast.setRootNode(blockNode);
 		analyser.analyse(ast);
 
-		// TODO better error check
 		System.out.println(log);
-		assertEquals(log.getErrors().size(), 1);
+		List<LogEntry> errors = log.getErrors();
+		assertEquals(errors.size(), 1);
+		assertEquals(errors.get(0).getReportType(), ReportType.TYPE_MISMATCH);
 	}
 
 	/**
@@ -193,8 +202,54 @@ public class OtherTests {
 		ast.setRootNode(blockNode);
 		analyser.analyse(ast);
 
-		// TODO better error check
 		System.out.println(log);
 		assertEquals(log.getErrors().size(), 3);
+	}
+
+	/**
+	 * <pre>
+	 * if ( true )
+	 *   print bla;
+	 * return;
+	 * </pre>
+	 */
+	@Test
+	public void testUndeclaredVariableInIfBranch() {
+		ASTFactory factory = new ASTFactory();
+		BranchNode iff = factory.addBranch(factory.newLiteral("true", new BooleanType()));
+		iff.setStatementNodeOnTrue(factory.newPrint(factory.newBasicIdentifier("bla")));
+		factory.goToParent();
+		factory.addReturn(null);
+
+		AST expected = factory.getAST();
+		analyser.analyse(expected);
+
+		assertEquals(1, log.getErrors().size());
+		LogEntry entry = log.getErrors().get(0);
+
+		assertEquals(LogEntry.Type.ERROR, entry.getLogType());
+		assertEquals(ReportType.UNDECLARED_VARIABLE_USAGE, entry.getReportType());
+	}
+
+	/**
+	 * <pre>
+	 * bla = "bla";
+	 * return;
+	 * </pre>
+	 */
+	@Test
+	public void testUndeclaredVariableAssign() {
+		ASTFactory factory = new ASTFactory();
+		factory.addAssignment(factory.newBasicIdentifier("bla"), factory.newLiteral("\"bla\"", new StringType(7L)));
+		factory.addReturn(null);
+
+		AST expected = factory.getAST();
+		analyser.analyse(expected);
+
+		assertEquals(1, log.getErrors().size());
+		LogEntry entry = log.getErrors().get(0);
+
+		assertEquals(LogEntry.Type.ERROR, entry.getLogType());
+		assertEquals(ReportType.UNDECLARED_VARIABLE_USAGE, entry.getReportType());
 	}
 }

@@ -2,6 +2,8 @@ package swp_compiler_ss13.fuc.semantic_analyser;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -28,6 +30,7 @@ import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
 import swp_compiler_ss13.common.ast.nodes.ternary.BranchNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ArithmeticUnaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.unary.LogicUnaryExpressionNode;
+import swp_compiler_ss13.common.ast.nodes.unary.PrintNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ReturnNode;
 import swp_compiler_ss13.common.ast.nodes.unary.UnaryExpressionNode;
 import swp_compiler_ss13.common.report.ReportLog;
@@ -35,7 +38,7 @@ import swp_compiler_ss13.common.parser.SymbolTable;
 import swp_compiler_ss13.common.report.ReportType;
 import swp_compiler_ss13.common.types.Type;
 
-public class SemanticAnalyser {
+public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalysis.SemanticAnalyser {
 
 	private static Logger logger = Logger.getLogger(SemanticAnalyser.class);
 
@@ -62,19 +65,23 @@ public class SemanticAnalyser {
 		TYPE_CHECK,
 		CODE_STATE
 	}
-	private static final String IS_NOT_INITIALIZED = "0";
 	private static final String IS_INITIALIZED = "1";
-	private static final String NO_ATTRIBUTE_VALUE = "no Value";
+	private static final String NO_ATTRIBUTE_VALUE = "undefined";
 	private static final String CAN_BREAK = "true";
 	private static final String TYPE_MISMATCH = "type mismatch";
 	private static final String DEAD_CODE = "dead";
-	private final ReportLog errorLog;
-	private final Map<ASTNode, Map<Attribute, String>> attributes;
+	private ReportLog errorLog;
+	private Map<ASTNode, Map<Attribute, String>> attributes;
 	/**
 	 * Contains all initialized identifiers. As soon it has assigned it will be
 	 * added.
 	 */
-	private final Map<SymbolTable, Set<String>> initializedIdentifiers;
+	private Map<SymbolTable, Set<String>> initializedIdentifiers;
+
+	public SemanticAnalyser() {
+		this.attributes = new HashMap<>();
+		this.initializedIdentifiers = new HashMap<>();
+	}
 
 	public SemanticAnalyser(ReportLog log) {
 		this.attributes = new HashMap<>();
@@ -82,16 +89,43 @@ public class SemanticAnalyser {
 		this.errorLog = log;
 	}
 
+	protected Map<SymbolTable, Set<String>> copy(Map<SymbolTable, Set<String>> m) {
+		Map<SymbolTable, Set<String>> c = new HashMap<>(m);
+
+		for (SymbolTable x : m.keySet()) {
+			Set<String> i = new HashSet<>();
+
+			for (String y : m.get(x)) {
+				i.add(y);
+			}
+
+			c.put(x, i);
+		}
+
+		return c;
+	}
+
+	@Override
+	public void setReportLog(ReportLog log) {
+		errorLog = log;
+	}
+
+	@Override
 	public AST analyse(AST ast) {
-		this.attributes.clear();
-		this.initializedIdentifiers.clear();
-		
-		this.traverseAstNode(ast.getRootNode(), ast.getRootSymbolTable());
-		
+		assert (errorLog != null);
+
+		attributes.clear();
+		initializedIdentifiers.clear();
+
+		logger.debug("Analyzing ... please stand by!");
+		traverse(ast.getRootNode(), ast.getRootSymbolTable());
+
 		return ast;
 	}
 
-	protected void traverseAstNode(ASTNode node, SymbolTable table) {
+	protected void traverse(ASTNode node, SymbolTable table) {
+		logger.debug("traverse: " + node);
+
 		switch (node.getNodeType()) {
 			case BasicIdentifierNode:
 				logger.trace("handle BasicIdentifierNode");
@@ -116,6 +150,7 @@ public class SemanticAnalyser {
 				handleNode((LogicUnaryExpressionNode) node, table);
 				break;
 			case PrintNode:
+				handleNode((PrintNode) node, table);
 				break;
 			case ReturnNode:
 				logger.trace("handle ReturnNode");
@@ -156,13 +191,25 @@ public class SemanticAnalyser {
 	}
 
 	protected Type.Kind getType(ASTNode node) {
-		return Type.Kind.valueOf(getAttribute(node, Attribute.TYPE));
+		String attr = getAttribute(node, Attribute.TYPE);
+		if (!attr.equals(NO_ATTRIBUTE_VALUE)) {
+			return Type.Kind.valueOf(attr);
+		} else {
+			return null;
+		}
 	}
 
-	protected Type.Kind typeLeastUpperBound(ASTNode left, ASTNode right) {
+	protected Type.Kind leastUpperBoundType(ASTNode left, ASTNode right) {
 		TreeSet<Type.Kind> types = new TreeSet<>();
-		types.add(Type.Kind.valueOf(getAttribute(left, Attribute.TYPE)));
-		types.add(Type.Kind.valueOf(getAttribute(right, Attribute.TYPE)));
+		Type.Kind leftType = getType(left);
+		Type.Kind rightType = getType(right);
+		
+		if (leftType == null || rightType == null) {
+			return null;
+		}
+		
+		types.add(leftType);
+		types.add(rightType);
 
 		if (types.size() == 1) {
 			return types.first();
@@ -184,7 +231,7 @@ public class SemanticAnalyser {
 	protected boolean isNumeric(Type.Kind k) {
 		return k == Type.Kind.DOUBLE || k == Type.Kind.LONG;
 	}
-	
+
 	protected boolean isBool(Type.Kind k) {
 		return k == Type.Kind.BOOLEAN;
 	}
@@ -200,16 +247,25 @@ public class SemanticAnalyser {
 
 	protected void handleNode(DoWhileNode node, SymbolTable table) {
 		setAttribute(node, Attribute.CAN_BREAK, CAN_BREAK);
-		traverseAstNode(node.getLoopBody(), table);
-		traverseAstNode(node.getCondition(), table);
+		traverse(node.getLoopBody(), table);
+		traverse(node.getCondition(), table);
 
 		checkLoopNode(node, table);
 	}
 
 	protected void handleNode(WhileNode node, SymbolTable table) {
 		setAttribute(node, Attribute.CAN_BREAK, CAN_BREAK);
-		traverseAstNode(node.getCondition(), table);
-		traverseAstNode(node.getLoopBody(), table);
+		traverse(node.getCondition(), table);
+
+		/*
+		 * Ignore all initialization after leaving the body's scope,
+		 * because the body may not be entered. But inside the body
+		 * the initializations are valid.
+		 * TODO: Better checking!
+		 */
+		Map<SymbolTable, Set<String>> before = copy(initializedIdentifiers);
+		traverse(node.getLoopBody(), table);
+		initializedIdentifiers = before;
 
 		checkLoopNode(node, table);
 	}
@@ -223,12 +279,49 @@ public class SemanticAnalyser {
 	/*
 	 * Branch node
 	 */
+	protected List<SymbolTable> getSymbolTableChain(SymbolTable table) {
+		List<SymbolTable> chain = new LinkedList<>();
+
+		do {
+			chain.add(table);
+			table = table.getParentSymbolTable();
+		} while (table != null);
+
+		return chain;
+	}
+
 	protected void handleNode(BranchNode node, SymbolTable table) {
-		traverseAstNode(node.getCondition(), table);
-		traverseAstNode(node.getStatementNodeOnTrue(), table);
-		
+		traverse(node.getCondition(), table);
+
+		Map<SymbolTable, Set<String>> beforeTrue = copy(initializedIdentifiers);
+		List<SymbolTable> beforeTrueTableChain = getSymbolTableChain(table);
+		traverse(node.getStatementNodeOnTrue(), table);
+
 		if (node.getStatementNodeOnFalse() != null) {
-			traverseAstNode(node.getStatementNodeOnFalse(), table);
+			Map<SymbolTable, Set<String>> beforeFalse = copy(initializedIdentifiers);
+			initializedIdentifiers = beforeTrue;
+			traverse(node.getStatementNodeOnFalse(), table);
+
+			/*
+			 * Remove all initializations that do not occur in both branches.
+			 */
+			for (SymbolTable s : beforeTrueTableChain) {
+				if (initializedIdentifiers.containsKey(s)) {
+					/*
+					 * initializedIdentifiers contains the state after the
+					 * else branch, beforeFalse contains the state after
+					 * the true branch.
+					 * 
+					 * Remove all from else, that were not also assigent
+					 * in the true branch.
+					 */
+					logger.debug(s + ": f:" + initializedIdentifiers.get(s) + ",  t:" + beforeFalse.get(s));
+					initializedIdentifiers.get(s).retainAll(beforeFalse.get(s));
+				}
+			}
+		} else {
+			logger.debug("No else branch, reset initialization.");
+			initializedIdentifiers = beforeTrue;
 		}
 
 		if (!hasAttribute(node.getCondition(), Attribute.TYPE, Type.Kind.BOOLEAN.name())) {
@@ -236,7 +329,6 @@ public class SemanticAnalyser {
 		}
 	}
 
-	
 	/*
 	 * Unary and binary expressions.
 	 */
@@ -245,15 +337,15 @@ public class SemanticAnalyser {
 		 * Left sub tree
 		 */
 		ExpressionNode left = node.getLeftValue();
-		traverseAstNode(left, table);
+		traverse(left, table);
 
 		/*
 		 * right sub tree
 		 */
 		ExpressionNode right = node.getRightValue();
-		traverseAstNode(right, table);
+		traverse(right, table);
 
-		Type.Kind type = typeLeastUpperBound(left, right);
+		Type.Kind type = leastUpperBoundType(left, right);
 
 		if (hasAttribute(left, Attribute.TYPE_CHECK, TYPE_MISMATCH)
 			|| hasAttribute(right, Attribute.TYPE_CHECK, TYPE_MISMATCH)) {
@@ -261,16 +353,17 @@ public class SemanticAnalyser {
 		} else {
 			if (type == null) {
 				setAttribute(node, Attribute.TYPE_CHECK, TYPE_MISMATCH);
-				errorLog.reportError(ReportType.TYPE_MISMATCH, node.coverage(), "Types can not be combined, no LUB.");
+				errorLog.reportError(ReportType.TYPE_MISMATCH, node.coverage(),
+					"No implicit cast (no upper bound) defined for " + getType(left) + " and " + getType(right) + ".");
 			} else {
 				setAttribute(node, Attribute.TYPE, type.name());
 			}
 		}
 	}
-	
+
 	protected void unaryExpression(UnaryExpressionNode node, SymbolTable table) {
 		ExpressionNode expression = node.getRightValue();
-		traverseAstNode(expression, table);
+		traverse(expression, table);
 
 		if (hasAttribute(expression, Attribute.TYPE_CHECK, TYPE_MISMATCH)) {
 			setAttribute(node, Attribute.TYPE_CHECK, TYPE_MISMATCH);
@@ -284,13 +377,14 @@ public class SemanticAnalyser {
 	 */
 	protected void handleNode(ArithmeticBinaryExpressionNode node, SymbolTable table) {
 		binaryExpression(node, table);
-		
+
 		if (!hasAttribute(node, Attribute.TYPE_CHECK, TYPE_MISMATCH)) {
 			Type.Kind type = getType(node);
 
-			if (!isNumeric(type) || (type == Type.Kind.STRING && node.getOperator() == BinaryExpressionNode.BinaryOperator.ADDITION)) {
+			if (!isNumeric(type) /*|| (type == Type.Kind.STRING && node.getOperator() == BinaryExpressionNode.BinaryOperator.ADDITION)*/) {
 				setAttribute(node, Attribute.TYPE_CHECK, TYPE_MISMATCH);
-				errorLog.reportError(ReportType.TYPE_MISMATCH, node.coverage(), "Operator is not defined for those types");
+				errorLog.reportError(ReportType.TYPE_MISMATCH, node.coverage(),
+					"Operator " + node.getOperator().name() + " is not defined for " + getType(node) + ".");
 			}
 		}
 	}
@@ -301,35 +395,44 @@ public class SemanticAnalyser {
 		if (hasAttribute(node, Attribute.TYPE_CHECK, TYPE_MISMATCH)) {
 			if (!isNumeric(getType(node))) {
 				setAttribute(node, Attribute.TYPE_CHECK, TYPE_MISMATCH);
-				errorLog.reportError(ReportType.TYPE_MISMATCH, node.coverage(), "Operation is not defined for ...");
+				errorLog.reportError(ReportType.TYPE_MISMATCH, node.coverage(),
+					"Operation " + node.getOperator() + " is not defined for " + getType(node) + ".");
 			}
 		}
 	}
 
 	protected void handleNode(RelationExpressionNode node, SymbolTable table) {
 		binaryExpression(node, table);
-		
+
 		if (!hasAttribute(node, Attribute.TYPE_CHECK, TYPE_MISMATCH)) {
 			Type.Kind type = getType(node);
 
-			if (!isNumeric(type)) {
+			BinaryExpressionNode.BinaryOperator op = node.getOperator();
+
+			if (!isNumeric(type) && (op != BinaryExpressionNode.BinaryOperator.EQUAL || op != BinaryExpressionNode.BinaryOperator.INEQUAL)) {
 				setAttribute(node, Attribute.TYPE_CHECK, TYPE_MISMATCH);
-				errorLog.reportError(ReportType.TYPE_MISMATCH, node.coverage(), "Operator expects numeric operands.");
+				errorLog.reportError(ReportType.TYPE_MISMATCH, node.coverage(),
+					"Operator " + node.getOperator() + " expects numeric operands.");
+			} else {
+				/*
+				 * A ReleationExpression results in a boolean.
+				 */
+				setAttribute(node, Attribute.TYPE, Type.Kind.BOOLEAN.name());
 			}
 		}
 	}
-	
-	
+
 	/*
 	 * Bool
 	 */
 	protected void handleNode(LogicBinaryExpressionNode node, SymbolTable table) {
 		binaryExpression(node, table);
-		
+
 		if (!hasAttribute(node, Attribute.TYPE_CHECK, TYPE_MISMATCH)) {
 			if (!isBool(getType(node))) {
 				setAttribute(node, Attribute.TYPE_CHECK, TYPE_MISMATCH);
-				errorLog.reportError(ReportType.TYPE_MISMATCH, node.coverage(), "Operator expects boolean operands");
+				errorLog.reportError(ReportType.TYPE_MISMATCH, node.coverage(),
+					"Operator " + node.getOperator() + " expects boolean operands");
 			}
 		}
 	}
@@ -340,12 +443,12 @@ public class SemanticAnalyser {
 		if (!hasAttribute(node, Attribute.TYPE_CHECK, TYPE_MISMATCH)) {
 			if (!isBool(getType(node))) {
 				setAttribute(node, Attribute.TYPE_CHECK, TYPE_MISMATCH);
-				errorLog.reportError(ReportType.TYPE_MISMATCH, node.coverage(), "Operator expects boolean operand.");
+				errorLog.reportError(ReportType.TYPE_MISMATCH, node.coverage(),
+					"Operator " + node.getOperator() + " expects boolean operand.");
 			}
 		}
 	}
-	
-	
+
 	/*
 	 * Block
 	 */
@@ -358,28 +461,34 @@ public class SemanticAnalyser {
 
 		for (StatementNode child : node.getStatementList()) {
 			if (hasAttribute(node, Attribute.CODE_STATE, DEAD_CODE)) {
-				errorLog.reportError(ReportType.UNDEFINED, child.coverage(), "Unreachable statement.");
+				errorLog.reportError(ReportType.UNDEFINED, child.coverage(),
+					"Unreachable statement, see previous “return” in block.");
 			}
-			
-			this.traverseAstNode(child, blockScope);
+
+			this.traverse(child, blockScope);
 		}
 	}
 
 	protected void handleNode(AssignmentNode node, SymbolTable table) {
-		traverseAstNode(node.getLeftValue(), table);
-		traverseAstNode(node.getRightValue(), table);
-		
-		if (hasAttribute(node.getLeftValue(), Attribute.TYPE_CHECK, TYPE_MISMATCH) ||
-			hasAttribute(node.getRightValue(), Attribute.TYPE_CHECK, TYPE_MISMATCH)) {
+		traverse(node.getLeftValue(), table);
+		traverse(node.getRightValue(), table);
+
+		if (hasAttribute(node.getLeftValue(), Attribute.TYPE_CHECK, TYPE_MISMATCH)
+			|| hasAttribute(node.getRightValue(), Attribute.TYPE_CHECK, TYPE_MISMATCH)) {
 			setAttribute(node, Attribute.TYPE_CHECK, TYPE_MISMATCH);
-		} else if (getType(node.getLeftValue()) != getType(node.getRightValue())) {
+		} else if (getType(node.getLeftValue())
+			!= leastUpperBoundType(node.getLeftValue(), node.getRightValue())) {
+
 			setAttribute(node, Attribute.TYPE_CHECK, TYPE_MISMATCH);
 			errorLog.reportError(ReportType.TYPE_MISMATCH, node.coverage(),
-				"Expected " + getType(node.getLeftValue()).name() +
-				" found " + getType(node.getRightValue()).name());
+				"Expected " + getType(node.getLeftValue())
+				+ " found " + getType(node.getRightValue()));
 		} else {
 			markIdentifierAsInitialized(table, getAttribute(node.getLeftValue(), Attribute.IDENTIFIER));
 			setAttribute(node, Attribute.TYPE, getAttribute(node.getLeftValue(), Attribute.TYPE));
+
+			logger.debug("Assignment: " + getAttribute(node.getLeftValue(), Attribute.IDENTIFIER)
+				+ ":" + getType(node.getLeftValue()) + " := " + getType(node.getRightValue()));
 		}
 	}
 
@@ -394,15 +503,36 @@ public class SemanticAnalyser {
 	protected void handleNode(BasicIdentifierNode node, SymbolTable table) {
 		String identifier = node.getIdentifier();
 		boolean initialzed = isInitialized(table, identifier);
+		Type t = table.lookupType(node.getIdentifier());
+
+		logger.debug("BasicIdentifierNode: identifier=" + identifier + ", initialized=" + initialzed + ", type=" + t);
+
+		if (t == null) {
+			setAttribute(node, Attribute.TYPE_CHECK, TYPE_MISMATCH);
+			errorLog.reportError(ReportType.UNDECLARED_VARIABLE_USAGE, node.coverage(),
+				"Identifier “" + identifier + "” has not been declared.");
+
+			return;
+		}
 
 		setAttribute(node, Attribute.IDENTIFIER, identifier);
-		setAttribute(node, Attribute.TYPE, table.lookupType(node.getIdentifier()).getKind().name());
+		setAttribute(node, Attribute.TYPE, t.getKind().name());
 
 		/*
 		 * checks
 		 */
-		if (node.getParentNode().getNodeType() != ASTNode.ASTNodeType.AssignmentNode && !initialzed) {
-			errorLog.reportWarning(ReportType.UNDEFINED, node.coverage(), "Variable “" + identifier + "” may be used without initialization.");
+		boolean reportInitialization = false;
+
+		if (node.getParentNode() instanceof AssignmentNode) {
+			AssignmentNode p = (AssignmentNode) node.getParentNode();
+			reportInitialization = p.getLeftValue() != node;
+		} else if (node.getParentNode().getNodeType() != ASTNode.ASTNodeType.AssignmentNode) {
+			reportInitialization = true;
+		}
+
+		if (reportInitialization && !initialzed) {
+			errorLog.reportWarning(ReportType.UNDEFINED, node.coverage(),
+				"Variable “" + identifier + "” may be used without initialization.");
 		}
 	}
 
@@ -410,14 +540,20 @@ public class SemanticAnalyser {
 		IdentifierNode identifier = node.getRightValue();
 
 		if (identifier != null) {
-			traverseAstNode(identifier, table);
+			traverse(identifier, table);
 
 			if (!getAttribute(identifier, Attribute.TYPE).equals(Type.Kind.LONG.name())) {
-				errorLog.reportError(ReportType.TYPE_MISMATCH, node.coverage(), "Only variables of type long can be returned.");
+				errorLog.reportError(ReportType.TYPE_MISMATCH, node.coverage(),
+					"Only variables of type long can be returned.");
 			}
 		}
-		
+
 		setAttribute(node.getParentNode(), Attribute.CODE_STATE, DEAD_CODE);
+	}
+	
+	protected void handleNode(PrintNode node, SymbolTable table) {
+		IdentifierNode identifier = node.getRightValue();
+		traverse(identifier, table);
 	}
 
 	private boolean isInitialized(SymbolTable table, String identifier) {

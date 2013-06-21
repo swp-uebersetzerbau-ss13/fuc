@@ -4,14 +4,18 @@ import java.io.PrintStream;
 
 import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.ast.ASTNode;
-import swp_compiler_ss13.common.ast.nodes.binary.ArithmeticBinaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.binary.AssignmentNode;
+import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode.BinaryOperator;
 import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.LiteralNode;
-import swp_compiler_ss13.common.ast.nodes.unary.ArithmeticUnaryExpressionNode;
+import swp_compiler_ss13.common.ast.nodes.ternary.BranchNode;
+import swp_compiler_ss13.common.ast.nodes.unary.ArrayIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
+import swp_compiler_ss13.common.ast.nodes.unary.PrintNode;
+import swp_compiler_ss13.common.ast.nodes.unary.UnaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.unary.UnaryExpressionNode.UnaryOperator;
+import swp_compiler_ss13.common.types.Type.Kind;
 import swp_compiler_ss13.common.visualization.ASTVisualization;
 
 /**
@@ -59,21 +63,25 @@ public class ASTInfixVisualization implements ASTVisualization {
 	 */
 	protected void visualize(ASTNode node, String indent, PrintStream out, Environment env) {
 		switch (node.getNodeType()) {
+		case RelationExpressionNode:
+		case LogicBinaryExpressionNode:
 		case ArithmeticBinaryExpressionNode:
 			out.print("(");
-			this.visualize(((ArithmeticBinaryExpressionNode) node).getLeftValue(), indent + "  ", out, env);
-			out.print(this.getBinaryOperatorSign((ArithmeticBinaryExpressionNode) node));
-			this.visualize(((ArithmeticBinaryExpressionNode) node).getRightValue(), indent + "  ", out, env);
+			this.visualize(((BinaryExpressionNode) node).getLeftValue(), indent + "  ", out, env);
+			out.print(this.getBinaryOperatorSign((BinaryExpressionNode) node));
+			this.visualize(((BinaryExpressionNode) node).getRightValue(), indent + "  ", out, env);
 			out.print(")");
 			break;
+		case LogicUnaryExpressionNode:
 		case ArithmeticUnaryExpressionNode:
 			out.print("(");
-			out.print(this.getUnaryOperatorSign((ArithmeticUnaryExpressionNode) node));
+			out.print(this.getUnaryOperatorSign((UnaryExpressionNode) node));
 			this.visualizeChildren(node, indent + "  ", out, env);
 			out.print(")");
 			break;
 		case ArrayIdentifierNode:
-			// TODO
+			this.visualizeChildren(node, indent + "  ", out, env);
+			out.print("[" + ((ArrayIdentifierNode) node).getIndex() + "]");
 			break;
 		case AssignmentNode:
 			if (env == Environment.ASSIGNMENT) {
@@ -102,15 +110,26 @@ public class ASTInfixVisualization implements ASTVisualization {
 			out.println("}");
 			break;
 		case BranchNode:
-			// TODO
+			out.print(indent);
+			out.print("if (");
+			this.visualize(((BranchNode) node).getCondition(), indent + "  ", out, Environment.ASSIGNMENT);
+			out.println(")");
+			this.visualize(((BranchNode) node).getStatementNodeOnTrue(), indent + "  ", out, env);
+			if (((BranchNode) node).getStatementNodeOnFalse() != null) {
+				out.print(indent);
+				out.println("else");
+				this.visualize(((BranchNode) node).getStatementNodeOnFalse(), indent + "  ", out, env);
+			}
 			break;
 		case BreakNode:
-			// TODO
+			out.print(indent);
+			out.println("break;");
 			break;
 		case DeclarationNode:
 			assert (env != Environment.ASSIGNMENT);
 			out.print(indent);
-			out.print(((DeclarationNode) node).getType().toString().replaceFirst("Type$", ""));
+			out.print(((DeclarationNode) node).getType().toString().replaceFirst("Type($|\\[)", "$1")
+					.replaceFirst("String\\[\\d*\\]", "String"));
 			out.print(" ");
 			out.print(((DeclarationNode) node).getIdentifier().toString());
 			out.println(";");
@@ -119,19 +138,19 @@ public class ASTInfixVisualization implements ASTVisualization {
 			// TODO
 			break;
 		case LiteralNode:
-			out.print(((LiteralNode) node).getLiteral());
-			break;
-		case LogicBinaryExpressionNode:
-			// TODO
-			break;
-		case LogicUnaryExpressionNode:
-			// TODO
+			LiteralNode literalNode = (LiteralNode) node;
+			String literal = literalNode.getLiteral();
+			if (literalNode.getLiteralType().getKind() != Kind.STRING || literal.matches("^\".*\"$")) {
+				out.print(literal);
+			} else {
+				out.print("\"" + literal + "\"");
+			}
 			break;
 		case PrintNode:
-			// TODO
-			break;
-		case RelationExpressionNode:
-			// TODO
+			out.print(indent);
+			out.print("print ");
+			this.visualize(((PrintNode) node).getRightValue(), indent + "  ", out, Environment.ASSIGNMENT);
+			out.println(";");
 			break;
 		case ReturnNode:
 			assert (env != Environment.ASSIGNMENT);
@@ -175,7 +194,7 @@ public class ASTInfixVisualization implements ASTVisualization {
 	 *            The node from which to get the operator
 	 * @return a string representing the operator
 	 */
-	protected String getBinaryOperatorSign(ArithmeticBinaryExpressionNode node) {
+	protected String getBinaryOperatorSign(BinaryExpressionNode node) {
 		String operator;
 		BinaryOperator binaryOperator = node.getOperator();
 
@@ -232,7 +251,7 @@ public class ASTInfixVisualization implements ASTVisualization {
 	 *            The node from which to get the operator
 	 * @return a string representing the operator
 	 */
-	protected String getUnaryOperatorSign(ArithmeticUnaryExpressionNode node) {
+	protected String getUnaryOperatorSign(UnaryExpressionNode node) {
 		String operator;
 		UnaryOperator unaryOperator = node.getOperator();
 
@@ -250,4 +269,5 @@ public class ASTInfixVisualization implements ASTVisualization {
 
 		return operator;
 	}
+
 }

@@ -40,7 +40,6 @@ import swp_compiler_ss13.fuc.ast.ReturnNodeImpl;
 import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
 import swp_compiler_ss13.fuc.symbolTable.SymbolTableImpl;
 
-// TODO refine ASTs
 public class M2Tests {
 
 	private SemanticAnalyser analyser;
@@ -52,7 +51,8 @@ public class M2Tests {
 	@Before
 	public void setUp() {
 		log = new ReportLogImpl();
-		analyser = new SemanticAnalyser(this.log);
+		analyser = new SemanticAnalyser();
+		analyser.setReportLog(log);
 	}
 
 	@After
@@ -560,6 +560,7 @@ public class M2Tests {
 		symbolTable.insert("d", new DoubleType());
 		symbolTable.insert("b", new BooleanType());
 		symbolTable.insert("s", new StringType(new Long(20)));
+		symbolTable.insert("linebreak", new StringType(new Long(20)));
 
 		BlockNode blockNode = new BlockNodeImpl();
 		blockNode.addDeclaration(declaration_l);

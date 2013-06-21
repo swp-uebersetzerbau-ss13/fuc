@@ -6,8 +6,9 @@ import swp_compiler_ss13.fuc.parser.grammar.Grammar;
 import swp_compiler_ss13.fuc.parser.grammar.TokenEx;
 
 /**
- * Used to wrap the not very well defined {@link Token} class with our
- * {@link TokenEx}.
+ * Used to wrap the stream of {@link Token}s from the {@link Lexer} with our
+ * {@link TokenEx} class, so the {@link LRParser} receives {@link TokenEx}
+ * instead.
  * 
  * @author Gero
  */
@@ -34,7 +35,7 @@ public class LexerWrapper {
 	// --------------------------------------------------------------------------
 	public TokenEx getNextToken() {
 		Token nextToken = lexer.getNextToken();
-//		System.out.println(TokenEx.tokenToString(nextToken) + "\n");
+		// System.out.println(TokenEx.tokenToString(nextToken) + "\n");
 		return TokenEx.createFromToken(nextToken, grammar);
 	}
 }

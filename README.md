@@ -14,11 +14,13 @@ FU Berlin Compiler group
 4. [Component Interchangability](https://github.com/swp-uebersetzerbau-ss13/fuc/wiki/Component-interchangability)
 
 ### Developer Manual
-1. [Lexer](https://github.com/swp-uebersetzerbau-ss13/fuc/wiki/Lexer)
-2. [Parser](https://github.com/swp-uebersetzerbau-ss13/fuc/wiki/Parser)
-3. [Semantic Analysis](https://github.com/swp-uebersetzerbau-ss13/fuc/wiki/Semantic-Analysis)
-4. [Intermediate Code Generator](https://github.com/swp-uebersetzerbau-ss13/fuc/wiki/Intermediate-Code-Generator)
-5. [Backend](https://github.com/swp-uebersetzerbau-ss13/fuc/wiki/Backend)
+1. [JavaDoc Documentation](http://swp-uebersetzerbau-ss13.github.io/fuc/doc/)
+2. [Lexer](https://github.com/swp-uebersetzerbau-ss13/fuc/wiki/Lexer)
+3. [Parser](https://github.com/swp-uebersetzerbau-ss13/fuc/wiki/Parser)
+4. [Semantic Analysis](https://github.com/swp-uebersetzerbau-ss13/fuc/wiki/Semantic-Analysis)
+5. [Intermediate Code Generator](https://github.com/swp-uebersetzerbau-ss13/fuc/wiki/Intermediate-Code-Generator)
+6. [Backend](https://github.com/swp-uebersetzerbau-ss13/fuc/wiki/Backend)
+7. [Testing](https://github.com/swp-uebersetzerbau-ss13/fuc/wiki/Testing)
 
 ===
 

@@ -64,10 +64,23 @@
 		<delete dir="${bin.dir}" />
 	</target>
 
-	<!-- === build tests === -->
-	<target name="build-tests" depends="clean, interfaces, lexer, parser, ast, symbolTable, errorLog, semanticanalyzer, intermediateCodeGenerator, backend" description="build the junit tests">
+    <!-- === copy example progs === -->
+    <target name="copy" depends="" description="copy example progs from common/examples to bin">
+        <copy todir="${bin.dir}/swp_compiler_ss13/fuc/test/" flatten="true">
+            <fileset dir="../${common.dir}/examples/">
+                <include name="**/*.prog" />
+            </fileset>
+        </copy>
+    </target>
+
+    <!-- === build tests === -->
+	<target name="build-tests" depends="clean, interfaces, lexer, parser, ast, symbolTable, errorLog, semanticanalyzer, intermediateCodeGenerator, backend, copy" description="build the junit tests">
 		<mkdir dir="${bin.dir}" />
+        <mkdir dir="../${dist.dir}" />
 		<javac
+            excludes="**/*CrossTest.java"
+            debug="true"
+            debuglevel="lines,vars,source"
 			srcdir="${test.dir}"
 			destdir="${bin.dir}"
 			target="1.7"
@@ -75,11 +88,27 @@
 			includeantruntime="false" />
 	</target>
 
+    <!-- === build cross tests === -->
+    <target name="build-tests-cross" depends="clean, interfaces, copy" description="build the junit cross tests">
+        <mkdir dir="${bin.dir}" />
+        <javac
+                includes="**/*CrossTest.java"
+                debug="true"
+                debuglevel="lines,vars,source"
+                srcdir="${test.dir}"
+                destdir="${bin.dir}"
+                target="1.7"
+                classpathref="classpath-test"
+                includeantruntime="false" />
+    </target>
+
 	<!-- === run tests === -->
 	<target name="run-tests" depends="build-tests" description="run the junit tests">
 		<junit
 			printsummary="on"
-			fork="true"
+			fork="yes"
+			forkmode="once"
+			showoutput="true"
 			haltonerror="true"
 			haltonfailure="true" >
 			<classpath>
@@ -88,11 +117,64 @@
 			<batchtest>
 				<fileset dir="${test.dir}">
 					<include name="**/*Test.java" />
+                    <exclude name="**/*RuntimeTest.java" />
+                    <exclude name="**/*CrossTest.java" />
 				</fileset>
 			</batchtest>
-			<formatter type="plain" usefile="no" />
-		</junit>
-	
+            <formatter type="plain" usefile="no" />
+        </junit>
 	</target>
+
+    <!-- === run runtime tests === -->
+    <target name="run-tests-runtime" depends="build-tests" description="run the junit runtime tests. needs LLVM installation">
+        <junit
+                printsummary="on"
+                fork="true"
+                haltonerror="true"
+                haltonfailure="true"
+                >
+            <classpath>
+                <path refid="classpath-test" />
+            </classpath>
+            <batchtest>
+                <fileset dir="${test.dir}">
+                    <include name="**/*Test.java" />
+                    <include name="**/*RuntimeTest.java" />
+                    <exclude name="**/*CrossTest.java" />
+                </fileset>
+            </batchtest>
+            <formatter type="plain" usefile="no" />
+        </junit>
+    </target>
+
+
+    <!-- === run cross tests === -->
+    <target name="run-tests-cross" depends="build-tests-cross" description="run the junit cross tests. Needs the javabite lexer jar in code/dist">
+        <mkdir dir="${test.results.dir}" />
+        <junit
+                printsummary="on"
+                fork="true"
+                haltonerror="false"
+                haltonfailure="false" >
+            <classpath>
+                <path refid="classpath-test" />
+            </classpath>
+            <batchtest todir="${test.results.dir}">
+                <fileset dir="${test.dir}">
+                    <include name="**/M2CrossTest.java" />
+                </fileset>
+            </batchtest>
+            <formatter type="plain" usefile="no" />
+            <formatter type="xml" usefile="yes"/>
+        </junit>
+
+        <!-- Generate HTML report -->
+        <junitreport todir="${test.results.dir}">
+            <fileset dir="${test.results.dir}">
+                <include name="TEST-*.xml" />
+            </fileset>
+            <report format="noframes" todir="${test.reports.dir}" />
+        </junitreport>
+    </target>
 
 </project>

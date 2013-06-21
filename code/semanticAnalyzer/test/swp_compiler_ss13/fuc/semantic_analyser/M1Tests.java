@@ -40,7 +40,8 @@ public class M1Tests {
 	@Before
 	public void setUp() {
 		this.log = new ReportLogImpl();
-		this.analyser = new SemanticAnalyser(this.log);
+		analyser = new SemanticAnalyser();
+		analyser.setReportLog(log);
 	}
 
 	@After

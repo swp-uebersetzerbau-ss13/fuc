@@ -54,6 +54,11 @@ public class TypeSymbolTest {
 		PA.invokeMethod(this.lexer, "matchToken()");
 		assertEquals(TokenType.STRING_SYMBOL,
 				PA.getValue(this.lexer, "actualTokenType"));
+
+		PA.setValue(this.lexer, "actualTokenValue", Constants.RECORDSYMBOL);
+		PA.invokeMethod(this.lexer, "matchToken()");
+		assertEquals(TokenType.RECORD_SYMBOL,
+				PA.getValue(this.lexer, "actualTokenType"));
 	}
 
 	/**
@@ -68,7 +73,7 @@ public class TypeSymbolTest {
 
 		String simpleTypeSymbolString = Constants.LONGSYMBOL + " "
 				+ Constants.DOUBLESYMBOL + " " + Constants.BOOLSYMBOL + " "
-				+ Constants.STRINGSYMBOL;
+				+ Constants.STRINGSYMBOL + " " + Constants.RECORDSYMBOL;
 
 		this.lexer.setSourceStream(new ByteArrayInputStream(
 				simpleTypeSymbolString.getBytes("UTF-8")));
@@ -96,5 +101,11 @@ public class TypeSymbolTest {
 		assertEquals(TokenType.STRING_SYMBOL, token.getTokenType());
 		assertEquals(1, token.getLine().intValue());
 		assertEquals(18, token.getColumn().intValue());
+
+		token = this.lexer.getNextToken();
+		assertEquals(Constants.RECORDSYMBOL, token.getValue());
+		assertEquals(TokenType.RECORD_SYMBOL, token.getTokenType());
+		assertEquals(1, token.getLine().intValue());
+		assertEquals(25, token.getColumn().intValue());
 	}
 }

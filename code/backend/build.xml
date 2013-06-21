@@ -29,6 +29,8 @@
 	<target name="build" depends="clean, interfaces" description="build the source files">
 		<mkdir dir="${bin.dir}" />
 		<javac
+			debug="true"
+			debuglevel="lines,vars,source"
 			srcdir="${src.dir}"
 			destdir="${bin.dir}"
 			target="1.7"
@@ -66,6 +68,8 @@
 	<!-- === build tests === -->
 	<target name="build-tests" depends="build" description="build the junit tests">
 		<javac
+			debug="true"
+			debuglevel="lines,vars,source"
 			srcdir="${test.dir}"
 			destdir="${bin.dir}"
 			target="1.7"
@@ -87,7 +91,7 @@
 		<jacoco:coverage destfile="${test.results.dir}/jacoco.exec">
 			<junit
 				printsummary="on"
-				fork="true"
+				fork="yes"
 				haltonerror="true"
 				haltonfailure="true" >
 				<classpath>
@@ -98,7 +102,6 @@
 						<include name="**/TestSuite.java" />
 					</fileset>
 				</batchtest>
-                <formatter type="plain" usefile="false" />
 				<formatter type="xml" />
 			</junit>
 		</jacoco:coverage>
@@ -140,7 +143,7 @@
 
         <junit
                 printsummary="on"
-                fork="true"
+                fork="yes"
                 haltonerror="true"
                 haltonfailure="true">
             <classpath>
@@ -151,7 +154,6 @@
                     <include name="**/RuntimeTestSuite.java"/>
                 </fileset>
             </batchtest>
-            <formatter type="plain" usefile="false"/>
             <formatter type="xml"/>
         </junit>
 

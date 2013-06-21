@@ -15,7 +15,11 @@ import swp_compiler_ss13.common.ast.nodes.unary.ArithmeticUnaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ReturnNode;
 import swp_compiler_ss13.common.ast.nodes.unary.UnaryExpressionNode.UnaryOperator;
+import swp_compiler_ss13.common.types.derived.ArrayType;
+import swp_compiler_ss13.common.types.primitive.BooleanType;
 import swp_compiler_ss13.common.types.primitive.LongType;
+import swp_compiler_ss13.common.types.primitive.StringType;
+import swp_compiler_ss13.fuc.ast.ASTFactory;
 import swp_compiler_ss13.fuc.ast.ASTImpl;
 import swp_compiler_ss13.fuc.ast.ArithmeticBinaryExpressionNodeImpl;
 import swp_compiler_ss13.fuc.ast.ArithmeticUnaryExpressionNodeImpl;
@@ -223,5 +227,41 @@ public class ASTVisualizationTest {
 	public void Infix() {
 		(new ASTInfixVisualization()).visualizeAST(ast1);
 		(new ASTInfixVisualization()).visualizeAST(ast2);
+	}
+
+	@Test
+	public void Infix2() {
+		ASTFactory astf = new ASTFactory();
+		astf.addDeclaration("b", new BooleanType());
+		astf.addDeclaration("c", new BooleanType());
+		astf.addDeclaration("l", new LongType());
+		astf.addDeclaration("abc", new StringType(3L));
+		astf.addDeclaration("a", new ArrayType(new BooleanType(), 10));
+
+		astf.addAssignment(astf.newBasicIdentifier("b"),
+				astf.newArrayIdentifier(3, astf.newArrayIdentifier(5, astf.newBasicIdentifier("a"))));
+		astf.addAssignment(astf.newBasicIdentifier("b"), astf.newLiteral("true", new BooleanType()));
+		astf.addAssignment(astf.newBasicIdentifier("c"), astf.newLiteral("false", new BooleanType()));
+		astf.addAssignment(astf.newBasicIdentifier("l"), astf.newLiteral("4", new LongType()));
+		astf.addAssignment(astf.newBasicIdentifier("abc"), astf.newLiteral("bla", new StringType(3L)));
+
+		astf.addBranch(astf.newBasicIdentifier("b"));
+		astf.addBlock();
+		astf.addBranch(astf.newBinaryExpression(BinaryOperator.LOGICAL_OR, astf.newBasicIdentifier("c"),
+				astf.newUnaryExpression(UnaryOperator.LOGICAL_NEGATE, astf.newBasicIdentifier("b"))));
+		astf.addBlock();
+		astf.addPrint(astf.newBasicIdentifier("abc"));
+		astf.goToParent();
+		astf.addBlock();
+		astf.addAssignment(astf.newBasicIdentifier("l"), astf.newLiteral("5", new LongType()));
+		astf.goToParent();
+		astf.goToParent();
+		astf.goToParent();
+		astf.goToParent();
+		astf.addPrint(astf.newArrayIdentifier(5, astf.newBasicIdentifier("a")));
+		astf.addBreak();
+		astf.addReturn(astf.newBasicIdentifier("l"));
+
+		(new ASTInfixVisualization()).visualizeAST(astf.getAST());
 	}
 }

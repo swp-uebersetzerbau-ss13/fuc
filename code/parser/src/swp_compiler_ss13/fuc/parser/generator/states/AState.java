@@ -3,8 +3,17 @@ package swp_compiler_ss13.fuc.parser.generator.states;
 import java.util.Collection;
 import java.util.HashSet;
 
+import swp_compiler_ss13.fuc.parser.generator.items.Item;
 import swp_compiler_ss13.fuc.parser.util.It;
 
+/**
+ * This is the base class for generator-created parser states. It simply
+ * consists of a fixed set of {@link Item}s
+ * 
+ * @author Gero
+ * 
+ * @param <I>
+ */
 public class AState<I> {
 	// --------------------------------------------------------------------------
 	// --- variables and constants

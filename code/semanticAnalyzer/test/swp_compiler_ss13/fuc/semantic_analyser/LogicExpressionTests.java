@@ -2,6 +2,8 @@ package swp_compiler_ss13.fuc.semantic_analyser;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.List;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,7 +15,10 @@ import swp_compiler_ss13.common.ast.nodes.binary.LogicBinaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
 import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
+import swp_compiler_ss13.common.ast.nodes.unary.LogicUnaryExpressionNode;
+import swp_compiler_ss13.common.ast.nodes.unary.UnaryExpressionNode.UnaryOperator;
 import swp_compiler_ss13.common.parser.SymbolTable;
+import swp_compiler_ss13.common.report.ReportType;
 import swp_compiler_ss13.common.types.primitive.BooleanType;
 import swp_compiler_ss13.common.types.primitive.LongType;
 import swp_compiler_ss13.fuc.ast.ASTImpl;
@@ -22,6 +27,8 @@ import swp_compiler_ss13.fuc.ast.BasicIdentifierNodeImpl;
 import swp_compiler_ss13.fuc.ast.BlockNodeImpl;
 import swp_compiler_ss13.fuc.ast.DeclarationNodeImpl;
 import swp_compiler_ss13.fuc.ast.LogicBinaryExpressionNodeImpl;
+import swp_compiler_ss13.fuc.ast.LogicUnaryExpressionNodeImpl;
+import swp_compiler_ss13.fuc.errorLog.LogEntry;
 import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
 import swp_compiler_ss13.fuc.symbolTable.SymbolTableImpl;
 
@@ -36,7 +43,8 @@ public class LogicExpressionTests {
 	@Before
 	public void setUp() {
 		log = new ReportLogImpl();
-		analyser = new SemanticAnalyser(this.log);
+		analyser = new SemanticAnalyser();
+		analyser.setReportLog(log);
 	}
 
 	@After
@@ -104,8 +112,70 @@ public class LogicExpressionTests {
 		ast.setRootNode(blockNode);
 		analyser.analyse(ast);
 
-		// TODO better error check
 		System.out.println(log);
-		assertEquals(log.getErrors().size(), 1);
+		List<LogEntry> errors = log.getErrors();
+		assertEquals(errors.size(), 1);
+		assertEquals(errors.get(0).getReportType(), ReportType.TYPE_MISMATCH);
+	}
+	
+	/**
+	 * # error: usage of long within an unary logic expression<br/>
+	 * long l;<br/>
+	 * bool b;<br/>
+	 * <br/>
+	 * b = !l;
+	 */
+	@Test
+	public void testLogicUnaryExpressionTypeError() {
+		// long l;
+		DeclarationNode declaration_l = new DeclarationNodeImpl();
+		declaration_l.setIdentifier("l");
+		declaration_l.setType(new LongType());
+
+		// long b;
+		DeclarationNode declaration_b = new DeclarationNodeImpl();
+		declaration_b.setIdentifier("b");
+		declaration_b.setType(new BooleanType());
+
+		// b = !l;
+		BasicIdentifierNode identifier_l = new BasicIdentifierNodeImpl();
+		identifier_l.setIdentifier("l");
+		BasicIdentifierNode identifier_b = new BasicIdentifierNodeImpl();
+		identifier_b.setIdentifier("b");
+
+		LogicUnaryExpressionNode not_l = new LogicUnaryExpressionNodeImpl();
+		not_l.setOperator(UnaryOperator.LOGICAL_NEGATE);
+		not_l.setRightValue(identifier_l);
+		identifier_l.setParentNode(not_l);
+
+		AssignmentNode assignment_b = new AssignmentNodeImpl();
+		assignment_b.setLeftValue(identifier_b);
+		assignment_b.setRightValue(not_l);
+		identifier_b.setParentNode(assignment_b);
+		not_l.setParentNode(assignment_b);
+
+		// main block
+		SymbolTable symbolTable = new SymbolTableImpl();
+		symbolTable.insert("l", new LongType());
+		symbolTable.insert("b", new BooleanType());
+
+		BlockNode blockNode = new BlockNodeImpl();
+		blockNode.addDeclaration(declaration_l);
+		blockNode.addDeclaration(declaration_b);
+		blockNode.addStatement(assignment_b);
+		blockNode.setSymbolTable(symbolTable);
+		declaration_l.setParentNode(blockNode);
+		declaration_b.setParentNode(blockNode);
+		assignment_b.setParentNode(blockNode);
+
+		// analyse AST
+		AST ast = new ASTImpl();
+		ast.setRootNode(blockNode);
+		analyser.analyse(ast);
+
+		System.out.println(log);
+		List<LogEntry> errors = log.getErrors();
+		assertEquals(errors.size(), 1);
+		assertEquals(errors.get(0).getReportType(), ReportType.TYPE_MISMATCH);
 	}
 }

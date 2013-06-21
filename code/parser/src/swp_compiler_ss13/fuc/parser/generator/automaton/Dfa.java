@@ -9,6 +9,16 @@ import swp_compiler_ss13.fuc.parser.generator.items.Item;
 import swp_compiler_ss13.fuc.parser.generator.states.AState;
 
 
+/**
+ * A deterministic finite automaton (DFA) as a interim step for the generation
+ * of parsing tables. Generators create DFAs first from the grammar, which are
+ * then converted to actions by moving along their edges.
+ * 
+ * @author Gero
+ * 
+ * @param <I> The item type the states consists of 
+ * @param <S> The states type of this automaton
+ */
 public class Dfa<I extends Item, S extends AState<I>> {
    // --------------------------------------------------------------------------
    // --- variables and constants ----------------------------------------------

@@ -328,6 +328,23 @@ public class ASTFactory {
 		rightExpression.setParentNode(binaryExpression);
 		return binaryExpression;
 	}
+	
+	/**
+	 * Creates a new {@link PrintNode} with the given {@link IdentifierNode} as right value.
+	 * 
+	 * @param id May be <code>null</code>
+	 * @return
+	 */
+	public PrintNode newPrint(IdentifierNode id) {
+	   PrintNode print = new PrintNodeImpl();
+	   if (id == null) {
+	      print.setRightValue(null);
+	   } else {
+	      id.setParentNode(print);
+         print.setRightValue(id);
+	   }
+	   return print;
+	}
 
 	/**
 	 * creates a new UnaryExpressionNode and sets the relations to the children

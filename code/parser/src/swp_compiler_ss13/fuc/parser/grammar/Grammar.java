@@ -7,6 +7,12 @@ import java.util.LinkedList;
 import java.util.List;
 
 
+/**
+ * This class represents a context free grammar consisting of
+ * {@link Terminal}s, {@link Production}s and {@link NonTerminal}s.
+ * 
+ * @author Gero
+ */
 public class Grammar {
    private final List<Terminal> terminals;
    private final List<NonTerminal> nonTerminals;
@@ -21,8 +27,9 @@ public class Grammar {
    
    
    /**
-    * Adds auxiliary start production "S' → S$". If the grammar already contains a $ terminal, it is returned
-    * unmodified.
+    * Adds auxiliary start production "S' → S$" (Using
+    * {@link NonTerminal#StartLHS}). If the grammar already contains a $
+    * terminal, it is returned unmodified.
     */
    public Grammar extendByAuxStartProduction() {
       // Already augmented?

@@ -11,6 +11,11 @@ import swp_compiler_ss13.fuc.parser.grammar.Production;
 import swp_compiler_ss13.fuc.parser.grammar.Symbol;
 import swp_compiler_ss13.fuc.parser.grammar.Terminal;
 
+/**
+ * Calculates and caches the follow sets for the given grammar
+ * 
+ * @author Gero
+ */
 public class FollowSets {
 	// --------------------------------------------------------------------------
 	// --- variables and constants

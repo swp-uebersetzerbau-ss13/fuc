@@ -21,8 +21,8 @@ public final class Production {
    
    // cache
    private Terminal lastTerminal;
-   private Terminal precTerminal; // save the Terminal with the precedence of this Production
-   private int rhsSizeWoEpsilon;
+//   private Terminal precTerminal; // save the Terminal with the precedence of this Production
+   private int rhsSizeWithoutEpsilon;
    private int hashCode;
    
    
@@ -34,9 +34,9 @@ public final class Production {
       if (rhs.size() == 0) {
          // empty RHS means epsilon
          rhs = Arrays.asList((Symbol) Terminal.Epsilon);
-         this.rhsSizeWoEpsilon = 0;
+         this.rhsSizeWithoutEpsilon = 0;
       } else if (rhs.size() == 1) {
-         this.rhsSizeWoEpsilon = (rhs.get(0) == Terminal.Epsilon ? 0 : 1);
+         this.rhsSizeWithoutEpsilon = (rhs.get(0) == Terminal.Epsilon ? 0 : 1);
       } else if (rhs.size() > 1) {
          // check, that there is no epsilon in a RHS with at least 2 symbols
          for (Symbol symbol : rhs) {
@@ -44,7 +44,7 @@ public final class Production {
                throw new IllegalArgumentException("Epsilon is only allowed as the single symbol of a RHS!");
             }
          }
-         this.rhsSizeWoEpsilon = rhs.size();
+         this.rhsSizeWithoutEpsilon = rhs.size();
       }
       this.id = id;
       this.lhs = lhs;
@@ -60,7 +60,7 @@ public final class Production {
          }
       }
       this.lastTerminal = lastTerminal;
-      this.precTerminal = (precTerminal != null) ? precTerminal : lastTerminal;
+//      this.precTerminal = (precTerminal != null) ? precTerminal : lastTerminal;
       
       // hash code
       computeHashcode();
@@ -72,27 +72,36 @@ public final class Production {
    }
    
    
-   public int getID() {
+   /**
+	 * @return The id that makes this production unique in a grammar
+	 */
+	public int getID() {
       return id;
    }
    
    
-   public NonTerminal getLHS() {
+   /**
+	 * @return The right hand side of this production
+	 */
+	public NonTerminal getLHS() {
       return lhs;
    }
    
    
-   public List<Symbol> getRHS() {
+   /**
+	 * @return The complete right hand side of this production (as a
+	 * list of {@link Symbol})
+	 */
+	public List<Symbol> getRHS() {
       return rhs;
    }
    
    
    /**
-    * Returns the number of right hand side symbols,
-    * without epsilons.
+    * @return The number of right hand side symbols, without epsilons.
     */
-   public int getRHSSizeWoEpsilon() {
-      return rhsSizeWoEpsilon;
+   public int getRHSSize() {
+      return rhsSizeWithoutEpsilon;
    }
    
    

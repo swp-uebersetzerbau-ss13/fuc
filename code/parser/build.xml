@@ -29,11 +29,6 @@
 		<ant antfile="build.xml" dir="../${symbolTable.dir}" target="build" inheritall="false" />
 	</target>
 	
-	<!-- === depends on the semantic analysis === -->
-	<target name="semanticanalyzer" description="Build the semantic Analyser">
-		<ant antfile="build.xml" dir="../${semanticAnalyzer.dir}" target="build" inheritall="false" />
-	</target>
-	
 	<!-- === depends on the lexer === -->
 	<target name="lexer" description="Build the lexer">
 		<ant antfile="build.xml" dir="../${lexer.dir}" target="build" inheritall="false" />
@@ -51,9 +46,12 @@
 	</target>
 
 	<!-- === build === -->
-	<target name="build" depends="clean, interfaces, ast, semanticanalyzer, symbolTable" description="build the source files">
+	<target name="build" depends="clean, interfaces, ast, symbolTable" description="build the source files">
 		<mkdir dir="${bin.dir}" />
 		<javac 
+			debug="true"
+			debuglevel="lines,vars,source"
+			encoding="UTF-8"
 			srcdir="${src.dir}"
 			destdir="${bin.dir}"
 			target="1.7"
@@ -86,6 +84,7 @@
 	<!-- === build tests === -->
 	<target name="build-tests" depends="build, lexer, errorLog" description="build the junit tests">
 		<javac
+			encoding="UTF-8"
 			srcdir="${test.dir}"
 			destdir="${bin.dir}"
 			target="1.7"
@@ -97,7 +96,9 @@
 	<target name="run-tests" depends="build-tests" description="run the junit tests">
 		<junit
 			printsummary="on"
-			fork="true"
+			fork="yes"
+			forkmode="once"
+			showoutput="false"
 			haltonerror="true"
 			haltonfailure="true" >
 			<classpath>
@@ -108,7 +109,6 @@
 					<include name="**/*Test.java" />
 				</fileset>
 			</batchtest>
-			<formatter type="plain" usefile="no" />
 		</junit>
 	
 	</target>
