@@ -90,6 +90,7 @@ public class Text_View implements View {
 		}
 		area.setEditable(false);
 		this.contentPanel.add(area);
+		panel.invalidate();
 	}
 
 	/**
