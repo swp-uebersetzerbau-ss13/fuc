@@ -425,8 +425,17 @@ public class LLVMBackend implements Backend
 							Module.toIRBoolean(q.getArgument2()),
 							q.getResult());
 					break;
+				case CONCAT_STRING:
+					m.addPrimitiveBinaryCall(
+						q.getOperator(),
+						Type.Kind.STRING,
+						Type.Kind.STRING,
+						Module.toIRString(q.getArgument1()),
+						Module.toIRString(q.getArgument2()),
+						q.getResult());
+					break;
 
-				/* Comparisons */
+					/* Comparisons */
 				case COMPARE_LONG_E:
 				m.addPrimitiveBinaryInstruction(
 						q.getOperator(),

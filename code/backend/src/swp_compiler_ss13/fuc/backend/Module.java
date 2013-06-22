@@ -294,6 +294,9 @@ public class Module
 			case DIV_DOUBLE:
 				irCall = "div_double";
 				break;
+			case CONCAT_STRING:
+				irCall = "concat_string";
+				break;
 		}
 
 		return irCall;
@@ -479,10 +482,25 @@ public class Module
 	public void addPrimitiveDeclare(Kind type, String variable, String initializer) throws BackendException {
 		addNewVariable(type, variable);
 
-		if(!initializer.equals(Quadruple.EmptyArgument))
-		{
-			addPrimitiveAssign(type, variable, initializer);
+		/* Set default initializer */
+		if(initializer.equals(Quadruple.EmptyArgument)) {
+			switch(type) {
+				case LONG:
+					initializer = "#0";
+					break;
+				case DOUBLE:
+					initializer = "#0.0";
+					break;
+				case BOOLEAN:
+					initializer = "#FALSE";
+					break;
+				case STRING:
+					initializer = "#\"\"";
+					break;
+			}
 		}
+
+		addPrimitiveAssign(type, variable, initializer);
 	}
 
 	/**
@@ -768,22 +786,17 @@ public class Module
 		String irArgumentType = getIRType(argumentType);
 		String irResultType = getIRType(resultType);
 		String irCall = getIRBinaryCall(op);
-
-		if(lhs.charAt(0) == '#')
-		{
-			lhs = lhs.substring(1);
-		}
-		else
-		{
-			String lhsIdentifier = "%" + lhs;
-			lhs = getUseIdentifierForVariable(lhs);
-			gen(lhs + " = load " + irArgumentType + "* " + lhsIdentifier);
-		}
+		boolean constantRHS = false;
 
 		if(rhs.charAt(0) == '#')
 		{
-			rhs = rhs.substring(1);
+			constantRHS = true;
+		}
 
+		lhs = cdl(lhs, argumentType);
+		rhs = cdl(rhs, argumentType);
+
+		if(constantRHS) {
 			if((op == Quadruple.Operator.DIV_LONG) &&
 			   (Long.valueOf(rhs).equals(Long.valueOf(0))))
 			{
@@ -796,12 +809,6 @@ public class Module
 			{
 				throw new BackendException("Division by zero");
 			}
-		}
-		else
-		{
-			String rhsIdentifier = "%" + rhs;
-			rhs = getUseIdentifierForVariable(rhs);
-			gen(rhs + " = load " + irArgumentType + "* " + rhsIdentifier);
 		}
 
 		String dstUseIdentifier = getUseIdentifierForVariable(dst);

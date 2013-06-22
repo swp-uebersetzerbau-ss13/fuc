@@ -87,7 +87,7 @@ define i8* @btoa(i1) {
 }
 
 ;; Concatenate two Strings (without changing either)
-define i8* @strconcat(i8*,i8*) {
+define i8* @concat_string(i8*,i8*) {
   %lhs.length = call i32 (i8*)* @strlen(i8* %0)
   %rhs.length = call i32 (i8*)* @strlen(i8* %1)
   %"length-1" = add i32 %lhs.length, %rhs.length
