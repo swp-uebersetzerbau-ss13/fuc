@@ -69,6 +69,7 @@
 		<mkdir dir="${bin.dir}" />
         <mkdir dir="../${dist.dir}" />
 		<javac
+            encoding="UTF-8"
             excludes="**/*CrossTest.java"
             debug="true"
             debuglevel="lines,vars,source"
@@ -83,6 +84,7 @@
     <target name="build-tests-cross" depends="clean, interfaces" description="build the junit cross tests">
         <mkdir dir="${bin.dir}" />
         <javac
+                encoding="UTF-8"
                 includes="**/*CrossTest.java"
                 debug="true"
                 debuglevel="lines,vars,source"
