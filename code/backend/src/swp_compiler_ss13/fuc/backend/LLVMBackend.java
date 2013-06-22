@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Iterator;
 
 /**
  * This implements a backend for LLVM IR.
@@ -93,12 +94,6 @@ public class LLVMBackend implements Backend
 		this.llvm_uncaught = "\n" + out.toString();
 	}
 
-	// indicates whether we are currently parsing an array declaration,
-	//  (which is the only stateful parse operation)
-	private boolean array_mode = false; 
-	private List<Integer> array_sizes = new LinkedList<Integer>();
-	private String  array_name = "";
-
 	/**
 	 * This is a pass the backend performs on the TAC
 	 * to ensure it is correct before generating any code.
@@ -144,6 +139,44 @@ public class LLVMBackend implements Backend
 		return tac;
 	}
 
+	void parseArrayDeclaration(Module m, Iterator<Quadruple> tacIterator, String name, int size) throws BackendException
+	{
+		boolean done = false;
+		List<Integer> array_sizes = new LinkedList<Integer>();
+		array_sizes.add(size);
+
+		while(!done && tacIterator.hasNext()) {
+			Quadruple q = tacIterator.next();
+
+			if(q.getOperator() == Quadruple.Operator.DECLARE_ARRAY) {
+				size = Integer.parseInt(q.getArgument1().substring(1));
+				assert(size>=0);
+				array_sizes.add(size);
+			}
+			else {
+				Type.Kind final_type = null;
+				switch(q.getOperator()) {
+					case DECLARE_DOUBLE:
+						final_type = Type.Kind.DOUBLE;
+						break;
+					case DECLARE_LONG:
+						final_type = Type.Kind.LONG;
+						break;
+					case DECLARE_BOOLEAN:
+						final_type = Type.Kind.BOOLEAN;
+						break;
+					case DECLARE_STRING:
+						final_type = Type.Kind.STRING;
+						break;
+					default:
+						throw new BackendException("Unknown type for array declaration");
+				}
+				m.addArrayDeclare(final_type,array_sizes,name);
+				done = true;
+			}
+		}
+	}
+
 	/**
 	 * This function generates LLVM IR code for
 	 * given three address code.
@@ -167,39 +200,11 @@ public class LLVMBackend implements Backend
 		/* Write begin for main function */
 		out.println("define i64 @main() {");
 
-		for(Quadruple q : tac)
+		Iterator<Quadruple> tacIterator = tac.iterator();
+
+		while(tacIterator.hasNext())
 		{
-			if(array_mode) {
-				if(q.getOperator() == Quadruple.Operator.DECLARE_ARRAY) {
-					int size = Integer.parseInt(q.getArgument1().substring(1));
-					assert(size>=0);
-					array_sizes.add(size);
-				}
-				else {
-					Type.Kind final_type = null;
-					switch(q.getOperator()) {
-					case DECLARE_DOUBLE:
-						final_type = Type.Kind.DOUBLE;
-						break;
-					case DECLARE_LONG:
-						final_type = Type.Kind.LONG;
-						break;
-					case DECLARE_BOOLEAN:
-						final_type = Type.Kind.BOOLEAN;
-						break;
-					case DECLARE_STRING:
-						final_type = Type.Kind.STRING;
-						break;
-					default:
-						throw new BackendException("LOLWUT!?! Final Array Type unknown!!!");
-					}
-					m.addArrayDeclare(final_type,array_sizes,array_name);
-					array_sizes=new LinkedList();
-					array_name="";
-					array_mode=false;
-				}
-				continue;
-			}
+			Quadruple q = tacIterator.next();
 
 			switch(q.getOperator())
 			{
@@ -233,9 +238,7 @@ public class LLVMBackend implements Backend
 				case DECLARE_ARRAY:
 					int size = Integer.parseInt(q.getArgument1().substring(1));
 					assert(size>=0);
-					array_sizes.add(size);
-					array_mode=true;
-					array_name=q.getResult();
+					this.parseArrayDeclaration(m, tacIterator, q.getResult(), size);
 					break;
 
 				/* Type conversion */

@@ -704,7 +704,7 @@ public class Module
 			}
 
 			gen(srcUseIdentifier + " = load " + srcIRType + "* " + srcIdentifier);
-			gen(dstUseIdentifier + " = call i8* (" + srcIRType + ")* @btoa(" + srcIRType + " " + srcUseIdentifier + ")");
+			gen(dstUseIdentifier + " = call i8* (" + srcIRType + ")* @" + conversionFunction + "(" + srcIRType + " " + srcUseIdentifier + ")");
 			gen("store " + dstIRType + " " + dstUseIdentifier + ", " + dstIRType + "* " + dstIdentifier);
 		}
 	}
