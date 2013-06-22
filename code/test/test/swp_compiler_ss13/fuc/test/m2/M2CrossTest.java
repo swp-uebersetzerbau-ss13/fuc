@@ -200,7 +200,6 @@ public class M2CrossTest extends TestBase {
 	}
 
 	@Test
-	@Ignore("fails in Semnatic Analyser")
 	public void testArrayProg1() throws Exception {
 		testProgCompilation(ExampleProgs.arrayProg1());
 	}
