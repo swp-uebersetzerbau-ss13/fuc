@@ -528,11 +528,11 @@ public class Module
 		}
 	}
 
-	/** 
+	/**
 	 *  Conditionally loads a constant or an identifier. If given a constant, just the leading # character
 	 *  is removed. If given a variable (anything without leading # character),
 	 *  it is being loaded and the temporary register name is returned.
-	 *	
+	 *
 	 *	@param constantOrIdentifier Name of a constant or identifier.
 	 *  @returns name of usable primitive
 	 */
@@ -578,7 +578,7 @@ public class Module
 			//  eg: if we dereference [2 x [4 x i64]] here, we need [4 x i64] next time we use the reference.
 			// effectively, after each ARRAY_GET_REFERENCE operation we have to remove the first dimension from
 			//  the array dimensions list:
-			
+
 			// copy old list (shallow is okay, we never change the Integers)
 			ArrayType newArrayType = new ArrayType(new LinkedList<Integer>(arType.dimensions),
 			                                       arType.storage_type);
@@ -614,7 +614,7 @@ public class Module
 		gen(ptrId + " = getelementptr " + arrayTypeStr + "* " + realarray + ", i64 0" + ", i64 " + idx);
 		// store value
 		String storageTypeStr = getIRType(arType.storage_type);
-		gen("store "+storageTypeStr+" "+cdl(src,arType.storage_type)+", "+storageTypeStr+"* "+ptrId);				
+		gen("store "+storageTypeStr+" "+cdl(src,arType.storage_type)+", "+storageTypeStr+"* "+ptrId);
 	}
 
 	static public Kind QuadTypeToKind(Quadruple.Operator op) throws BackendException {
@@ -654,18 +654,40 @@ public class Module
 		String dstUseIdentifier = getUseIdentifierForVariable(dst);
 		String srcIdentifier = "%" + src;
 		String dstIdentifier = "%" + dst;
+		String srcIRType = getIRType(srcType);
+		String dstIRType = getIRType(dstType);
 
 		if((srcType == Kind.LONG) && (dstType == Kind.DOUBLE))
 		{
-			gen(srcUseIdentifier + " = load i64* " + srcIdentifier);
-			gen(dstUseIdentifier + " = sitofp i64 " + srcUseIdentifier + " to double");
-			gen("store double " + dstUseIdentifier + ", double* " + dstIdentifier);
+			gen(srcUseIdentifier + " = load " + srcIRType + "* " + srcIdentifier);
+			gen(dstUseIdentifier + " = sitofp " + srcIRType + " " + srcUseIdentifier + " to " + dstIRType);
+			gen("store " + dstIRType + " " + dstUseIdentifier + ", " + dstIRType + "* " + dstIdentifier);
 		}
 		else if((srcType == Kind.DOUBLE) && (dstType == Kind.LONG))
 		{
-			gen(srcUseIdentifier + " = load double* " + srcIdentifier);
-			gen(dstUseIdentifier + " = fptosi double " + srcUseIdentifier + " to i64");
-			gen("store i64 " + dstUseIdentifier + ", i64* " + dstIdentifier);
+			gen(srcUseIdentifier + " = load " + srcIRType + "* " + srcIdentifier);
+			gen(dstUseIdentifier + " = fptosi " + srcIRType + " " + srcUseIdentifier + " to " + dstIRType + "");
+			gen("store " + dstIRType + " " + dstUseIdentifier + ", " + dstIRType + "* " + dstIdentifier);
+		}
+		else if(dstType == Kind.STRING)
+		{
+			String conversionFunction = "";
+
+			switch(srcType) {
+				case BOOLEAN:
+					conversionFunction = "btoa";
+					break;
+				case LONG:
+					conversionFunction = "ltoa";
+					break;
+				case DOUBLE:
+					conversionFunction = "dtoa";
+					break;
+			}
+
+			gen(srcUseIdentifier + " = load " + srcIRType + "* " + srcIdentifier);
+			gen(dstUseIdentifier + " = call i8* (" + srcIRType + ")* @btoa(" + srcIRType + " " + srcUseIdentifier + ")");
+			gen("store " + dstIRType + " " + dstUseIdentifier + ", " + dstIRType + "* " + dstIdentifier);
 		}
 	}
 
@@ -914,34 +936,18 @@ public class Module
 
 		String temporaryIdentifier = "";
 
-		switch (type) {
-			case BOOLEAN:
-				temporaryIdentifier = getUseIdentifierForVariable(".tmp");
-				gen(temporaryIdentifier + " = call i8* (" + irType + ")* @btoa(" + irType + " " + value + ")");
-				break;
-			case LONG:
-				temporaryIdentifier = getUseIdentifierForVariable(".tmp");
-				gen(temporaryIdentifier + " = call i8* (" + irType + ")* @ltoa(" + irType + " " + value + ")");
-				break;
-			case DOUBLE:
-				temporaryIdentifier = getUseIdentifierForVariable(".tmp");
-				gen(temporaryIdentifier + " = call i8* (" + irType + ")* @dtoa(" + irType + " " + value + ")");
-				break;
-			case STRING:
-				if(constantSrc)
-				{
-					temporaryIdentifier = getUseIdentifierForVariable(".tmp");
-					int id = addStringLiteral(value);
-					String literalIdentifier = getStringLiteralIdentifier(id);
-					String literalType = getStringLiteralType(id);
+		if(constantSrc)
+		{
+			temporaryIdentifier = getUseIdentifierForVariable(".tmp");
+			int id = addStringLiteral(value);
+			String literalIdentifier = getStringLiteralIdentifier(id);
+			String literalType = getStringLiteralType(id);
 
-					gen(temporaryIdentifier + " = getelementptr " + literalType + "* " + literalIdentifier + ", i64 0, i64 0");
-				}
-				else
-				{
-					temporaryIdentifier = value;
-				}
-				break;
+			gen(temporaryIdentifier + " = getelementptr " + literalType + "* " + literalIdentifier + ", i64 0, i64 0");
+		}
+		else
+		{
+			temporaryIdentifier = value;
 		}
 
 		gen("call i32 (i8*, ...)* @printf(i8* " + temporaryIdentifier + ")");

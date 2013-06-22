@@ -253,6 +253,27 @@ public class LLVMBackend implements Backend
 						Type.Kind.LONG,
 						q.getResult());
 					break;
+				case BOOLEAN_TO_STRING:
+					m.addPrimitiveConversion(
+						Type.Kind.BOOLEAN,
+						q.getArgument1(),
+						Type.Kind.STRING,
+						q.getResult());
+					break;
+				case LONG_TO_STRING:
+					m.addPrimitiveConversion(
+						Type.Kind.LONG,
+						q.getArgument1(),
+						Type.Kind.STRING,
+						q.getResult());
+					break;
+				case DOUBLE_TO_STRING:
+					m.addPrimitiveConversion(
+						Type.Kind.LONG,
+						q.getArgument1(),
+						Type.Kind.STRING,
+						q.getResult());
+					break;
 
 				/* Unindexed copy */
 				case ASSIGN_LONG:
@@ -302,7 +323,7 @@ public class LLVMBackend implements Backend
 						Integer.parseInt(q.getArgument2().substring(1)),
 						q.getResult());
 					break;
-				
+
 				/* References */
 				// reference declarations are superfluous and do not generate any code,
 				//  nor provide information which is not clear by context.
@@ -511,15 +532,6 @@ public class LLVMBackend implements Backend
 					break;
 
 				/* Print */
-				case PRINT_LONG:
-					m.addPrint(q.getArgument1(), Type.Kind.LONG);
-					break;
-				case PRINT_DOUBLE:
-					m.addPrint(q.getArgument1(), Type.Kind.DOUBLE);
-					break;
-				case PRINT_BOOLEAN:
-					m.addPrint(Module.toIRBoolean(q.getArgument1()), Type.Kind.BOOLEAN);
-					break;
 				case PRINT_STRING:
 					m.addPrint(Module.toIRString(q.getArgument1()), Type.Kind.STRING);
 					break;
