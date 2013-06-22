@@ -1,0 +1,1069 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="de">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>package swp_compiler_ss13.fuc.ir;<a name="line.1"></a>
+<span class="sourceLineNo">002</span><a name="line.2"></a>
+<span class="sourceLineNo">003</span>import java.util.Iterator;<a name="line.3"></a>
+<span class="sourceLineNo">004</span>import java.util.LinkedList;<a name="line.4"></a>
+<span class="sourceLineNo">005</span>import java.util.List;<a name="line.5"></a>
+<span class="sourceLineNo">006</span>import java.util.Stack;<a name="line.6"></a>
+<span class="sourceLineNo">007</span><a name="line.7"></a>
+<span class="sourceLineNo">008</span>import org.apache.log4j.Logger;<a name="line.8"></a>
+<span class="sourceLineNo">009</span><a name="line.9"></a>
+<span class="sourceLineNo">010</span>import swp_compiler_ss13.common.ast.AST;<a name="line.10"></a>
+<span class="sourceLineNo">011</span>import swp_compiler_ss13.common.ast.ASTNode;<a name="line.11"></a>
+<span class="sourceLineNo">012</span>import swp_compiler_ss13.common.ast.nodes.ExpressionNode;<a name="line.12"></a>
+<span class="sourceLineNo">013</span>import swp_compiler_ss13.common.ast.nodes.IdentifierNode;<a name="line.13"></a>
+<span class="sourceLineNo">014</span>import swp_compiler_ss13.common.ast.nodes.StatementNode;<a name="line.14"></a>
+<span class="sourceLineNo">015</span>import swp_compiler_ss13.common.ast.nodes.binary.ArithmeticBinaryExpressionNode;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import swp_compiler_ss13.common.ast.nodes.binary.AssignmentNode;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode.BinaryOperator;<a name="line.17"></a>
+<span class="sourceLineNo">018</span>import swp_compiler_ss13.common.ast.nodes.binary.DoWhileNode;<a name="line.18"></a>
+<span class="sourceLineNo">019</span>import swp_compiler_ss13.common.ast.nodes.binary.LogicBinaryExpressionNode;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import swp_compiler_ss13.common.ast.nodes.binary.RelationExpressionNode;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import swp_compiler_ss13.common.ast.nodes.binary.WhileNode;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import swp_compiler_ss13.common.ast.nodes.leaf.BreakNode;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import swp_compiler_ss13.common.ast.nodes.leaf.LiteralNode;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import swp_compiler_ss13.common.ast.nodes.ternary.BranchNode;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import swp_compiler_ss13.common.ast.nodes.unary.ArithmeticUnaryExpressionNode;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import swp_compiler_ss13.common.ast.nodes.unary.ArrayIdentifierNode;<a name="line.28"></a>
+<span class="sourceLineNo">029</span>import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;<a name="line.29"></a>
+<span class="sourceLineNo">030</span>import swp_compiler_ss13.common.ast.nodes.unary.LogicUnaryExpressionNode;<a name="line.30"></a>
+<span class="sourceLineNo">031</span>import swp_compiler_ss13.common.ast.nodes.unary.PrintNode;<a name="line.31"></a>
+<span class="sourceLineNo">032</span>import swp_compiler_ss13.common.ast.nodes.unary.ReturnNode;<a name="line.32"></a>
+<span class="sourceLineNo">033</span>import swp_compiler_ss13.common.ast.nodes.unary.StructIdentifierNode;<a name="line.33"></a>
+<span class="sourceLineNo">034</span>import swp_compiler_ss13.common.ast.nodes.unary.UnaryExpressionNode.UnaryOperator;<a name="line.34"></a>
+<span class="sourceLineNo">035</span>import swp_compiler_ss13.common.backend.Quadruple;<a name="line.35"></a>
+<span class="sourceLineNo">036</span>import swp_compiler_ss13.common.backend.Quadruple.Operator;<a name="line.36"></a>
+<span class="sourceLineNo">037</span>import swp_compiler_ss13.common.ir.IntermediateCodeGenerator;<a name="line.37"></a>
+<span class="sourceLineNo">038</span>import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;<a name="line.38"></a>
+<span class="sourceLineNo">039</span>import swp_compiler_ss13.common.parser.SymbolTable;<a name="line.39"></a>
+<span class="sourceLineNo">040</span>import swp_compiler_ss13.common.types.Type;<a name="line.40"></a>
+<span class="sourceLineNo">041</span>import swp_compiler_ss13.common.types.Type.Kind;<a name="line.41"></a>
+<span class="sourceLineNo">042</span>import swp_compiler_ss13.common.types.derived.ArrayType;<a name="line.42"></a>
+<span class="sourceLineNo">043</span>import swp_compiler_ss13.common.types.primitive.BooleanType;<a name="line.43"></a>
+<span class="sourceLineNo">044</span>import swp_compiler_ss13.common.types.primitive.DoubleType;<a name="line.44"></a>
+<span class="sourceLineNo">045</span>import swp_compiler_ss13.common.types.primitive.LongType;<a name="line.45"></a>
+<span class="sourceLineNo">046</span>import swp_compiler_ss13.common.types.primitive.StringType;<a name="line.46"></a>
+<span class="sourceLineNo">047</span><a name="line.47"></a>
+<span class="sourceLineNo">048</span>/**<a name="line.48"></a>
+<span class="sourceLineNo">049</span> * Create the intermediate code representation for the given AST<a name="line.49"></a>
+<span class="sourceLineNo">050</span> * <a name="line.50"></a>
+<span class="sourceLineNo">051</span> * @author "Frank Zechert"<a name="line.51"></a>
+<span class="sourceLineNo">052</span> * @version 1<a name="line.52"></a>
+<span class="sourceLineNo">053</span> */<a name="line.53"></a>
+<span class="sourceLineNo">054</span>public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator {<a name="line.54"></a>
+<span class="sourceLineNo">055</span><a name="line.55"></a>
+<span class="sourceLineNo">056</span>        /**<a name="line.56"></a>
+<span class="sourceLineNo">057</span>         * The Log4J Logger<a name="line.57"></a>
+<span class="sourceLineNo">058</span>         */<a name="line.58"></a>
+<span class="sourceLineNo">059</span>        private static Logger logger = Logger<a name="line.59"></a>
+<span class="sourceLineNo">060</span>                        .getLogger(IntermediateCodeGeneratorImpl.class);<a name="line.60"></a>
+<span class="sourceLineNo">061</span><a name="line.61"></a>
+<span class="sourceLineNo">062</span>        /**<a name="line.62"></a>
+<span class="sourceLineNo">063</span>         * Number of the next free label<a name="line.63"></a>
+<span class="sourceLineNo">064</span>         */<a name="line.64"></a>
+<span class="sourceLineNo">065</span>        private static long labelNum = 0L;<a name="line.65"></a>
+<span class="sourceLineNo">066</span><a name="line.66"></a>
+<span class="sourceLineNo">067</span>        /**<a name="line.67"></a>
+<span class="sourceLineNo">068</span>         * The generated intermediate code<a name="line.68"></a>
+<span class="sourceLineNo">069</span>         */<a name="line.69"></a>
+<span class="sourceLineNo">070</span>        private List&lt;Quadruple&gt; irCode;<a name="line.70"></a>
+<span class="sourceLineNo">071</span><a name="line.71"></a>
+<span class="sourceLineNo">072</span>        /**<a name="line.72"></a>
+<span class="sourceLineNo">073</span>         * List of used names. This is needed for single static assignment.<a name="line.73"></a>
+<span class="sourceLineNo">074</span>         */<a name="line.74"></a>
+<span class="sourceLineNo">075</span>        private List&lt;String&gt; usedNames;<a name="line.75"></a>
+<span class="sourceLineNo">076</span><a name="line.76"></a>
+<span class="sourceLineNo">077</span>        /**<a name="line.77"></a>
+<span class="sourceLineNo">078</span>         * The stack of symbol tables<a name="line.78"></a>
+<span class="sourceLineNo">079</span>         */<a name="line.79"></a>
+<span class="sourceLineNo">080</span>        private Stack&lt;SymbolTable&gt; currentSymbolTable;<a name="line.80"></a>
+<span class="sourceLineNo">081</span><a name="line.81"></a>
+<span class="sourceLineNo">082</span>        /**<a name="line.82"></a>
+<span class="sourceLineNo">083</span>         * Store for intermediate results<a name="line.83"></a>
+<span class="sourceLineNo">084</span>         */<a name="line.84"></a>
+<span class="sourceLineNo">085</span>        private Stack&lt;IntermediateResult&gt; intermediateResults;<a name="line.85"></a>
+<span class="sourceLineNo">086</span><a name="line.86"></a>
+<span class="sourceLineNo">087</span>        /**<a name="line.87"></a>
+<span class="sourceLineNo">088</span>         * is used to store the level of the outermost array index<a name="line.88"></a>
+<span class="sourceLineNo">089</span>         */<a name="line.89"></a>
+<span class="sourceLineNo">090</span>        Integer arrayLevel = null;<a name="line.90"></a>
+<span class="sourceLineNo">091</span><a name="line.91"></a>
+<span class="sourceLineNo">092</span>        /**<a name="line.92"></a>
+<span class="sourceLineNo">093</span>         * when processing an arrayIdentifier it needs to be known if it is used in<a name="line.93"></a>
+<span class="sourceLineNo">094</span>         * an assignment or referenced<a name="line.94"></a>
+<span class="sourceLineNo">095</span>         */<a name="line.95"></a>
+<span class="sourceLineNo">096</span>        Boolean arrayAssignment = false;<a name="line.96"></a>
+<span class="sourceLineNo">097</span><a name="line.97"></a>
+<span class="sourceLineNo">098</span>        /**<a name="line.98"></a>
+<span class="sourceLineNo">099</span>         * Reset the intermediate code generator. This is called first for every<a name="line.99"></a>
+<span class="sourceLineNo">100</span>         * generateIntermediateCode() to ensure that severeal calls to<a name="line.100"></a>
+<span class="sourceLineNo">101</span>         * generateIntermediateCode do not interfere.<a name="line.101"></a>
+<span class="sourceLineNo">102</span>         */<a name="line.102"></a>
+<span class="sourceLineNo">103</span>        private void reset() {<a name="line.103"></a>
+<span class="sourceLineNo">104</span><a name="line.104"></a>
+<span class="sourceLineNo">105</span>                logger.trace("Resetting the intermediate code generator.");<a name="line.105"></a>
+<span class="sourceLineNo">106</span><a name="line.106"></a>
+<span class="sourceLineNo">107</span>                this.irCode = new LinkedList&lt;&gt;();<a name="line.107"></a>
+<span class="sourceLineNo">108</span>                this.usedNames = new LinkedList&lt;&gt;();<a name="line.108"></a>
+<span class="sourceLineNo">109</span>                this.currentSymbolTable = new Stack&lt;&gt;();<a name="line.109"></a>
+<span class="sourceLineNo">110</span>                this.intermediateResults = new Stack&lt;&gt;();<a name="line.110"></a>
+<span class="sourceLineNo">111</span>        }<a name="line.111"></a>
+<span class="sourceLineNo">112</span><a name="line.112"></a>
+<span class="sourceLineNo">113</span>        @Override<a name="line.113"></a>
+<span class="sourceLineNo">114</span>        public List&lt;Quadruple&gt; generateIntermediateCode(AST ast)<a name="line.114"></a>
+<span class="sourceLineNo">115</span>                        throws IntermediateCodeGeneratorException {<a name="line.115"></a>
+<span class="sourceLineNo">116</span>                if (ast == null) {<a name="line.116"></a>
+<span class="sourceLineNo">117</span>                        logger.fatal("The argument ast in generateIntermediateCode(AST ast) can not be null!");<a name="line.117"></a>
+<span class="sourceLineNo">118</span>                        throw new IntermediateCodeGeneratorException(<a name="line.118"></a>
+<span class="sourceLineNo">119</span>                                        "The argument ast in generateIntermediateCode(AST ast) can not be null!");<a name="line.119"></a>
+<span class="sourceLineNo">120</span>                }<a name="line.120"></a>
+<span class="sourceLineNo">121</span><a name="line.121"></a>
+<span class="sourceLineNo">122</span>                ASTNode program = ast.getRootNode();<a name="line.122"></a>
+<span class="sourceLineNo">123</span>                if (program == null) {<a name="line.123"></a>
+<span class="sourceLineNo">124</span>                        logger.fatal("The ast given in generateIntermediateCode(AST ast) must have a root node!");<a name="line.124"></a>
+<span class="sourceLineNo">125</span>                        throw new IntermediateCodeGeneratorException(<a name="line.125"></a>
+<span class="sourceLineNo">126</span>                                        "The ast given in generateIntermediateCode(AST ast) must have a root node");<a name="line.126"></a>
+<span class="sourceLineNo">127</span>                }<a name="line.127"></a>
+<span class="sourceLineNo">128</span>                this.reset();<a name="line.128"></a>
+<span class="sourceLineNo">129</span>                this.callProcessing(program);<a name="line.129"></a>
+<span class="sourceLineNo">130</span>                return this.irCode;<a name="line.130"></a>
+<span class="sourceLineNo">131</span>        }<a name="line.131"></a>
+<span class="sourceLineNo">132</span><a name="line.132"></a>
+<span class="sourceLineNo">133</span>        /**<a name="line.133"></a>
+<span class="sourceLineNo">134</span>         * call the method that handles the node in the AST<a name="line.134"></a>
+<span class="sourceLineNo">135</span>         * <a name="line.135"></a>
+<span class="sourceLineNo">136</span>         * @param node<a name="line.136"></a>
+<span class="sourceLineNo">137</span>         *            The node to handle<a name="line.137"></a>
+<span class="sourceLineNo">138</span>         * @throws IntermediateCodeGeneratorException<a name="line.138"></a>
+<span class="sourceLineNo">139</span>         *             An error occurred<a name="line.139"></a>
+<span class="sourceLineNo">140</span>         */<a name="line.140"></a>
+<span class="sourceLineNo">141</span>        private void callProcessing(ASTNode node)<a name="line.141"></a>
+<span class="sourceLineNo">142</span>                        throws IntermediateCodeGeneratorException {<a name="line.142"></a>
+<span class="sourceLineNo">143</span>                logger.debug("Processing next node: " + node.getNodeType().toString()<a name="line.143"></a>
+<span class="sourceLineNo">144</span>                                + " with " + (node.getNumberOfNodes() - 1) + " subnodes");<a name="line.144"></a>
+<span class="sourceLineNo">145</span>                switch (node.getNodeType()) {<a name="line.145"></a>
+<span class="sourceLineNo">146</span>                case ArithmeticBinaryExpressionNode:<a name="line.146"></a>
+<span class="sourceLineNo">147</span>                        this.processArithmeticBinaryExpressionNode((ArithmeticBinaryExpressionNode) node);<a name="line.147"></a>
+<span class="sourceLineNo">148</span>                        break;<a name="line.148"></a>
+<span class="sourceLineNo">149</span>                case ArithmeticUnaryExpressionNode:<a name="line.149"></a>
+<span class="sourceLineNo">150</span>                        this.processArithmeticUnaryExpressionNode((ArithmeticUnaryExpressionNode) node);<a name="line.150"></a>
+<span class="sourceLineNo">151</span>                        break;<a name="line.151"></a>
+<span class="sourceLineNo">152</span>                case ArrayIdentifierNode:<a name="line.152"></a>
+<span class="sourceLineNo">153</span>                        this.processArrayIdentifierNode((ArrayIdentifierNode) node);<a name="line.153"></a>
+<span class="sourceLineNo">154</span>                        break;<a name="line.154"></a>
+<span class="sourceLineNo">155</span>                case AssignmentNode:<a name="line.155"></a>
+<span class="sourceLineNo">156</span>                        this.processAssignmentNode((AssignmentNode) node);<a name="line.156"></a>
+<span class="sourceLineNo">157</span>                        break;<a name="line.157"></a>
+<span class="sourceLineNo">158</span>                case BasicIdentifierNode:<a name="line.158"></a>
+<span class="sourceLineNo">159</span>                        this.processBasicIdentifierNode((BasicIdentifierNode) node);<a name="line.159"></a>
+<span class="sourceLineNo">160</span>                        break;<a name="line.160"></a>
+<span class="sourceLineNo">161</span>                case BlockNode:<a name="line.161"></a>
+<span class="sourceLineNo">162</span>                        this.processBlockNode((BlockNode) node);<a name="line.162"></a>
+<span class="sourceLineNo">163</span>                        break;<a name="line.163"></a>
+<span class="sourceLineNo">164</span>                case BranchNode:<a name="line.164"></a>
+<span class="sourceLineNo">165</span>                        this.processBranchNode((BranchNode) node);<a name="line.165"></a>
+<span class="sourceLineNo">166</span>                        break;<a name="line.166"></a>
+<span class="sourceLineNo">167</span>                case BreakNode:<a name="line.167"></a>
+<span class="sourceLineNo">168</span>                        this.processBreakNode((BreakNode) node);<a name="line.168"></a>
+<span class="sourceLineNo">169</span>                        break;<a name="line.169"></a>
+<span class="sourceLineNo">170</span>                case DeclarationNode:<a name="line.170"></a>
+<span class="sourceLineNo">171</span>                        this.processDeclarationNode((DeclarationNode) node);<a name="line.171"></a>
+<span class="sourceLineNo">172</span>                        break;<a name="line.172"></a>
+<span class="sourceLineNo">173</span>                case DoWhileNode:<a name="line.173"></a>
+<span class="sourceLineNo">174</span>                        this.processDoWhileNode((DoWhileNode) node);<a name="line.174"></a>
+<span class="sourceLineNo">175</span>                        break;<a name="line.175"></a>
+<span class="sourceLineNo">176</span>                case LiteralNode:<a name="line.176"></a>
+<span class="sourceLineNo">177</span>                        this.processLiteralNode((LiteralNode) node);<a name="line.177"></a>
+<span class="sourceLineNo">178</span>                        break;<a name="line.178"></a>
+<span class="sourceLineNo">179</span>                case LogicBinaryExpressionNode:<a name="line.179"></a>
+<span class="sourceLineNo">180</span>                        this.processLogicBinaryExpressionNode((LogicBinaryExpressionNode) node);<a name="line.180"></a>
+<span class="sourceLineNo">181</span>                        break;<a name="line.181"></a>
+<span class="sourceLineNo">182</span>                case LogicUnaryExpressionNode:<a name="line.182"></a>
+<span class="sourceLineNo">183</span>                        this.processLogicUnaryExpressionNode((LogicUnaryExpressionNode) node);<a name="line.183"></a>
+<span class="sourceLineNo">184</span>                        break;<a name="line.184"></a>
+<span class="sourceLineNo">185</span>                case PrintNode:<a name="line.185"></a>
+<span class="sourceLineNo">186</span>                        this.processPrintNode((PrintNode) node);<a name="line.186"></a>
+<span class="sourceLineNo">187</span>                        break;<a name="line.187"></a>
+<span class="sourceLineNo">188</span>                case ReturnNode:<a name="line.188"></a>
+<span class="sourceLineNo">189</span>                        this.processReturnNode((ReturnNode) node);<a name="line.189"></a>
+<span class="sourceLineNo">190</span>                        break;<a name="line.190"></a>
+<span class="sourceLineNo">191</span>                case StructIdentifierNode:<a name="line.191"></a>
+<span class="sourceLineNo">192</span>                        this.processStructIdentifierNode((StructIdentifierNode) node);<a name="line.192"></a>
+<span class="sourceLineNo">193</span>                        break;<a name="line.193"></a>
+<span class="sourceLineNo">194</span>                case WhileNode:<a name="line.194"></a>
+<span class="sourceLineNo">195</span>                        this.processWhileNode((WhileNode) node);<a name="line.195"></a>
+<span class="sourceLineNo">196</span>                        break;<a name="line.196"></a>
+<span class="sourceLineNo">197</span>                case RelationExpressionNode:<a name="line.197"></a>
+<span class="sourceLineNo">198</span>                        this.processRelationExpressionNode((RelationExpressionNode) node);<a name="line.198"></a>
+<span class="sourceLineNo">199</span>                        break;<a name="line.199"></a>
+<span class="sourceLineNo">200</span>                default:<a name="line.200"></a>
+<span class="sourceLineNo">201</span>                        throw new IntermediateCodeGeneratorException("Unknown node type: "<a name="line.201"></a>
+<span class="sourceLineNo">202</span>                                        + node.getNodeType().toString());<a name="line.202"></a>
+<span class="sourceLineNo">203</span>                }<a name="line.203"></a>
+<span class="sourceLineNo">204</span>        }<a name="line.204"></a>
+<span class="sourceLineNo">205</span><a name="line.205"></a>
+<span class="sourceLineNo">206</span>        /**<a name="line.206"></a>
+<span class="sourceLineNo">207</span>         * Process a relationexpression node<a name="line.207"></a>
+<span class="sourceLineNo">208</span>         * <a name="line.208"></a>
+<span class="sourceLineNo">209</span>         * @param node<a name="line.209"></a>
+<span class="sourceLineNo">210</span>         *            the node to process<a name="line.210"></a>
+<span class="sourceLineNo">211</span>         * @throws IntermediateCodeGeneratorException<a name="line.211"></a>
+<span class="sourceLineNo">212</span>         *             Something went wrong<a name="line.212"></a>
+<span class="sourceLineNo">213</span>         */<a name="line.213"></a>
+<span class="sourceLineNo">214</span>        private void processRelationExpressionNode(RelationExpressionNode node)<a name="line.214"></a>
+<span class="sourceLineNo">215</span>                        throws IntermediateCodeGeneratorException {<a name="line.215"></a>
+<span class="sourceLineNo">216</span>                BinaryOperator operator = node.getOperator();<a name="line.216"></a>
+<span class="sourceLineNo">217</span><a name="line.217"></a>
+<span class="sourceLineNo">218</span>                ExpressionNode leftNode = node.getLeftValue();<a name="line.218"></a>
+<span class="sourceLineNo">219</span>                ExpressionNode rightNode = node.getRightValue();<a name="line.219"></a>
+<span class="sourceLineNo">220</span><a name="line.220"></a>
+<span class="sourceLineNo">221</span>                this.callProcessing(leftNode);<a name="line.221"></a>
+<span class="sourceLineNo">222</span>                this.callProcessing(rightNode);<a name="line.222"></a>
+<span class="sourceLineNo">223</span><a name="line.223"></a>
+<span class="sourceLineNo">224</span>                IntermediateResult rightResult = this.intermediateResults.pop();<a name="line.224"></a>
+<span class="sourceLineNo">225</span>                IntermediateResult leftResult = this.intermediateResults.pop();<a name="line.225"></a>
+<span class="sourceLineNo">226</span><a name="line.226"></a>
+<span class="sourceLineNo">227</span>                boolean castNeeded = CastingFactory.isCastNeeded(leftResult,<a name="line.227"></a>
+<span class="sourceLineNo">228</span>                                rightResult);<a name="line.228"></a>
+<span class="sourceLineNo">229</span>                String castedleft = leftResult.getValue();<a name="line.229"></a>
+<span class="sourceLineNo">230</span>                String castedright = rightResult.getValue();<a name="line.230"></a>
+<span class="sourceLineNo">231</span>                Type type = leftResult.getType();<a name="line.231"></a>
+<span class="sourceLineNo">232</span>                if (castNeeded) {<a name="line.232"></a>
+<span class="sourceLineNo">233</span>                        if (CastingFactory.isNumeric(leftResult)<a name="line.233"></a>
+<span class="sourceLineNo">234</span>                                        &amp;&amp; CastingFactory.isNumeric(rightResult)) {<a name="line.234"></a>
+<span class="sourceLineNo">235</span>                                type = new DoubleType();<a name="line.235"></a>
+<span class="sourceLineNo">236</span>                                if (leftResult.getType().getKind() == Kind.LONG) {<a name="line.236"></a>
+<span class="sourceLineNo">237</span>                                        castedleft = this.createAndSaveTemporaryIdentifier(type);<a name="line.237"></a>
+<span class="sourceLineNo">238</span>                                        this.irCode.add(CastingFactory.createCast(leftResult.getType(),<a name="line.238"></a>
+<span class="sourceLineNo">239</span>                                                        leftResult.getValue(), type, castedleft));<a name="line.239"></a>
+<span class="sourceLineNo">240</span>                                }<a name="line.240"></a>
+<span class="sourceLineNo">241</span>                                if (rightResult.getType().getKind() == Kind.LONG) {<a name="line.241"></a>
+<span class="sourceLineNo">242</span>                                        this.irCode.add(CastingFactory.createCast(rightResult.getType(),<a name="line.242"></a>
+<span class="sourceLineNo">243</span>                                                        rightResult.getValue(), type, castedright));<a name="line.243"></a>
+<span class="sourceLineNo">244</span>                                }<a name="line.244"></a>
+<span class="sourceLineNo">245</span>                        } else {<a name="line.245"></a>
+<span class="sourceLineNo">246</span>                                String err = String<a name="line.246"></a>
+<span class="sourceLineNo">247</span>                                                .format("unsupported types %s %s and %s %s for relation expression",<a name="line.247"></a>
+<span class="sourceLineNo">248</span>                                                                leftResult.getType(), leftResult.getValue(),<a name="line.248"></a>
+<span class="sourceLineNo">249</span>                                                                rightResult.getType(), rightResult.getValue());<a name="line.249"></a>
+<span class="sourceLineNo">250</span>                                logger.fatal(err);<a name="line.250"></a>
+<span class="sourceLineNo">251</span>                                throw new IntermediateCodeGeneratorException(err);<a name="line.251"></a>
+<span class="sourceLineNo">252</span>                        }<a name="line.252"></a>
+<span class="sourceLineNo">253</span>                }<a name="line.253"></a>
+<span class="sourceLineNo">254</span><a name="line.254"></a>
+<span class="sourceLineNo">255</span>                String result = this.createAndSaveTemporaryIdentifier(new BooleanType());<a name="line.255"></a>
+<span class="sourceLineNo">256</span><a name="line.256"></a>
+<span class="sourceLineNo">257</span>                switch (operator) {<a name="line.257"></a>
+<span class="sourceLineNo">258</span>                case EQUAL:<a name="line.258"></a>
+<span class="sourceLineNo">259</span>                        this.irCode.add(QuadrupleFactory.relationEqual(castedleft, castedright,<a name="line.259"></a>
+<span class="sourceLineNo">260</span>                                        result, type));<a name="line.260"></a>
+<span class="sourceLineNo">261</span>                        break;<a name="line.261"></a>
+<span class="sourceLineNo">262</span>                case GREATERTHAN:<a name="line.262"></a>
+<span class="sourceLineNo">263</span>                        this.irCode.add(QuadrupleFactory.relationGreater(castedleft,<a name="line.263"></a>
+<span class="sourceLineNo">264</span>                                        castedright, result, type));<a name="line.264"></a>
+<span class="sourceLineNo">265</span>                        break;<a name="line.265"></a>
+<span class="sourceLineNo">266</span>                case GREATERTHANEQUAL:<a name="line.266"></a>
+<span class="sourceLineNo">267</span>                        this.irCode.add(QuadrupleFactory.relationGreaterEqual(castedleft,<a name="line.267"></a>
+<span class="sourceLineNo">268</span>                                        castedright, result, type));<a name="line.268"></a>
+<span class="sourceLineNo">269</span>                        break;<a name="line.269"></a>
+<span class="sourceLineNo">270</span>                case INEQUAL:<a name="line.270"></a>
+<span class="sourceLineNo">271</span>                        String tmp = this.createAndSaveTemporaryIdentifier(new BooleanType());<a name="line.271"></a>
+<span class="sourceLineNo">272</span>                        this.irCode.add(QuadrupleFactory.relationEqual(castedleft, castedright,<a name="line.272"></a>
+<span class="sourceLineNo">273</span>                                        tmp, type));<a name="line.273"></a>
+<span class="sourceLineNo">274</span>                        this.irCode.add(QuadrupleFactory.booleanArithmetic(<a name="line.274"></a>
+<span class="sourceLineNo">275</span>                                        UnaryOperator.LOGICAL_NEGATE, tmp, result));<a name="line.275"></a>
+<span class="sourceLineNo">276</span>                        break;<a name="line.276"></a>
+<span class="sourceLineNo">277</span>                case LESSTHAN:<a name="line.277"></a>
+<span class="sourceLineNo">278</span>                        this.irCode.add(QuadrupleFactory.relationLess(castedleft, castedright,<a name="line.278"></a>
+<span class="sourceLineNo">279</span>                                        result, type));<a name="line.279"></a>
+<span class="sourceLineNo">280</span>                        break;<a name="line.280"></a>
+<span class="sourceLineNo">281</span>                case LESSTHANEQUAL:<a name="line.281"></a>
+<span class="sourceLineNo">282</span>                        this.irCode.add(QuadrupleFactory.relationLessEqual(castedleft,<a name="line.282"></a>
+<span class="sourceLineNo">283</span>                                        castedright, result, type));<a name="line.283"></a>
+<span class="sourceLineNo">284</span>                        break;<a name="line.284"></a>
+<span class="sourceLineNo">285</span>                default:<a name="line.285"></a>
+<span class="sourceLineNo">286</span>                        String err = "BinaryOperator %s is not allowed within a RelationExpressionNode";<a name="line.286"></a>
+<span class="sourceLineNo">287</span>                        String errf = String.format(err, operator);<a name="line.287"></a>
+<span class="sourceLineNo">288</span>                        logger.fatal(errf);<a name="line.288"></a>
+<span class="sourceLineNo">289</span>                        throw new IntermediateCodeGeneratorException(errf);<a name="line.289"></a>
+<span class="sourceLineNo">290</span>                }<a name="line.290"></a>
+<span class="sourceLineNo">291</span><a name="line.291"></a>
+<span class="sourceLineNo">292</span>                this.intermediateResults.push(new IntermediateResult(result,<a name="line.292"></a>
+<span class="sourceLineNo">293</span>                                new BooleanType()));<a name="line.293"></a>
+<span class="sourceLineNo">294</span>        }<a name="line.294"></a>
+<span class="sourceLineNo">295</span><a name="line.295"></a>
+<span class="sourceLineNo">296</span>        /**<a name="line.296"></a>
+<span class="sourceLineNo">297</span>         * Process a block node and generate the needed IR Code<a name="line.297"></a>
+<span class="sourceLineNo">298</span>         * <a name="line.298"></a>
+<span class="sourceLineNo">299</span>         * @param node<a name="line.299"></a>
+<span class="sourceLineNo">300</span>         *            The block node to process<a name="line.300"></a>
+<span class="sourceLineNo">301</span>         * @throws IntermediateCodeGeneratorException<a name="line.301"></a>
+<span class="sourceLineNo">302</span>         *             an error occurred while process the node<a name="line.302"></a>
+<span class="sourceLineNo">303</span>         */<a name="line.303"></a>
+<span class="sourceLineNo">304</span>        private void processBlockNode(BlockNode node)<a name="line.304"></a>
+<span class="sourceLineNo">305</span>                        throws IntermediateCodeGeneratorException {<a name="line.305"></a>
+<span class="sourceLineNo">306</span>                // push current symbol table<a name="line.306"></a>
+<span class="sourceLineNo">307</span>                this.currentSymbolTable.push(node.getSymbolTable());<a name="line.307"></a>
+<span class="sourceLineNo">308</span><a name="line.308"></a>
+<span class="sourceLineNo">309</span>                // get declarations<a name="line.309"></a>
+<span class="sourceLineNo">310</span>                Iterator&lt;DeclarationNode&gt; declIterator = node.getDeclarationIterator();<a name="line.310"></a>
+<span class="sourceLineNo">311</span>                while (declIterator.hasNext()) {<a name="line.311"></a>
+<span class="sourceLineNo">312</span>                        this.callProcessing(declIterator.next());<a name="line.312"></a>
+<span class="sourceLineNo">313</span>                }<a name="line.313"></a>
+<span class="sourceLineNo">314</span><a name="line.314"></a>
+<span class="sourceLineNo">315</span>                // get statements<a name="line.315"></a>
+<span class="sourceLineNo">316</span>                Iterator&lt;StatementNode&gt; statementIterator = node.getStatementIterator();<a name="line.316"></a>
+<span class="sourceLineNo">317</span>                while (statementIterator.hasNext()) {<a name="line.317"></a>
+<span class="sourceLineNo">318</span>                        StatementNode statement = statementIterator.next();<a name="line.318"></a>
+<span class="sourceLineNo">319</span>                        this.callProcessing(statement);<a name="line.319"></a>
+<span class="sourceLineNo">320</span>                }<a name="line.320"></a>
+<span class="sourceLineNo">321</span><a name="line.321"></a>
+<span class="sourceLineNo">322</span>                // pop the symbol scope<a name="line.322"></a>
+<span class="sourceLineNo">323</span>                this.currentSymbolTable.pop();<a name="line.323"></a>
+<span class="sourceLineNo">324</span>        }<a name="line.324"></a>
+<span class="sourceLineNo">325</span><a name="line.325"></a>
+<span class="sourceLineNo">326</span>        /**<a name="line.326"></a>
+<span class="sourceLineNo">327</span>         * Process a while node<a name="line.327"></a>
+<span class="sourceLineNo">328</span>         * <a name="line.328"></a>
+<span class="sourceLineNo">329</span>         * @param node<a name="line.329"></a>
+<span class="sourceLineNo">330</span>         *            the node to process<a name="line.330"></a>
+<span class="sourceLineNo">331</span>         * @throws IntermediateCodeGeneratorException<a name="line.331"></a>
+<span class="sourceLineNo">332</span>         *             Something went wrong<a name="line.332"></a>
+<span class="sourceLineNo">333</span>         */<a name="line.333"></a>
+<span class="sourceLineNo">334</span>        private void processWhileNode(WhileNode node)<a name="line.334"></a>
+<span class="sourceLineNo">335</span>                        throws IntermediateCodeGeneratorException {<a name="line.335"></a>
+<span class="sourceLineNo">336</span>                throw new IntermediateCodeGeneratorException(<a name="line.336"></a>
+<span class="sourceLineNo">337</span>                                new UnsupportedOperationException());<a name="line.337"></a>
+<span class="sourceLineNo">338</span>        }<a name="line.338"></a>
+<span class="sourceLineNo">339</span><a name="line.339"></a>
+<span class="sourceLineNo">340</span>        /**<a name="line.340"></a>
+<span class="sourceLineNo">341</span>         * Process a structidentifier node<a name="line.341"></a>
+<span class="sourceLineNo">342</span>         * <a name="line.342"></a>
+<span class="sourceLineNo">343</span>         * @param node<a name="line.343"></a>
+<span class="sourceLineNo">344</span>         *            the node to process<a name="line.344"></a>
+<span class="sourceLineNo">345</span>         * @throws IntermediateCodeGeneratorException<a name="line.345"></a>
+<span class="sourceLineNo">346</span>         *             Something went wrong<a name="line.346"></a>
+<span class="sourceLineNo">347</span>         */<a name="line.347"></a>
+<span class="sourceLineNo">348</span>        private void processStructIdentifierNode(StructIdentifierNode node)<a name="line.348"></a>
+<span class="sourceLineNo">349</span>                        throws IntermediateCodeGeneratorException {<a name="line.349"></a>
+<span class="sourceLineNo">350</span>                throw new IntermediateCodeGeneratorException(<a name="line.350"></a>
+<span class="sourceLineNo">351</span>                                new UnsupportedOperationException());<a name="line.351"></a>
+<span class="sourceLineNo">352</span>        }<a name="line.352"></a>
+<span class="sourceLineNo">353</span><a name="line.353"></a>
+<span class="sourceLineNo">354</span>        /**<a name="line.354"></a>
+<span class="sourceLineNo">355</span>         * Process a return node<a name="line.355"></a>
+<span class="sourceLineNo">356</span>         * <a name="line.356"></a>
+<span class="sourceLineNo">357</span>         * @param node<a name="line.357"></a>
+<span class="sourceLineNo">358</span>         *            the node to process<a name="line.358"></a>
+<span class="sourceLineNo">359</span>         * @throws IntermediateCodeGeneratorException<a name="line.359"></a>
+<span class="sourceLineNo">360</span>         *             Something went wrong<a name="line.360"></a>
+<span class="sourceLineNo">361</span>         */<a name="line.361"></a>
+<span class="sourceLineNo">362</span>        private void processReturnNode(ReturnNode node)<a name="line.362"></a>
+<span class="sourceLineNo">363</span>                        throws IntermediateCodeGeneratorException {<a name="line.363"></a>
+<span class="sourceLineNo">364</span>                IdentifierNode right = node.getRightValue();<a name="line.364"></a>
+<span class="sourceLineNo">365</span>                if (right != null) {<a name="line.365"></a>
+<span class="sourceLineNo">366</span>                        this.callProcessing(right);<a name="line.366"></a>
+<span class="sourceLineNo">367</span>                        IntermediateResult intermediateResult = this.intermediateResults.pop();<a name="line.367"></a>
+<span class="sourceLineNo">368</span>                        this.irCode.add(QuadrupleFactory.returnNode(intermediateResult<a name="line.368"></a>
+<span class="sourceLineNo">369</span>                                        .getValue()));<a name="line.369"></a>
+<span class="sourceLineNo">370</span>                } else {<a name="line.370"></a>
+<span class="sourceLineNo">371</span>                        this.irCode.add(QuadrupleFactory.returnNode("#0"));<a name="line.371"></a>
+<span class="sourceLineNo">372</span>                }<a name="line.372"></a>
+<span class="sourceLineNo">373</span><a name="line.373"></a>
+<span class="sourceLineNo">374</span>        }<a name="line.374"></a>
+<span class="sourceLineNo">375</span><a name="line.375"></a>
+<span class="sourceLineNo">376</span>        /**<a name="line.376"></a>
+<span class="sourceLineNo">377</span>         * Process a print node<a name="line.377"></a>
+<span class="sourceLineNo">378</span>         * <a name="line.378"></a>
+<span class="sourceLineNo">379</span>         * @param node<a name="line.379"></a>
+<span class="sourceLineNo">380</span>         *            the node to process<a name="line.380"></a>
+<span class="sourceLineNo">381</span>         * @throws IntermediateCodeGeneratorException<a name="line.381"></a>
+<span class="sourceLineNo">382</span>         *             Something went wrong<a name="line.382"></a>
+<span class="sourceLineNo">383</span>         */<a name="line.383"></a>
+<span class="sourceLineNo">384</span>        private void processPrintNode(PrintNode node)<a name="line.384"></a>
+<span class="sourceLineNo">385</span>                        throws IntermediateCodeGeneratorException {<a name="line.385"></a>
+<span class="sourceLineNo">386</span>                this.callProcessing(node.getRightValue());<a name="line.386"></a>
+<span class="sourceLineNo">387</span>                IntermediateResult result = this.intermediateResults.pop();<a name="line.387"></a>
+<span class="sourceLineNo">388</span>                this.irCode.add(QuadrupleFactory.print(result.getValue(), result.getType()));<a name="line.388"></a>
+<span class="sourceLineNo">389</span>        }<a name="line.389"></a>
+<span class="sourceLineNo">390</span><a name="line.390"></a>
+<span class="sourceLineNo">391</span>        /**<a name="line.391"></a>
+<span class="sourceLineNo">392</span>         * Process a logicunaryexpression node<a name="line.392"></a>
+<span class="sourceLineNo">393</span>         * <a name="line.393"></a>
+<span class="sourceLineNo">394</span>         * @param node<a name="line.394"></a>
+<span class="sourceLineNo">395</span>         *            the node to process<a name="line.395"></a>
+<span class="sourceLineNo">396</span>         * @throws IntermediateCodeGeneratorException<a name="line.396"></a>
+<span class="sourceLineNo">397</span>         *             Something went wrong<a name="line.397"></a>
+<span class="sourceLineNo">398</span>         */<a name="line.398"></a>
+<span class="sourceLineNo">399</span>        private void processLogicUnaryExpressionNode(LogicUnaryExpressionNode node)<a name="line.399"></a>
+<span class="sourceLineNo">400</span>                        throws IntermediateCodeGeneratorException {<a name="line.400"></a>
+<span class="sourceLineNo">401</span>                this.callProcessing(node.getRightValue());<a name="line.401"></a>
+<span class="sourceLineNo">402</span>                IntermediateResult result = this.intermediateResults.pop();<a name="line.402"></a>
+<span class="sourceLineNo">403</span><a name="line.403"></a>
+<span class="sourceLineNo">404</span>                if (result.getType().getKind() != Kind.BOOLEAN) {<a name="line.404"></a>
+<span class="sourceLineNo">405</span>                        String err = "Unary logic operation NOT is not supported for type "<a name="line.405"></a>
+<span class="sourceLineNo">406</span>                                        + result.getType();<a name="line.406"></a>
+<span class="sourceLineNo">407</span>                        logger.fatal(err);<a name="line.407"></a>
+<span class="sourceLineNo">408</span>                        throw new IntermediateCodeGeneratorException(err);<a name="line.408"></a>
+<span class="sourceLineNo">409</span>                }<a name="line.409"></a>
+<span class="sourceLineNo">410</span><a name="line.410"></a>
+<span class="sourceLineNo">411</span>                String temp = this.createAndSaveTemporaryIdentifier(new BooleanType());<a name="line.411"></a>
+<span class="sourceLineNo">412</span>                this.irCode.add(QuadrupleFactory.unaryNot(result.getValue(), temp));<a name="line.412"></a>
+<span class="sourceLineNo">413</span>                this.intermediateResults<a name="line.413"></a>
+<span class="sourceLineNo">414</span>                                .push(new IntermediateResult(temp, new BooleanType()));<a name="line.414"></a>
+<span class="sourceLineNo">415</span>        }<a name="line.415"></a>
+<span class="sourceLineNo">416</span><a name="line.416"></a>
+<span class="sourceLineNo">417</span>        /**<a name="line.417"></a>
+<span class="sourceLineNo">418</span>         * Process a logicbinaryexpression node<a name="line.418"></a>
+<span class="sourceLineNo">419</span>         * <a name="line.419"></a>
+<span class="sourceLineNo">420</span>         * @param node<a name="line.420"></a>
+<span class="sourceLineNo">421</span>         *            the node to process<a name="line.421"></a>
+<span class="sourceLineNo">422</span>         * @throws IntermediateCodeGeneratorException<a name="line.422"></a>
+<span class="sourceLineNo">423</span>         *             Something went wrong<a name="line.423"></a>
+<span class="sourceLineNo">424</span>         */<a name="line.424"></a>
+<span class="sourceLineNo">425</span>        private void processLogicBinaryExpressionNode(LogicBinaryExpressionNode node)<a name="line.425"></a>
+<span class="sourceLineNo">426</span>                        throws IntermediateCodeGeneratorException {<a name="line.426"></a>
+<span class="sourceLineNo">427</span>                this.callProcessing(node.getLeftValue());<a name="line.427"></a>
+<span class="sourceLineNo">428</span>                this.callProcessing(node.getRightValue());<a name="line.428"></a>
+<span class="sourceLineNo">429</span><a name="line.429"></a>
+<span class="sourceLineNo">430</span>                IntermediateResult rightResult = this.intermediateResults.pop();<a name="line.430"></a>
+<span class="sourceLineNo">431</span>                IntermediateResult leftResult = this.intermediateResults.pop();<a name="line.431"></a>
+<span class="sourceLineNo">432</span><a name="line.432"></a>
+<span class="sourceLineNo">433</span>                if (leftResult.getType().getKind() != Kind.BOOLEAN<a name="line.433"></a>
+<span class="sourceLineNo">434</span>                                || rightResult.getType().getKind() != Kind.BOOLEAN) {<a name="line.434"></a>
+<span class="sourceLineNo">435</span>                        String err = "Binary logic operation is not supported for "<a name="line.435"></a>
+<span class="sourceLineNo">436</span>                                        + leftResult.getType() + " and " + rightResult.getType();<a name="line.436"></a>
+<span class="sourceLineNo">437</span>                        logger.fatal(err);<a name="line.437"></a>
+<span class="sourceLineNo">438</span>                        throw new IntermediateCodeGeneratorException(err);<a name="line.438"></a>
+<span class="sourceLineNo">439</span>                }<a name="line.439"></a>
+<span class="sourceLineNo">440</span><a name="line.440"></a>
+<span class="sourceLineNo">441</span>                String temp = this.createAndSaveTemporaryIdentifier(new BooleanType());<a name="line.441"></a>
+<span class="sourceLineNo">442</span>                this.irCode.add(QuadrupleFactory.booleanArithmetic(node.getOperator(),<a name="line.442"></a>
+<span class="sourceLineNo">443</span>                                leftResult.getValue(), rightResult.getValue(), temp));<a name="line.443"></a>
+<span class="sourceLineNo">444</span>                this.intermediateResults<a name="line.444"></a>
+<span class="sourceLineNo">445</span>                                .push(new IntermediateResult(temp, new BooleanType()));<a name="line.445"></a>
+<span class="sourceLineNo">446</span>        }<a name="line.446"></a>
+<span class="sourceLineNo">447</span><a name="line.447"></a>
+<span class="sourceLineNo">448</span>        /**<a name="line.448"></a>
+<span class="sourceLineNo">449</span>         * Process a literal node<a name="line.449"></a>
+<span class="sourceLineNo">450</span>         * <a name="line.450"></a>
+<span class="sourceLineNo">451</span>         * @param node<a name="line.451"></a>
+<span class="sourceLineNo">452</span>         *            the node to process<a name="line.452"></a>
+<span class="sourceLineNo">453</span>         * @throws IntermediateCodeGeneratorException<a name="line.453"></a>
+<span class="sourceLineNo">454</span>         *             Something went wrong<a name="line.454"></a>
+<span class="sourceLineNo">455</span>         */<a name="line.455"></a>
+<span class="sourceLineNo">456</span>        private void processLiteralNode(LiteralNode node)<a name="line.456"></a>
+<span class="sourceLineNo">457</span>                        throws IntermediateCodeGeneratorException {<a name="line.457"></a>
+<span class="sourceLineNo">458</span>                String literal = node.getLiteral();<a name="line.458"></a>
+<span class="sourceLineNo">459</span>                Type type = node.getLiteralType();<a name="line.459"></a>
+<span class="sourceLineNo">460</span>                switch (type.getKind()) {<a name="line.460"></a>
+<span class="sourceLineNo">461</span>                case DOUBLE:<a name="line.461"></a>
+<span class="sourceLineNo">462</span>                case LONG:<a name="line.462"></a>
+<span class="sourceLineNo">463</span>                case BOOLEAN:<a name="line.463"></a>
+<span class="sourceLineNo">464</span>                        // Literal of type Long or Double needs to start with a # to mark it<a name="line.464"></a>
+<span class="sourceLineNo">465</span>                        // as a constant<a name="line.465"></a>
+<span class="sourceLineNo">466</span>                        this.intermediateResults.push(new IntermediateResult("#"<a name="line.466"></a>
+<span class="sourceLineNo">467</span>                                        + literal.toUpperCase(), type));<a name="line.467"></a>
+<span class="sourceLineNo">468</span>                        break;<a name="line.468"></a>
+<span class="sourceLineNo">469</span>                case STRING:<a name="line.469"></a>
+<span class="sourceLineNo">470</span>                        // Literal of type String needs to be in " and start with a #<a name="line.470"></a>
+<span class="sourceLineNo">471</span>                        // If the lexer already gives a string in " and " do not add them<a name="line.471"></a>
+<span class="sourceLineNo">472</span>                        if (literal.startsWith("\"") &amp;&amp; literal.endsWith("\"")<a name="line.472"></a>
+<span class="sourceLineNo">473</span>                                        &amp;&amp; !literal.endsWith("\\\"")) {<a name="line.473"></a>
+<span class="sourceLineNo">474</span>                                literal = literal.substring(1, literal.length() - 1);<a name="line.474"></a>
+<span class="sourceLineNo">475</span>                        }<a name="line.475"></a>
+<span class="sourceLineNo">476</span>                        // Make C-Style escapings, only if they are not escaped already<a name="line.476"></a>
+<span class="sourceLineNo">477</span>                        literal = this.escapeString(literal, "\"", "\\\"");<a name="line.477"></a>
+<span class="sourceLineNo">478</span>                        literal = this.escapeString(literal, "\n", "\\n");<a name="line.478"></a>
+<span class="sourceLineNo">479</span>                        literal = this.escapeString(literal, "\r", "\\r");<a name="line.479"></a>
+<span class="sourceLineNo">480</span>                        literal = this.escapeString(literal, "\t", "\\t");<a name="line.480"></a>
+<span class="sourceLineNo">481</span>                        literal = this.escapeString(literal, "\0", "\\0");<a name="line.481"></a>
+<span class="sourceLineNo">482</span>                        this.intermediateResults.push(new IntermediateResult("#\"" + literal<a name="line.482"></a>
+<span class="sourceLineNo">483</span>                                        + "\"", type));<a name="line.483"></a>
+<span class="sourceLineNo">484</span>                        break;<a name="line.484"></a>
+<span class="sourceLineNo">485</span>                default:<a name="line.485"></a>
+<span class="sourceLineNo">486</span>                        // Literal of other types are not defined yet.<a name="line.486"></a>
+<span class="sourceLineNo">487</span>                        throw new IntermediateCodeGeneratorException(<a name="line.487"></a>
+<span class="sourceLineNo">488</span>                                        "Literal node of type " + node.getLiteralType().toString()<a name="line.488"></a>
+<span class="sourceLineNo">489</span>                                                        + " is not supported");<a name="line.489"></a>
+<span class="sourceLineNo">490</span>                }<a name="line.490"></a>
+<span class="sourceLineNo">491</span>        }<a name="line.491"></a>
+<span class="sourceLineNo">492</span><a name="line.492"></a>
+<span class="sourceLineNo">493</span>        /**<a name="line.493"></a>
+<span class="sourceLineNo">494</span>         * Escape special char sequences but ignore them if they are already escaped<a name="line.494"></a>
+<span class="sourceLineNo">495</span>         * <a name="line.495"></a>
+<span class="sourceLineNo">496</span>         * @param literal<a name="line.496"></a>
+<span class="sourceLineNo">497</span>         *            The string to escape<a name="line.497"></a>
+<span class="sourceLineNo">498</span>         * @param search<a name="line.498"></a>
+<span class="sourceLineNo">499</span>         *            The char sequence to replace<a name="line.499"></a>
+<span class="sourceLineNo">500</span>         * @param replace<a name="line.500"></a>
+<span class="sourceLineNo">501</span>         *            The char sequence to use as replacement<a name="line.501"></a>
+<span class="sourceLineNo">502</span>         * @return The escaped string<a name="line.502"></a>
+<span class="sourceLineNo">503</span>         */<a name="line.503"></a>
+<span class="sourceLineNo">504</span>        private String escapeString(String literal, String search, String replace) {<a name="line.504"></a>
+<span class="sourceLineNo">505</span>                int fromIndex = 0;<a name="line.505"></a>
+<span class="sourceLineNo">506</span>                int pos = 0;<a name="line.506"></a>
+<span class="sourceLineNo">507</span>                while ((pos = literal.indexOf(search, fromIndex)) &gt;= 0) {<a name="line.507"></a>
+<span class="sourceLineNo">508</span>                        if (pos &gt; 0 &amp;&amp; literal.charAt(pos - 1) == '\\') {<a name="line.508"></a>
+<span class="sourceLineNo">509</span>                                fromIndex = pos + 1;<a name="line.509"></a>
+<span class="sourceLineNo">510</span>                                continue;<a name="line.510"></a>
+<span class="sourceLineNo">511</span>                        }<a name="line.511"></a>
+<span class="sourceLineNo">512</span>                        fromIndex = pos + replace.length();<a name="line.512"></a>
+<span class="sourceLineNo">513</span>                        if (pos &gt; 0) {<a name="line.513"></a>
+<span class="sourceLineNo">514</span>                                literal = literal.substring(0, pos) + replace<a name="line.514"></a>
+<span class="sourceLineNo">515</span>                                                + literal.substring(pos + 1);<a name="line.515"></a>
+<span class="sourceLineNo">516</span>                        } else {<a name="line.516"></a>
+<span class="sourceLineNo">517</span>                                literal = replace + literal.substring(pos + 1);<a name="line.517"></a>
+<span class="sourceLineNo">518</span>                        }<a name="line.518"></a>
+<span class="sourceLineNo">519</span>                }<a name="line.519"></a>
+<span class="sourceLineNo">520</span>                return literal;<a name="line.520"></a>
+<span class="sourceLineNo">521</span>        }<a name="line.521"></a>
+<span class="sourceLineNo">522</span><a name="line.522"></a>
+<span class="sourceLineNo">523</span>        /**<a name="line.523"></a>
+<span class="sourceLineNo">524</span>         * Process a relationexpression node<a name="line.524"></a>
+<span class="sourceLineNo">525</span>         * <a name="line.525"></a>
+<span class="sourceLineNo">526</span>         * @param node<a name="line.526"></a>
+<span class="sourceLineNo">527</span>         *            the node to process<a name="line.527"></a>
+<span class="sourceLineNo">528</span>         * @throws IntermediateCodeGeneratorException<a name="line.528"></a>
+<span class="sourceLineNo">529</span>         *             Something went wrong<a name="line.529"></a>
+<span class="sourceLineNo">530</span>         */<a name="line.530"></a>
+<span class="sourceLineNo">531</span>        private void processDoWhileNode(DoWhileNode node)<a name="line.531"></a>
+<span class="sourceLineNo">532</span>                        throws IntermediateCodeGeneratorException {<a name="line.532"></a>
+<span class="sourceLineNo">533</span>                throw new IntermediateCodeGeneratorException(<a name="line.533"></a>
+<span class="sourceLineNo">534</span>                                new UnsupportedOperationException());<a name="line.534"></a>
+<span class="sourceLineNo">535</span>        }<a name="line.535"></a>
+<span class="sourceLineNo">536</span><a name="line.536"></a>
+<span class="sourceLineNo">537</span>        /**<a name="line.537"></a>
+<span class="sourceLineNo">538</span>         * Process a declaration node<a name="line.538"></a>
+<span class="sourceLineNo">539</span>         * <a name="line.539"></a>
+<span class="sourceLineNo">540</span>         * @param node<a name="line.540"></a>
+<span class="sourceLineNo">541</span>         *            the node to process<a name="line.541"></a>
+<span class="sourceLineNo">542</span>         * @throws IntermediateCodeGeneratorException<a name="line.542"></a>
+<span class="sourceLineNo">543</span>         *             Something went wrong<a name="line.543"></a>
+<span class="sourceLineNo">544</span>         */<a name="line.544"></a>
+<span class="sourceLineNo">545</span>        private void processDeclarationNode(DeclarationNode node)<a name="line.545"></a>
+<span class="sourceLineNo">546</span>                        throws IntermediateCodeGeneratorException {<a name="line.546"></a>
+<span class="sourceLineNo">547</span>                String identifierName = node.getIdentifier();<a name="line.547"></a>
+<span class="sourceLineNo">548</span>                Type identifierType = node.getType();<a name="line.548"></a>
+<span class="sourceLineNo">549</span>                // save the new declared variable into our structures<a name="line.549"></a>
+<span class="sourceLineNo">550</span>                this.saveIdentifier(identifierName, identifierType);<a name="line.550"></a>
+<span class="sourceLineNo">551</span>        }<a name="line.551"></a>
+<span class="sourceLineNo">552</span><a name="line.552"></a>
+<span class="sourceLineNo">553</span>        /**<a name="line.553"></a>
+<span class="sourceLineNo">554</span>         * Process a break node<a name="line.554"></a>
+<span class="sourceLineNo">555</span>         * <a name="line.555"></a>
+<span class="sourceLineNo">556</span>         * @param node<a name="line.556"></a>
+<span class="sourceLineNo">557</span>         *            the node to process<a name="line.557"></a>
+<span class="sourceLineNo">558</span>         * @throws IntermediateCodeGeneratorException<a name="line.558"></a>
+<span class="sourceLineNo">559</span>         *             Something went wrong<a name="line.559"></a>
+<span class="sourceLineNo">560</span>         */<a name="line.560"></a>
+<span class="sourceLineNo">561</span>        private void processBreakNode(BreakNode node)<a name="line.561"></a>
+<span class="sourceLineNo">562</span>                        throws IntermediateCodeGeneratorException {<a name="line.562"></a>
+<span class="sourceLineNo">563</span>                throw new IntermediateCodeGeneratorException(<a name="line.563"></a>
+<span class="sourceLineNo">564</span>                                new UnsupportedOperationException());<a name="line.564"></a>
+<span class="sourceLineNo">565</span>        }<a name="line.565"></a>
+<span class="sourceLineNo">566</span><a name="line.566"></a>
+<span class="sourceLineNo">567</span>        /**<a name="line.567"></a>
+<span class="sourceLineNo">568</span>         * Process a branch node<a name="line.568"></a>
+<span class="sourceLineNo">569</span>         * <a name="line.569"></a>
+<span class="sourceLineNo">570</span>         * @param node<a name="line.570"></a>
+<span class="sourceLineNo">571</span>         *            the node to process<a name="line.571"></a>
+<span class="sourceLineNo">572</span>         * @throws IntermediateCodeGeneratorException<a name="line.572"></a>
+<span class="sourceLineNo">573</span>         *             Something went wrong<a name="line.573"></a>
+<span class="sourceLineNo">574</span>         */<a name="line.574"></a>
+<span class="sourceLineNo">575</span>        private void processBranchNode(BranchNode node)<a name="line.575"></a>
+<span class="sourceLineNo">576</span>                        throws IntermediateCodeGeneratorException {<a name="line.576"></a>
+<span class="sourceLineNo">577</span>                ExpressionNode condition = node.getCondition();<a name="line.577"></a>
+<span class="sourceLineNo">578</span>                StatementNode onTrue = node.getStatementNodeOnTrue();<a name="line.578"></a>
+<span class="sourceLineNo">579</span>                StatementNode onFalse = node.getStatementNodeOnFalse();<a name="line.579"></a>
+<span class="sourceLineNo">580</span><a name="line.580"></a>
+<span class="sourceLineNo">581</span>                this.callProcessing(condition);<a name="line.581"></a>
+<span class="sourceLineNo">582</span>                IntermediateResult conditionResult = this.intermediateResults.pop();<a name="line.582"></a>
+<span class="sourceLineNo">583</span>                if (conditionResult.getType().getKind() != Kind.BOOLEAN) {<a name="line.583"></a>
+<span class="sourceLineNo">584</span>                        String err = "A condition is not of type boolean but of unsupported type "<a name="line.584"></a>
+<span class="sourceLineNo">585</span>                                        + conditionResult.getType();<a name="line.585"></a>
+<span class="sourceLineNo">586</span>                        logger.fatal(err);<a name="line.586"></a>
+<span class="sourceLineNo">587</span>                        throw new IntermediateCodeGeneratorException(err);<a name="line.587"></a>
+<span class="sourceLineNo">588</span>                }<a name="line.588"></a>
+<span class="sourceLineNo">589</span><a name="line.589"></a>
+<span class="sourceLineNo">590</span>                String trueLabel = this.createNewLabel();<a name="line.590"></a>
+<span class="sourceLineNo">591</span>                String falseLabel = this.createNewLabel();<a name="line.591"></a>
+<span class="sourceLineNo">592</span>                String endLabel = this.createNewLabel();<a name="line.592"></a>
+<span class="sourceLineNo">593</span><a name="line.593"></a>
+<span class="sourceLineNo">594</span>                this.irCode.add(QuadrupleFactory.branch(conditionResult.getValue(),<a name="line.594"></a>
+<span class="sourceLineNo">595</span>                                trueLabel, falseLabel));<a name="line.595"></a>
+<span class="sourceLineNo">596</span>                this.irCode.add(QuadrupleFactory.label(trueLabel));<a name="line.596"></a>
+<span class="sourceLineNo">597</span>                this.callProcessing(onTrue);<a name="line.597"></a>
+<span class="sourceLineNo">598</span>                this.irCode.add(QuadrupleFactory.jump(endLabel));<a name="line.598"></a>
+<span class="sourceLineNo">599</span>                this.irCode.add(QuadrupleFactory.label(falseLabel));<a name="line.599"></a>
+<span class="sourceLineNo">600</span><a name="line.600"></a>
+<span class="sourceLineNo">601</span>                if (onFalse != null) {<a name="line.601"></a>
+<span class="sourceLineNo">602</span>                        this.callProcessing(onFalse);<a name="line.602"></a>
+<span class="sourceLineNo">603</span>                }<a name="line.603"></a>
+<span class="sourceLineNo">604</span><a name="line.604"></a>
+<span class="sourceLineNo">605</span>                this.irCode.add(QuadrupleFactory.label(endLabel));<a name="line.605"></a>
+<span class="sourceLineNo">606</span><a name="line.606"></a>
+<span class="sourceLineNo">607</span>        }<a name="line.607"></a>
+<span class="sourceLineNo">608</span><a name="line.608"></a>
+<span class="sourceLineNo">609</span>        /**<a name="line.609"></a>
+<span class="sourceLineNo">610</span>         * Process a basicidentifier node<a name="line.610"></a>
+<span class="sourceLineNo">611</span>         * <a name="line.611"></a>
+<span class="sourceLineNo">612</span>         * @param node<a name="line.612"></a>
+<span class="sourceLineNo">613</span>         *            the node to process<a name="line.613"></a>
+<span class="sourceLineNo">614</span>         * @throws IntermediateCodeGeneratorException<a name="line.614"></a>
+<span class="sourceLineNo">615</span>         *             Something went wrong<a name="line.615"></a>
+<span class="sourceLineNo">616</span>         */<a name="line.616"></a>
+<span class="sourceLineNo">617</span>        private void processBasicIdentifierNode(BasicIdentifierNode node)<a name="line.617"></a>
+<span class="sourceLineNo">618</span>                        throws IntermediateCodeGeneratorException {<a name="line.618"></a>
+<span class="sourceLineNo">619</span>                // A basic identifier can be pushed to the stack of results immediately<a name="line.619"></a>
+<span class="sourceLineNo">620</span>                String identifier = node.getIdentifier();<a name="line.620"></a>
+<span class="sourceLineNo">621</span>                Type identifierType = this.currentSymbolTable.peek().lookupType(identifier);<a name="line.621"></a>
+<span class="sourceLineNo">622</span><a name="line.622"></a>
+<span class="sourceLineNo">623</span>                // arrays get assigned with their full type but we want the base type in<a name="line.623"></a>
+<span class="sourceLineNo">624</span>                // the center of it<a name="line.624"></a>
+<span class="sourceLineNo">625</span>                while (identifierType instanceof ArrayType) {<a name="line.625"></a>
+<span class="sourceLineNo">626</span>                        identifierType = ((ArrayType) identifierType).getInnerType();<a name="line.626"></a>
+<span class="sourceLineNo">627</span>                }<a name="line.627"></a>
+<span class="sourceLineNo">628</span><a name="line.628"></a>
+<span class="sourceLineNo">629</span>                String actualIdentifier = this.loadIdentifier(identifier);<a name="line.629"></a>
+<span class="sourceLineNo">630</span>                this.intermediateResults.push(new IntermediateResult(actualIdentifier,<a name="line.630"></a>
+<span class="sourceLineNo">631</span>                                identifierType));<a name="line.631"></a>
+<span class="sourceLineNo">632</span>        }<a name="line.632"></a>
+<span class="sourceLineNo">633</span><a name="line.633"></a>
+<span class="sourceLineNo">634</span>        /**<a name="line.634"></a>
+<span class="sourceLineNo">635</span>         * Process a assignment node<a name="line.635"></a>
+<span class="sourceLineNo">636</span>         * <a name="line.636"></a>
+<span class="sourceLineNo">637</span>         * @param node<a name="line.637"></a>
+<span class="sourceLineNo">638</span>         *            the node to process<a name="line.638"></a>
+<span class="sourceLineNo">639</span>         * @throws IntermediateCodeGeneratorException<a name="line.639"></a>
+<span class="sourceLineNo">640</span>         *             Something went wrong<a name="line.640"></a>
+<span class="sourceLineNo">641</span>         */<a name="line.641"></a>
+<span class="sourceLineNo">642</span>        private void processAssignmentNode(AssignmentNode node)<a name="line.642"></a>
+<span class="sourceLineNo">643</span>                        throws IntermediateCodeGeneratorException {<a name="line.643"></a>
+<span class="sourceLineNo">644</span>                // the id to assign the value to<a name="line.644"></a>
+<span class="sourceLineNo">645</span>                IdentifierNode id = node.getLeftValue();<a name="line.645"></a>
+<span class="sourceLineNo">646</span><a name="line.646"></a>
+<span class="sourceLineNo">647</span>                this.arrayAssignment = true;<a name="line.647"></a>
+<span class="sourceLineNo">648</span>                this.arrayLevel = null;<a name="line.648"></a>
+<span class="sourceLineNo">649</span>                this.callProcessing(id);<a name="line.649"></a>
+<span class="sourceLineNo">650</span>                Integer toArrayIndex = this.arrayLevel;<a name="line.650"></a>
+<span class="sourceLineNo">651</span>                this.arrayLevel = null;<a name="line.651"></a>
+<span class="sourceLineNo">652</span><a name="line.652"></a>
+<span class="sourceLineNo">653</span>                IntermediateResult toIntermediate = this.intermediateResults.pop();<a name="line.653"></a>
+<span class="sourceLineNo">654</span><a name="line.654"></a>
+<span class="sourceLineNo">655</span>                // the id to assign the value to is a basic identifier.<a name="line.655"></a>
+<span class="sourceLineNo">656</span>                // no need to resolve an array or struct etc.<a name="line.656"></a>
+<span class="sourceLineNo">657</span>                StatementNode value = node.getRightValue();<a name="line.657"></a>
+<span class="sourceLineNo">658</span><a name="line.658"></a>
+<span class="sourceLineNo">659</span>                // process the right hand expression<a name="line.659"></a>
+<span class="sourceLineNo">660</span>                this.callProcessing(value);<a name="line.660"></a>
+<span class="sourceLineNo">661</span>                Integer fromArrayIndex = this.arrayLevel;<a name="line.661"></a>
+<span class="sourceLineNo">662</span>                this.arrayLevel = null;<a name="line.662"></a>
+<span class="sourceLineNo">663</span>                this.arrayAssignment = false;<a name="line.663"></a>
+<span class="sourceLineNo">664</span><a name="line.664"></a>
+<span class="sourceLineNo">665</span>                // the result of the right hand expression<a name="line.665"></a>
+<span class="sourceLineNo">666</span>                IntermediateResult fromIntermediate = this.intermediateResults.pop();<a name="line.666"></a>
+<span class="sourceLineNo">667</span><a name="line.667"></a>
+<span class="sourceLineNo">668</span>                // get the name of the id and resolve it from our saved structures<a name="line.668"></a>
+<span class="sourceLineNo">669</span>                String toId = toIntermediate.getValue();<a name="line.669"></a>
+<span class="sourceLineNo">670</span><a name="line.670"></a>
+<span class="sourceLineNo">671</span>                // the type of the id. If necessary the value of the right hand<a name="line.671"></a>
+<span class="sourceLineNo">672</span>                // expression<a name="line.672"></a>
+<span class="sourceLineNo">673</span>                // needs to be casted to this type.<a name="line.673"></a>
+<span class="sourceLineNo">674</span>                Type toType = toIntermediate.getType();<a name="line.674"></a>
+<span class="sourceLineNo">675</span><a name="line.675"></a>
+<span class="sourceLineNo">676</span>                // check if the cast is needed<a name="line.676"></a>
+<span class="sourceLineNo">677</span>                boolean castNeeded = CastingFactory.isCastNeeded(toType,<a name="line.677"></a>
+<span class="sourceLineNo">678</span>                                fromIntermediate.getType());<a name="line.678"></a>
+<span class="sourceLineNo">679</span><a name="line.679"></a>
+<span class="sourceLineNo">680</span>                // get the name and id of the source<a name="line.680"></a>
+<span class="sourceLineNo">681</span>                String fromId = fromIntermediate.getValue();<a name="line.681"></a>
+<span class="sourceLineNo">682</span>                Type fromType = fromIntermediate.getType();<a name="line.682"></a>
+<span class="sourceLineNo">683</span><a name="line.683"></a>
+<span class="sourceLineNo">684</span>                if (fromArrayIndex != null &amp;&amp; toArrayIndex != null) {<a name="line.684"></a>
+<span class="sourceLineNo">685</span>                        // assign array to array<a name="line.685"></a>
+<span class="sourceLineNo">686</span>                        String temporary = this.createAndSaveTemporaryIdentifier(fromType);<a name="line.686"></a>
+<span class="sourceLineNo">687</span>                        this.irCode.addAll(QuadrupleFactory.assign(fromType, fromId, temporary,<a name="line.687"></a>
+<span class="sourceLineNo">688</span>                                        fromArrayIndex, null));<a name="line.688"></a>
+<span class="sourceLineNo">689</span>                        if (castNeeded) {<a name="line.689"></a>
+<span class="sourceLineNo">690</span>                                String temporary2 = this.createAndSaveTemporaryIdentifier(toType);<a name="line.690"></a>
+<span class="sourceLineNo">691</span>                                this.irCode.add(CastingFactory.createCast(fromType, temporary,<a name="line.691"></a>
+<span class="sourceLineNo">692</span>                                                toType, temporary2));<a name="line.692"></a>
+<span class="sourceLineNo">693</span>                                this.irCode.addAll(QuadrupleFactory.assign(toType, temporary2, toId,<a name="line.693"></a>
+<span class="sourceLineNo">694</span>                                                null, toArrayIndex));<a name="line.694"></a>
+<span class="sourceLineNo">695</span>                                toId = temporary2;<a name="line.695"></a>
+<span class="sourceLineNo">696</span>                        } else {<a name="line.696"></a>
+<span class="sourceLineNo">697</span>                                this.irCode.addAll(QuadrupleFactory.assign(toType, temporary, toId,<a name="line.697"></a>
+<span class="sourceLineNo">698</span>                                                null, toArrayIndex));<a name="line.698"></a>
+<span class="sourceLineNo">699</span>                                toId = temporary;<a name="line.699"></a>
+<span class="sourceLineNo">700</span>                        }<a name="line.700"></a>
+<span class="sourceLineNo">701</span>                } else {<a name="line.701"></a>
+<span class="sourceLineNo">702</span>                        if (castNeeded) {<a name="line.702"></a>
+<span class="sourceLineNo">703</span>                                if (toArrayIndex == null) {<a name="line.703"></a>
+<span class="sourceLineNo">704</span>                                        // assign array to variable<a name="line.704"></a>
+<span class="sourceLineNo">705</span>                                        String temporary = this.createAndSaveTemporaryIdentifier(fromType);<a name="line.705"></a>
+<span class="sourceLineNo">706</span>                                        this.irCode.addAll(QuadrupleFactory.assign(fromType, fromId,<a name="line.706"></a>
+<span class="sourceLineNo">707</span>                                                        temporary, fromArrayIndex, toArrayIndex));<a name="line.707"></a>
+<span class="sourceLineNo">708</span>                                        this.irCode.add(CastingFactory.createCast(fromType, temporary,<a name="line.708"></a>
+<span class="sourceLineNo">709</span>                                                        toType, toId));<a name="line.709"></a>
+<span class="sourceLineNo">710</span>                                        toId = temporary;<a name="line.710"></a>
+<span class="sourceLineNo">711</span>                                } else {<a name="line.711"></a>
+<span class="sourceLineNo">712</span>                                        // assign variable to array<a name="line.712"></a>
+<span class="sourceLineNo">713</span>                                        String temporary = this.createAndSaveTemporaryIdentifier(toType);<a name="line.713"></a>
+<span class="sourceLineNo">714</span>                                        this.irCode.add(CastingFactory.createCast(fromType, fromId,<a name="line.714"></a>
+<span class="sourceLineNo">715</span>                                                        toType, temporary));<a name="line.715"></a>
+<span class="sourceLineNo">716</span>                                        this.irCode.addAll(QuadrupleFactory.assign(toType, temporary,<a name="line.716"></a>
+<span class="sourceLineNo">717</span>                                                        toId, fromArrayIndex, toArrayIndex));<a name="line.717"></a>
+<span class="sourceLineNo">718</span>                                        toId = temporary;<a name="line.718"></a>
+<span class="sourceLineNo">719</span>                                }<a name="line.719"></a>
+<span class="sourceLineNo">720</span>                        } else {<a name="line.720"></a>
+<span class="sourceLineNo">721</span>                                this.irCode.addAll(QuadrupleFactory.assign(toType, fromId, toId,<a name="line.721"></a>
+<span class="sourceLineNo">722</span>                                                fromArrayIndex, toArrayIndex));<a name="line.722"></a>
+<span class="sourceLineNo">723</span>                        }<a name="line.723"></a>
+<span class="sourceLineNo">724</span>                }<a name="line.724"></a>
+<span class="sourceLineNo">725</span>                this.intermediateResults.push(new IntermediateResult(toId, toType));<a name="line.725"></a>
+<span class="sourceLineNo">726</span>        }<a name="line.726"></a>
+<span class="sourceLineNo">727</span><a name="line.727"></a>
+<span class="sourceLineNo">728</span>        /**<a name="line.728"></a>
+<span class="sourceLineNo">729</span>         * Process a arrayidentifier node<a name="line.729"></a>
+<span class="sourceLineNo">730</span>         * <a name="line.730"></a>
+<span class="sourceLineNo">731</span>         * @param node<a name="line.731"></a>
+<span class="sourceLineNo">732</span>         *            the node to process<a name="line.732"></a>
+<span class="sourceLineNo">733</span>         * @throws IntermediateCodeGeneratorException<a name="line.733"></a>
+<span class="sourceLineNo">734</span>         *             Something went wrong<a name="line.734"></a>
+<span class="sourceLineNo">735</span>         */<a name="line.735"></a>
+<span class="sourceLineNo">736</span>        private void processArrayIdentifierNode(ArrayIdentifierNode node)<a name="line.736"></a>
+<span class="sourceLineNo">737</span>                        throws IntermediateCodeGeneratorException {<a name="line.737"></a>
+<span class="sourceLineNo">738</span><a name="line.738"></a>
+<span class="sourceLineNo">739</span>                IdentifierNode innerNode = node.getIdentifierNode();<a name="line.739"></a>
+<span class="sourceLineNo">740</span><a name="line.740"></a>
+<span class="sourceLineNo">741</span>                boolean outerArray = false;<a name="line.741"></a>
+<span class="sourceLineNo">742</span>                if (this.arrayLevel == null) {<a name="line.742"></a>
+<span class="sourceLineNo">743</span>                        this.arrayLevel = node.getIndex();<a name="line.743"></a>
+<span class="sourceLineNo">744</span>                        outerArray = true;<a name="line.744"></a>
+<span class="sourceLineNo">745</span>                }<a name="line.745"></a>
+<span class="sourceLineNo">746</span><a name="line.746"></a>
+<span class="sourceLineNo">747</span>                this.callProcessing(innerNode);<a name="line.747"></a>
+<span class="sourceLineNo">748</span><a name="line.748"></a>
+<span class="sourceLineNo">749</span>                // array assignments are special so don't push the reference of the<a name="line.749"></a>
+<span class="sourceLineNo">750</span>                // outermost array<a name="line.750"></a>
+<span class="sourceLineNo">751</span>                if (!this.arrayAssignment || !outerArray) {<a name="line.751"></a>
+<span class="sourceLineNo">752</span>                        IntermediateResult innerResult = this.intermediateResults.pop();<a name="line.752"></a>
+<span class="sourceLineNo">753</span>                        Type nodeType = innerResult.getType();<a name="line.753"></a>
+<span class="sourceLineNo">754</span>                        String tmpIdentifier;<a name="line.754"></a>
+<span class="sourceLineNo">755</span><a name="line.755"></a>
+<span class="sourceLineNo">756</span>                        if (outerArray) {<a name="line.756"></a>
+<span class="sourceLineNo">757</span>                                tmpIdentifier = this.createAndSaveTemporaryIdentifier(nodeType);<a name="line.757"></a>
+<span class="sourceLineNo">758</span>                        } else {<a name="line.758"></a>
+<span class="sourceLineNo">759</span>                                tmpIdentifier = this.createAndSaveTemporaryIdentifierReference(nodeType);<a name="line.759"></a>
+<span class="sourceLineNo">760</span>                        }<a name="line.760"></a>
+<span class="sourceLineNo">761</span>                        this.currentSymbolTable.peek().lookupType(tmpIdentifier);<a name="line.761"></a>
+<span class="sourceLineNo">762</span><a name="line.762"></a>
+<span class="sourceLineNo">763</span>                        // FIXME just looks at the outermost type so this works<a name="line.763"></a>
+<span class="sourceLineNo">764</span>                        Type arrayType = new ArrayType(new StringType(0L), 0);<a name="line.764"></a>
+<span class="sourceLineNo">765</span>                        if (outerArray) {<a name="line.765"></a>
+<span class="sourceLineNo">766</span>                                arrayType = nodeType;<a name="line.766"></a>
+<span class="sourceLineNo">767</span>                        }<a name="line.767"></a>
+<span class="sourceLineNo">768</span>                        this.irCode.add(QuadrupleFactory.arrayGet(arrayType,<a name="line.768"></a>
+<span class="sourceLineNo">769</span>                                        innerResult.getValue(), "#" + node.getIndex(),<a name="line.769"></a>
+<span class="sourceLineNo">770</span>                                        tmpIdentifier));<a name="line.770"></a>
+<span class="sourceLineNo">771</span>                        this.intermediateResults.push(new IntermediateResult(tmpIdentifier,<a name="line.771"></a>
+<span class="sourceLineNo">772</span>                                        innerResult.getType()));<a name="line.772"></a>
+<span class="sourceLineNo">773</span>                }<a name="line.773"></a>
+<span class="sourceLineNo">774</span>        }<a name="line.774"></a>
+<span class="sourceLineNo">775</span><a name="line.775"></a>
+<span class="sourceLineNo">776</span>        /**<a name="line.776"></a>
+<span class="sourceLineNo">777</span>         * Process a arithmeticunaryexpression node<a name="line.777"></a>
+<span class="sourceLineNo">778</span>         * <a name="line.778"></a>
+<span class="sourceLineNo">779</span>         * @param node<a name="line.779"></a>
+<span class="sourceLineNo">780</span>         *            the node to process<a name="line.780"></a>
+<span class="sourceLineNo">781</span>         * @throws IntermediateCodeGeneratorException<a name="line.781"></a>
+<span class="sourceLineNo">782</span>         *             Something went wrong<a name="line.782"></a>
+<span class="sourceLineNo">783</span>         */<a name="line.783"></a>
+<span class="sourceLineNo">784</span>        private void processArithmeticUnaryExpressionNode(<a name="line.784"></a>
+<span class="sourceLineNo">785</span>                        ArithmeticUnaryExpressionNode node)<a name="line.785"></a>
+<span class="sourceLineNo">786</span>                        throws IntermediateCodeGeneratorException {<a name="line.786"></a>
+<span class="sourceLineNo">787</span>                ExpressionNode rightNode = node.getRightValue();<a name="line.787"></a>
+<span class="sourceLineNo">788</span><a name="line.788"></a>
+<span class="sourceLineNo">789</span>                // process the right hand value<a name="line.789"></a>
+<span class="sourceLineNo">790</span>                this.callProcessing(rightNode);<a name="line.790"></a>
+<span class="sourceLineNo">791</span><a name="line.791"></a>
+<span class="sourceLineNo">792</span>                IntermediateResult rightIntermediate = this.intermediateResults.pop();<a name="line.792"></a>
+<span class="sourceLineNo">793</span><a name="line.793"></a>
+<span class="sourceLineNo">794</span>                String temp = this.createAndSaveTemporaryIdentifier(rightIntermediate<a name="line.794"></a>
+<span class="sourceLineNo">795</span>                                .getType());<a name="line.795"></a>
+<span class="sourceLineNo">796</span>                this.irCode.add(QuadrupleFactory.unaryMinus(rightIntermediate.getType(),<a name="line.796"></a>
+<span class="sourceLineNo">797</span>                                rightIntermediate.getValue(), temp));<a name="line.797"></a>
+<span class="sourceLineNo">798</span>                this.intermediateResults.push(new IntermediateResult(temp, rightIntermediate<a name="line.798"></a>
+<span class="sourceLineNo">799</span>                                .getType()));<a name="line.799"></a>
+<span class="sourceLineNo">800</span>        }<a name="line.800"></a>
+<span class="sourceLineNo">801</span><a name="line.801"></a>
+<span class="sourceLineNo">802</span>        /**<a name="line.802"></a>
+<span class="sourceLineNo">803</span>         * Binary Arithmetic Operation<a name="line.803"></a>
+<span class="sourceLineNo">804</span>         * <a name="line.804"></a>
+<span class="sourceLineNo">805</span>         * @param node<a name="line.805"></a>
+<span class="sourceLineNo">806</span>         *            the arithmetic binary expression node<a name="line.806"></a>
+<span class="sourceLineNo">807</span>         * @throws IntermediateCodeGeneratorException<a name="line.807"></a>
+<span class="sourceLineNo">808</span>         *             something went wrong<a name="line.808"></a>
+<span class="sourceLineNo">809</span>         */<a name="line.809"></a>
+<span class="sourceLineNo">810</span>        private void processArithmeticBinaryExpressionNode(<a name="line.810"></a>
+<span class="sourceLineNo">811</span>                        ArithmeticBinaryExpressionNode node)<a name="line.811"></a>
+<span class="sourceLineNo">812</span>                        throws IntermediateCodeGeneratorException {<a name="line.812"></a>
+<span class="sourceLineNo">813</span><a name="line.813"></a>
+<span class="sourceLineNo">814</span>                // process the left and right value first<a name="line.814"></a>
+<span class="sourceLineNo">815</span>                this.callProcessing(node.getLeftValue());<a name="line.815"></a>
+<span class="sourceLineNo">816</span>                this.callProcessing(node.getRightValue());<a name="line.816"></a>
+<span class="sourceLineNo">817</span><a name="line.817"></a>
+<span class="sourceLineNo">818</span>                // get the left and right value<a name="line.818"></a>
+<span class="sourceLineNo">819</span>                IntermediateResult right = this.intermediateResults.pop();<a name="line.819"></a>
+<span class="sourceLineNo">820</span>                IntermediateResult left = this.intermediateResults.pop();<a name="line.820"></a>
+<span class="sourceLineNo">821</span><a name="line.821"></a>
+<span class="sourceLineNo">822</span>                // check if a cast is needed<a name="line.822"></a>
+<span class="sourceLineNo">823</span>                boolean castNeeded = CastingFactory.isCastNeeded(right, left);<a name="line.823"></a>
+<span class="sourceLineNo">824</span><a name="line.824"></a>
+<span class="sourceLineNo">825</span>                if (!castNeeded) {<a name="line.825"></a>
+<span class="sourceLineNo">826</span>                        // no cast is needed<a name="line.826"></a>
+<span class="sourceLineNo">827</span>                        // either both values are of type LONG or of type DOUBLE<a name="line.827"></a>
+<span class="sourceLineNo">828</span>                        if (left.getType() instanceof LongType) {<a name="line.828"></a>
+<span class="sourceLineNo">829</span>                                // both values are of type LONG<a name="line.829"></a>
+<span class="sourceLineNo">830</span>                                String temp = this.createAndSaveTemporaryIdentifier(new LongType());<a name="line.830"></a>
+<span class="sourceLineNo">831</span>                                this.irCode.add(QuadrupleFactory.longArithmeticBinaryOperation(<a name="line.831"></a>
+<span class="sourceLineNo">832</span>                                                node.getOperator(), left.getValue(), right.getValue(),<a name="line.832"></a>
+<span class="sourceLineNo">833</span>                                                temp));<a name="line.833"></a>
+<span class="sourceLineNo">834</span><a name="line.834"></a>
+<span class="sourceLineNo">835</span>                                this.intermediateResults.push(new IntermediateResult(temp,<a name="line.835"></a>
+<span class="sourceLineNo">836</span>                                                new LongType()));<a name="line.836"></a>
+<span class="sourceLineNo">837</span>                        } else if (left.getType() instanceof DoubleType) {<a name="line.837"></a>
+<span class="sourceLineNo">838</span>                                // both values are of type DOUBLE<a name="line.838"></a>
+<span class="sourceLineNo">839</span>                                String temp = this.createAndSaveTemporaryIdentifier(new DoubleType());<a name="line.839"></a>
+<span class="sourceLineNo">840</span>                                this.irCode.add(QuadrupleFactory.doubleArithmeticBinaryOperation(<a name="line.840"></a>
+<span class="sourceLineNo">841</span>                                                node.getOperator(), left.getValue(), right.getValue(),<a name="line.841"></a>
+<span class="sourceLineNo">842</span>                                                temp));<a name="line.842"></a>
+<span class="sourceLineNo">843</span><a name="line.843"></a>
+<span class="sourceLineNo">844</span>                                this.intermediateResults.push(new IntermediateResult(temp,<a name="line.844"></a>
+<span class="sourceLineNo">845</span>                                                new DoubleType()));<a name="line.845"></a>
+<span class="sourceLineNo">846</span>                        } else {<a name="line.846"></a>
+<span class="sourceLineNo">847</span>                                // this is an unsupported combination of types<a name="line.847"></a>
+<span class="sourceLineNo">848</span>                                String err = "Arithmetic Binary Expression with arguments of types %s and %s is not supported";<a name="line.848"></a>
+<span class="sourceLineNo">849</span>                                String errf = String.format(err, left.getType().toString(),<a name="line.849"></a>
+<span class="sourceLineNo">850</span>                                                right.getType().toString());<a name="line.850"></a>
+<span class="sourceLineNo">851</span>                                logger.fatal(errf);<a name="line.851"></a>
+<span class="sourceLineNo">852</span>                                throw new IntermediateCodeGeneratorException(errf,<a name="line.852"></a>
+<span class="sourceLineNo">853</span>                                                new UnsupportedOperationException());<a name="line.853"></a>
+<span class="sourceLineNo">854</span>                        }<a name="line.854"></a>
+<span class="sourceLineNo">855</span>                } else {<a name="line.855"></a>
+<span class="sourceLineNo">856</span>                        // A cast is needed.<a name="line.856"></a>
+<span class="sourceLineNo">857</span>                        // Only LONG and DOUBLE types are valid for arithmetic operations<a name="line.857"></a>
+<span class="sourceLineNo">858</span>                        // We will always cast to type DOUBLE as it is more precise than<a name="line.858"></a>
+<span class="sourceLineNo">859</span>                        // LONG<a name="line.859"></a>
+<span class="sourceLineNo">860</span>                        // and nothing will be lost during the conversion<a name="line.860"></a>
+<span class="sourceLineNo">861</span>                        if (left.getType() instanceof LongType) {<a name="line.861"></a>
+<span class="sourceLineNo">862</span>                                // the left value is of type LONG, so it needs to be casted<a name="line.862"></a>
+<span class="sourceLineNo">863</span>                                String temp = this.createAndSaveTemporaryIdentifier(new DoubleType());<a name="line.863"></a>
+<span class="sourceLineNo">864</span>                                String temp2 = this.createAndSaveTemporaryIdentifier(new DoubleType());<a name="line.864"></a>
+<span class="sourceLineNo">865</span>                                this.irCode.add(CastingFactory.createCast(left.getType(),<a name="line.865"></a>
+<span class="sourceLineNo">866</span>                                                left.getValue(), new DoubleType(), temp));<a name="line.866"></a>
+<span class="sourceLineNo">867</span>                                this.irCode.add(QuadrupleFactory.doubleArithmeticBinaryOperation(<a name="line.867"></a>
+<span class="sourceLineNo">868</span>                                                node.getOperator(), temp, right.getValue(), temp2));<a name="line.868"></a>
+<span class="sourceLineNo">869</span><a name="line.869"></a>
+<span class="sourceLineNo">870</span>                                this.intermediateResults.push(new IntermediateResult(temp2,<a name="line.870"></a>
+<span class="sourceLineNo">871</span>                                                new DoubleType()));<a name="line.871"></a>
+<span class="sourceLineNo">872</span>                        } else if (right.getType() instanceof LongType) {<a name="line.872"></a>
+<span class="sourceLineNo">873</span>                                // the right value is of type LONG, so it needs to be casted<a name="line.873"></a>
+<span class="sourceLineNo">874</span>                                String temp = this.createAndSaveTemporaryIdentifier(new DoubleType());<a name="line.874"></a>
+<span class="sourceLineNo">875</span>                                String temp2 = this.createAndSaveTemporaryIdentifier(new DoubleType());<a name="line.875"></a>
+<span class="sourceLineNo">876</span>                                this.irCode.add(CastingFactory.createCast(right.getType(),<a name="line.876"></a>
+<span class="sourceLineNo">877</span>                                                right.getValue(), new DoubleType(), temp));<a name="line.877"></a>
+<span class="sourceLineNo">878</span>                                this.irCode.add(QuadrupleFactory.doubleArithmeticBinaryOperation(<a name="line.878"></a>
+<span class="sourceLineNo">879</span>                                                node.getOperator(), left.getValue(), temp, temp2));<a name="line.879"></a>
+<span class="sourceLineNo">880</span><a name="line.880"></a>
+<span class="sourceLineNo">881</span>                                this.intermediateResults.push(new IntermediateResult(temp2,<a name="line.881"></a>
+<span class="sourceLineNo">882</span>                                                new DoubleType()));<a name="line.882"></a>
+<span class="sourceLineNo">883</span>                        } else {<a name="line.883"></a>
+<span class="sourceLineNo">884</span>                                // this combinations of types is not supported<a name="line.884"></a>
+<span class="sourceLineNo">885</span>                                String err = "Arithmetic Binary Expression with arguments of types %s and %s is not supported";<a name="line.885"></a>
+<span class="sourceLineNo">886</span>                                String errf = String.format(err, left.getType().toString(),<a name="line.886"></a>
+<span class="sourceLineNo">887</span>                                                right.getType().toString());<a name="line.887"></a>
+<span class="sourceLineNo">888</span>                                logger.fatal(errf);<a name="line.888"></a>
+<span class="sourceLineNo">889</span>                                throw new IntermediateCodeGeneratorException(errf,<a name="line.889"></a>
+<span class="sourceLineNo">890</span>                                                new UnsupportedOperationException());<a name="line.890"></a>
+<span class="sourceLineNo">891</span>                        }<a name="line.891"></a>
+<span class="sourceLineNo">892</span>                }<a name="line.892"></a>
+<span class="sourceLineNo">893</span><a name="line.893"></a>
+<span class="sourceLineNo">894</span>        }<a name="line.894"></a>
+<span class="sourceLineNo">895</span><a name="line.895"></a>
+<span class="sourceLineNo">896</span>        /**<a name="line.896"></a>
+<span class="sourceLineNo">897</span>         * Save the given identifier to the interal store of variables<a name="line.897"></a>
+<span class="sourceLineNo">898</span>         * <a name="line.898"></a>
+<span class="sourceLineNo">899</span>         * @param identifier<a name="line.899"></a>
+<span class="sourceLineNo">900</span>         *            The name of the variable<a name="line.900"></a>
+<span class="sourceLineNo">901</span>         * @param type<a name="line.901"></a>
+<span class="sourceLineNo">902</span>         *            the type of the variable<a name="line.902"></a>
+<span class="sourceLineNo">903</span>         * @return The renamed name of the variable that was stored<a name="line.903"></a>
+<span class="sourceLineNo">904</span>         * @throws IntermediateCodeGeneratorException<a name="line.904"></a>
+<span class="sourceLineNo">905</span>         *             an exception occurred<a name="line.905"></a>
+<span class="sourceLineNo">906</span>         */<a name="line.906"></a>
+<span class="sourceLineNo">907</span>        private String saveIdentifier(String identifier, Type type)<a name="line.907"></a>
+<span class="sourceLineNo">908</span>                        throws IntermediateCodeGeneratorException {<a name="line.908"></a>
+<span class="sourceLineNo">909</span>                if (!this.usedNames.contains(identifier)) {<a name="line.909"></a>
+<span class="sourceLineNo">910</span>                        // an identifier with this name was not yet used.<a name="line.910"></a>
+<span class="sourceLineNo">911</span>                        // it does not need to be renamed to stick to SSA<a name="line.911"></a>
+<span class="sourceLineNo">912</span>                        this.usedNames.add(identifier);<a name="line.912"></a>
+<span class="sourceLineNo">913</span>                        this.irCode.addAll(QuadrupleFactory.declaration(identifier, type));<a name="line.913"></a>
+<span class="sourceLineNo">914</span>                        return identifier;<a name="line.914"></a>
+<span class="sourceLineNo">915</span>                } else {<a name="line.915"></a>
+<span class="sourceLineNo">916</span>                        // rename is required to keep single static assignment<a name="line.916"></a>
+<span class="sourceLineNo">917</span>                        String newName = this.currentSymbolTable.peek().getNextFreeTemporary();<a name="line.917"></a>
+<span class="sourceLineNo">918</span>                        this.currentSymbolTable.peek().putTemporary(newName, type);<a name="line.918"></a>
+<span class="sourceLineNo">919</span>                        this.usedNames.add(newName);<a name="line.919"></a>
+<span class="sourceLineNo">920</span>                        this.currentSymbolTable.peek().setIdentifierAlias(identifier, newName);<a name="line.920"></a>
+<span class="sourceLineNo">921</span>                        this.irCode.addAll(QuadrupleFactory.declaration(newName, type));<a name="line.921"></a>
+<span class="sourceLineNo">922</span>                        return newName;<a name="line.922"></a>
+<span class="sourceLineNo">923</span>                }<a name="line.923"></a>
+<span class="sourceLineNo">924</span>        }<a name="line.924"></a>
+<span class="sourceLineNo">925</span><a name="line.925"></a>
+<span class="sourceLineNo">926</span>        /**<a name="line.926"></a>
+<span class="sourceLineNo">927</span>         * Create a new temporary value and save it to the internal store of<a name="line.927"></a>
+<span class="sourceLineNo">928</span>         * variables<a name="line.928"></a>
+<span class="sourceLineNo">929</span>         * <a name="line.929"></a>
+<span class="sourceLineNo">930</span>         * @param type<a name="line.930"></a>
+<span class="sourceLineNo">931</span>         *            The type of the new variable<a name="line.931"></a>
+<span class="sourceLineNo">932</span>         * @return The name of the new variable<a name="line.932"></a>
+<span class="sourceLineNo">933</span>         * @throws IntermediateCodeGeneratorException<a name="line.933"></a>
+<span class="sourceLineNo">934</span>         *             An error occurred<a name="line.934"></a>
+<span class="sourceLineNo">935</span>         */<a name="line.935"></a>
+<span class="sourceLineNo">936</span>        private String createAndSaveTemporaryIdentifier(Type type)<a name="line.936"></a>
+<span class="sourceLineNo">937</span>                        throws IntermediateCodeGeneratorException {<a name="line.937"></a>
+<span class="sourceLineNo">938</span>                // Condition: getNextFreeTemporary never returns a name that was already<a name="line.938"></a>
+<span class="sourceLineNo">939</span>                // used in the IR until now<a name="line.939"></a>
+<span class="sourceLineNo">940</span>                // (globally unique names)<a name="line.940"></a>
+<span class="sourceLineNo">941</span>                String id = this.currentSymbolTable.peek().getNextFreeTemporary();<a name="line.941"></a>
+<span class="sourceLineNo">942</span>                this.currentSymbolTable.peek().putTemporary(id, type);<a name="line.942"></a>
+<span class="sourceLineNo">943</span>                this.usedNames.add(id);<a name="line.943"></a>
+<span class="sourceLineNo">944</span>                this.irCode.addAll(QuadrupleFactory.declaration(id, type));<a name="line.944"></a>
+<span class="sourceLineNo">945</span>                return id;<a name="line.945"></a>
+<span class="sourceLineNo">946</span>        }<a name="line.946"></a>
+<span class="sourceLineNo">947</span><a name="line.947"></a>
+<span class="sourceLineNo">948</span>        /**<a name="line.948"></a>
+<span class="sourceLineNo">949</span>         * Create a new temporary variable reference and save it to the internal<a name="line.949"></a>
+<span class="sourceLineNo">950</span>         * store of variables<a name="line.950"></a>
+<span class="sourceLineNo">951</span>         * <a name="line.951"></a>
+<span class="sourceLineNo">952</span>         * @param type<a name="line.952"></a>
+<span class="sourceLineNo">953</span>         *            The type of the new variable reference<a name="line.953"></a>
+<span class="sourceLineNo">954</span>         * @return The name of the new variable<a name="line.954"></a>
+<span class="sourceLineNo">955</span>         * @throws IntermediateCodeGeneratorException<a name="line.955"></a>
+<span class="sourceLineNo">956</span>         *             An error occurred<a name="line.956"></a>
+<span class="sourceLineNo">957</span>         */<a name="line.957"></a>
+<span class="sourceLineNo">958</span>        private String createAndSaveTemporaryIdentifierReference(Type type)<a name="line.958"></a>
+<span class="sourceLineNo">959</span>                        throws IntermediateCodeGeneratorException {<a name="line.959"></a>
+<span class="sourceLineNo">960</span>                String id = this.currentSymbolTable.peek().getNextFreeTemporary();<a name="line.960"></a>
+<span class="sourceLineNo">961</span>                this.currentSymbolTable.peek().putTemporary(id, type);<a name="line.961"></a>
+<span class="sourceLineNo">962</span>                this.usedNames.add(id);<a name="line.962"></a>
+<span class="sourceLineNo">963</span>                this.irCode.add(new QuadrupleImpl(Operator.DECLARE_REFERENCE,<a name="line.963"></a>
+<span class="sourceLineNo">964</span>                                Quadruple.EmptyArgument, Quadruple.EmptyArgument, id));<a name="line.964"></a>
+<span class="sourceLineNo">965</span>                return id;<a name="line.965"></a>
+<span class="sourceLineNo">966</span>        }<a name="line.966"></a>
+<span class="sourceLineNo">967</span><a name="line.967"></a>
+<span class="sourceLineNo">968</span>        /**<a name="line.968"></a>
+<span class="sourceLineNo">969</span>         * Load the given identifier and return its actual name (if renaming was<a name="line.969"></a>
+<span class="sourceLineNo">970</span>         * done)<a name="line.970"></a>
+<span class="sourceLineNo">971</span>         * <a name="line.971"></a>
+<span class="sourceLineNo">972</span>         * @param id<a name="line.972"></a>
+<span class="sourceLineNo">973</span>         *            The identifier name to load<a name="line.973"></a>
+<span class="sourceLineNo">974</span>         * @return The actual name of the identifier<a name="line.974"></a>
+<span class="sourceLineNo">975</span>         * @throws IntermediateCodeGeneratorException<a name="line.975"></a>
+<span class="sourceLineNo">976</span>         *             Identifier was not found<a name="line.976"></a>
+<span class="sourceLineNo">977</span>         */<a name="line.977"></a>
+<span class="sourceLineNo">978</span>        private String loadIdentifier(String id)<a name="line.978"></a>
+<span class="sourceLineNo">979</span>                        throws IntermediateCodeGeneratorException {<a name="line.979"></a>
+<span class="sourceLineNo">980</span>                String name = this.currentSymbolTable.peek().getIdentifierAlias(id);<a name="line.980"></a>
+<span class="sourceLineNo">981</span>                if (name == null) {<a name="line.981"></a>
+<span class="sourceLineNo">982</span>                        logger.fatal("Undeclared variable found: " + id);<a name="line.982"></a>
+<span class="sourceLineNo">983</span>                        throw new IntermediateCodeGeneratorException(<a name="line.983"></a>
+<span class="sourceLineNo">984</span>                                        "Undeclared variable found: " + id);<a name="line.984"></a>
+<span class="sourceLineNo">985</span>                }<a name="line.985"></a>
+<span class="sourceLineNo">986</span>                return name;<a name="line.986"></a>
+<span class="sourceLineNo">987</span>        }<a name="line.987"></a>
+<span class="sourceLineNo">988</span><a name="line.988"></a>
+<span class="sourceLineNo">989</span>        /**<a name="line.989"></a>
+<span class="sourceLineNo">990</span>         * Get a new free label name<a name="line.990"></a>
+<span class="sourceLineNo">991</span>         * <a name="line.991"></a>
+<span class="sourceLineNo">992</span>         * @return The label name<a name="line.992"></a>
+<span class="sourceLineNo">993</span>         */<a name="line.993"></a>
+<span class="sourceLineNo">994</span>        private String createNewLabel() {<a name="line.994"></a>
+<span class="sourceLineNo">995</span>                return "label" + (labelNum++);<a name="line.995"></a>
+<span class="sourceLineNo">996</span>        }<a name="line.996"></a>
+<span class="sourceLineNo">997</span>}<a name="line.997"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>
