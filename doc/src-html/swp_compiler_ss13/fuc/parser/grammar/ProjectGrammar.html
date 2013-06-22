@@ -1,0 +1,264 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>package swp_compiler_ss13.fuc.parser.grammar;<a name="line.1"></a>
+<span class="sourceLineNo">002</span><a name="line.2"></a>
+<span class="sourceLineNo">003</span>import swp_compiler_ss13.common.lexer.TokenType;<a name="line.3"></a>
+<span class="sourceLineNo">004</span><a name="line.4"></a>
+<span class="sourceLineNo">005</span>/**<a name="line.5"></a>
+<span class="sourceLineNo">006</span> * This classes define our grammar as specified in the requirements for the<a name="line.6"></a>
+<span class="sourceLineNo">007</span> * separate milestones<a name="line.7"></a>
+<span class="sourceLineNo">008</span> * <a name="line.8"></a>
+<span class="sourceLineNo">009</span> * @see GrammarSpec<a name="line.9"></a>
+<span class="sourceLineNo">010</span> * @author Gero<a name="line.10"></a>
+<span class="sourceLineNo">011</span> */<a name="line.11"></a>
+<span class="sourceLineNo">012</span>public class ProjectGrammar {<a name="line.12"></a>
+<span class="sourceLineNo">013</span>        public static class Complete extends GrammarSpec {<a name="line.13"></a>
+<span class="sourceLineNo">014</span>                public static final Terminal lcb = new Terminal("{",<a name="line.14"></a>
+<span class="sourceLineNo">015</span>                                TokenType.LEFT_BRACE);<a name="line.15"></a>
+<span class="sourceLineNo">016</span>                public static final Terminal rcb = new Terminal("}",<a name="line.16"></a>
+<span class="sourceLineNo">017</span>                                TokenType.RIGHT_BRACE);<a name="line.17"></a>
+<span class="sourceLineNo">018</span>                public static final Terminal id = new Terminal("id", TokenType.ID);<a name="line.18"></a>
+<span class="sourceLineNo">019</span>                public static final Terminal sem = new Terminal(";",<a name="line.19"></a>
+<span class="sourceLineNo">020</span>                                TokenType.SEMICOLON);<a name="line.20"></a>
+<span class="sourceLineNo">021</span>                public static final Terminal lsb = new Terminal("[",<a name="line.21"></a>
+<span class="sourceLineNo">022</span>                                TokenType.LEFT_BRACKET);<a name="line.22"></a>
+<span class="sourceLineNo">023</span>                public static final Terminal rsb = new Terminal("]",<a name="line.23"></a>
+<span class="sourceLineNo">024</span>                                TokenType.RIGHT_BRACKET);<a name="line.24"></a>
+<span class="sourceLineNo">025</span>                public static final Terminal record = new Terminal("record",<a name="line.25"></a>
+<span class="sourceLineNo">026</span>                                TokenType.RECORD_SYMBOL);<a name="line.26"></a>
+<span class="sourceLineNo">027</span><a name="line.27"></a>
+<span class="sourceLineNo">028</span>                public static final Terminal iff = new Terminal("if", TokenType.IF);<a name="line.28"></a>
+<span class="sourceLineNo">029</span>                public static final Terminal lb = new Terminal("(",<a name="line.29"></a>
+<span class="sourceLineNo">030</span>                                TokenType.LEFT_PARAN);<a name="line.30"></a>
+<span class="sourceLineNo">031</span>                public static final Terminal rb = new Terminal(")",<a name="line.31"></a>
+<span class="sourceLineNo">032</span>                                TokenType.RIGHT_PARAN);<a name="line.32"></a>
+<span class="sourceLineNo">033</span>                public static final Terminal elsee = new Terminal("else",<a name="line.33"></a>
+<span class="sourceLineNo">034</span>                                TokenType.ELSE);<a name="line.34"></a>
+<span class="sourceLineNo">035</span>                public static final Terminal whilee = new Terminal("while",<a name="line.35"></a>
+<span class="sourceLineNo">036</span>                                TokenType.WHILE);<a name="line.36"></a>
+<span class="sourceLineNo">037</span>                public static final Terminal doo = new Terminal("do", TokenType.DO);<a name="line.37"></a>
+<span class="sourceLineNo">038</span>                public static final Terminal breakk = new Terminal("break",<a name="line.38"></a>
+<span class="sourceLineNo">039</span>                                TokenType.BREAK);<a name="line.39"></a>
+<span class="sourceLineNo">040</span>                public static final Terminal returnn = new Terminal("return",<a name="line.40"></a>
+<span class="sourceLineNo">041</span>                                TokenType.RETURN);<a name="line.41"></a>
+<span class="sourceLineNo">042</span>                public static final Terminal print = new Terminal("print",<a name="line.42"></a>
+<span class="sourceLineNo">043</span>                                TokenType.PRINT);<a name="line.43"></a>
+<span class="sourceLineNo">044</span>                public static final Terminal dot = new Terminal(".", TokenType.DOT);<a name="line.44"></a>
+<span class="sourceLineNo">045</span>                public static final Terminal assignop = new Terminal("=",<a name="line.45"></a>
+<span class="sourceLineNo">046</span>                                TokenType.ASSIGNOP);<a name="line.46"></a>
+<span class="sourceLineNo">047</span>                public static final Terminal orop = new Terminal("||", TokenType.OR);<a name="line.47"></a>
+<span class="sourceLineNo">048</span>                public static final Terminal andop = new Terminal("&amp;&amp;", TokenType.AND);<a name="line.48"></a>
+<span class="sourceLineNo">049</span>                public static final Terminal equalop = new Terminal("==",<a name="line.49"></a>
+<span class="sourceLineNo">050</span>                                TokenType.EQUALS);<a name="line.50"></a>
+<span class="sourceLineNo">051</span>                public static final Terminal notequalop = new Terminal("!=",<a name="line.51"></a>
+<span class="sourceLineNo">052</span>                                TokenType.NOT_EQUALS);<a name="line.52"></a>
+<span class="sourceLineNo">053</span>                public static final Terminal lt = new Terminal("&lt;", TokenType.LESS);<a name="line.53"></a>
+<span class="sourceLineNo">054</span>                public static final Terminal lte = new Terminal("&lt;=",<a name="line.54"></a>
+<span class="sourceLineNo">055</span>                                TokenType.LESS_OR_EQUAL);<a name="line.55"></a>
+<span class="sourceLineNo">056</span>                public static final Terminal gte = new Terminal("&gt;=",<a name="line.56"></a>
+<span class="sourceLineNo">057</span>                                TokenType.GREATER_EQUAL);<a name="line.57"></a>
+<span class="sourceLineNo">058</span>                public static final Terminal gt = new Terminal("&gt;", TokenType.GREATER);<a name="line.58"></a>
+<span class="sourceLineNo">059</span>                public static final Terminal plus = new Terminal("+", TokenType.PLUS);<a name="line.59"></a>
+<span class="sourceLineNo">060</span>                public static final Terminal minus = new Terminal("-", TokenType.MINUS);<a name="line.60"></a>
+<span class="sourceLineNo">061</span>                public static final Terminal times = new Terminal("*", TokenType.TIMES);<a name="line.61"></a>
+<span class="sourceLineNo">062</span>                public static final Terminal div = new Terminal("/", TokenType.DIVIDE);<a name="line.62"></a>
+<span class="sourceLineNo">063</span>                public static final Terminal not = new Terminal("!", TokenType.NOT);<a name="line.63"></a>
+<span class="sourceLineNo">064</span>                public static final Terminal num = new Terminal("num", TokenType.NUM);<a name="line.64"></a>
+<span class="sourceLineNo">065</span>                public static final Terminal real = new Terminal("real", TokenType.REAL);<a name="line.65"></a>
+<span class="sourceLineNo">066</span>                public static final Terminal basic = new Terminal("basic",<a name="line.66"></a>
+<span class="sourceLineNo">067</span>                                TokenType.LONG_SYMBOL, TokenType.DOUBLE_SYMBOL,<a name="line.67"></a>
+<span class="sourceLineNo">068</span>                                TokenType.BOOL_SYMBOL, TokenType.STRING_SYMBOL);<a name="line.68"></a>
+<span class="sourceLineNo">069</span>                public static final Terminal truee = new Terminal("true",<a name="line.69"></a>
+<span class="sourceLineNo">070</span>                                TokenType.TRUE);<a name="line.70"></a>
+<span class="sourceLineNo">071</span>                public static final Terminal falsee = new Terminal("false",<a name="line.71"></a>
+<span class="sourceLineNo">072</span>                                TokenType.FALSE);<a name="line.72"></a>
+<span class="sourceLineNo">073</span>                public static final Terminal stringg = new Terminal("string",<a name="line.73"></a>
+<span class="sourceLineNo">074</span>                                TokenType.STRING);<a name="line.74"></a>
+<span class="sourceLineNo">075</span><a name="line.75"></a>
+<span class="sourceLineNo">076</span>                public static final NonTerminal program = new NonTerminal("program");<a name="line.76"></a>
+<span class="sourceLineNo">077</span>                public static final NonTerminal block = new NonTerminal("block");<a name="line.77"></a>
+<span class="sourceLineNo">078</span>                public static final NonTerminal decls = new NonTerminal("decls");<a name="line.78"></a>
+<span class="sourceLineNo">079</span>                public static final NonTerminal decl = new NonTerminal("decl");<a name="line.79"></a>
+<span class="sourceLineNo">080</span>                public static final NonTerminal type = new NonTerminal("type");<a name="line.80"></a>
+<span class="sourceLineNo">081</span>                public static final NonTerminal stmts = new NonTerminal("stmts");<a name="line.81"></a>
+<span class="sourceLineNo">082</span>                public static final NonTerminal stmt = new NonTerminal("stmt");<a name="line.82"></a>
+<span class="sourceLineNo">083</span>                public static final NonTerminal loc = new NonTerminal("loc");<a name="line.83"></a>
+<span class="sourceLineNo">084</span>                public static final NonTerminal assign = new NonTerminal("assign");<a name="line.84"></a>
+<span class="sourceLineNo">085</span>                public static final NonTerminal bool = new NonTerminal("bool");<a name="line.85"></a>
+<span class="sourceLineNo">086</span>                public static final NonTerminal join = new NonTerminal("join");<a name="line.86"></a>
+<span class="sourceLineNo">087</span>                public static final NonTerminal equality = new NonTerminal("equality");<a name="line.87"></a>
+<span class="sourceLineNo">088</span>                public static final NonTerminal rel = new NonTerminal("rel");<a name="line.88"></a>
+<span class="sourceLineNo">089</span>                public static final NonTerminal expr = new NonTerminal("expr");<a name="line.89"></a>
+<span class="sourceLineNo">090</span>                public static final NonTerminal term = new NonTerminal("term");<a name="line.90"></a>
+<span class="sourceLineNo">091</span>                public static final NonTerminal unary = new NonTerminal("unary");<a name="line.91"></a>
+<span class="sourceLineNo">092</span>                public static final NonTerminal factor = new NonTerminal("factor");<a name="line.92"></a>
+<span class="sourceLineNo">093</span><a name="line.93"></a>
+<span class="sourceLineNo">094</span>                public static final Production program1 = new Production(0, program,<a name="line.94"></a>
+<span class="sourceLineNo">095</span>                                decls, stmts);<a name="line.95"></a>
+<span class="sourceLineNo">096</span>                public static final Production block1 = new Production(1, block, lcb,<a name="line.96"></a>
+<span class="sourceLineNo">097</span>                                decls, stmts, rcb);<a name="line.97"></a>
+<span class="sourceLineNo">098</span>                public static final Production decls1 = new Production(2, decls, decls,<a name="line.98"></a>
+<span class="sourceLineNo">099</span>                                decl);<a name="line.99"></a>
+<span class="sourceLineNo">100</span>                public static final Production decls2 = new Production(3, decls,<a name="line.100"></a>
+<span class="sourceLineNo">101</span>                                Terminal.Epsilon);<a name="line.101"></a>
+<span class="sourceLineNo">102</span>                public static final Production decl1 = new Production(4, decl, type,<a name="line.102"></a>
+<span class="sourceLineNo">103</span>                                id, sem);<a name="line.103"></a>
+<span class="sourceLineNo">104</span>                public static final Production type1 = new Production(5, type, type,<a name="line.104"></a>
+<span class="sourceLineNo">105</span>                                lsb, num, rsb);<a name="line.105"></a>
+<span class="sourceLineNo">106</span>                public static final Production type2 = new Production(6, type, basic);<a name="line.106"></a>
+<span class="sourceLineNo">107</span>                public static final Production type3 = new Production(7, type, record,<a name="line.107"></a>
+<span class="sourceLineNo">108</span>                                lcb, decls, rcb);<a name="line.108"></a>
+<span class="sourceLineNo">109</span>                public static final Production stmts1 = new Production(8, stmts, stmts,<a name="line.109"></a>
+<span class="sourceLineNo">110</span>                                stmt);<a name="line.110"></a>
+<span class="sourceLineNo">111</span>                public static final Production stmts2 = new Production(9, stmts,<a name="line.111"></a>
+<span class="sourceLineNo">112</span>                                Terminal.Epsilon);<a name="line.112"></a>
+<span class="sourceLineNo">113</span>                public static final Production stmt1 = new Production(10, stmt, assign,<a name="line.113"></a>
+<span class="sourceLineNo">114</span>                                sem);<a name="line.114"></a>
+<span class="sourceLineNo">115</span>                public static final Production stmt2 = new Production(11, stmt, iff,<a name="line.115"></a>
+<span class="sourceLineNo">116</span>                                lb, assign, rb, stmt);<a name="line.116"></a>
+<span class="sourceLineNo">117</span>                public static final Production stmt3 = new Production(12, stmt, iff,<a name="line.117"></a>
+<span class="sourceLineNo">118</span>                                lb, assign, rb, stmt, elsee, stmt);<a name="line.118"></a>
+<span class="sourceLineNo">119</span>                public static final Production stmt4 = new Production(13, stmt, whilee,<a name="line.119"></a>
+<span class="sourceLineNo">120</span>                                lb, assign, rb, stmt);<a name="line.120"></a>
+<span class="sourceLineNo">121</span>                public static final Production stmt9 = new Production(52, stmt, doo,<a name="line.121"></a>
+<span class="sourceLineNo">122</span>                                stmt, whilee, lb, assign, rb, sem);<a name="line.122"></a>
+<span class="sourceLineNo">123</span>                public static final Production stmt5 = new Production(14, stmt, breakk,<a name="line.123"></a>
+<span class="sourceLineNo">124</span>                                sem);<a name="line.124"></a>
+<span class="sourceLineNo">125</span>                public static final Production stmt6 = new Production(15, stmt,<a name="line.125"></a>
+<span class="sourceLineNo">126</span>                                returnn, sem);<a name="line.126"></a>
+<span class="sourceLineNo">127</span>                public static final Production stmt10 = new Production(15, stmt,<a name="line.127"></a>
+<span class="sourceLineNo">128</span>                                returnn, loc, sem);<a name="line.128"></a>
+<span class="sourceLineNo">129</span>                public static final Production stmt7 = new Production(16, stmt, print,<a name="line.129"></a>
+<span class="sourceLineNo">130</span>                                loc, sem);<a name="line.130"></a>
+<span class="sourceLineNo">131</span>                public static final Production stmt8 = new Production(17, stmt, block);<a name="line.131"></a>
+<span class="sourceLineNo">132</span>                public static final Production loc1 = new Production(18, loc, loc, lsb,<a name="line.132"></a>
+<span class="sourceLineNo">133</span>                                assign, rsb);<a name="line.133"></a>
+<span class="sourceLineNo">134</span>                public static final Production loc2 = new Production(19, loc, id);<a name="line.134"></a>
+<span class="sourceLineNo">135</span>                public static final Production loc3 = new Production(20, loc, loc, dot,<a name="line.135"></a>
+<span class="sourceLineNo">136</span>                                id);<a name="line.136"></a>
+<span class="sourceLineNo">137</span>                public static final Production assign1 = new Production(22, assign,<a name="line.137"></a>
+<span class="sourceLineNo">138</span>                                loc, assignop, assign);<a name="line.138"></a>
+<span class="sourceLineNo">139</span>                public static final Production assign2 = new Production(23, assign,<a name="line.139"></a>
+<span class="sourceLineNo">140</span>                                bool);<a name="line.140"></a>
+<span class="sourceLineNo">141</span>                public static final Production bool1 = new Production(24, bool, bool,<a name="line.141"></a>
+<span class="sourceLineNo">142</span>                                orop, join);<a name="line.142"></a>
+<span class="sourceLineNo">143</span>                public static final Production bool2 = new Production(25, bool, join);<a name="line.143"></a>
+<span class="sourceLineNo">144</span>                public static final Production join1 = new Production(26, join, join,<a name="line.144"></a>
+<span class="sourceLineNo">145</span>                                andop, equality);<a name="line.145"></a>
+<span class="sourceLineNo">146</span>                public static final Production join2 = new Production(27, join,<a name="line.146"></a>
+<span class="sourceLineNo">147</span>                                equality);<a name="line.147"></a>
+<span class="sourceLineNo">148</span>                public static final Production equality1 = new Production(28, equality,<a name="line.148"></a>
+<span class="sourceLineNo">149</span>                                equality, equalop, rel);<a name="line.149"></a>
+<span class="sourceLineNo">150</span>                public static final Production equality2 = new Production(29, equality,<a name="line.150"></a>
+<span class="sourceLineNo">151</span>                                notequalop, rel);<a name="line.151"></a>
+<span class="sourceLineNo">152</span>                public static final Production equality3 = new Production(30, equality,<a name="line.152"></a>
+<span class="sourceLineNo">153</span>                                rel);<a name="line.153"></a>
+<span class="sourceLineNo">154</span>                public static final Production rel1 = new Production(31, rel, expr, lt,<a name="line.154"></a>
+<span class="sourceLineNo">155</span>                                expr);<a name="line.155"></a>
+<span class="sourceLineNo">156</span>                public static final Production rel2 = new Production(32, rel, expr,<a name="line.156"></a>
+<span class="sourceLineNo">157</span>                                lte, expr);<a name="line.157"></a>
+<span class="sourceLineNo">158</span>                public static final Production rel3 = new Production(33, rel, expr,<a name="line.158"></a>
+<span class="sourceLineNo">159</span>                                gte, expr);<a name="line.159"></a>
+<span class="sourceLineNo">160</span>                public static final Production rel4 = new Production(34, rel, expr, gt,<a name="line.160"></a>
+<span class="sourceLineNo">161</span>                                expr);<a name="line.161"></a>
+<span class="sourceLineNo">162</span>                public static final Production rel5 = new Production(35, rel, expr);<a name="line.162"></a>
+<span class="sourceLineNo">163</span>                public static final Production expr1 = new Production(36, expr, expr,<a name="line.163"></a>
+<span class="sourceLineNo">164</span>                                plus, term);<a name="line.164"></a>
+<span class="sourceLineNo">165</span>                public static final Production expr2 = new Production(37, expr, expr,<a name="line.165"></a>
+<span class="sourceLineNo">166</span>                                minus, term);<a name="line.166"></a>
+<span class="sourceLineNo">167</span>                public static final Production expr3 = new Production(38, expr, term);<a name="line.167"></a>
+<span class="sourceLineNo">168</span>                public static final Production term1 = new Production(39, term, term,<a name="line.168"></a>
+<span class="sourceLineNo">169</span>                                times, unary);<a name="line.169"></a>
+<span class="sourceLineNo">170</span>                public static final Production term2 = new Production(40, term, term,<a name="line.170"></a>
+<span class="sourceLineNo">171</span>                                div, unary);<a name="line.171"></a>
+<span class="sourceLineNo">172</span>                public static final Production term3 = new Production(41, term, unary);<a name="line.172"></a>
+<span class="sourceLineNo">173</span>                public static final Production unary1 = new Production(42, unary, not,<a name="line.173"></a>
+<span class="sourceLineNo">174</span>                                unary);<a name="line.174"></a>
+<span class="sourceLineNo">175</span>                public static final Production unary2 = new Production(43, unary,<a name="line.175"></a>
+<span class="sourceLineNo">176</span>                                minus, unary);<a name="line.176"></a>
+<span class="sourceLineNo">177</span>                public static final Production unary3 = new Production(44, unary,<a name="line.177"></a>
+<span class="sourceLineNo">178</span>                                factor);<a name="line.178"></a>
+<span class="sourceLineNo">179</span>                public static final Production factor1 = new Production(45, factor, lb,<a name="line.179"></a>
+<span class="sourceLineNo">180</span>                                assign, rb);<a name="line.180"></a>
+<span class="sourceLineNo">181</span>                public static final Production factor2 = new Production(46, factor, loc);<a name="line.181"></a>
+<span class="sourceLineNo">182</span>                public static final Production factor3 = new Production(47, factor, num);<a name="line.182"></a>
+<span class="sourceLineNo">183</span>                public static final Production factor4 = new Production(48, factor,<a name="line.183"></a>
+<span class="sourceLineNo">184</span>                                real);<a name="line.184"></a>
+<span class="sourceLineNo">185</span>                public static final Production factor5 = new Production(49, factor,<a name="line.185"></a>
+<span class="sourceLineNo">186</span>                                truee);<a name="line.186"></a>
+<span class="sourceLineNo">187</span>                public static final Production factor6 = new Production(50, factor,<a name="line.187"></a>
+<span class="sourceLineNo">188</span>                                falsee);<a name="line.188"></a>
+<span class="sourceLineNo">189</span>                public static final Production factor7 = new Production(51, factor,<a name="line.189"></a>
+<span class="sourceLineNo">190</span>                                stringg);<a name="line.190"></a>
+<span class="sourceLineNo">191</span>        }<a name="line.191"></a>
+<span class="sourceLineNo">192</span>}<a name="line.192"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>
