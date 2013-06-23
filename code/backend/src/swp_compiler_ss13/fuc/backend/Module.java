@@ -3,6 +3,10 @@ package swp_compiler_ss13.fuc.backend;
 import swp_compiler_ss13.common.backend.BackendException;
 import swp_compiler_ss13.common.backend.Quadruple;
 
+import swp_compiler_ss13.common.types.*;
+import swp_compiler_ss13.common.types.primitive.*;
+import swp_compiler_ss13.common.types.derived.*;
+
 import java.io.PrintWriter;
 import java.util.*;
 import java.io.UnsupportedEncodingException;
@@ -47,7 +51,6 @@ public class Module
 	 *
 	 */
 	private Map<String,Integer> variableUseCount;
-	private Set<String> variableIsReference;
 
 	/**
 	 * The <code>PrintWriter</code> which
@@ -57,6 +60,8 @@ public class Module
 	private PrintWriter out;
 
 	private Map<String,Map.Entry<String,List<Long>>> references;
+
+	private Map<String,DerivedType> derivedTypes;
 
 	/**
 	 * Creates a new <code>Module</code> instance.
@@ -80,8 +85,8 @@ public class Module
 	{
 		stringLiterals = new ArrayList<Integer>();
 		variableUseCount = new HashMap<String,Integer>();
-		variableIsReference = new HashSet<String>();
 		references = new HashMap<String,Map.Entry<String,List<Long>>>();
+		derivedTypes = new HashMap<String,DerivedType>();
 
 		/* Add fake temporary variable */
 		variableUseCount.put(".tmp", 0);
@@ -190,10 +195,6 @@ public class Module
 		irType.trim();
 		return irType + (as_ptr ? "*" : "");
 	}
-
-	// stores the types of array variables and references,
-	//  necessary due to TAC design decisions and strict typing policy in LLVM-IR.
-	private Map<String,ArrayType> arNamespace = new HashMap<String,ArrayType>();
 
 	/**
 	 * Gets the LLVM IR instruction for a binary TAC operator
@@ -457,18 +458,12 @@ public class Module
 		return variableIdentifier;
 	}
 
-	public void addNewReference(String ident)
+	public String addArrayDeclare(LLVMBackendArrayType type, String identifier)
 	{
-		variableUseCount.put(ident, 0);
-		variableIsReference.add(ident);
-	}
-
-	public String addArrayDeclare(Kind type, List<Integer> sizes, String identifier)
-	{
-		String irType = getIRAType(type,sizes);
+		String irType = getIRAType(type.getStorageTypeKind(), type.getDimensions());
 		String variableIdentifier = "%" + identifier;
 		variableUseCount.put(identifier, 0);
-		arNamespace.put(identifier, new ArrayType(sizes,type));
+		derivedTypes.put(identifier, type);
 		gen(variableIdentifier + " = alloca " + irType);
 		return variableIdentifier;
 	}
@@ -616,8 +611,16 @@ public class Module
 
 		String srcUseIdentifier = getUseIdentifierForVariable(src);
 		String srcIdentifier = "%" + src;
-		ArrayType srcArType = arNamespace.get(src);
-		String srcIRType = getIRAType(srcArType.storage_type, srcArType.dimensions);
+		LLVMBackendArrayType srcArType = null;
+		DerivedType _srcArType = derivedTypes.get(src);
+		if(_srcArType instanceof LLVMBackendArrayType) {
+			srcArType = (LLVMBackendArrayType) _srcArType;
+		}
+		else {
+			throw new BackendException("Source type for ARRAY_GET_* must be instance of LLVMBackendArrayType, not " + _srcArType.getClass().getName());
+		}
+
+		String srcIRType = getIRAType(srcArType.getStorageTypeKind(), srcArType.getDimensions());
 
 		gen(srcUseIdentifier + " = load " + srcIRType + "* " + srcIdentifier);
 		gen(dstUseIdentifier + " = extractvalue " + srcIRType + " " + srcUseIdentifier + indexList);
@@ -645,8 +648,15 @@ public class Module
 		String dstUseIdentifier1 = getUseIdentifierForVariable(dst);
 		String dstUseIdentifier2 = getUseIdentifierForVariable(dst);
 		String dstIdentifier = "%" + dst;
-		ArrayType dstArType = arNamespace.get(dst);
-		String dstIRType = getIRAType(dstArType.storage_type, dstArType.dimensions);
+		LLVMBackendArrayType dstArType = null;
+		DerivedType _dstArType = derivedTypes.get(dst);
+		if(_dstArType instanceof LLVMBackendArrayType) {
+			dstArType = (LLVMBackendArrayType) _dstArType;
+		}
+		else {
+			throw new BackendException("Source type for ARRAY_GET_* must be instance of LLVMBackendArrayType, not " + _dstArType.getClass().getName());
+		}
+		String dstIRType = getIRAType(dstArType.getStorageTypeKind(), dstArType.getDimensions());
 
 		src = cdl(src, srcType);
 		gen(dstUseIdentifier1 + " = load " + dstIRType + "* " + dstIdentifier);

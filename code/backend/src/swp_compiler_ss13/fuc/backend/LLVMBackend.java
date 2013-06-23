@@ -4,6 +4,8 @@ import swp_compiler_ss13.common.backend.Backend;
 import swp_compiler_ss13.common.backend.BackendException;
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.types.Type;
+import swp_compiler_ss13.common.types.primitive.*;
+import swp_compiler_ss13.common.types.derived.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -139,11 +141,11 @@ public class LLVMBackend implements Backend
 		return tac;
 	}
 
-	void parseArrayDeclaration(Module m, Iterator<Quadruple> tacIterator, String name, int size) throws BackendException
+	private void parseArrayDeclaration(Module m, Iterator<Quadruple> tacIterator, String name, int size) throws BackendException
 	{
 		boolean done = false;
-		List<Integer> array_sizes = new LinkedList<Integer>();
-		array_sizes.add(size);
+		List<Integer> dimensions = new LinkedList<Integer>();
+		dimensions.add(size);
 
 		while(!done && tacIterator.hasNext()) {
 			Quadruple q = tacIterator.next();
@@ -151,27 +153,28 @@ public class LLVMBackend implements Backend
 			if(q.getOperator() == Quadruple.Operator.DECLARE_ARRAY) {
 				size = Integer.parseInt(q.getArgument1().substring(1));
 				assert(size>=0);
-				array_sizes.add(size);
+				dimensions.add(size);
 			}
 			else {
-				Type.Kind final_type = null;
+				Type type = null;
 				switch(q.getOperator()) {
 					case DECLARE_DOUBLE:
-						final_type = Type.Kind.DOUBLE;
+						type = new DoubleType();
 						break;
 					case DECLARE_LONG:
-						final_type = Type.Kind.LONG;
+						type = new LongType();
 						break;
 					case DECLARE_BOOLEAN:
-						final_type = Type.Kind.BOOLEAN;
+						type = new BooleanType();
 						break;
 					case DECLARE_STRING:
-						final_type = Type.Kind.STRING;
+						type = new StringType(0L);
 						break;
 					default:
 						throw new BackendException("Unknown type for array declaration");
 				}
-				m.addArrayDeclare(final_type,array_sizes,name);
+
+				m.addArrayDeclare(new LLVMBackendArrayType(dimensions, type), name);
 				done = true;
 			}
 		}
@@ -233,8 +236,11 @@ public class LLVMBackend implements Backend
 						q.getResult(),
 						Module.toIRString(q.getArgument1()));
 					break;
-
-				/* Arrays */
+				case DECLARE_REFERENCE:
+					/* Reference declarations are only needed to keep the syntax
+					 * style of the TAC homogenous, they hold no semantic relevance
+					 * (as it is a meta-type) and thus get simply ignored. */
+					break;
 				case DECLARE_ARRAY:
 					int size = Integer.parseInt(q.getArgument1().substring(1));
 					assert(size>=0);
@@ -305,8 +311,6 @@ public class LLVMBackend implements Backend
 					break;
 
 				/* Indexed Copy */
-				// types are determined from context, since we have to store
-				//  the full array type anyways
 				case ARRAY_GET_LONG:
 					m.addPrimitiveArrayGet(
 						q.getArgument1(),
@@ -368,13 +372,6 @@ public class LLVMBackend implements Backend
 						Long.parseLong(q.getArgument2().substring(1)),
 						Type.Kind.STRING,
 						q.getResult());
-					break;
-
-				/* References */
-				// reference declarations are superfluous and do not generate any code,
-				//  nor provide information which is not clear by context.
-				case DECLARE_REFERENCE:
-					m.addNewReference(q.getResult());
 					break;
 
 				/* Arithmetic */
@@ -481,7 +478,7 @@ public class LLVMBackend implements Backend
 						q.getResult());
 					break;
 
-					/* Comparisons */
+				/* Comparisons */
 				case COMPARE_LONG_E:
 				m.addPrimitiveBinaryInstruction(
 						q.getOperator(),
