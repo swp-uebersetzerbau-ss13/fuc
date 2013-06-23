@@ -1129,13 +1129,13 @@ public class ReduceImpl {
 			binExpr = new ArithmeticBinaryExpressionNodeImpl();
 			break;
 		case EQUAL:
+		case INEQUAL:
 		case GREATERTHAN:
 		case GREATERTHANEQUAL:
 		case LESSTHAN:
 		case LESSTHANEQUAL:
 			binExpr = new RelationExpressionNodeImpl();
 			break;
-		case INEQUAL:
 		case LOGICAL_AND:
 		case LOGICAL_OR:
 			binExpr = new LogicBinaryExpressionNodeImpl();
