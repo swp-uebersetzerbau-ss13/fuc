@@ -29,6 +29,7 @@ import swp_compiler_ss13.common.ast.nodes.leaf.LiteralNode;
 import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
 import swp_compiler_ss13.common.ast.nodes.ternary.BranchNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ArithmeticUnaryExpressionNode;
+import swp_compiler_ss13.common.ast.nodes.unary.ArrayIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.unary.LogicUnaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.unary.PrintNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ReturnNode;
@@ -37,6 +38,7 @@ import swp_compiler_ss13.common.report.ReportLog;
 import swp_compiler_ss13.common.parser.SymbolTable;
 import swp_compiler_ss13.common.report.ReportType;
 import swp_compiler_ss13.common.types.Type;
+import swp_compiler_ss13.common.types.derived.ArrayType;
 
 public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalysis.SemanticAnalyser {
 
@@ -128,21 +130,19 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 
 		switch (node.getNodeType()) {
 			case BasicIdentifierNode:
-				logger.trace("handle BasicIdentifierNode");
-				this.handleNode((BasicIdentifierNode) node, table);
+				handleNode((BasicIdentifierNode) node, table);
 				break;
 			case BreakNode:
-				this.handleNode((BreakNode) node, table);
+				handleNode((BreakNode) node, table);
 				break;
 			case LiteralNode:
-				logger.trace("handle LiteralNode");
-				this.handleNode((LiteralNode) node, table);
+				handleNode((LiteralNode) node, table);
 				break;
 			case ArithmeticUnaryExpressionNode:
-				logger.trace("handle ArithmeticUnaryExpressionNode");
-				this.handleNode((ArithmeticUnaryExpressionNode) node, table);
+				handleNode((ArithmeticUnaryExpressionNode) node, table);
 				break;
 			case ArrayIdentifierNode:
+				handleNode((ArrayIdentifierNode) node, table);
 				break;
 			case DeclarationNode:
 				break;
@@ -153,17 +153,14 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 				handleNode((PrintNode) node, table);
 				break;
 			case ReturnNode:
-				logger.trace("handle ReturnNode");
 				this.handleNode((ReturnNode) node, table);
 				break;
 			case StructIdentifierNode:
 				break;
 			case ArithmeticBinaryExpressionNode:
-				logger.trace("handle ArithmeticBinaryExpressionNode");
 				this.handleNode((ArithmeticBinaryExpressionNode) node, table);
 				break;
 			case AssignmentNode:
-				logger.trace("handle AssignmentNode");
 				this.handleNode((AssignmentNode) node, table);
 				break;
 			case DoWhileNode:
@@ -182,7 +179,6 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 				handleNode((BranchNode) node, table);
 				break;
 			case BlockNode:
-				logger.trace("handle BlockNode");
 				this.handleNode((BlockNode) node, table);
 				break;
 			default:
@@ -502,10 +498,8 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 
 	protected void handleNode(BasicIdentifierNode node, SymbolTable table) {
 		String identifier = node.getIdentifier();
-		boolean initialzed = isInitialized(table, identifier);
 		Type t = table.lookupType(node.getIdentifier());
-
-		logger.debug("BasicIdentifierNode: identifier=" + identifier + ", initialized=" + initialzed + ", type=" + t);
+		boolean initialzed = isInitialized(table, identifier);
 
 		if (t == null) {
 			setAttribute(node, Attribute.TYPE_CHECK, TYPE_MISMATCH);
@@ -514,6 +508,16 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 
 			return;
 		}
+		
+		boolean array = t.getKind() == Type.Kind.ARRAY;
+		
+		if (array) {
+			t = ((ArrayType)t).getInnerType();
+		}
+		
+		logger.debug("BasicIdentifierNode: identifier=" + identifier + ", initialized=" + initialzed + ", array=" + array + ", type=" + t);
+		
+		
 
 		setAttribute(node, Attribute.IDENTIFIER, identifier);
 		setAttribute(node, Attribute.TYPE, t.getKind().name());
@@ -526,7 +530,7 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 		if (node.getParentNode() instanceof AssignmentNode) {
 			AssignmentNode p = (AssignmentNode) node.getParentNode();
 			reportInitialization = p.getLeftValue() != node;
-		} else if (node.getParentNode().getNodeType() != ASTNode.ASTNodeType.AssignmentNode) {
+		} else if (node.getParentNode().getNodeType() != ASTNode.ASTNodeType.AssignmentNode && !array) {
 			reportInitialization = true;
 		}
 
@@ -534,6 +538,11 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 			errorLog.reportWarning(ReportType.UNDEFINED, node.coverage(),
 				"Variable “" + identifier + "” may be used without initialization.");
 		}
+	}
+	
+	protected void handleNode(ArrayIdentifierNode node, SymbolTable table) {
+		traverse(node.getIdentifierNode(), table);
+		setAttribute(node, Attribute.TYPE, getAttribute(node.getIdentifierNode(), Attribute.TYPE));
 	}
 
 	protected void handleNode(ReturnNode node, SymbolTable table) {

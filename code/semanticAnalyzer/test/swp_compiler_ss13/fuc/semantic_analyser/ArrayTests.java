@@ -55,7 +55,6 @@ public class ArrayTests {
 	 * a[0] = l;
 	 */
 	@Test
-	@Ignore
 	public void testArrayAssignments() {
 		// long [1] a;
 		DeclarationNode declaration_a = new DeclarationNodeImpl();
@@ -71,10 +70,11 @@ public class ArrayTests {
 		BasicIdentifierNode identifier_l1 = new BasicIdentifierNodeImpl();
 		identifier_l1.setIdentifier("l");
 		BasicIdentifierNode identifier_a1 = new BasicIdentifierNodeImpl();
-		identifier_a1.setIdentifier("b");
+		identifier_a1.setIdentifier("a");
 		ArrayIdentifierNode arrayIdentifier_a1 = new ArrayIdentifierNodeImpl();
 		arrayIdentifier_a1.setIdentifierNode(identifier_a1);
 		arrayIdentifier_a1.setIndex(0);
+		identifier_a1.setParentNode(arrayIdentifier_a1);
 
 		AssignmentNode assignment_l = new AssignmentNodeImpl();
 		assignment_l.setLeftValue(identifier_l1);
@@ -86,10 +86,11 @@ public class ArrayTests {
 		BasicIdentifierNode identifier_l2 = new BasicIdentifierNodeImpl();
 		identifier_l2.setIdentifier("l");
 		BasicIdentifierNode identifier_a2 = new BasicIdentifierNodeImpl();
-		identifier_a2.setIdentifier("b");
+		identifier_a2.setIdentifier("a");
 		ArrayIdentifierNode arrayIdentifier_a2 = new ArrayIdentifierNodeImpl();
 		arrayIdentifier_a2.setIdentifierNode(identifier_a2);
 		arrayIdentifier_a2.setIndex(0);
+		identifier_a2.setParentNode(arrayIdentifier_a2);
 
 		AssignmentNode assignment_a = new AssignmentNodeImpl();
 		assignment_a.setLeftValue(arrayIdentifier_a2);
@@ -118,6 +119,7 @@ public class ArrayTests {
 		ast.setRootNode(blockNode);
 		analyser.analyse(ast);
 
+		System.out.println(log);
 		assertFalse(log.hasErrors());
 	}
 }
