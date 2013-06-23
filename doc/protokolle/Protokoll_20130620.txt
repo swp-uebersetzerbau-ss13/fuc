@@ -1,0 +1,28 @@
+Protokoll Sitzung 20.06.2013
+
+1. Check TODOs/Status
+2. M3-Anforderungen
+3. Zeitplanung/TODOs
+
+1. Check TODOs/Status
+- alles erledigt
+
+2. M3-Anforderungen
+Parser: - Fehlerkorrektur wird eingebaut für einfache Fälle
+        - Ausgrenzung auf semantische Analyse
+GUI: - Backend-Code wird noch nicht angezeigt, kommt noch
+     - JavaBite-Code kommt noch
+
+Ant-Scripts: - Encoding auf UTF-8 explizit setzen
+             - nicht zwangsläufig alle Quellen neubauen, Anpassung der Skripte?
+
+- Kür wird nächste Woche entschieden
+- gemeinsames Commit des "common"-Ordner nutzen bei M3
+Dokumentation: - Lexer inkl. Token-Spezifikation
+               - semantische Analyse etwas genauer bzgl. SDD
+               - Backend, wichtige Auszüge aus LLVM-Spezifikation bzgl. genutzer Funktionen und Konstrukte
+               - Form der Doku bislang ok, evt. gibt es Änderungswunsch von Tutoren
+
+3. Zeitplanung/TODOs
+- nächste Woche muss Pflichtanforderung für M3 fertig sein
+- übernächste Woche Kür/Doku/Bugfixing

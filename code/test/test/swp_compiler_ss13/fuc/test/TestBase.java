@@ -139,7 +139,7 @@ public abstract class TestBase {
 		analyser.setReportLog(errlog);
 		AST ast2 = analyser.analyse(ast);
 		List<Quadruple> tac = irgen.generateIntermediateCode(ast2);
-		Map<String, InputStream> targets = backend.generateTargetCode("", tac);
+		Map<String, InputStream> targets = backend.generateTargetCode("prog", tac);
 		return targets.get(targets.keySet().iterator().next());
 	}
 
