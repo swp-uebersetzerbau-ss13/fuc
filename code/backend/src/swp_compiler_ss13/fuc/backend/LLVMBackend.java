@@ -308,22 +308,65 @@ public class LLVMBackend implements Backend
 				// types are determined from context, since we have to store
 				//  the full array type anyways
 				case ARRAY_GET_LONG:
-				case ARRAY_GET_DOUBLE:
-				case ARRAY_GET_BOOLEAN:
-				case ARRAY_GET_STRING:
-				case ARRAY_GET_REFERENCE:
-					m.addArrayGet(
+					m.addPrimitiveArrayGet(
 						q.getArgument1(),
-						Integer.parseInt(q.getArgument2().substring(1)),
+						Long.parseLong(q.getArgument2().substring(1)),
+						Type.Kind.LONG,
+						q.getResult());
+					break;
+				case ARRAY_GET_DOUBLE:
+					m.addPrimitiveArrayGet(
+						q.getArgument1(),
+						Long.parseLong(q.getArgument2().substring(1)),
+						Type.Kind.DOUBLE,
+						q.getResult());
+					break;
+				case ARRAY_GET_BOOLEAN:
+					m.addPrimitiveArrayGet(
+						q.getArgument1(),
+						Long.parseLong(q.getArgument2().substring(1)),
+						Type.Kind.BOOLEAN,
+						q.getResult());
+					break;
+				case ARRAY_GET_STRING:
+					m.addPrimitiveArrayGet(
+						q.getArgument1(),
+						Long.parseLong(q.getArgument2().substring(1)),
+						Type.Kind.STRING,
+						q.getResult());
+					break;
+				case ARRAY_GET_REFERENCE:
+					m.addReferenceArrayGet(
+						q.getArgument1(),
+						Long.parseLong(q.getArgument2().substring(1)),
 						q.getResult());
 					break;
 				case ARRAY_SET_LONG:
-				case ARRAY_SET_DOUBLE:
-				case ARRAY_SET_BOOLEAN:
-				case ARRAY_SET_STRING:
-					m.addArraySet(
+					m.addPrimitiveArraySet(
 						q.getArgument1(),
-						Integer.parseInt(q.getArgument2().substring(1)),
+						Long.parseLong(q.getArgument2().substring(1)),
+						Type.Kind.LONG,
+						q.getResult());
+					break;
+				case ARRAY_SET_DOUBLE:
+					m.addPrimitiveArraySet(
+						q.getArgument1(),
+						Long.parseLong(q.getArgument2().substring(1)),
+						Type.Kind.DOUBLE,
+						q.getResult());
+					break;
+				case ARRAY_SET_BOOLEAN:
+					m.addPrimitiveArraySet(
+						q.getArgument1(),
+						Long.parseLong(q.getArgument2().substring(1)),
+						Type.Kind.BOOLEAN,
+						q.getResult());
+					break;
+				case ARRAY_SET_STRING:
+					m.addPrimitiveArraySet(
+						q.getArgument1(),
+						Long.parseLong(q.getArgument2().substring(1)),
+						Type.Kind.STRING,
 						q.getResult());
 					break;
 

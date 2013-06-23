@@ -56,6 +56,8 @@ public class Module
 	 */
 	private PrintWriter out;
 
+	private Map<String,Map.Entry<String,List<Long>>> references;
+
 	/**
 	 * Creates a new <code>Module</code> instance.
 	 *
@@ -79,6 +81,7 @@ public class Module
 		stringLiterals = new ArrayList<Integer>();
 		variableUseCount = new HashMap<String,Integer>();
 		variableIsReference = new HashSet<String>();
+		references = new HashMap<String,Map.Entry<String,List<Long>>>();
 
 		/* Add fake temporary variable */
 		variableUseCount.put(".tmp", 0);
@@ -577,62 +580,79 @@ public class Module
 		}
 	}
 
-	public void addArrayGet(String arrayName, int idx, String dst) throws BackendException {
-		ArrayType arType = arNamespace.get(arrayName);
-		String arrayTypeStr = getIRAType(arType.storage_type,arType.dimensions);
-		String realsource;
-		// if source is a reference, we have to consider multiple assignments to it due to SSA
-		if(variableIsReference.contains(arrayName))
-			realsource = "%" + arrayName + "." + (variableUseCount.get(arrayName)-1);
-		else
-		    realsource = "%" + arrayName;
-		//  if the array has more than one level, dst must be a reference
-		if(arType.dimensions.size() > 1) {
-			// reference mode (returns a reference)
-			// in reference mode, we just store the getelementptr result into dst
-			gen(getUseIdentifierForVariable(dst) + " = getelementptr " + arrayTypeStr + "* " + realsource + ", i64 0" + ", i64 " + idx);
-			// it is important to note, that references's types are JUST like array types: pointers to arrays
-			//  the next time we do a GET_ARRAY_* instruction, we need the the encapsulated array type.
-			//  eg: if we dereference [2 x [4 x i64]] here, we need [4 x i64] next time we use the reference.
-			// effectively, after each ARRAY_GET_REFERENCE operation we have to remove the first dimension from
-			//  the array dimensions list:
+	public void addReferenceArrayGet(String array, long index, String dst) {
+		String src = array;
+		List<Long> indices = new LinkedList<Long>();
+		indices.add(index);
 
-			// copy old list (shallow is okay, we never change the Integers)
-			ArrayType newArrayType = new ArrayType(new LinkedList<Integer>(arType.dimensions),
-			                                       arType.storage_type);
-			newArrayType.dimensions.remove(0);
-			arNamespace.put(dst, newArrayType);
+		while(references.containsKey(src)) {
+			Map.Entry<String,List<Long>> reference = references.get(src);
+			indices.addAll(reference.getValue());
+			src = reference.getKey();
 		}
-		else {
-			// direct access
-			// construct getelementptr instruction
-			String ptrId = getUseIdentifierForVariable(".tmp");
-			gen(ptrId + " = getelementptr " + arrayTypeStr + "* " + realsource + ", i64 0" + ", i64 " + idx);
-			// retrieve value from pointer via stack load instruction
-			String storageTypeStr = getIRType(arType.storage_type);
-			String valId = getUseIdentifierForVariable(".tmp");
-			gen(valId + " = load " + storageTypeStr + "* " + ptrId);
-			gen("store "+storageTypeStr+" "+valId+", "+storageTypeStr+"* %"+dst);
-		}
+
+		references.put(dst,new AbstractMap.SimpleEntry<String,List<Long>>(src, indices));
 	}
 
-	public void addArraySet(String arrayName, int idx, String src) throws BackendException {
-		// if source is a reference, we have to consider multiple assignments to it due to SSA
-		String realarray;
-		if(variableIsReference.contains(arrayName))
-			realarray = "%" + arrayName + "." + (variableUseCount.get(arrayName)-1);
-		else
-		realarray = "%" + arrayName;
-		ArrayType arType = arNamespace.get(arrayName);
-		if(arType.dimensions.size() > 1)
-			throw new BackendException("you cannot use a multidimensional array with an ARRAY_SET_* operation");
-		// construct getelementptr instruction
-		String ptrId = getUseIdentifierForVariable(".tmp");
-		String arrayTypeStr = getIRAType(arType.storage_type,arType.dimensions);
-		gen(ptrId + " = getelementptr " + arrayTypeStr + "* " + realarray + ", i64 0" + ", i64 " + idx);
-		// store value
-		String storageTypeStr = getIRType(arType.storage_type);
-		gen("store "+storageTypeStr+" "+cdl(src,arType.storage_type)+", "+storageTypeStr+"* "+ptrId);
+	public void addPrimitiveArrayGet(String array, long index, Kind dstType, String dst) throws BackendException {
+		String src = array;
+		List<Long> indices = new LinkedList<Long>();
+		indices.add(index);
+
+		while(references.containsKey(src)) {
+			Map.Entry<String,List<Long>> reference = references.get(src);
+			indices.addAll(reference.getValue());
+			src = reference.getKey();
+		}
+
+		String indexList = "";
+		for(Long i: indices) {
+			indexList += ", " + i.toString();
+		}
+
+		String dstUseIdentifier = getUseIdentifierForVariable(dst);
+		String dstIdentifier = "%" + dst;
+		String dstIRType = getIRType(dstType);
+
+		String srcUseIdentifier = getUseIdentifierForVariable(src);
+		String srcIdentifier = "%" + src;
+		ArrayType srcArType = arNamespace.get(src);
+		String srcIRType = getIRAType(srcArType.storage_type, srcArType.dimensions);
+
+		gen(srcUseIdentifier + " = load " + srcIRType + "* " + srcIdentifier);
+		gen(dstUseIdentifier + " = extractvalue " + srcIRType + " " + srcUseIdentifier + indexList);
+		gen("store " + dstIRType + " " + dstUseIdentifier + ", " + dstIRType + "* " + dstIdentifier);
+	}
+
+	public void addPrimitiveArraySet(String array, long index, Kind srcType, String src) throws BackendException {
+		String dst = array;
+		List<Long> indices = new LinkedList<Long>();
+		indices.add(index);
+
+		while(references.containsKey(dst)) {
+			Map.Entry<String,List<Long>> reference = references.get(dst);
+			indices.addAll(reference.getValue());
+			dst = reference.getKey();
+		}
+
+		String indexList = "";
+		for(Long i: indices) {
+			indexList += ", " + i.toString();
+		}
+
+		String srcIRType = getIRType(srcType);
+
+		String dstUseIdentifier1 = getUseIdentifierForVariable(dst);
+		String dstUseIdentifier2 = getUseIdentifierForVariable(dst);
+		String dstIdentifier = "%" + dst;
+		ArrayType dstArType = arNamespace.get(dst);
+		String dstIRType = getIRAType(dstArType.storage_type, dstArType.dimensions);
+
+		src = cdl(src, srcType);
+		gen(dstUseIdentifier1 + " = load " + dstIRType + "* " + dstIdentifier);
+		gen(dstUseIdentifier2 + " = insertvalue " + dstIRType + " " + dstUseIdentifier1 +
+		    ", " + srcIRType + " " + src + indexList);
+		gen("store " + dstIRType + " " + dstUseIdentifier2 + ", " + dstIRType + "* " + dstIdentifier);
 	}
 
 	static public Kind QuadTypeToKind(Quadruple.Operator op) throws BackendException {
