@@ -3,7 +3,6 @@ package swp_compiler_ss13.fuc.gui.ide;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
@@ -23,7 +22,6 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -35,8 +33,6 @@ import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
-import javax.swing.ListSelectionModel;
-import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
@@ -51,10 +47,12 @@ import swp_compiler_ss13.common.ir.IntermediateCodeGenerator;
 import swp_compiler_ss13.common.lexer.Lexer;
 import swp_compiler_ss13.common.parser.Parser;
 import swp_compiler_ss13.common.semanticAnalysis.SemanticAnalyser;
+import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
 import swp_compiler_ss13.fuc.gui.ide.data.FucIdeButton;
 import swp_compiler_ss13.fuc.gui.ide.data.FucIdeMenu;
 import swp_compiler_ss13.fuc.gui.ide.data.FucIdeStatusLabel;
 import swp_compiler_ss13.fuc.gui.ide.data.FucIdeTab;
+import swp_compiler_ss13.fuc.gui.ide.data.ReportLogTable;
 import swp_compiler_ss13.fuc.gui.ide.mvc.Controller;
 
 public class FucIdeView extends JFrame {
@@ -96,12 +94,7 @@ public class FucIdeView extends JFrame {
 	private List<JLabel> customLabels = new LinkedList<>();
 	private JScrollPane scrollPane;
 	private JPanel panel_2;
-	private JSplitPane splitPane_1;
 	private JTabbedPane componentTabs;
-	private JPanel panel_3;
-	private JLabel lblErrorReport;
-	private JScrollPane scrollPane_1;
-	private JList<String> errorReportList;
 	private Logger logger = Logger.getLogger(FucIdeView.class);
 	private JButton execButton;
 	private JMenu logLevelMenu;
@@ -111,6 +104,9 @@ public class FucIdeView extends JFrame {
 	private JRadioButtonMenuItem rdbtnmntmErrorWarnInfo;
 	private JRadioButtonMenuItem rdbtnmntmErrorWarnInfoDebug;
 	private JRadioButtonMenuItem rdbtnmntmOff;
+	private JPanel panel_3;
+	private JScrollPane scrollPane_1;
+	private ReportLogTable reportLogTable;
 
 	/**
 	 * Create the frame.
@@ -311,40 +307,28 @@ public class FucIdeView extends JFrame {
 		this.scrollPane.setViewportView(this.consoleOutput);
 		this.consoleOutput.setEditable(false);
 
-		this.splitPane_1 = new JSplitPane();
-		this.splitPane.setLeftComponent(this.splitPane_1);
+		this.panel_3 = new JPanel();
+		this.splitPane.setLeftComponent(this.panel_3);
+		this.panel_3.setLayout(new BorderLayout(0, 0));
 
 		this.componentTabs = new JTabbedPane(JTabbedPane.TOP);
+		this.panel_3.add(this.componentTabs, BorderLayout.CENTER);
+
+		this.reportLogTable = new ReportLogTable();
+
+		this.scrollPane_1 = new JScrollPane(this.reportLogTable);
+		this.scrollPane_1.setMinimumSize(new Dimension(-1, 100));
+		this.scrollPane_1.setPreferredSize(new Dimension(-1, 100));
+		this.panel_3.add(this.scrollPane_1, BorderLayout.SOUTH);
+
 		this.componentTabs.addChangeListener(new ChangeListener() {
 			@Override
 			public void stateChanged(ChangeEvent arg0) {
 				controller.tabChanged();
 			}
 		});
-		this.splitPane_1.setLeftComponent(this.componentTabs);
-		this.splitPane_1.setDividerLocation(600);
-
-		this.panel_3 = new JPanel();
-		this.splitPane_1.setRightComponent(this.panel_3);
-		this.panel_3.setLayout(new BorderLayout(5, 5));
-
-		this.lblErrorReport = new JLabel("Error Report");
-		this.lblErrorReport.setFont(new Font("Dialog", Font.BOLD, 18));
-		this.lblErrorReport.setVerticalAlignment(SwingConstants.BOTTOM);
-		this.lblErrorReport.setPreferredSize(new Dimension(87, 25));
-		this.lblErrorReport.setHorizontalAlignment(SwingConstants.CENTER);
-		this.lblErrorReport.setHorizontalTextPosition(SwingConstants.CENTER);
-		this.panel_3.add(this.lblErrorReport, BorderLayout.NORTH);
 		DefaultListModel<String> lm = new DefaultListModel<String>();
 		lm.addElement("No errors reported");
-
-		this.scrollPane_1 = new JScrollPane();
-		this.panel_3.add(this.scrollPane_1, BorderLayout.CENTER);
-
-		this.errorReportList = new JList<String>();
-		this.errorReportList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		this.errorReportList.setModel(lm);
-		this.scrollPane_1.setViewportView(this.errorReportList);
 		this.splitPane.setDividerLocation(400);
 
 		this.statusPanel = new JPanel();
@@ -360,6 +344,7 @@ public class FucIdeView extends JFrame {
 		this.setSize(new Dimension(800, 600));
 
 		this.setLocationRelativeTo(null);
+
 	}
 
 	public void addComponentRadioMenuItem(final Lexer lexer) {
@@ -547,14 +532,8 @@ public class FucIdeView extends JFrame {
 		this.consoleOutput.setCaretPosition(doc.getLength() - 1);
 	}
 
-	public void clearErrorLog() {
-		this.errorReportList.setModel(new DefaultListModel<String>());
-		this.errorReportList.revalidate();
-	}
-
-	public void addErrorLog(String msg) {
-		((DefaultListModel<String>) this.errorReportList.getModel()).addElement(msg);
-		this.errorReportList.revalidate();
+	public void displayErrorLog(ReportLogImpl rpi) {
+		this.reportLogTable.displayReportLog(rpi);
 	}
 
 	public void showTab(Controller controller) {
