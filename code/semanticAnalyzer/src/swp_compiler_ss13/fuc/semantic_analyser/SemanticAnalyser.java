@@ -33,12 +33,15 @@ import swp_compiler_ss13.common.ast.nodes.unary.ArrayIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.unary.LogicUnaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.unary.PrintNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ReturnNode;
+import swp_compiler_ss13.common.ast.nodes.unary.StructIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.unary.UnaryExpressionNode;
 import swp_compiler_ss13.common.report.ReportLog;
 import swp_compiler_ss13.common.parser.SymbolTable;
 import swp_compiler_ss13.common.report.ReportType;
 import swp_compiler_ss13.common.types.Type;
 import swp_compiler_ss13.common.types.derived.ArrayType;
+import swp_compiler_ss13.common.types.derived.Member;
+import swp_compiler_ss13.common.types.derived.StructType;
 
 public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalysis.SemanticAnalyser {
 
@@ -50,30 +53,28 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 		 * num, basic, array,...
 		 */
 		TYPE,
-		/**
-		 * <code>"1"</code> - identifier is initialized,<br/>
-		 * <code>"0"</code> - identifier is not initialized
-		 *
-		 * @see ExpressionNode
-		 */
-		INITIALIZATION_STATUS,
+		
 		/**
 		 * name of identifier
 		 *
 		 * @see IdentifierNode
 		 */
 		IDENTIFIER,
+		
 		CAN_BREAK,
 		TYPE_CHECK,
 		CODE_STATE
 	}
-	private static final String IS_INITIALIZED = "1";
+
 	private static final String NO_ATTRIBUTE_VALUE = "undefined";
 	private static final String CAN_BREAK = "true";
 	private static final String TYPE_MISMATCH = "type mismatch";
 	private static final String DEAD_CODE = "dead";
 	private ReportLog errorLog;
+	
 	private Map<ASTNode, Map<Attribute, String>> attributes;
+	private Map<ASTNode, Type> typeDeclarations;
+	
 	/**
 	 * Contains all initialized identifiers. As soon it has assigned it will be
 	 * added.
@@ -81,14 +82,16 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 	private Map<SymbolTable, Set<String>> initializedIdentifiers;
 
 	public SemanticAnalyser() {
-		this.attributes = new HashMap<>();
-		this.initializedIdentifiers = new HashMap<>();
+		attributes = new HashMap<>();
+		initializedIdentifiers = new HashMap<>();
+		typeDeclarations = new HashMap<>();
 	}
 
 	public SemanticAnalyser(ReportLog log) {
-		this.attributes = new HashMap<>();
-		this.initializedIdentifiers = new HashMap<>();
-		this.errorLog = log;
+		attributes = new HashMap<>();
+		initializedIdentifiers = new HashMap<>();
+		typeDeclarations = new HashMap<>();
+		errorLog = log;
 	}
 
 	protected Map<SymbolTable, Set<String>> copy(Map<SymbolTable, Set<String>> m) {
@@ -153,15 +156,16 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 				handleNode((PrintNode) node, table);
 				break;
 			case ReturnNode:
-				this.handleNode((ReturnNode) node, table);
+				handleNode((ReturnNode) node, table);
 				break;
 			case StructIdentifierNode:
+				handleNode((StructIdentifierNode) node, table);
 				break;
 			case ArithmeticBinaryExpressionNode:
-				this.handleNode((ArithmeticBinaryExpressionNode) node, table);
+				handleNode((ArithmeticBinaryExpressionNode) node, table);
 				break;
 			case AssignmentNode:
-				this.handleNode((AssignmentNode) node, table);
+				handleNode((AssignmentNode) node, table);
 				break;
 			case DoWhileNode:
 				handleNode((DoWhileNode) node, table);
@@ -179,7 +183,7 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 				handleNode((BranchNode) node, table);
 				break;
 			case BlockNode:
-				this.handleNode((BlockNode) node, table);
+				handleNode((BlockNode) node, table);
 				break;
 			default:
 				throw new IllegalArgumentException("unknown ASTNodeType");
@@ -492,7 +496,6 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 	 * Leaf nodes
 	 */
 	protected void handleNode(LiteralNode node, SymbolTable table) {
-		setAttribute(node, Attribute.INITIALIZATION_STATUS, IS_INITIALIZED);
 		setAttribute(node, Attribute.TYPE, node.getLiteralType().getKind().name());
 	}
 
@@ -521,6 +524,7 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 
 		setAttribute(node, Attribute.IDENTIFIER, identifier);
 		setAttribute(node, Attribute.TYPE, t.getKind().name());
+		setTypeDeclaration(node, t);
 
 		/*
 		 * checks
@@ -543,6 +547,22 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 	protected void handleNode(ArrayIdentifierNode node, SymbolTable table) {
 		traverse(node.getIdentifierNode(), table);
 		setAttribute(node, Attribute.TYPE, getAttribute(node.getIdentifierNode(), Attribute.TYPE));
+	}
+	
+	protected void handleNode(StructIdentifierNode node, SymbolTable table) {
+		IdentifierNode struct = node.getIdentifierNode();
+		traverse(struct, table);
+
+		Type t = getTypeDeclaration(struct);
+		
+		if (t instanceof StructType) {
+			StructType st = (StructType)t;
+			Type ft = getStructMemberType(st, node.getFieldName());
+			setAttribute(node, Attribute.TYPE, ft.getKind().name());
+			setTypeDeclaration(node, ft);
+		} else {
+			throw new IllegalArgumentException("Type must be StructType.");
+		}
 	}
 
 	protected void handleNode(ReturnNode node, SymbolTable table) {
@@ -570,6 +590,28 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 		Set<String> identifiers = this.initializedIdentifiers.get(declarationTable);
 
 		return identifiers != null && identifiers.contains(identifier);
+	}
+	
+	protected Type getStructMemberType(StructType s, String field) {
+		for (Member m : s.members()) {
+			if (m.getName().equals(field)) {
+				return m.getType();
+			}
+		}
+		
+		return null;
+	}
+	
+	protected void setTypeDeclaration(ASTNode node, Type t) {
+		typeDeclarations.put(node, t);
+	}
+	
+	protected Type getTypeDeclaration(ASTNode node) {
+		if (!typeDeclarations.containsKey(node)) {
+			throw new IllegalArgumentException("Node has no known type declaration.");
+		}
+		
+		return typeDeclarations.get(node);
 	}
 
 	protected void markIdentifierAsInitialized(SymbolTable table, String identifier) {
