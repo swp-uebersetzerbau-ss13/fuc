@@ -617,13 +617,14 @@ public class Module
 	public void addReferenceArrayGet(String array, long index, String dst) {
 		String src = array;
 		List<Long> indices = new LinkedList<Long>();
-		indices.add(index);
 
 		while(references.containsKey(src)) {
 			Map.Entry<String,List<Long>> reference = references.get(src);
 			indices.addAll(reference.getValue());
 			src = reference.getKey();
 		}
+
+		indices.add(index);
 
 		references.put(dst,new AbstractMap.SimpleEntry<String,List<Long>>(src, indices));
 	}
@@ -631,13 +632,14 @@ public class Module
 	public void addPrimitiveArrayGet(String array, long index, Kind dstType, String dst) throws BackendException {
 		String src = array;
 		List<Long> indices = new LinkedList<Long>();
-		indices.add(index);
 
 		while(references.containsKey(src)) {
 			Map.Entry<String,List<Long>> reference = references.get(src);
 			indices.addAll(reference.getValue());
 			src = reference.getKey();
 		}
+
+		indices.add(index);
 
 		String indexList = "";
 		for(Long i: indices) {
@@ -669,13 +671,14 @@ public class Module
 	public void addPrimitiveArraySet(String array, long index, Kind srcType, String src) throws BackendException {
 		String dst = array;
 		List<Long> indices = new LinkedList<Long>();
-		indices.add(index);
 
 		while(references.containsKey(dst)) {
 			Map.Entry<String,List<Long>> reference = references.get(dst);
 			indices.addAll(reference.getValue());
 			dst = reference.getKey();
 		}
+
+		indices.add(index);
 
 		String indexList = "";
 		for(Long i: indices) {
