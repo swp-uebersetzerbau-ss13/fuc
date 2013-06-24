@@ -72,17 +72,27 @@ public final class Production {
    }
    
    
-   public int getID() {
+   /**
+	 * @return The id that makes this production unique in a grammar
+	 */
+	public int getID() {
       return id;
    }
    
    
-   public NonTerminal getLHS() {
+   /**
+	 * @return The right hand side of this production
+	 */
+	public NonTerminal getLHS() {
       return lhs;
    }
    
    
-   public List<Symbol> getRHS() {
+   /**
+	 * @return The complete right hand side of this production (as a
+	 * list of {@link Symbol})
+	 */
+	public List<Symbol> getRHS() {
       return rhs;
    }
    

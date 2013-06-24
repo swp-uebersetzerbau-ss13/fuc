@@ -31,7 +31,6 @@ public class Constants {
 	public static final String LONGSTRING7 = "-123e2";
 	public static final String LONGSTRING8 = "-123E2";
 	public static final String LONGSTRING9 = "-123e-2";
-	public static final String LONGSTRING10 = "-123E+2";
 	public static final String LONGSTRINGOUTOFRANGE1 = "9223372036854775808";
 	public static final String LONGSTRINGOUTOFRANGE2 = "-9223372036854775809";
 
@@ -45,7 +44,6 @@ public class Constants {
 	public static final String DOUBLESTRING7 = "-123.123e2";
 	public static final String DOUBLESTRING8 = "-123.123E2";
 	public static final String DOUBLESTRING9 = "-123.123e-2";
-	public static final String DOUBLESTRING10 = "-123.123E+2";
 	public static final String DOUBLESTRINGOUTOFRANGE1 = "1.797694e+308";
 	public static final String DOUBLESTRINGOUTOFRANGE2 = "-1.797694e+309";
 
@@ -95,7 +93,7 @@ public class Constants {
 
 	/* strings */
 	public static final String STRING1 = "\"Ha\\\"llo We\\\"lt!\"";
-	public static final String STRING2 = "\"\ntest\"";
+	public static final String STRING2 = "\"\\ntest\"";
 	public static final String STRING3 = "\"test;test\"";
 	public static final String STRING4 = "\"test\"test";
 	public static final String NOSTRING1 = "\"test";

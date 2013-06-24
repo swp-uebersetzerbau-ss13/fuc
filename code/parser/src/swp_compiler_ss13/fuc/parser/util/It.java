@@ -7,7 +7,7 @@ import java.util.NoSuchElementException;
 
 /**
  * This class is an {@link Iterable} {@link Iterator}, which is quite useful in
- * for-each loops
+ * for-each loops (if you need to know your current index, e.g.: {@link #getIndex()})
  * 
  * @param <T>
  */
@@ -66,11 +66,18 @@ public final class It<T> implements Iterator<T>, Iterable<T> {
 		throw new UnsupportedOperationException();
 	}
 
+	/**
+	 * @return this
+	 * @see {@link Iterable#iterator()}
+	 */
 	@Override
 	public Iterator<T> iterator() {
 		return this;
 	}
 
+	/**
+	 * @return The current index of this iterator
+	 */
 	public int getIndex() {
 		return currentIndex;
 	}

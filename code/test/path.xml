@@ -27,5 +27,8 @@
 		<pathelement location="../${lib.dir}/junit-4.11.jar" />
         <pathelement location="../${lib.dir}/log4jprops.jar" />
 		<pathelement location="../${lib.dir}/privilegedaccessor-1.2.1.jar" />
+        <fileset dir="../${dist.dir}">
+            <include name="**/*.jar"/>
+        </fileset>
 	</path>
 </project>

@@ -33,7 +33,9 @@ public class DfaEdge<S> {
       this.srcItem = srcItem;
       
       // Identity by src x symbol
-      this.hashCode = src.hashCode() * 100 + symbol.hashCode();
+      int srcHash = src == null ? 0 : src.hashCode();
+      int symbolHash = symbol == null ? 0 : symbol.hashCode();
+      this.hashCode = srcHash * 100 + symbolHash;
    }
    
    public static <S> DfaEdge<S> createAcceptEdge(S src, Symbol symbol)

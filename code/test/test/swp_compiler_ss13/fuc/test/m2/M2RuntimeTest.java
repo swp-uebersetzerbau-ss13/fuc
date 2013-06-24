@@ -74,9 +74,9 @@ public class M2RuntimeTest extends TestBase {
 	}
 
 	@Test
-	@Ignore("fails in Semnatic Analyser")
+	/* Compilation with Semantic Analyser fails */
 	public void testArrayProg1() throws Exception {
-		testProgRuntime(ExampleProgs.arrayProg1());
+		testProgRuntimeWOAnalyser(ExampleProgs.arrayProg1());
 	}
 
 	@Test
@@ -85,15 +85,9 @@ public class M2RuntimeTest extends TestBase {
 	}
 
 	@Test
-	@Ignore("not yet implemented")
+	/* Compilation with Semantic Analyser fails */
 	public void testArrayProg3() throws Exception {
-		testProgRuntime(ExampleProgs.arrayProg3());
-	}
-
-	@Test
-	@Ignore("not yet implemented")
-	public void testReturnBooleProg() throws Exception {
-		testProgRuntime(ExampleProgs.returnBool());
+		testProgRuntimeWOAnalyser(ExampleProgs.arrayProg3());
 	}
 
 }

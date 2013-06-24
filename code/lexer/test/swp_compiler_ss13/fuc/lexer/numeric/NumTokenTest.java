@@ -73,10 +73,6 @@ public class NumTokenTest {
 		PA.setValue(this.lexer, "actualTokenValue", Constants.LONGSTRING9);
 		PA.invokeMethod(this.lexer, "matchToken()");
 		assertEquals(TokenType.NUM, PA.getValue(this.lexer, "actualTokenType"));
-
-		PA.setValue(this.lexer, "actualTokenValue", Constants.LONGSTRING10);
-		PA.invokeMethod(this.lexer, "matchToken()");
-		assertEquals(TokenType.NUM, PA.getValue(this.lexer, "actualTokenType"));
 	}
 
 	/**
@@ -91,12 +87,12 @@ public class NumTokenTest {
 				+ " " + Constants.LONGSTRING3 + " " + Constants.LONGSTRING4
 				+ " " + Constants.LONGSTRING5 + " " + Constants.LONGSTRING6
 				+ " " + Constants.LONGSTRING7 + " " + Constants.LONGSTRING8
-				+ " " + Constants.LONGSTRING9 + " " + Constants.LONGSTRING10;
+				+ " " + Constants.LONGSTRING9;
 		this.lexer.setSourceStream(new ByteArrayInputStream(numString
 				.getBytes("UTF-8")));
 
 		Token token;
-		for (int i = 1; i <= 10; i++) {
+		for (int i = 1; i <= 9; i++) {
 			token = this.lexer.getNextToken();
 			assertEquals("Error for the " + i + ". token", NumTokenImpl.class,
 					token.getClass());
@@ -116,8 +112,7 @@ public class NumTokenTest {
 				+ Constants.LONGSTRING2 + " " + Constants.LONGSTRING3 + " "
 				+ Constants.LONGSTRING4 + " " + Constants.LONGSTRING5 + " "
 				+ Constants.LONGSTRING6 + " " + Constants.LONGSTRING7 + " "
-				+ Constants.LONGSTRING8 + " " + Constants.LONGSTRING9 + " "
-				+ Constants.LONGSTRING10;
+				+ Constants.LONGSTRING8 + " " + Constants.LONGSTRING9;
 
 		this.lexer.setSourceStream(new ByteArrayInputStream(simpleNumString
 				.getBytes("UTF-8")));
@@ -186,13 +181,6 @@ public class NumTokenTest {
 		assertEquals(1, token.getLine().intValue());
 		assertEquals(50, token.getColumn().intValue());
 		assertEquals(Constants.LONGSTRING9, token.getValue());
-
-		token = (NumToken) this.lexer.getNextToken();
-		assertEquals(Constants.LONGSTRING10, token.getValue());
-		assertEquals(TokenType.NUM, token.getTokenType());
-		assertEquals(1, token.getLine().intValue());
-		assertEquals(58, token.getColumn().intValue());
-		assertEquals(Constants.LONGSTRING10, token.getValue());
 	}
 
 	/**

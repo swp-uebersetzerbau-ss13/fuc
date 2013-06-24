@@ -48,7 +48,7 @@ public abstract class ALRGenerator<I extends Item, S extends ALRState<I>> {
 	// --- constructors
 	// ---------------------------------------------------------
 	// --------------------------------------------------------------------------
-	public ALRGenerator(Grammar grammar) throws RuntimeException {
+	public ALRGenerator(Grammar grammar) throws GeneratorException {
 		// Compute NULLABLE, FIRST and FOLLOW sets
 		grammar = grammar.extendByAuxStartProduction();
 		grammarInfo = new GrammarInfo(grammar);
@@ -86,34 +86,17 @@ public abstract class ALRGenerator<I extends Item, S extends ALRState<I>> {
 				Terminal terminal = (Terminal) edge.getSymbol();
 				if (edge.isDestAccepting()) {
 					// ACCEPT
-					try {
-						table.getActionTable().set(new Accept(), src, terminal);
-					} catch (DoubleEntryException err) {
-						throw new RuntimeException(err); // TODO Really the
-															// right way...?
-					}
+					table.getActionTable().set(new Accept(), src, terminal);
 				} else {
 					// SHIFT
 					LRParserState dstState = statesMap.get(edge.getDst());
-					try {
-						// Item item = edge.getSrcItem().shift();
-						table.getActionTable().set(
-								new Shift(dstState/* , item */), src, terminal);
-					} catch (DoubleEntryException err) {
-						throw new RuntimeException(err); // TODO Really the
-															// right way...?
-					}
+					table.getActionTable().set(new Shift(dstState), src, terminal);
 				}
 			} else {
 				// NonTerminal
 				NonTerminal nonTerminal = (NonTerminal) edge.getSymbol();
 				LRParserState dstState = statesMap.get(edge.getDst());
-				try {
-					table.getGotoTable().set(dstState, src, nonTerminal);
-				} catch (DoubleEntryException err) {
-					throw new RuntimeException(err); // TODO Really the right
-														// way...?
-				}
+				table.getGotoTable().set(dstState, src, nonTerminal);
 			}
 		}
 
@@ -124,13 +107,8 @@ public abstract class ALRGenerator<I extends Item, S extends ALRState<I>> {
 			for (I item : state.getItems()) {
 				if (item.isComplete()) {
 					LRParserState fromState = statesMap.get(kernel);
-					try {
-						createReduceAction(table.getActionTable(), item,
+					createReduceAction(table.getActionTable(), item,
 								fromState);
-					} catch (GeneratorException err) {
-						throw new RuntimeException(err); // TODO Really the
-						// right way...?
-					}
 				}
 			}
 		}
@@ -206,8 +184,7 @@ public abstract class ALRGenerator<I extends Item, S extends ALRState<I>> {
 				if (item.isShiftable()) {
 					Symbol symbol = item.getNextSymbol();
 					if (symbol.equals(Terminal.EOF)) {
-						// $: We accept...? TODO Is the simplest solution,
-						// but... sufficient?
+						// $: We accept! Simple AND sufficient! ;-)
 						dfa.getEdges().add(
 								DfaEdge.createAcceptEdge(kernel, symbol));
 					} else {

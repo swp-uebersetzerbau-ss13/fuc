@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -176,7 +177,7 @@ public class PrintProgTest {
 						boolToken.getBooleanValue());
 
 			}
-			
+
 		} while (token.getTokenType() != TokenType.EOF);
 	}
 

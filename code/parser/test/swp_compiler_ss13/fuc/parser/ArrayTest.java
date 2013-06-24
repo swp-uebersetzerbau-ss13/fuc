@@ -63,4 +63,30 @@ public class ArrayTest {
 		AST expected = factory.getAST();
 		ASTComparator.compareAST(expected, ast);
 	}
+
+	@Test
+	public void testArrayTest3() throws Exception {
+		String input = "long l; long [ 3 ] a; a [ 0 ] = 42; l = a [ 0 ]; return l;";
+
+		// Run LR-parser
+		AST ast = GrammarTestHelper.parseToAst(input);
+		assertNotNull(ast);
+
+		// Create reference AST
+		ASTFactory factory = new ASTFactory();
+		factory.addDeclaration("l", new LongType());
+		factory.addDeclaration("a", new ArrayType(new LongType(), 3));
+
+		factory.addAssignment(
+				factory.newArrayIdentifier(0, factory.newBasicIdentifier("a")),
+				factory.newLiteral("42", new LongType()));
+		factory.addAssignment(
+				factory.newBasicIdentifier("l"),
+				factory.newArrayIdentifier(0, factory.newBasicIdentifier("a")));
+		
+		factory.addReturn(factory.newBasicIdentifier("l"));
+		
+		AST expected = factory.getAST();
+		ASTComparator.compareAST(expected, ast);
+	}
 }

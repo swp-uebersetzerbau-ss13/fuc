@@ -84,8 +84,19 @@ public abstract class TestBase {
 		assertTrue(res != null);
 	}
 
+	protected void testProgCompilationWOAnalyser(Object[] prog) throws BackendException, IntermediateCodeGeneratorException, IOException, InterruptedException {
+		InputStream res = compileWOAnalyser((String) prog[0]);
+		assertTrue(res != null);
+	}
+
 	protected void testProgRuntime(Object[] prog) throws BackendException, IntermediateCodeGeneratorException, IOException, InterruptedException {
-		TACExecutor.ExecutionResult res = compileAndExecute((String)prog[0]);
+		TACExecutor.ExecutionResult res = execute(compile( (String) prog[0]) );
+		assertEquals(prog[1], res.exitCode);
+		assertEquals(prog[2], res.output);
+	}
+
+	protected void testProgRuntimeWOAnalyser(Object[] prog) throws BackendException, IntermediateCodeGeneratorException, IOException, InterruptedException {
+		TACExecutor.ExecutionResult res = execute(compileWOAnalyser( (String) prog[0]) );
 		assertEquals(prog[1], res.exitCode);
 		assertEquals(prog[2], res.output);
 	}
@@ -95,7 +106,7 @@ public abstract class TestBase {
 		assertTrue(log.hasErrors());
 	}
 
-	protected void testProgHasWarings(Object[] prog) throws BackendException, IntermediateCodeGeneratorException, IOException, InterruptedException {
+	protected void testProgHasWarnings(Object[] prog) throws BackendException, IntermediateCodeGeneratorException, IOException, InterruptedException {
 		ReportLogImpl log = compileForError((String) prog[0]);
 		assertTrue(log.hasWarnings());
 	}
@@ -128,13 +139,24 @@ public abstract class TestBase {
 		analyser.setReportLog(errlog);
 		AST ast2 = analyser.analyse(ast);
 		List<Quadruple> tac = irgen.generateIntermediateCode(ast2);
-		Map<String, InputStream> targets = backend.generateTargetCode("", tac);
-		return targets.get(".ll");
+		Map<String, InputStream> targets = backend.generateTargetCode("prog", tac);
+		return targets.get(targets.keySet().iterator().next());
 	}
 
-	protected TACExecutor.ExecutionResult compileAndExecute(String prog) throws BackendException,
+	protected InputStream compileWOAnalyser(String prog) throws BackendException,
 			IntermediateCodeGeneratorException, IOException, InterruptedException {
-		return TACExecutor.runIR(compile(prog));
+		lexer.setSourceStream(new ByteArrayInputStream(prog.getBytes("UTF-8")));
+		parser.setLexer(lexer);
+		parser.setReportLog(errlog);
+		AST ast = parser.getParsedAST();
+		List<Quadruple> tac = irgen.generateIntermediateCode(ast);
+		Map<String, InputStream> targets = backend.generateTargetCode("", tac);
+		return targets.get(targets.keySet().iterator().next());
+	}
+
+	protected TACExecutor.ExecutionResult execute(InputStream prog) throws BackendException,
+			IntermediateCodeGeneratorException, IOException, InterruptedException {
+		return TACExecutor.runIR(prog);
 	}
 
 }
