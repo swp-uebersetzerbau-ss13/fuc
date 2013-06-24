@@ -427,6 +427,68 @@ public class LLVMBackend implements Backend
 						Type.Kind.STRING,
 						q.getResult());
 					break;
+				case STRUCT_GET_LONG:
+					m.addPrimitiveStructGet(
+						q.getArgument1(),
+						q.getArgument2(),
+						Type.Kind.LONG,
+						q.getResult());
+					break;
+				case STRUCT_GET_DOUBLE:
+					m.addPrimitiveStructGet(
+						q.getArgument1(),
+						q.getArgument2(),
+						Type.Kind.DOUBLE,
+						q.getResult());
+					break;
+				case STRUCT_GET_BOOLEAN:
+					m.addPrimitiveStructGet(
+						q.getArgument1(),
+						q.getArgument2(),
+						Type.Kind.BOOLEAN,
+						q.getResult());
+					break;
+				case STRUCT_GET_STRING:
+					m.addPrimitiveStructGet(
+						q.getArgument1(),
+						q.getArgument2(),
+						Type.Kind.STRING,
+						q.getResult());
+					break;
+				case STRUCT_GET_REFERENCE:
+					m.addReferenceStructGet(
+						q.getArgument1(),
+						q.getArgument2(),
+						q.getResult());
+					break;
+				case STRUCT_SET_LONG:
+					m.addPrimitiveStructSet(
+						q.getArgument1(),
+						q.getArgument2(),
+						Type.Kind.LONG,
+						q.getResult());
+					break;
+				case STRUCT_SET_DOUBLE:
+					m.addPrimitiveStructSet(
+						q.getArgument1(),
+						q.getArgument2(),
+						Type.Kind.DOUBLE,
+						q.getResult());
+					break;
+				case STRUCT_SET_BOOLEAN:
+					m.addPrimitiveStructSet(
+						q.getArgument1(),
+						q.getArgument2(),
+						Type.Kind.BOOLEAN,
+						q.getResult());
+					break;
+				case STRUCT_SET_STRING:
+					m.addPrimitiveStructSet(
+						q.getArgument1(),
+						q.getArgument2(),
+						Type.Kind.STRING,
+						q.getResult());
+					break;
 
 				/* Arithmetic */
 				case ADD_LONG:

@@ -12,4 +12,8 @@ public class LLVMBackendStructType extends StructType
 	public LLVMBackendStructType(List<Member> members) {
 		super("", members.toArray(new Member[members.size()]));
 	}
+
+	public List<Member> getMembers() {
+		return Arrays.asList(this.members);
+	}
 }
