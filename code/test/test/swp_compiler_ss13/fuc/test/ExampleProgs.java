@@ -170,6 +170,29 @@ public class ExampleProgs {
 		return new Object[]{prog, expectedExitcode, expectedOutput};
 	}
 
+	/* M3 example progs */
+
+	public static Object[] fibProg(){
+		String prog = loadExample("m3/fib.prog");
+		int expectedExitcode = 98;
+		String expectedOutput = "6765\n";
+		return new Object[]{prog, expectedExitcode, expectedOutput};
+	}
+
+	public static Object[] matrixMultiplicationProg(){
+		String prog = loadExample("m3/matrixMultiplication.prog");
+		int expectedExitcode = 0;
+		String expectedOutput = "14 46\n28 92\n42 138\n42 138\n";
+		return new Object[]{prog, expectedExitcode, expectedOutput};
+	}
+
+	public static Object[] newtonProg(){
+		String prog = loadExample("m3/newton.prog");
+		int expectedExitcode = 0;
+		String expectedOutput = "";
+		return new Object[]{prog, expectedExitcode, expectedOutput};
+	}
+
 	private static String loadExample(String progName) {
 		String userDir = System.getProperty("user.dir");
 		Path path;
