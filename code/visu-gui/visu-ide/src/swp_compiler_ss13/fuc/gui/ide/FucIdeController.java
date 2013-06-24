@@ -474,6 +474,7 @@ public class FucIdeController {
 	public void run(boolean silent) {
 		String sourceCode = this.model.getSourceCode();
 		ReportLogImpl reportlog = new ReportLogImpl();
+		this.model.setReportLog(reportlog);
 
 		List<Token> tokens = this.runLexer(sourceCode, silent, reportlog);
 		this.notifyTokensChanged(tokens);
@@ -506,6 +507,7 @@ public class FucIdeController {
 
 	public List<Token> runLexer(String sourceCode, boolean silent) {
 		ReportLogImpl reportlog = new ReportLogImpl();
+		this.model.setReportLog(reportlog);
 		List<Token> tokens = this.runLexer(sourceCode, silent, reportlog);
 		this.notifyTokensChanged(tokens);
 		if (!silent) {
@@ -516,6 +518,7 @@ public class FucIdeController {
 
 	public AST runParser(List<Token> tokens, boolean silent) {
 		ReportLogImpl reportlog = new ReportLogImpl();
+		this.model.setReportLog(reportlog);
 		AST ast = this.runParser(tokens, silent, reportlog);
 		this.notifyASTChanged(ast);
 		if (!silent) {
@@ -526,6 +529,7 @@ public class FucIdeController {
 
 	public AST runSemanticAnalysis(AST ast, boolean silent) {
 		ReportLogImpl reportlog = new ReportLogImpl();
+		this.model.setReportLog(reportlog);
 		AST cast = this.runSemanticAnalysis(ast, silent, reportlog);
 		this.notifyASTChanged(cast);
 		if (!silent) {
@@ -536,6 +540,7 @@ public class FucIdeController {
 
 	public Map<String, InputStream> runBackend(List<Quadruple> tac, boolean silent) {
 		ReportLogImpl reportlog = new ReportLogImpl();
+		this.model.setReportLog(reportlog);
 		Map<String, InputStream> target = this.runBackend(tac, silent, reportlog);
 		this.notifyTargetChanged(target);
 		if (!silent) {
@@ -546,6 +551,7 @@ public class FucIdeController {
 
 	public List<Quadruple> runIntermediateCodeGenerator(AST ast, boolean silent) {
 		ReportLogImpl reportlog = new ReportLogImpl();
+		this.model.setReportLog(reportlog);
 		List<Quadruple> tac = this.runIntermediateCodeGenerator(ast, silent, reportlog);
 		this.notifyTACChanged(tac);
 		if (!silent) {
