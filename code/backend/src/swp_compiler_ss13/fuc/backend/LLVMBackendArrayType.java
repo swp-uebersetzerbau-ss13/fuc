@@ -33,12 +33,12 @@ public class LLVMBackendArrayType extends ArrayType
 		return dimensions;
 	}
 
-	public Type.Kind getStorageTypeKind() {
+	public Type getStorageType() {
 		if(this.type instanceof LLVMBackendArrayType) {
-			return ((LLVMBackendArrayType) this.type).getStorageTypeKind();
+			return ((LLVMBackendArrayType) this.type).getStorageType();
 		}
 		else {
-			return this.type.getKind();
+			return this.type;
 		}
 	}
 }

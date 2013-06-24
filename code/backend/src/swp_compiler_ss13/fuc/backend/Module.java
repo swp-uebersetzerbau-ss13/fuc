@@ -178,22 +178,53 @@ public class Module
 	 *          double x[5][10][7] --> [5,10,7]
 	 * @return the corresponding LLVM IR type for the array
 	 */
-	private String getIRAType(Kind type, List<Integer> dimensions) {
+	private String getIRAType(Type type, List<Integer> dimensions) {
 		return getIRAType(type,dimensions,false);
 	}
-	private String getIRAType(Kind type, List<Integer> dimensions, boolean as_ptr)
+	private String getIRAType(Type type, List<Integer> dimensions, boolean as_ptr)
 	{
 		String irType = "";
 		// write dimensions
 		for (int d : dimensions)
 			irType = irType + "[" + d + " x ";
 		// write actual type
-		irType = irType + getIRType(type);
+		if(type instanceof PrimitiveType) {
+			irType = irType + getIRType(type.getKind());
+		}
+		else if(type instanceof StructType) {
+			irType += getIRSType(Arrays.asList(((StructType) type).members()));
+		}
 		// write closing brakets
 		for (int d : dimensions)
 			irType += "]";
 		irType.trim();
 		return irType + (as_ptr ? "*" : "");
+	}
+
+	private String getIRSType(List<Member> members) {
+		String irType = "{ ";
+
+		for(Member m: members) {
+			Type type = m.getType();
+
+			if(type instanceof PrimitiveType) {
+				irType += getIRType(type.getKind());
+			}
+			else if(type instanceof LLVMBackendArrayType) {
+				LLVMBackendArrayType array = (LLVMBackendArrayType) type;
+				irType += getIRAType(array.getStorageType(), array.getDimensions());
+			}
+			else if(type instanceof LLVMBackendStructType) {
+				LLVMBackendStructType struct = (LLVMBackendStructType) type;
+				irType += getIRSType(Arrays.asList(struct.members()));
+			}
+
+			irType += ", ";
+		}
+
+		irType = irType.substring(0, irType.length() - 2);
+
+		return irType + " }";
 	}
 
 	/**
@@ -458,9 +489,17 @@ public class Module
 		return variableIdentifier;
 	}
 
-	public String addArrayDeclare(LLVMBackendArrayType type, String identifier)
-	{
-		String irType = getIRAType(type.getStorageTypeKind(), type.getDimensions());
+	public String addArrayDeclare(LLVMBackendArrayType type, String identifier)	{
+		String irType = getIRAType(type.getStorageType(), type.getDimensions());
+		String variableIdentifier = "%" + identifier;
+		variableUseCount.put(identifier, 0);
+		derivedTypes.put(identifier, type);
+		gen(variableIdentifier + " = alloca " + irType);
+		return variableIdentifier;
+	}
+
+	public String addStructDeclare(LLVMBackendStructType type, String identifier) {
+		String irType = getIRSType(Arrays.asList(type.members()));
 		String variableIdentifier = "%" + identifier;
 		variableUseCount.put(identifier, 0);
 		derivedTypes.put(identifier, type);
@@ -620,7 +659,7 @@ public class Module
 			throw new BackendException("Source type for ARRAY_GET_* must be instance of LLVMBackendArrayType, not " + _srcArType.getClass().getName());
 		}
 
-		String srcIRType = getIRAType(srcArType.getStorageTypeKind(), srcArType.getDimensions());
+		String srcIRType = getIRAType(srcArType.getStorageType(), srcArType.getDimensions());
 
 		gen(srcUseIdentifier + " = load " + srcIRType + "* " + srcIdentifier);
 		gen(dstUseIdentifier + " = extractvalue " + srcIRType + " " + srcUseIdentifier + indexList);
@@ -656,7 +695,7 @@ public class Module
 		else {
 			throw new BackendException("Source type for ARRAY_GET_* must be instance of LLVMBackendArrayType, not " + _dstArType.getClass().getName());
 		}
-		String dstIRType = getIRAType(dstArType.getStorageTypeKind(), dstArType.getDimensions());
+		String dstIRType = getIRAType(dstArType.getStorageType(), dstArType.getDimensions());
 
 		src = cdl(src, srcType);
 		gen(dstUseIdentifier1 + " = load " + dstIRType + "* " + dstIdentifier);

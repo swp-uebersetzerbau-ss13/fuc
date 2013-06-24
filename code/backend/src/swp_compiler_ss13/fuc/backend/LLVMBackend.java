@@ -141,9 +141,9 @@ public class LLVMBackend implements Backend
 		return tac;
 	}
 
-	private void parseArrayDeclaration(Module m, Iterator<Quadruple> tacIterator, String name, int size) throws BackendException
-	{
+	private LLVMBackendArrayType parseArrayDeclaration(Module m, Iterator<Quadruple> tacIterator, int size) throws BackendException {
 		boolean done = false;
+		Type type = null;
 		List<Integer> dimensions = new LinkedList<Integer>();
 		dimensions.add(size);
 
@@ -156,7 +156,6 @@ public class LLVMBackend implements Backend
 				dimensions.add(size);
 			}
 			else {
-				Type type = null;
 				switch(q.getOperator()) {
 					case DECLARE_DOUBLE:
 						type = new DoubleType();
@@ -170,14 +169,61 @@ public class LLVMBackend implements Backend
 					case DECLARE_STRING:
 						type = new StringType(0L);
 						break;
+					case DECLARE_STRUCT:
+						size = Integer.parseInt(q.getArgument1().substring(1));
+						assert(size >= 0);
+						type = this.parseStructDeclaration(m, tacIterator, size);
+						break;
 					default:
 						throw new BackendException("Unknown type for array declaration");
 				}
 
-				m.addArrayDeclare(new LLVMBackendArrayType(dimensions, type), name);
 				done = true;
 			}
 		}
+
+		return new LLVMBackendArrayType(dimensions, type);
+	}
+
+	private LLVMBackendStructType parseStructDeclaration(Module m, Iterator<Quadruple> tacIterator, int size) throws BackendException {
+		int i = 0;
+		List<Member> members = new LinkedList<Member>();
+
+		while((i < size) && tacIterator.hasNext()) {
+			Quadruple q = tacIterator.next();
+			int memberSize = 0;
+
+			switch(q.getOperator()) {
+				case DECLARE_DOUBLE:
+					members.add(new Member(q.getResult(), new DoubleType()));
+					break;
+				case DECLARE_LONG:
+					members.add(new Member(q.getResult(), new LongType()));
+					break;
+				case DECLARE_BOOLEAN:
+					members.add(new Member(q.getResult(), new BooleanType()));
+					break;
+				case DECLARE_STRING:
+					members.add(new Member(q.getResult(), new StringType(0L)));
+					break;
+				case DECLARE_ARRAY:
+					memberSize = Integer.parseInt(q.getArgument1().substring(1));
+					assert(size>=0);
+					members.add(new Member(q.getResult(), this.parseArrayDeclaration(m, tacIterator, memberSize)));
+					break;
+				case DECLARE_STRUCT:
+					memberSize = Integer.parseInt(q.getArgument1().substring(1));
+					assert(size>=0);
+					members.add(new Member(q.getResult(), this.parseStructDeclaration(m, tacIterator, memberSize)));
+					break;
+				default:
+					break;
+			}
+
+			i += 1;
+		}
+
+		return new LLVMBackendStructType(members);
 	}
 
 	/**
@@ -208,6 +254,7 @@ public class LLVMBackend implements Backend
 		while(tacIterator.hasNext())
 		{
 			Quadruple q = tacIterator.next();
+			int size = 0;
 
 			switch(q.getOperator())
 			{
@@ -242,9 +289,16 @@ public class LLVMBackend implements Backend
 					 * (as it is a meta-type) and thus get simply ignored. */
 					break;
 				case DECLARE_ARRAY:
-					int size = Integer.parseInt(q.getArgument1().substring(1));
+					size = Integer.parseInt(q.getArgument1().substring(1));
 					assert(size>=0);
-					this.parseArrayDeclaration(m, tacIterator, q.getResult(), size);
+					LLVMBackendArrayType array = this.parseArrayDeclaration(m, tacIterator, size);
+					m.addArrayDeclare(array, q.getResult());
+					break;
+				case DECLARE_STRUCT:
+					size = Integer.parseInt(q.getArgument1().substring(1));
+					assert(size>=0);
+					LLVMBackendStructType struct = this.parseStructDeclaration(m, tacIterator, size);
+					m.addStructDeclare(struct, q.getResult());
 					break;
 
 				/* Type conversion */
