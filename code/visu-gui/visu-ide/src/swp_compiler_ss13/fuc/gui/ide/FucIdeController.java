@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -32,7 +31,6 @@ import swp_compiler_ss13.common.parser.Parser;
 import swp_compiler_ss13.common.semanticAnalysis.SemanticAnalyser;
 import swp_compiler_ss13.fuc.backend.TACExecutor;
 import swp_compiler_ss13.fuc.backend.TACExecutor.ExecutionResult;
-import swp_compiler_ss13.fuc.errorLog.LogEntry;
 import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
 import swp_compiler_ss13.fuc.gui.ide.data.FucIdeButton;
 import swp_compiler_ss13.fuc.gui.ide.data.FucIdeMenu;
@@ -707,32 +705,9 @@ public class FucIdeController {
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
-
-				FucIdeController.this.view.clearErrorLog();
-				String[] logEntries = FucIdeController.this.getLogEntries(reportlog);
-				for (String logEntry : logEntries) {
-					FucIdeController.this.view.addErrorLog(logEntry);
-				}
-				if (logEntries.length == 0) {
-					FucIdeController.this.view.addErrorLog("No errors reported");
-				}
+				FucIdeController.this.view.displayErrorLog(reportlog);
 			}
 		});
-	}
-
-	protected String[] getLogEntries(ReportLogImpl reportlog) {
-		List<LogEntry> errors = reportlog.getEntries();
-		List<String> strings = new ArrayList<>(errors.size() * 4);
-		for (LogEntry error : errors) {
-			strings.add(error.getLogType() + ": " + error.getReportType());
-			strings.add(error.getMessage());
-			List<Token> tokenlist = error.getTokens();
-			if (tokenlist != null) {
-				strings.add(error.getTokens().toString());
-			}
-			strings.add("------------------");
-		}
-		return strings.toArray(new String[] {});
 	}
 
 	public void showTab(final Controller controller) {
