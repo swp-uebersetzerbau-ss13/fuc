@@ -3,6 +3,9 @@ package swp_compiler_ss13.fuc.parser.parser;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -31,10 +34,12 @@ public class ReduceImplTest {
 
 	
 	static ReportLog reportLog;
+	static List<Token> coverage = new LinkedList<Token>();
 	
 	@BeforeClass
 	public static void setUp() throws Exception {
 		reportLog = new ParserReportLogImpl();
+		coverage.clear();
 	}
 
 	@After

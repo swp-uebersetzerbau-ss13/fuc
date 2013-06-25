@@ -590,8 +590,7 @@ public class ReduceImpl {
 						writeReportError(reportLog, objs[2], "Number");
 					}
 					
-					int index = Integer.parseInt(literal.getLiteral());
-					arrayIdentifier.setIndex(index);
+					arrayIdentifier.setIndexNode(literal);
 					arrayIdentifier.setCoverage(literal.coverage());
 					
 					if(!(objs[3] instanceof Token)){
@@ -1100,12 +1099,14 @@ public class ReduceImpl {
 						((SymbolTableImpl)((BlockNode)stmt).getSymbolTable()).setParent(newBlock.getSymbolTable());
 					}else{
 						if(stmt instanceof DoWhileNode){
-							BlockNode block = ((DoWhileNode)stmt).getLoopBody();
-							((SymbolTableImpl)block.getSymbolTable()).setParent(newBlock.getSymbolTable());
+							StatementNode block = ((DoWhileNode)stmt).getLoopBody();
+							if(block instanceof BlockNode)
+								((SymbolTableImpl)((BlockNode)block).getSymbolTable()).setParent(newBlock.getSymbolTable());
 						}else{
 							if(stmt instanceof WhileNode){
-								BlockNode block = ((WhileNode)stmt).getLoopBody();
-								((SymbolTableImpl)block.getSymbolTable()).setParent(newBlock.getSymbolTable());
+								StatementNode block = ((WhileNode)stmt).getLoopBody();
+								if(block instanceof BlockNode)
+									((SymbolTableImpl)((BlockNode)block).getSymbolTable()).setParent(newBlock.getSymbolTable());
 							}	
 						}
 					}

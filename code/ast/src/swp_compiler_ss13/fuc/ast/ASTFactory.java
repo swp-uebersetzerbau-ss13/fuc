@@ -23,6 +23,7 @@ import swp_compiler_ss13.common.ast.nodes.unary.StructIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.unary.UnaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.unary.UnaryExpressionNode.UnaryOperator;
 import swp_compiler_ss13.common.types.Type;
+import swp_compiler_ss13.common.types.primitive.LongType;
 import swp_compiler_ss13.fuc.symbolTable.SymbolTableImpl;
 
 /**
@@ -445,7 +446,7 @@ public class ASTFactory {
 	 */
 	public ArrayIdentifierNode newArrayIdentifier(Integer index, IdentifierNode identifier) {
 		ArrayIdentifierNode arrayIdentifier = new ArrayIdentifierNodeImpl();
-		arrayIdentifier.setIndex(index);
+		arrayIdentifier.setIndexNode(newLiteral(index+"", new LongType()));
 		arrayIdentifier.setIdentifierNode(identifier);
 		identifier.setParentNode(arrayIdentifier);
 		return arrayIdentifier;

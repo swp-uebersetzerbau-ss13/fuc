@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import swp_compiler_ss13.common.ast.ASTNode;
+import swp_compiler_ss13.common.ast.nodes.ExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.IdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ArrayIdentifierNode;
 
@@ -30,7 +31,7 @@ public class ArrayIdentifierNodeImpl extends ASTNodeImpl implements ArrayIdentif
 	/**
 	 * the array index
 	 */
-	private Integer index;
+	private ExpressionNode index;
 
 	@Override
 	public ASTNodeType getNodeType() {
@@ -55,20 +56,20 @@ public class ArrayIdentifierNodeImpl extends ASTNodeImpl implements ArrayIdentif
 	}
 
 	@Override
-	public void setIndex(Integer index) {
+	public void setIndexNode(ExpressionNode index) {
 		if (index == null) {
 			logger.error("The given index can not be null");
 			throw new IllegalArgumentException("The given index can not be null");
 		}
-		if (index < 0) {
-			logger.error("The given index can not be less than 0");
-			throw new IllegalArgumentException("The given index can not be less than 0");
-		}
+//		if (index) {
+//			logger.error("The given index can not be less than 0");
+//			throw new IllegalArgumentException("The given index can not be less than 0");
+//		}
 		this.index = index;
 	}
 
 	@Override
-	public Integer getIndex() {
+	public ExpressionNode getIndexNode() {
 		if (this.index == null) {
 			logger.warn("Returning null as array index.");
 		}
@@ -91,5 +92,6 @@ public class ArrayIdentifierNodeImpl extends ASTNodeImpl implements ArrayIdentif
 		}
 		return this.identifier;
 	}
+
 
 }
