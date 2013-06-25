@@ -38,6 +38,11 @@ public class NodeComponent {
 	private static final int LOGO_HEIGHT = 30;
 
 	private final JComponent component;
+	private final JComponent iconComponent;
+	private final JComponent nameComponent;
+	private final JComponent infoComponent;
+
+	private boolean large = true;
 
 	public NodeComponent(ASTNode node) {
 		if (node.getChildren().isEmpty()) {
@@ -50,9 +55,18 @@ public class NodeComponent {
 			IMAGE_TYPE_MAP.put(null, getIconFromString(dir + "default.png"));
 			IMAGE_OPERATOR_MAP.put(null, getIconFromString(dir + "default.png"));
 		}
-		getComponent().add(new JLabel(getIcon(node)), BorderLayout.WEST);
-		getComponent().add(new JLabel(node.getNodeType().name()), BorderLayout.NORTH);
-		getComponent().add(getInfoComponent(node), BorderLayout.CENTER);
+		iconComponent = new JLabel(getIcon(node));
+		getComponent().add(iconComponent, BorderLayout.WEST);
+		nameComponent = new JLabel(node.getNodeType().name());
+		getComponent().add(nameComponent, BorderLayout.NORTH);
+		infoComponent = getInfoComponent(node);
+		getComponent().add(infoComponent, BorderLayout.CENTER);
+	}
+
+	void toggleSize() {
+		large = !large;
+		nameComponent.setVisible(large);
+		infoComponent.setVisible(large);
 	}
 
 	private JComponent getInfoComponent(ASTNode node) {
@@ -113,6 +127,7 @@ public class NodeComponent {
 		if (imageIcon != null) {
 			return imageIcon;
 		}
+		String imageName = null;
 		switch (node.getNodeType()) {
 		case ArithmeticBinaryExpressionNode:
 		case LogicBinaryExpressionNode:
@@ -124,43 +139,96 @@ public class NodeComponent {
 			}
 			switch (operator) {
 			case ADDITION:
-				imageIcon = getIconFromString(dir + "add.png");
-				IMAGE_OPERATOR_MAP.put(operator, imageIcon);
-				return imageIcon;
+				imageName = "add";
+				break;
 			case SUBSTRACTION:
-				imageIcon = getIconFromString(dir + "minus.png");
-				IMAGE_OPERATOR_MAP.put(operator, imageIcon);
-				return imageIcon;
+				imageName = "minus";
+				break;
 			case MULTIPLICATION:
-				imageIcon = getIconFromString(dir + "mult.png");
-				IMAGE_OPERATOR_MAP.put(operator, imageIcon);
-				return imageIcon;
+				imageName = "mult";
+				break;
 			case DIVISION:
-				imageIcon = getIconFromString(dir + "div.png");
-				IMAGE_OPERATOR_MAP.put(operator, imageIcon);
-				return imageIcon;
+				imageName = "div";
+				break;
 			case EQUAL:
-				imageIcon = getIconFromString(dir + "equal.png");
-				IMAGE_OPERATOR_MAP.put(operator, imageIcon);
-				return imageIcon;
+				imageName = "equal";
+				break;
+			case GREATERTHAN:
+				imageName = "greater";
+				break;
+			case GREATERTHANEQUAL:
+				imageName = "greater_equal";
+				break;
+			case INEQUAL:
+				imageName = "inequal";
+				break;
+			case LESSTHAN:
+				imageName = "less";
+				break;
+			case LESSTHANEQUAL:
+				imageName = "less_equal";
+				break;
+			case LOGICAL_AND:
+				imageName = "ampersand";
+				break;
+			case LOGICAL_OR:
+				imageName = "or";
+				break;
 			default:
 				return IMAGE_OPERATOR_MAP.get(null);
 			}
+			imageIcon = getIconFromString(dir + imageName + ".png");
+			IMAGE_OPERATOR_MAP.put(operator, imageIcon);
+			return imageIcon;
 		case LogicUnaryExpressionNode:
-			imageIcon = getIconFromString(dir + "not.png");
-			IMAGE_TYPE_MAP.put(node.getNodeType(), imageIcon);
-			return imageIcon;
+			imageName = "not";
+			break;
+		case ArithmeticUnaryExpressionNode:
+			imageName = "minus";
+			break;
 		case BlockNode:
-			imageIcon = getIconFromString(dir + "braces.png");
-			IMAGE_TYPE_MAP.put(node.getNodeType(), imageIcon);
-			return imageIcon;
+			imageName = "braces";
+			break;
 		case AssignmentNode:
-			imageIcon = getIconFromString(dir + "equal.png");
-			IMAGE_TYPE_MAP.put(node.getNodeType(), imageIcon);
-			return imageIcon;
+			imageName = "assign";
+			break;
+		case ArrayIdentifierNode:
+			imageName = "array";
+			break;
+		case BasicIdentifierNode:
+			imageName = "basicIdentifier";
+			break;
+		case BranchNode:
+			imageName = "if_else";
+			break;
+		case DeclarationNode:
+			imageName = "decl";
+			break;
+		case DoWhileNode:
+		case WhileNode:
+			imageName = "loop";
+			break;
+		case StructIdentifierNode:
+			imageName = "struct";
+			break;
+		case PrintNode:
+			imageName = "print";
+			break;
+		case BreakNode:
+			imageName = "break";
+			break;
+		case ReturnNode:
+			imageName = "return";
+			break;
+		case LiteralNode:
+			imageName = "literal";
+			break;
 		default:
 			return IMAGE_TYPE_MAP.get(null);
 		}
+		imageIcon = getIconFromString(dir + imageName + ".png");
+		IMAGE_TYPE_MAP.put(node.getNodeType(), imageIcon);
+		return imageIcon;
 	}
 
 	private ImageIcon getIconFromString(String resource) {

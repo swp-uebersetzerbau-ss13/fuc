@@ -11,6 +11,7 @@ import javax.swing.JMenu;
 import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.lexer.Token;
+import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
 
 /**
  * Interface for access to the GUI panels.
@@ -161,4 +162,12 @@ public interface IDE {
 	 *            The controller to show the tabe for
 	 */
 	public void showTab(Controller controller);
+
+	/**
+	 * Reports the last used report log. Never returns null but an empty report
+	 * log instead
+	 * 
+	 * @return the last used report log
+	 */
+	public ReportLogImpl getReportLog();
 }
