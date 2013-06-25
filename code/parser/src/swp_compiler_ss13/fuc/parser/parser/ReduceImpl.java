@@ -27,6 +27,8 @@ import swp_compiler_ss13.common.report.ReportLog;
 import swp_compiler_ss13.common.report.ReportType;
 import swp_compiler_ss13.common.types.Type;
 import swp_compiler_ss13.common.types.derived.ArrayType;
+import swp_compiler_ss13.common.types.derived.Member;
+import swp_compiler_ss13.common.types.derived.StructType;
 import swp_compiler_ss13.common.types.primitive.BooleanType;
 import swp_compiler_ss13.common.types.primitive.DoubleType;
 import swp_compiler_ss13.common.types.primitive.LongType;
@@ -415,6 +417,7 @@ public class ReduceImpl {
 						ExpressionNode expression = (ExpressionNode) assign;
 						whileImpl.setCondition(expression);
 						whileImpl.setCoverage(expression.coverage());
+						expression.setParentNode(whileImpl);
 					}else{
 						writeReportError(reportLog, assign, "Expression");
 					}
@@ -429,11 +432,13 @@ public class ReduceImpl {
 						StatementNode block = (StatementNode) stmt;
 						//TODO: whileImpl.setLoopBody(block);
 						whileImpl.setCoverage(block.coverage());
+						block.setParentNode(whileImpl);
 					}else{
 						if(stmt instanceof BlockNode){
 							BlockNode block = (BlockNode) stmt;
 							whileImpl.setLoopBody(block);
 							whileImpl.setCoverage(block.coverage());
+							block.setParentNode(whileImpl);
 						}
 						writeReportError(reportLog, stmt, "Statement");
 					}
@@ -459,11 +464,13 @@ public class ReduceImpl {
 						StatementNode block = (StatementNode) stmt;
 						//TODO: whileImpl.setLoopBody(block);
 						whileImpl.setCoverage(block.coverage());
+						block.setParentNode(whileImpl);
 					}else{
 						if(stmt instanceof BlockNode){
 							BlockNode block = (BlockNode) stmt;
 							whileImpl.setLoopBody(block);
 							whileImpl.setCoverage(block.coverage());
+							block.setParentNode(whileImpl);
 						}
 						writeReportError(reportLog, stmt, "Statement");
 					}
@@ -479,6 +486,7 @@ public class ReduceImpl {
 						ExpressionNode expression = (ExpressionNode) assign;
 						whileImpl.setCondition(expression);
 						whileImpl.setCoverage(expression.coverage());
+						expression.setParentNode(whileImpl);
 					}else{
 						writeReportError(reportLog, assign, "Expression");
 					}
@@ -986,28 +994,46 @@ public class ReduceImpl {
 				@Override
 				public Object create(Object... objs) throws ParserException  {
 					
-					//TODO: 
-//					StructIdentifierNodeImpl struct = new StructIdentifierNodeImpl();
-//					
-//					if(!(objs[0] instanceof Token)){
-//						writeReportError(reportLog, objs[0], "Record");
-//					}
-//					
-//					if(!(objs[1] instanceof Token)){
-//						writeReportError(reportLog, objs[1], "{");
-//					}
-//					
-//					struct.setCoverage((Token)objs[0], (Token)objs[1]);
-//					
-//					if(!(objs[2] instanceof BlockNode)){
-//						writeReportError(reportLog, objs[2], "Declarations" );
-//					}
-//					
-//					BlockNode block = (BlockNode)objs[2];
-//					
-//					
-//					
-					return null;
+					DeclarationNodeImpl struct = new DeclarationNodeImpl();
+					
+					if(!(objs[0] instanceof Token)){
+						writeReportError(reportLog, objs[0], "Record");
+					}
+					
+					if(!(objs[1] instanceof Token)){
+						writeReportError(reportLog, objs[1], "{");
+					}
+					
+					struct.setCoverage((Token)objs[0], (Token)objs[1]);
+					
+					if(!(objs[2] instanceof BlockNode)){
+						writeReportError(reportLog, objs[2], "Declarations" );
+					}
+					
+					
+					BlockNode blockNode = (BlockNode)objs[2];
+					List<DeclarationNode> decls = blockNode.getDeclarationList();
+					
+					int size = decls.size();
+					Member[] members = new Member[size];
+					
+					for(int i = 0; i<size; i++){
+						DeclarationNode declarationNode = decls.get(i);
+						members[i] = new Member(declarationNode.getIdentifier(), declarationNode.getType());
+					}
+					
+					StructType type = new StructType("record", members);
+					struct.setType(type);
+					
+					struct.setCoverage(blockNode.coverage());
+					
+					if(!(objs[3] instanceof Token)){
+						writeReportError(reportLog, objs[1], "}");
+					}
+					
+					struct.setCoverage((Token)objs[3]);
+					
+					return struct;
 				}
 
 			};
