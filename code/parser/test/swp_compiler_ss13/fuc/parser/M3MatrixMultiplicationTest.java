@@ -7,7 +7,11 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import swp_compiler_ss13.common.ast.AST;
+import swp_compiler_ss13.common.types.derived.ArrayType;
+import swp_compiler_ss13.common.types.primitive.LongType;
+import swp_compiler_ss13.common.types.primitive.StringType;
 import swp_compiler_ss13.fuc.ast.ASTFactory;
+import swp_compiler_ss13.fuc.parser.parser.LRParser;
 
 public class M3MatrixMultiplicationTest {
 	static {
@@ -130,6 +134,31 @@ public class M3MatrixMultiplicationTest {
 		assertNotNull(ast);
 		
 		ASTFactory factory = new ASTFactory();
+		factory.addDeclaration("ax", new LongType());
+		factory.addDeclaration("ay", new LongType());
+		factory.addDeclaration("bx", new LongType());
+		factory.addDeclaration("by", new LongType());
+		factory.addDeclaration("ix", new LongType());
+		factory.addDeclaration("iy", new LongType());
+		factory.addDeclaration("i", new LongType());		 
+		//Matrix 
+		factory.addDeclaration("a", new ArrayType(new ArrayType(new LongType(), 4), 3));
+		factory.addDeclaration("b", new ArrayType(new ArrayType(new LongType(), 3), 2));
+		factory.addDeclaration("c", new ArrayType(new ArrayType(new LongType(), 4), 2));
+		//String		 
+		factory.addDeclaration("sep", new StringType(LRParser.STRING_LENGTH));
+		factory.addDeclaration("br", new StringType(LRParser.STRING_LENGTH));
+		factory.addAssignment(factory.newBasicIdentifier("sep"), factory.newLiteral("|", new StringType(20L)));
+		factory.addAssignment(factory.newBasicIdentifier("br"), factory.newLiteral("\n", new StringType(20L)));
+		//value
+		factory.addAssignment(factory.newBasicIdentifier("ax"), factory.newLiteral("4", new LongType()));
+		factory.addAssignment(factory.newBasicIdentifier("ay"), factory.newLiteral("3", new LongType()));
+		factory.addAssignment(factory.newBasicIdentifier("bx"), factory.newLiteral("3", new LongType()));
+		factory.addAssignment(factory.newBasicIdentifier("by"), factory.newLiteral("2", new LongType()));
+		factory.addAssignment(factory.newBasicIdentifier("ix"), factory.newLiteral("0", new LongType()));
+		//init a
+		
+		
 //		factory.addDeclaration("l", new LongType());
 //		factory.addDeclaration("d", new DoubleType());
 //		factory.addDeclaration("s", new StringType(LRParser.STRING_LENGTH));
