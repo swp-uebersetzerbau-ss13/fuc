@@ -87,13 +87,18 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 	/**
 	 * is used to store the level of the outermost array index
 	 */
-	Integer arrayLevel = null;
+	String arrayLevel = null;
 
 	/**
 	 * when processing an arrayIdentifier it needs to be known if it is used in
 	 * an assignment or referenced
 	 */
 	Boolean arrayAssignment = false;
+
+	/**
+	 * Name of the label to break the current loop
+	 */
+	String loopBreakLabel;
 
 	/**
 	 * Reset the intermediate code generator. This is called first for every
@@ -333,8 +338,39 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 	 */
 	private void processWhileNode(WhileNode node)
 			throws IntermediateCodeGeneratorException {
-		throw new IntermediateCodeGeneratorException(
-				new UnsupportedOperationException());
+
+		// label before condition
+		String beforeCondition = this.createNewLabel();
+		// label at the beginning of the loop body
+		String loopBody = this.createNewLabel();
+		// label after the loop
+		String endOfLoop = this.createNewLabel();
+
+		this.loopBreakLabel = endOfLoop;
+
+		this.irCode.add(QuadrupleFactory.label(beforeCondition));
+
+		// evaluate thte condition
+		ExpressionNode condition = node.getCondition();
+		this.callProcessing(condition);
+		IntermediateResult conditionResult = this.intermediateResults.pop();
+
+		// if condition does not evaluate to boolean throw an error
+		if (conditionResult.getType().getKind() != Kind.BOOLEAN) {
+			throw new IntermediateCodeGeneratorException("Condition must be of type Boolean but is of type "
+					+ conditionResult.getType());
+		}
+
+		// create the ir code
+		this.irCode.add(QuadrupleFactory.branch(conditionResult.getValue(), loopBody, endOfLoop));
+		this.irCode.add(QuadrupleFactory.label(loopBody));
+
+		this.callProcessing(node.getLoopBody());
+
+		this.irCode.add(QuadrupleFactory.jump(beforeCondition));
+		this.irCode.add(QuadrupleFactory.label(endOfLoop));
+
+		this.loopBreakLabel = null;
 	}
 
 	/**
@@ -385,7 +421,18 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 			throws IntermediateCodeGeneratorException {
 		this.callProcessing(node.getRightValue());
 		IntermediateResult result = this.intermediateResults.pop();
-		this.irCode.add(QuadrupleFactory.print(result.getValue(), result.getType()));
+
+		String variable = result.getValue();
+		Type type = result.getType();
+		if (result.getType().getKind() != Kind.STRING) {
+			// if variable is not of type string cast it to string!
+			String tmp = this.createAndSaveTemporaryIdentifier(new StringType(255L));
+			this.irCode.add(CastingFactory.createCast(result.getType(), result.getValue(), new StringType(255L), tmp));
+			variable = tmp;
+			type = new StringType(255L);
+		}
+
+		this.irCode.add(QuadrupleFactory.print(variable, type));
 	}
 
 	/**
@@ -521,7 +568,7 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 	}
 
 	/**
-	 * Process a relationexpression node
+	 * Process a DoWhile node
 	 * 
 	 * @param node
 	 *            the node to process
@@ -530,8 +577,34 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 	 */
 	private void processDoWhileNode(DoWhileNode node)
 			throws IntermediateCodeGeneratorException {
-		throw new IntermediateCodeGeneratorException(
-				new UnsupportedOperationException());
+
+		// label before do while loop
+		String beforeLoop = this.createNewLabel();
+		// label at the end of the loop
+		String endOfLoop = this.createNewLabel();
+
+		this.loopBreakLabel = endOfLoop;
+
+		// evaluate thte condition
+		ExpressionNode condition = node.getCondition();
+		this.callProcessing(condition);
+		IntermediateResult conditionResult = this.intermediateResults.pop();
+
+		// if condition does not evaluate to boolean throw an error
+		if (conditionResult.getType().getKind() != Kind.BOOLEAN) {
+			throw new IntermediateCodeGeneratorException("Condition must be of type Boolean but is of type "
+					+ conditionResult.getType());
+		}
+
+		// create the ir code
+		this.irCode.add(QuadrupleFactory.label(beforeLoop));
+
+		this.callProcessing(node.getLoopBody());
+
+		this.irCode.add(QuadrupleFactory.branch(conditionResult.getValue(), beforeLoop, endOfLoop));
+		this.irCode.add(QuadrupleFactory.label(endOfLoop));
+
+		this.loopBreakLabel = null;
 	}
 
 	/**
@@ -560,8 +633,11 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 	 */
 	private void processBreakNode(BreakNode node)
 			throws IntermediateCodeGeneratorException {
-		throw new IntermediateCodeGeneratorException(
-				new UnsupportedOperationException());
+		if (this.loopBreakLabel == null) {
+			throw new IntermediateCodeGeneratorException("You can not use break outside of a loop!");
+		}
+
+		this.irCode.add(QuadrupleFactory.jump(this.loopBreakLabel));
 	}
 
 	/**
@@ -647,7 +723,7 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 		this.arrayAssignment = true;
 		this.arrayLevel = null;
 		this.callProcessing(id);
-		Integer toArrayIndex = this.arrayLevel;
+		String toArrayIndex = this.arrayLevel;
 		this.arrayLevel = null;
 
 		IntermediateResult toIntermediate = this.intermediateResults.pop();
@@ -658,7 +734,7 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 
 		// process the right hand expression
 		this.callProcessing(value);
-		Integer fromArrayIndex = this.arrayLevel;
+		String fromArrayIndex = this.arrayLevel;
 		this.arrayLevel = null;
 		this.arrayAssignment = false;
 
@@ -740,7 +816,10 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 
 		boolean outerArray = false;
 		if (this.arrayLevel == null) {
-			this.arrayLevel = node.getIndex();
+			ExpressionNode indexNode = node.getIndexNode();
+			this.callProcessing(indexNode);
+			IntermediateResult index = this.intermediateResults.pop();
+			this.arrayLevel = index.getValue();
 			outerArray = true;
 		}
 
@@ -765,8 +844,10 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 			if (outerArray) {
 				arrayType = nodeType;
 			}
+			this.callProcessing(node.getIndexNode());
+			IntermediateResult indexvalue = this.intermediateResults.pop();
 			this.irCode.add(QuadrupleFactory.arrayGet(arrayType,
-					innerResult.getValue(), "#" + node.getIndex(),
+					innerResult.getValue(), indexvalue.getValue(),
 					tmpIdentifier));
 			this.intermediateResults.push(new IntermediateResult(tmpIdentifier,
 					innerResult.getType()));

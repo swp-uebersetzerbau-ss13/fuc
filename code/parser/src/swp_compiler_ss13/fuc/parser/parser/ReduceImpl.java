@@ -12,9 +12,7 @@ import swp_compiler_ss13.common.ast.nodes.IdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.StatementNode;
 import swp_compiler_ss13.common.ast.nodes.binary.AssignmentNode;
 import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode.BinaryOperator;
-import swp_compiler_ss13.common.ast.nodes.binary.DoWhileNode;
-import swp_compiler_ss13.common.ast.nodes.binary.WhileNode;
-import swp_compiler_ss13.common.ast.nodes.leaf.LiteralNode;
+import swp_compiler_ss13.common.ast.nodes.binary.LoopNode;
 import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
 import swp_compiler_ss13.common.ast.nodes.ternary.BranchNode;
 import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
@@ -563,7 +561,7 @@ public class ReduceImpl {
 			return new ReduceAction() {
 				@Override
 				public Object create(Object... objs) throws ParserException  {
-					ArrayIdentifierNodeImpl arrayIdentifier= new ArrayIdentifierNodeImpl();
+					ArrayIdentifierNodeImpl arrayIdentifier = new ArrayIdentifierNodeImpl();
 					
 					if(!(objs[0] instanceof IdentifierNode)){
 						writeReportError(reportLog, objs[0], "Identifier");
@@ -581,17 +579,22 @@ public class ReduceImpl {
 					Token leftSquareBracket = (Token) objs[1];
 					arrayIdentifier.setCoverage(leftSquareBracket);
 
-					if(!(objs[2] instanceof LiteralNode)){
-						writeReportError(reportLog, objs[2], "Literal");
+					if(!(objs[2] instanceof ExpressionNode)){
+						writeReportError(reportLog, objs[2], "Expression");
 					}					
 					
-					LiteralNode literal = (LiteralNode)objs[2];
-					if(!(literal.getLiteralType() instanceof LongType)){
-						writeReportError(reportLog, objs[2], "Number");
-					}
-					
-					arrayIdentifier.setIndexNode(literal);
-					arrayIdentifier.setCoverage(literal.coverage());
+
+//					LiteralNode literal = (LiteralNode)objs[2];
+//					if(!(literal.getLiteralType() instanceof LongType)){
+//						writeReportError(reportLog, objs[2], "Number");
+//					}
+//					
+//					arrayIdentifier.setIndexNode(literal);
+//					arrayIdentifier.setCoverage(literal.coverage());
+
+					ExpressionNode assign = (ExpressionNode)objs[2];
+					arrayIdentifier.setIndexNode(assign);
+					arrayIdentifier.setCoverage(assign.coverage());
 					
 					if(!(objs[3] instanceof Token)){
 						writeReportError(reportLog, objs[1], "Token [");
@@ -1097,17 +1100,11 @@ public class ReduceImpl {
 				}else{
 					if(stmt instanceof BlockNode){
 						((SymbolTableImpl)((BlockNode)stmt).getSymbolTable()).setParent(newBlock.getSymbolTable());
-					}else{
-						if(stmt instanceof DoWhileNode){
-							StatementNode block = ((DoWhileNode)stmt).getLoopBody();
-							if(block instanceof BlockNode)
-								((SymbolTableImpl)((BlockNode)block).getSymbolTable()).setParent(newBlock.getSymbolTable());
-						}else{
-							if(stmt instanceof WhileNode){
-								StatementNode block = ((WhileNode)stmt).getLoopBody();
-								if(block instanceof BlockNode)
-									((SymbolTableImpl)((BlockNode)block).getSymbolTable()).setParent(newBlock.getSymbolTable());
-							}	
+					} else if (stmt instanceof LoopNode) {
+						StatementNode childStmt = ((LoopNode)stmt).getLoopBody();
+						if (childStmt instanceof BlockNode) {
+							BlockNode block = (BlockNode) childStmt;
+							((SymbolTableImpl)block.getSymbolTable()).setParent(newBlock.getSymbolTable());
 						}
 					}
 				}

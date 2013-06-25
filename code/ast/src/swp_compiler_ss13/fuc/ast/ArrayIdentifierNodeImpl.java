@@ -61,10 +61,7 @@ public class ArrayIdentifierNodeImpl extends ASTNodeImpl implements ArrayIdentif
 			logger.error("The given index can not be null");
 			throw new IllegalArgumentException("The given index can not be null");
 		}
-//		if (index) {
-//			logger.error("The given index can not be less than 0");
-//			throw new IllegalArgumentException("The given index can not be less than 0");
-//		}
+
 		this.index = index;
 	}
 

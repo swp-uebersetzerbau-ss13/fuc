@@ -320,7 +320,7 @@ public class ASTComparator {
 	
 	private static void compare(ArrayIdentifierNode expected, ArrayIdentifierNode actual) {
 		compare(expected.getIdentifierNode(), actual.getIdentifierNode());
-		assertEquals(expected.getIndexNode(), actual.getIndexNode());
+		compare(expected.getIndexNode(), actual.getIndexNode());
 	}
 	
 	private static void compare(BasicIdentifierNode expected, BasicIdentifierNode actual) {
