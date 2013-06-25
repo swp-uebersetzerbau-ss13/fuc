@@ -7,6 +7,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import swp_compiler_ss13.common.ast.AST;
+import swp_compiler_ss13.common.types.derived.ArrayType;
+import swp_compiler_ss13.common.types.primitive.LongType;
 import swp_compiler_ss13.fuc.ast.ASTFactory;
 
 public class M3FibTest {
@@ -71,26 +73,41 @@ public class M3FibTest {
 
 	private static void checkAst(AST ast) {
 		assertNotNull(ast);
+		ASTFactory factory = new ASTFactory();		
+		//Array
+		factory.addDeclaration("numbers",  new ArrayType(new LongType(), 21));
+		//Assignment
+		factory.addAssignment(factory.newBasicIdentifier("i"), factory.newLiteral("0", new LongType()));
+		//Begin Block
+		factory.addBlock();
 		
-		ASTFactory factory = new ASTFactory();
-//		factory.addDeclaration("l", new LongType());
-//		factory.addDeclaration("d", new DoubleType());
-//		factory.addDeclaration("s", new StringType(LRParser.STRING_LENGTH));
-//		factory.addDeclaration("b", new BooleanType());
-//
-//		factory.addDeclaration("linebreak", new StringType(LRParser.STRING_LENGTH));
-//		factory.addAssignment(factory.newBasicIdentifier("linebreak"), factory.newLiteral("\"\\n\"", new StringType(4L)));
-//		factory.addAssignment(factory.newBasicIdentifier("b"), factory.newLiteral("true", new BooleanType()));
-//		factory.addAssignment(factory.newBasicIdentifier("l"), factory.newLiteral("18121313223", new LongType()));
-//		factory.addAssignment(factory.newBasicIdentifier("d"), factory.newLiteral("-23.23e-100", new DoubleType()));
-//		factory.addAssignment(factory.newBasicIdentifier("s"), factory.newLiteral("\"jagÄrEttString\\\"\\n\"", new StringType(20L)));
-//		
-//		factory.addPrint(factory.newBasicIdentifier("b")); factory.addPrint(factory.newBasicIdentifier("linebreak"));
-//		factory.addPrint(factory.newBasicIdentifier("l")); factory.addPrint(factory.newBasicIdentifier("linebreak"));
-//		factory.addPrint(factory.newBasicIdentifier("d")); factory.addPrint(factory.newBasicIdentifier("linebreak"));
-//		factory.addPrint(factory.newBasicIdentifier("s"));
-//		
-//		factory.addReturn(null);
+		//Assignment
+		factory.addDeclaration("i", new LongType());
+		factory.addAssignment(factory.newBasicIdentifier("i"), factory.newLiteral("2", new LongType()));
+		//Assignment for  the two arrays
+        factory.addAssignment(factory.newBasicIdentifier("numbers"), factory.newLiteral("0", new ArrayType(new LongType(), 0)));
+        factory.addAssignment(factory.newBasicIdentifier("numbers"), factory.newLiteral("1", new ArrayType(new LongType(), 1)));
+		
+        // while loop
+        factory.addWhile(factory.newBasicIdentifier("i < 21"));
+        	//Begin Block
+      		factory.addBlock();
+      		
+      		
+      		//End Block
+    		factory.addBlock();
+       
+ 		//print numbers[20]; 
+    	 
+ 		factory.addPrint(factory.newArrayIdentifier(factory.newBasicIdentifier("20"), factory.newBasicIdentifier("numbers")));
+ 		//return numbers[15];
+ 		factory.addReturn(factory.newArrayIdentifier(factory.newBasicIdentifier("15"), factory.newBasicIdentifier("numbers")));
+ 		
+ 		
+ 		//End Block
+ 		factory.addBlock();
+		
+
 		
 		AST expected = factory.getAST();
 		ASTComparator.compareAST(expected, ast);
