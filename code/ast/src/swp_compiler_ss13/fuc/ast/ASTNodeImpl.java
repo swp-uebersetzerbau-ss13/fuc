@@ -3,6 +3,7 @@ package swp_compiler_ss13.fuc.ast;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import swp_compiler_ss13.common.ast.ASTNode;
 import swp_compiler_ss13.common.lexer.Token;
@@ -82,5 +83,21 @@ public abstract class ASTNodeImpl implements ASTNode {
 		}
 	}
 	
+	@Override
+	public Map<?,?> getAttributeValues(){
+		return null;
+		
+	}
+	
+	@Override
+	public Object getAttributeValue(Object attribute){
+		return attribute;
+		
+	}
+	
+	@Override
+	public void setAttributeValue(Object attribute, Object value){
+		
+	}
 	
 }
