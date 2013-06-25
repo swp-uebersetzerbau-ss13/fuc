@@ -1,4 +1,4 @@
-package swp_compiler_ss13.fuc.ir.test.m3;
+package swp_compiler_ss13.fuc.ir.test.ms3;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
