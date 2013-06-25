@@ -87,6 +87,7 @@ public class StructTests {
 		AST ast = astFactory.getAST();
 		analyser.analyse(ast);
 		
+		System.out.println(log);
 		assertFalse(log.hasErrors());
 	}
 	
@@ -124,6 +125,7 @@ public class StructTests {
 		AST ast = astFactory.getAST();
 		analyser.analyse(ast);
 
+		System.out.println(log);
 		List<LogEntry> errors = log.getErrors();
 		assertEquals(errors.size(), 1);
 		assertEquals(errors.get(0).getReportType(), ReportType.TYPE_MISMATCH);
@@ -150,6 +152,7 @@ public class StructTests {
 		AST ast = astFactory.getAST();
 		analyser.analyse(ast);
 		
+		System.out.println(log);
 		List<LogEntry> errors = log.getErrors();
 		assertEquals(errors.size(), 1);
 		assertEquals(errors.get(0).getReportType(), ReportType.TYPE_MISMATCH);
@@ -177,6 +180,7 @@ public class StructTests {
 		AST ast = astFactory.getAST();
 		analyser.analyse(ast);
 		
+		System.out.println(log);
 		List<LogEntry> errors = log.getErrors();
 		assertEquals(errors.size(), 1);
 		assertEquals(errors.get(0).getReportType(), ReportType.TYPE_MISMATCH);
