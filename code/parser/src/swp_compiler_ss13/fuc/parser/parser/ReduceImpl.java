@@ -1020,6 +1020,7 @@ public class ReduceImpl {
 					for(int i = 0; i<size; i++){
 						DeclarationNode declarationNode = decls.get(i);
 						members[i] = new Member(declarationNode.getIdentifier(), declarationNode.getType());
+						struct.setCoverage(declarationNode.coverage());
 					}
 					
 					StructType type = new StructType("record", members);
