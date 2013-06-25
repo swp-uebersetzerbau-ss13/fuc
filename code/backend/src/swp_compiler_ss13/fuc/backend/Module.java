@@ -3,6 +3,10 @@ package swp_compiler_ss13.fuc.backend;
 import swp_compiler_ss13.common.backend.BackendException;
 import swp_compiler_ss13.common.backend.Quadruple;
 
+import swp_compiler_ss13.common.types.*;
+import swp_compiler_ss13.common.types.primitive.*;
+import swp_compiler_ss13.common.types.derived.*;
+
 import java.io.PrintWriter;
 import java.util.*;
 import java.io.UnsupportedEncodingException;
@@ -47,7 +51,6 @@ public class Module
 	 *
 	 */
 	private Map<String,Integer> variableUseCount;
-	private Set<String> variableIsReference;
 
 	/**
 	 * The <code>PrintWriter</code> which
@@ -55,6 +58,10 @@ public class Module
 	 *
 	 */
 	private PrintWriter out;
+
+	private Map<String,Map.Entry<String,List<Long>>> references;
+
+	private Map<String,DerivedType> derivedTypes;
 
 	/**
 	 * Creates a new <code>Module</code> instance.
@@ -78,7 +85,8 @@ public class Module
 	{
 		stringLiterals = new ArrayList<Integer>();
 		variableUseCount = new HashMap<String,Integer>();
-		variableIsReference = new HashSet<String>();
+		references = new HashMap<String,Map.Entry<String,List<Long>>>();
+		derivedTypes = new HashMap<String,DerivedType>();
 
 		/* Add fake temporary variable */
 		variableUseCount.put(".tmp", 0);
@@ -170,17 +178,22 @@ public class Module
 	 *          double x[5][10][7] --> [5,10,7]
 	 * @return the corresponding LLVM IR type for the array
 	 */
-	private String getIRAType(Kind type, List<Integer> dimensions) {
+	private String getIRAType(Type type, List<Integer> dimensions) {
 		return getIRAType(type,dimensions,false);
 	}
-	private String getIRAType(Kind type, List<Integer> dimensions, boolean as_ptr)
+	private String getIRAType(Type type, List<Integer> dimensions, boolean as_ptr)
 	{
 		String irType = "";
 		// write dimensions
 		for (int d : dimensions)
 			irType = irType + "[" + d + " x ";
 		// write actual type
-		irType = irType + getIRType(type);
+		if(type instanceof PrimitiveType) {
+			irType = irType + getIRType(type.getKind());
+		}
+		else if(type instanceof LLVMBackendStructType) {
+			irType += getIRSType(((LLVMBackendStructType) type).getMembers());
+		}
 		// write closing brakets
 		for (int d : dimensions)
 			irType += "]";
@@ -188,9 +201,31 @@ public class Module
 		return irType + (as_ptr ? "*" : "");
 	}
 
-	// stores the types of array variables and references,
-	//  necessary due to TAC design decisions and strict typing policy in LLVM-IR.
-	private Map<String,ArrayType> arNamespace = new HashMap<String,ArrayType>();
+	private String getIRSType(List<Member> members) {
+		String irType = "{ ";
+
+		for(Member m: members) {
+			Type type = m.getType();
+
+			if(type instanceof PrimitiveType) {
+				irType += getIRType(type.getKind());
+			}
+			else if(type instanceof LLVMBackendArrayType) {
+				LLVMBackendArrayType array = (LLVMBackendArrayType) type;
+				irType += getIRAType(array.getStorageType(), array.getDimensions());
+			}
+			else if(type instanceof LLVMBackendStructType) {
+				LLVMBackendStructType struct = (LLVMBackendStructType) type;
+				irType += getIRSType(struct.getMembers());
+			}
+
+			irType += ", ";
+		}
+
+		irType = irType.substring(0, irType.length() - 2);
+
+		return irType + " }";
+	}
 
 	/**
 	 * Gets the LLVM IR instruction for a binary TAC operator
@@ -293,6 +328,9 @@ public class Module
 				break;
 			case DIV_DOUBLE:
 				irCall = "div_double";
+				break;
+			case CONCAT_STRING:
+				irCall = "concat_string";
 				break;
 		}
 
@@ -451,18 +489,20 @@ public class Module
 		return variableIdentifier;
 	}
 
-	public void addNewReference(String ident)
-	{
-		variableUseCount.put(ident, 0);
-		variableIsReference.add(ident);
-	}
-
-	public String addArrayDeclare(Kind type, List<Integer> sizes, String identifier)
-	{
-		String irType = getIRAType(type,sizes);
+	public String addArrayDeclare(LLVMBackendArrayType type, String identifier)	{
+		String irType = getIRAType(type.getStorageType(), type.getDimensions());
 		String variableIdentifier = "%" + identifier;
 		variableUseCount.put(identifier, 0);
-		arNamespace.put(identifier, new ArrayType(sizes,type));
+		derivedTypes.put(identifier, type);
+		gen(variableIdentifier + " = alloca " + irType);
+		return variableIdentifier;
+	}
+
+	public String addStructDeclare(LLVMBackendStructType type, String identifier) {
+		String irType = getIRSType(type.getMembers());
+		String variableIdentifier = "%" + identifier;
+		variableUseCount.put(identifier, 0);
+		derivedTypes.put(identifier, type);
 		gen(variableIdentifier + " = alloca " + irType);
 		return variableIdentifier;
 	}
@@ -479,10 +519,25 @@ public class Module
 	public void addPrimitiveDeclare(Kind type, String variable, String initializer) throws BackendException {
 		addNewVariable(type, variable);
 
-		if(!initializer.equals(Quadruple.EmptyArgument))
-		{
-			addPrimitiveAssign(type, variable, initializer);
+		/* Set default initializer */
+		if(initializer.equals(Quadruple.EmptyArgument)) {
+			switch(type) {
+				case LONG:
+					initializer = "#0";
+					break;
+				case DOUBLE:
+					initializer = "#0.0";
+					break;
+				case BOOLEAN:
+					initializer = "#FALSE";
+					break;
+				case STRING:
+					initializer = "#\"\"";
+					break;
+			}
 		}
+
+		addPrimitiveAssign(type, variable, initializer);
 	}
 
 	/**
@@ -528,11 +583,11 @@ public class Module
 		}
 	}
 
-	/** 
+	/**
 	 *  Conditionally loads a constant or an identifier. If given a constant, just the leading # character
 	 *  is removed. If given a variable (anything without leading # character),
 	 *  it is being loaded and the temporary register name is returned.
-	 *	
+	 *
 	 *	@param constantOrIdentifier Name of a constant or identifier.
 	 *  @returns name of usable primitive
 	 */
@@ -559,62 +614,257 @@ public class Module
 		}
 	}
 
-	public void addArrayGet(String arrayName, int idx, String dst) throws BackendException {
-		ArrayType arType = arNamespace.get(arrayName);
-		String arrayTypeStr = getIRAType(arType.storage_type,arType.dimensions);
-		String realsource;
-		// if source is a reference, we have to consider multiple assignments to it due to SSA
-		if(variableIsReference.contains(arrayName))
-			realsource = "%" + arrayName + "." + (variableUseCount.get(arrayName)-1);
-		else
-		    realsource = "%" + arrayName;
-		//  if the array has more than one level, dst must be a reference
-		if(arType.dimensions.size() > 1) {
-			// reference mode (returns a reference)
-			// in reference mode, we just store the getelementptr result into dst
-			gen(getUseIdentifierForVariable(dst) + " = getelementptr " + arrayTypeStr + "* " + realsource + ", i64 0" + ", i64 " + idx);
-			// it is important to note, that references's types are JUST like array types: pointers to arrays
-			//  the next time we do a GET_ARRAY_* instruction, we need the the encapsulated array type.
-			//  eg: if we dereference [2 x [4 x i64]] here, we need [4 x i64] next time we use the reference.
-			// effectively, after each ARRAY_GET_REFERENCE operation we have to remove the first dimension from
-			//  the array dimensions list:
-			
-			// copy old list (shallow is okay, we never change the Integers)
-			ArrayType newArrayType = new ArrayType(new LinkedList<Integer>(arType.dimensions),
-			                                       arType.storage_type);
-			newArrayType.dimensions.remove(0);
-			arNamespace.put(dst, newArrayType);
+	public void addReferenceArrayGet(String array, long index, String dst) {
+		String src = array;
+		List<Long> indices = new LinkedList<Long>();
+
+		while(references.containsKey(src)) {
+			Map.Entry<String,List<Long>> reference = references.get(src);
+			indices.addAll(reference.getValue());
+			src = reference.getKey();
 		}
-		else {
-			// direct access
-			// construct getelementptr instruction
-			String ptrId = getUseIdentifierForVariable(".tmp");
-			gen(ptrId + " = getelementptr " + arrayTypeStr + "* " + realsource + ", i64 0" + ", i64 " + idx);
-			// retrieve value from pointer via stack load instruction
-			String storageTypeStr = getIRType(arType.storage_type);
-			String valId = getUseIdentifierForVariable(".tmp");
-			gen(valId + " = load " + storageTypeStr + "* " + ptrId);
-			gen("store "+storageTypeStr+" "+valId+", "+storageTypeStr+"* %"+dst);
-		}
+
+		indices.add(index);
+
+		references.put(dst,new AbstractMap.SimpleEntry<String,List<Long>>(src, indices));
 	}
 
-	public void addArraySet(String arrayName, int idx, String src) throws BackendException {
-		// if source is a reference, we have to consider multiple assignments to it due to SSA
-		String realarray;
-		if(variableIsReference.contains(arrayName))
-			realarray = "%" + arrayName + "." + (variableUseCount.get(arrayName)-1);
-		else
-		realarray = "%" + arrayName;
-		ArrayType arType = arNamespace.get(arrayName);
-		if(arType.dimensions.size() > 1)
-			throw new BackendException("you cannot use a multidimensional array with an ARRAY_SET_* operation");
-		// construct getelementptr instruction
-		String ptrId = getUseIdentifierForVariable(".tmp");
-		String arrayTypeStr = getIRAType(arType.storage_type,arType.dimensions);
-		gen(ptrId + " = getelementptr " + arrayTypeStr + "* " + realarray + ", i64 0" + ", i64 " + idx);
-		// store value
-		String storageTypeStr = getIRType(arType.storage_type);
-		gen("store "+storageTypeStr+" "+cdl(src,arType.storage_type)+", "+storageTypeStr+"* "+ptrId);				
+	public void addPrimitiveArrayGet(String array, long index, Kind dstType, String dst) throws BackendException {
+		String src = array;
+		List<Long> indices = new LinkedList<Long>();
+
+		while(references.containsKey(src)) {
+			Map.Entry<String,List<Long>> reference = references.get(src);
+			indices.addAll(reference.getValue());
+			src = reference.getKey();
+		}
+
+		indices.add(index);
+
+		String indexList = "";
+		for(Long i: indices) {
+			indexList += ", " + i.toString();
+		}
+
+		String dstUseIdentifier = getUseIdentifierForVariable(dst);
+		String dstIdentifier = "%" + dst;
+		String dstIRType = getIRType(dstType);
+
+		String srcUseIdentifier = getUseIdentifierForVariable(src);
+		String srcIdentifier = "%" + src;
+		DerivedType srcType = derivedTypes.get(src);
+		String srcIRType = "";
+		if(srcType instanceof LLVMBackendArrayType) {
+			LLVMBackendArrayType srcArType = (LLVMBackendArrayType) srcType;
+			srcIRType = getIRAType(srcArType.getStorageType(), srcArType.getDimensions());
+		}
+		else if(srcType instanceof LLVMBackendStructType) {
+			LLVMBackendStructType srcStType = (LLVMBackendStructType) srcType;
+			srcIRType = getIRSType(srcStType.getMembers());
+		}
+		else {
+			throw new BackendException("Expected source type of LLVMBackendArrayType or LLVMBackendStructType for variable, not " + srcType.getClass().getName());
+		}
+
+		gen(srcUseIdentifier + " = load " + srcIRType + "* " + srcIdentifier);
+		gen(dstUseIdentifier + " = extractvalue " + srcIRType + " " + srcUseIdentifier + indexList);
+		gen("store " + dstIRType + " " + dstUseIdentifier + ", " + dstIRType + "* " + dstIdentifier);
+	}
+
+	public void addPrimitiveArraySet(String array, long index, Kind srcType, String src) throws BackendException {
+		String dst = array;
+		List<Long> indices = new LinkedList<Long>();
+
+		while(references.containsKey(dst)) {
+			Map.Entry<String,List<Long>> reference = references.get(dst);
+			indices.addAll(reference.getValue());
+			dst = reference.getKey();
+		}
+
+		indices.add(index);
+
+		String indexList = "";
+		for(Long i: indices) {
+			indexList += ", " + i.toString();
+		}
+
+		String srcIRType = getIRType(srcType);
+
+		String dstUseIdentifier1 = getUseIdentifierForVariable(dst);
+		String dstUseIdentifier2 = getUseIdentifierForVariable(dst);
+		String dstIdentifier = "%" + dst;
+
+		DerivedType dstType = derivedTypes.get(dst);
+		String dstIRType = "";
+		if(dstType instanceof LLVMBackendArrayType) {
+			LLVMBackendArrayType dstArType = (LLVMBackendArrayType) dstType;
+			dstIRType = getIRAType(dstArType.getStorageType(), dstArType.getDimensions());
+		}
+		else if(dstType instanceof LLVMBackendStructType) {
+			LLVMBackendStructType dstStType = (LLVMBackendStructType) dstType;
+			dstIRType = getIRSType(dstStType.getMembers());
+		}
+		else {
+			throw new BackendException("Expected destination type of LLVMBackendArrayType or LLVMBackendStructType for variable, not " + dstType.getClass().getName());
+		}
+
+		src = cdl(src, srcType);
+		gen(dstUseIdentifier1 + " = load " + dstIRType + "* " + dstIdentifier);
+		gen(dstUseIdentifier2 + " = insertvalue " + dstIRType + " " + dstUseIdentifier1 +
+		    ", " + srcIRType + " " + src + indexList);
+		gen("store " + dstIRType + " " + dstUseIdentifier2 + ", " + dstIRType + "* " + dstIdentifier);
+	}
+
+	public void addReferenceStructGet(String struct, String member, String dst) throws BackendException {
+		String src = struct;
+		List<Long> indices = new LinkedList<Long>();
+
+		while(references.containsKey(src)) {
+			Map.Entry<String,List<Long>> reference = references.get(src);
+			indices.addAll(reference.getValue());
+			src = reference.getKey();
+		}
+
+		DerivedType type = derivedTypes.get(src);
+
+		if(type instanceof LLVMBackendArrayType) {
+			type = (DerivedType) ((LLVMBackendArrayType) type).getStorageType();
+		}
+
+		if(type instanceof LLVMBackendStructType) {
+			List<Member> members = ((LLVMBackendStructType) type).getMembers();
+			for(Member m: members) {
+				if(m.getName().equals(member)) {
+					indices.add(Long.valueOf(members.indexOf(m)));
+					break;
+				}
+			}
+		}
+		else {
+			throw new BackendException("Expected final type of LLVMBackendStructType, not " + type.getClass().getName());
+		}
+
+		references.put(dst,new AbstractMap.SimpleEntry<String,List<Long>>(src, indices));
+	}
+
+	public void addPrimitiveStructGet(String struct, String member, Kind dstType, String dst) throws BackendException {
+		String src = struct;
+		List<Long> indices = new LinkedList<Long>();
+
+		while(references.containsKey(src)) {
+			Map.Entry<String,List<Long>> reference = references.get(src);
+			indices.addAll(reference.getValue());
+			src = reference.getKey();
+		}
+
+		DerivedType type = derivedTypes.get(src);
+
+		if(type instanceof LLVMBackendArrayType) {
+			type = (DerivedType) ((LLVMBackendArrayType) type).getStorageType();
+		}
+
+		if(type instanceof LLVMBackendStructType) {
+			List<Member> members = ((LLVMBackendStructType) type).getMembers();
+			for(Member m: members) {
+				if(m.getName().equals(member)) {
+					indices.add(Long.valueOf(members.indexOf(m)));
+					break;
+				}
+			}
+		}
+		else {
+			throw new BackendException("Expected final type of LLVMBackendStructType, not " + type.getClass().getName());
+		}
+
+		String indexList = "";
+		for(Long i: indices) {
+			indexList += ", " + i.toString();
+		}
+
+		String dstUseIdentifier = getUseIdentifierForVariable(dst);
+		String dstIdentifier = "%" + dst;
+		String dstIRType = getIRType(dstType);
+
+		String srcUseIdentifier = getUseIdentifierForVariable(src);
+		String srcIdentifier = "%" + src;
+		DerivedType srcType = derivedTypes.get(src);
+		String srcIRType = "";
+		if(srcType instanceof LLVMBackendArrayType) {
+			LLVMBackendArrayType srcArType = (LLVMBackendArrayType) srcType;
+			srcIRType = getIRAType(srcArType.getStorageType(), srcArType.getDimensions());
+		}
+		else if(srcType instanceof LLVMBackendStructType) {
+			LLVMBackendStructType srcStType = (LLVMBackendStructType) srcType;
+			srcIRType = getIRSType(srcStType.getMembers());
+		}
+		else {
+			throw new BackendException("Expected source type of LLVMBackendArrayType or LLVMBackendStructType for variable, not " + srcType.getClass().getName());
+		}
+
+		gen(srcUseIdentifier + " = load " + srcIRType + "* " + srcIdentifier);
+		gen(dstUseIdentifier + " = extractvalue " + srcIRType + " " + srcUseIdentifier + indexList);
+		gen("store " + dstIRType + " " + dstUseIdentifier + ", " + dstIRType + "* " + dstIdentifier);
+	}
+
+	public void addPrimitiveStructSet(String struct, String member, Kind srcType, String src) throws BackendException {
+		String dst = struct;
+		List<Long> indices = new LinkedList<Long>();
+
+		while(references.containsKey(dst)) {
+			Map.Entry<String,List<Long>> reference = references.get(dst);
+			indices.addAll(reference.getValue());
+			dst = reference.getKey();
+		}
+
+		DerivedType type = derivedTypes.get(dst);
+
+		if(type instanceof LLVMBackendArrayType) {
+			type = (DerivedType) ((LLVMBackendArrayType) type).getStorageType();
+		}
+
+		if(type instanceof LLVMBackendStructType) {
+			List<Member> members = ((LLVMBackendStructType) type).getMembers();
+			for(Member m: members) {
+				if(m.getName().equals(member)) {
+					indices.add(Long.valueOf(members.indexOf(m)));
+					break;
+				}
+			}
+		}
+		else {
+			throw new BackendException("Expected final type of LLVMBackendStructType, not " + type.getClass().getName());
+		}
+
+		String indexList = "";
+		for(Long i: indices) {
+			indexList += ", " + i.toString();
+		}
+
+		String srcIRType = getIRType(srcType);
+
+		String dstUseIdentifier1 = getUseIdentifierForVariable(dst);
+		String dstUseIdentifier2 = getUseIdentifierForVariable(dst);
+		String dstIdentifier = "%" + dst;
+
+		DerivedType dstType = derivedTypes.get(dst);
+		String dstIRType = "";
+		if(dstType instanceof LLVMBackendArrayType) {
+			LLVMBackendArrayType dstArType = (LLVMBackendArrayType) dstType;
+			dstIRType = getIRAType(dstArType.getStorageType(), dstArType.getDimensions());
+		}
+		else if(dstType instanceof LLVMBackendStructType) {
+			LLVMBackendStructType dstStType = (LLVMBackendStructType) dstType;
+			dstIRType = getIRSType(dstStType.getMembers());
+		}
+		else {
+			throw new BackendException("Expected destination type of LLVMBackendArrayType or LLVMBackendStructType for variable, not " + dstType.getClass().getName());
+		}
+
+		src = cdl(src, srcType);
+		gen(dstUseIdentifier1 + " = load " + dstIRType + "* " + dstIdentifier);
+		gen(dstUseIdentifier2 + " = insertvalue " + dstIRType + " " + dstUseIdentifier1 +
+		    ", " + srcIRType + " " + src + indexList);
+		gen("store " + dstIRType + " " + dstUseIdentifier2 + ", " + dstIRType + "* " + dstIdentifier);
 	}
 
 	static public Kind QuadTypeToKind(Quadruple.Operator op) throws BackendException {
@@ -654,18 +904,40 @@ public class Module
 		String dstUseIdentifier = getUseIdentifierForVariable(dst);
 		String srcIdentifier = "%" + src;
 		String dstIdentifier = "%" + dst;
+		String srcIRType = getIRType(srcType);
+		String dstIRType = getIRType(dstType);
 
 		if((srcType == Kind.LONG) && (dstType == Kind.DOUBLE))
 		{
-			gen(srcUseIdentifier + " = load i64* " + srcIdentifier);
-			gen(dstUseIdentifier + " = sitofp i64 " + srcUseIdentifier + " to double");
-			gen("store double " + dstUseIdentifier + ", double* " + dstIdentifier);
+			gen(srcUseIdentifier + " = load " + srcIRType + "* " + srcIdentifier);
+			gen(dstUseIdentifier + " = sitofp " + srcIRType + " " + srcUseIdentifier + " to " + dstIRType);
+			gen("store " + dstIRType + " " + dstUseIdentifier + ", " + dstIRType + "* " + dstIdentifier);
 		}
 		else if((srcType == Kind.DOUBLE) && (dstType == Kind.LONG))
 		{
-			gen(srcUseIdentifier + " = load double* " + srcIdentifier);
-			gen(dstUseIdentifier + " = fptosi double " + srcUseIdentifier + " to i64");
-			gen("store i64 " + dstUseIdentifier + ", i64* " + dstIdentifier);
+			gen(srcUseIdentifier + " = load " + srcIRType + "* " + srcIdentifier);
+			gen(dstUseIdentifier + " = fptosi " + srcIRType + " " + srcUseIdentifier + " to " + dstIRType + "");
+			gen("store " + dstIRType + " " + dstUseIdentifier + ", " + dstIRType + "* " + dstIdentifier);
+		}
+		else if(dstType == Kind.STRING)
+		{
+			String conversionFunction = "";
+
+			switch(srcType) {
+				case BOOLEAN:
+					conversionFunction = "btoa";
+					break;
+				case LONG:
+					conversionFunction = "ltoa";
+					break;
+				case DOUBLE:
+					conversionFunction = "dtoa";
+					break;
+			}
+
+			gen(srcUseIdentifier + " = load " + srcIRType + "* " + srcIdentifier);
+			gen(dstUseIdentifier + " = call i8* (" + srcIRType + ")* @" + conversionFunction + "(" + srcIRType + " " + srcUseIdentifier + ")");
+			gen("store " + dstIRType + " " + dstUseIdentifier + ", " + dstIRType + "* " + dstIdentifier);
 		}
 	}
 
@@ -746,22 +1018,17 @@ public class Module
 		String irArgumentType = getIRType(argumentType);
 		String irResultType = getIRType(resultType);
 		String irCall = getIRBinaryCall(op);
-
-		if(lhs.charAt(0) == '#')
-		{
-			lhs = lhs.substring(1);
-		}
-		else
-		{
-			String lhsIdentifier = "%" + lhs;
-			lhs = getUseIdentifierForVariable(lhs);
-			gen(lhs + " = load " + irArgumentType + "* " + lhsIdentifier);
-		}
+		boolean constantRHS = false;
 
 		if(rhs.charAt(0) == '#')
 		{
-			rhs = rhs.substring(1);
+			constantRHS = true;
+		}
 
+		lhs = cdl(lhs, argumentType);
+		rhs = cdl(rhs, argumentType);
+
+		if(constantRHS) {
 			if((op == Quadruple.Operator.DIV_LONG) &&
 			   (Long.valueOf(rhs).equals(Long.valueOf(0))))
 			{
@@ -774,12 +1041,6 @@ public class Module
 			{
 				throw new BackendException("Division by zero");
 			}
-		}
-		else
-		{
-			String rhsIdentifier = "%" + rhs;
-			rhs = getUseIdentifierForVariable(rhs);
-			gen(rhs + " = load " + irArgumentType + "* " + rhsIdentifier);
 		}
 
 		String dstUseIdentifier = getUseIdentifierForVariable(dst);
@@ -914,34 +1175,18 @@ public class Module
 
 		String temporaryIdentifier = "";
 
-		switch (type) {
-			case BOOLEAN:
-				temporaryIdentifier = getUseIdentifierForVariable(".tmp");
-				gen(temporaryIdentifier + " = call i8* (" + irType + ")* @btoa(" + irType + " " + value + ")");
-				break;
-			case LONG:
-				temporaryIdentifier = getUseIdentifierForVariable(".tmp");
-				gen(temporaryIdentifier + " = call i8* (" + irType + ")* @ltoa(" + irType + " " + value + ")");
-				break;
-			case DOUBLE:
-				temporaryIdentifier = getUseIdentifierForVariable(".tmp");
-				gen(temporaryIdentifier + " = call i8* (" + irType + ")* @dtoa(" + irType + " " + value + ")");
-				break;
-			case STRING:
-				if(constantSrc)
-				{
-					temporaryIdentifier = getUseIdentifierForVariable(".tmp");
-					int id = addStringLiteral(value);
-					String literalIdentifier = getStringLiteralIdentifier(id);
-					String literalType = getStringLiteralType(id);
+		if(constantSrc)
+		{
+			temporaryIdentifier = getUseIdentifierForVariable(".tmp");
+			int id = addStringLiteral(value);
+			String literalIdentifier = getStringLiteralIdentifier(id);
+			String literalType = getStringLiteralType(id);
 
-					gen(temporaryIdentifier + " = getelementptr " + literalType + "* " + literalIdentifier + ", i64 0, i64 0");
-				}
-				else
-				{
-					temporaryIdentifier = value;
-				}
-				break;
+			gen(temporaryIdentifier + " = getelementptr " + literalType + "* " + literalIdentifier + ", i64 0, i64 0");
+		}
+		else
+		{
+			temporaryIdentifier = value;
 		}
 
 		gen("call i32 (i8*, ...)* @printf(i8* " + temporaryIdentifier + ")");
