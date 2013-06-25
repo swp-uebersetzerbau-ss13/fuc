@@ -703,7 +703,7 @@ public class ReduceImpl {
 				}
 			};
 		case "equality -> rel":
-			return null; // Nothing to do here
+			break; // Nothing to do here
 		case "rel -> expr < expr":
 			return new ReduceAction() {
 				@Override
@@ -985,7 +985,28 @@ public class ReduceImpl {
 			return new ReduceAction() {
 				@Override
 				public Object create(Object... objs) throws ParserException  {
-					//TODO: M3 Kuer
+					
+					//TODO: 
+//					StructIdentifierNodeImpl struct = new StructIdentifierNodeImpl();
+//					
+//					if(!(objs[0] instanceof Token)){
+//						writeReportError(reportLog, objs[0], "Record");
+//					}
+//					
+//					if(!(objs[1] instanceof Token)){
+//						writeReportError(reportLog, objs[1], "{");
+//					}
+//					
+//					struct.setCoverage((Token)objs[0], (Token)objs[1]);
+//					
+//					if(!(objs[2] instanceof BlockNode)){
+//						writeReportError(reportLog, objs[2], "Declarations" );
+//					}
+//					
+//					BlockNode block = (BlockNode)objs[2];
+//					
+//					
+//					
 					return null;
 				}
 
