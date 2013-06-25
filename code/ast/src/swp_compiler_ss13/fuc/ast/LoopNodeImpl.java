@@ -7,8 +7,8 @@ import org.apache.log4j.Logger;
 
 import swp_compiler_ss13.common.ast.ASTNode;
 import swp_compiler_ss13.common.ast.nodes.ExpressionNode;
+import swp_compiler_ss13.common.ast.nodes.StatementNode;
 import swp_compiler_ss13.common.ast.nodes.binary.LoopNode;
-import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
 
 /**
  * LoopNode implementation
@@ -26,7 +26,7 @@ public abstract class LoopNodeImpl extends ASTNodeImpl implements LoopNode {
 	/**
 	 * body block
 	 */
-	private BlockNode body;
+	private StatementNode body;
 
 	/**
 	 * condition
@@ -63,19 +63,19 @@ public abstract class LoopNodeImpl extends ASTNodeImpl implements LoopNode {
 	}
 
 	@Override
-	public void setLoopBody(BlockNode block) {
-		if (block == null) {
-			logger.error("The argument block can not be null!");
-			throw new IllegalArgumentException("The argument block can not be null!");
+	public void setLoopBody(StatementNode stmt) {
+		if (stmt == null) {
+			logger.error("The argument stmt can not be null!");
+			throw new IllegalArgumentException("The argument stmt can not be null!");
 		}
-		
-		block.setParentNode(this);
-		
-		this.body = block;
+
+		stmt.setParentNode(this);
+
+		this.body = stmt;
 	}
 
 	@Override
-	public BlockNode getLoopBody() {
+	public StatementNode getLoopBody() {
 		if (this.body == null) {
 			logger.warn("Returning null as the loop body block");
 		}
@@ -88,9 +88,9 @@ public abstract class LoopNodeImpl extends ASTNodeImpl implements LoopNode {
 			logger.error("The argument condition can not be null!");
 			throw new IllegalArgumentException("The argument condition can not be null!");
 		}
-		
+
 		condition.setParentNode(this);
-		
+
 		this.condition = condition;
 	}
 

@@ -87,7 +87,7 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 	/**
 	 * is used to store the level of the outermost array index
 	 */
-	Integer arrayLevel = null;
+	String arrayLevel = null;
 
 	/**
 	 * when processing an arrayIdentifier it needs to be known if it is used in
@@ -385,7 +385,18 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 			throws IntermediateCodeGeneratorException {
 		this.callProcessing(node.getRightValue());
 		IntermediateResult result = this.intermediateResults.pop();
-		this.irCode.add(QuadrupleFactory.print(result.getValue(), result.getType()));
+
+		String variable = result.getValue();
+		Type type = result.getType();
+		if (result.getType().getKind() != Kind.STRING) {
+			// if variable is not of type string cast it to string!
+			String tmp = this.createAndSaveTemporaryIdentifier(new StringType(255L));
+			this.irCode.add(CastingFactory.createCast(result.getType(), result.getValue(), new StringType(255L), tmp));
+			variable = tmp;
+			type = new StringType(255L);
+		}
+
+		this.irCode.add(QuadrupleFactory.print(variable, type));
 	}
 
 	/**
@@ -647,7 +658,7 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 		this.arrayAssignment = true;
 		this.arrayLevel = null;
 		this.callProcessing(id);
-		Integer toArrayIndex = this.arrayLevel;
+		String toArrayIndex = this.arrayLevel;
 		this.arrayLevel = null;
 
 		IntermediateResult toIntermediate = this.intermediateResults.pop();
@@ -658,7 +669,7 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 
 		// process the right hand expression
 		this.callProcessing(value);
-		Integer fromArrayIndex = this.arrayLevel;
+		String fromArrayIndex = this.arrayLevel;
 		this.arrayLevel = null;
 		this.arrayAssignment = false;
 
@@ -740,7 +751,10 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 
 		boolean outerArray = false;
 		if (this.arrayLevel == null) {
-			this.arrayLevel = node.getIndex();
+			ExpressionNode indexNode = node.getIndexNode();
+			this.callProcessing(indexNode);
+			IntermediateResult index = this.intermediateResults.pop();
+			this.arrayLevel = index.getValue();
 			outerArray = true;
 		}
 
@@ -765,8 +779,10 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 			if (outerArray) {
 				arrayType = nodeType;
 			}
+			this.callProcessing(node.getIndexNode());
+			IntermediateResult indexvalue = this.intermediateResults.pop();
 			this.irCode.add(QuadrupleFactory.arrayGet(arrayType,
-					innerResult.getValue(), "#" + node.getIndex(),
+					innerResult.getValue(), indexvalue.getValue(),
 					tmpIdentifier));
 			this.intermediateResults.push(new IntermediateResult(tmpIdentifier,
 					innerResult.getType()));

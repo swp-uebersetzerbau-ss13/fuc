@@ -45,13 +45,13 @@ public class IdentifierShadowTest {
 		astf.addPrint(astf.newBasicIdentifier("shadow"));
 		astf.goToParent();
 		astf.addPrint(astf.newBasicIdentifier("shadow"));
-		ast = astf.getAST();
+		this.ast = astf.getAST();
 	}
 
 	@Test
 	public void test() throws IntermediateCodeGeneratorException {
 		IntermediateCodeGeneratorImpl irg = new IntermediateCodeGeneratorImpl();
-		List<Quadruple> irc = irg.generateIntermediateCode(ast);
+		List<Quadruple> irc = irg.generateIntermediateCode(this.ast);
 
 		StringBuilder b = new StringBuilder();
 		for (Quadruple q : irc) {
@@ -60,14 +60,25 @@ public class IdentifierShadowTest {
 		}
 		String actual = b.toString();
 
-		String expected = "" + "(DECLARE_BOOLEAN|!|!|shadow)\n"
-				+ "(ASSIGN_BOOLEAN|#TRUE|!|shadow)\n"
-				+ "(PRINT_BOOLEAN|shadow|!|!)\n" + "(DECLARE_LONG|!|!|tmp0)\n"
-				+ "(ASSIGN_LONG|#25|!|tmp0)\n" + "(PRINT_LONG|tmp0|!|!)\n"
-				+ "(DECLARE_STRING|!|!|tmp1)\n"
-				+ "(ASSIGN_STRING|#\"Hallo \\\" Welt\"|!|tmp1)\n"
-				+ "(PRINT_STRING|tmp1|!|!)\n" + "(PRINT_LONG|tmp0|!|!)\n"
-				+ "(PRINT_BOOLEAN|shadow|!|!)\n";
+		String expected = "(DECLARE_BOOLEAN|!|!|shadow)" + "\n" +
+				"(ASSIGN_BOOLEAN|#TRUE|!|shadow)" + "\n" +
+				"(DECLARE_STRING|!|!|tmp0)" + "\n" +
+				"(BOOLEAN_TO_STRING|shadow|!|tmp0)" + "\n" +
+				"(PRINT_STRING|tmp0|!|!)" + "\n" +
+				"(DECLARE_LONG|!|!|tmp1)" + "\n" +
+				"(ASSIGN_LONG|#25|!|tmp1)" + "\n" +
+				"(DECLARE_STRING|!|!|tmp2)" + "\n" +
+				"(LONG_TO_STRING|tmp1|!|tmp2)" + "\n" +
+				"(PRINT_STRING|tmp2|!|!)" + "\n" +
+				"(DECLARE_STRING|!|!|tmp3)" + "\n" +
+				"(ASSIGN_STRING|#\"Hallo \\\" Welt\"|!|tmp3)" + "\n" +
+				"(PRINT_STRING|tmp3|!|!)" + "\n" +
+				"(DECLARE_STRING|!|!|tmp4)" + "\n" +
+				"(LONG_TO_STRING|tmp1|!|tmp4)" + "\n" +
+				"(PRINT_STRING|tmp4|!|!)" + "\n" +
+				"(DECLARE_STRING|!|!|tmp5)" + "\n" +
+				"(BOOLEAN_TO_STRING|shadow|!|tmp5)" + "\n" +
+				"(PRINT_STRING|tmp5|!|!)" + "\n";
 		System.out.println(actual);
 		assertEquals(expected, actual);
 	}

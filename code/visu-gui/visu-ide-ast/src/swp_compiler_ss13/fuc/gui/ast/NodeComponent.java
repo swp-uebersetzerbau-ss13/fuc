@@ -46,27 +46,27 @@ public class NodeComponent {
 
 	public NodeComponent(ASTNode node) {
 		if (node.getChildren().isEmpty()) {
-			component = new JPanel();
+			this.component = new JPanel();
 		} else {
-			component = new JButton();
+			this.component = new JButton();
 		}
-		getComponent().setLayout(new BorderLayout(3, 3));
+		this.getComponent().setLayout(new BorderLayout(3, 3));
 		if (IMAGE_TYPE_MAP.isEmpty()) {
-			IMAGE_TYPE_MAP.put(null, getIconFromString(dir + "default.png"));
-			IMAGE_OPERATOR_MAP.put(null, getIconFromString(dir + "default.png"));
+			IMAGE_TYPE_MAP.put(null, this.getIconFromString(dir + "default.png"));
+			IMAGE_OPERATOR_MAP.put(null, this.getIconFromString(dir + "default.png"));
 		}
-		iconComponent = new JLabel(getIcon(node));
-		getComponent().add(iconComponent, BorderLayout.WEST);
-		nameComponent = new JLabel(node.getNodeType().name());
-		getComponent().add(nameComponent, BorderLayout.NORTH);
-		infoComponent = getInfoComponent(node);
-		getComponent().add(infoComponent, BorderLayout.CENTER);
+		this.iconComponent = new JLabel(this.getIcon(node));
+		this.getComponent().add(this.iconComponent, BorderLayout.WEST);
+		this.nameComponent = new JLabel(node.getNodeType().name());
+		this.getComponent().add(this.nameComponent, BorderLayout.NORTH);
+		this.infoComponent = this.getInfoComponent(node);
+		this.getComponent().add(this.infoComponent, BorderLayout.CENTER);
 	}
 
 	void toggleSize() {
-		large = !large;
-		nameComponent.setVisible(large);
-		infoComponent.setVisible(large);
+		this.large = !this.large;
+		this.nameComponent.setVisible(this.large);
+		this.infoComponent.setVisible(this.large);
 	}
 
 	private JComponent getInfoComponent(ASTNode node) {
@@ -177,7 +177,7 @@ public class NodeComponent {
 			default:
 				return IMAGE_OPERATOR_MAP.get(null);
 			}
-			imageIcon = getIconFromString(dir + imageName + ".png");
+			imageIcon = this.getIconFromString(dir + imageName + ".png");
 			IMAGE_OPERATOR_MAP.put(operator, imageIcon);
 			return imageIcon;
 		case LogicUnaryExpressionNode:
@@ -226,7 +226,7 @@ public class NodeComponent {
 		default:
 			return IMAGE_TYPE_MAP.get(null);
 		}
-		imageIcon = getIconFromString(dir + imageName + ".png");
+		imageIcon = this.getIconFromString(dir + imageName + ".png");
 		IMAGE_TYPE_MAP.put(node.getNodeType(), imageIcon);
 		return imageIcon;
 	}
@@ -242,7 +242,7 @@ public class NodeComponent {
 	}
 
 	public JComponent getComponent() {
-		return component;
+		return this.component;
 	}
 
 }
