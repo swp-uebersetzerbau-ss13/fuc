@@ -107,5 +107,4 @@ public abstract class ASTNodeImpl implements ASTNode {
 	public Map<?, ?> getAttributeValues() {
 		return this.attributes;
 	}
-
 }

@@ -26,12 +26,12 @@ public abstract class LoopNodeImpl extends ASTNodeImpl implements LoopNode {
 	/**
 	 * body block
 	 */
-	private StatementNode body;
+	protected StatementNode body;
 
 	/**
 	 * condition
 	 */
-	private ExpressionNode condition;
+	protected ExpressionNode condition;
 
 	@Override
 	public Integer getNumberOfNodes() {
