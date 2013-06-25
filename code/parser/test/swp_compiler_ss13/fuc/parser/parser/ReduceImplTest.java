@@ -218,8 +218,9 @@ public class ReduceImplTest {
 
 	}
 
+	@Test
 	public void testIdentifierCreation(){
-		Object identifier = new TokenImpl("l",TokenType.ID,1,6);
+		Token identifier = new TokenImpl("l",TokenType.ID,1,6);
 		ReduceAction action = ReduceImpl.getReduceAction(ProjectGrammar.Complete.loc2, reportLog);
 
 		Object obj = action.create(identifier);
@@ -229,8 +230,7 @@ public class ReduceImplTest {
 		assertTrue(((BasicIdentifierNode)obj).getIdentifier()=="l");
 		
 		//looks for right Token in coverage
-		assertEquals(((DeclarationNode)obj).coverage().get(0), identifier);
-
+		assertEquals(((BasicIdentifierNode)obj).coverage().get(0), identifier);
 
 	}
 
@@ -239,23 +239,15 @@ public class ReduceImplTest {
 		Object identifierToken = new TokenImpl("l",TokenType.ID,1,6);
 		ReduceAction action = ReduceImpl.getReduceAction(ProjectGrammar.Complete.loc2, reportLog);
 
-		Object identifier = action.create(identifierToken);
+		Object identifier = getIdentifier("l", 6, 7);
 		
-		Object literalToken = new TokenImpl("20",TokenType.NUM,1,6);
-		ReduceAction action1 = ReduceImpl.getReduceAction(ProjectGrammar.Complete.factor3, reportLog);
-		
-		LiteralNode literal = (LiteralNode) action1.create(literalToken);
-		
-		Object assign = new TokenImpl("=",TokenType.ASSIGNOP,1,7);
-		
-		ReduceAction action2 = ReduceImpl.getReduceAction(ProjectGrammar.Complete.assign1, reportLog);
-		Object obj = action2.create(identifier,assign,literal);
+		Object literal = getLiteral("200", 5, 10);
+
+		Object obj = getAssign(identifier, literal);
 		
 		assertTrue(obj instanceof AssignmentNode);
 		assertEquals(((AssignmentNode)obj).getLeftValue(),identifier);
 		assertEquals(((AssignmentNode)obj).getRightValue(),literal);
-		assertEquals(((AssignmentNode)obj).coverage().get(0),identifierToken);
-		assertEquals(((AssignmentNode)obj).coverage().get(1),assign);
 		assertEquals(((AssignmentNode)obj).getLeftValue().getParentNode(),obj);
 		assertEquals(((AssignmentNode)obj).getRightValue().getParentNode(),obj);
 
@@ -264,157 +256,153 @@ public class ReduceImplTest {
 	
 	@Test
 	public void testLogicalBinaryOp(){
-		Token identifierToken = new TokenImpl("l",TokenType.ID,1,6);
-		ReduceAction action = ReduceImpl.getReduceAction(ProjectGrammar.Complete.loc2, reportLog);
-
-		Object identifier = action.create(identifierToken);
+		Object identifier1 = getIdentifier("l", 1, 6);
 		
-		Token identifierToken2 = new TokenImpl("r",TokenType.ID,1,6);
-		ReduceAction action2 = ReduceImpl.getReduceAction(ProjectGrammar.Complete.loc2, reportLog);
-
-		Object identifier2 = action2.create(identifierToken2);
+		Object identifier2 = getIdentifier("r", 2, 2);
 		
-		Token equalop = new TokenImpl("==", TokenType.EQUALS, 2, 3);
-		ReduceAction action3 = ReduceImpl.getReduceAction(ProjectGrammar.Complete.equality1, reportLog);
+		Object cond = getEqualsOp(identifier1, identifier2);
 		
-		Object obj = action3.create(identifier, equalop, identifier2);
-		
-		assertTrue(obj instanceof RelationExpressionNodeImpl);
-		assertEquals(((RelationExpressionNodeImpl)obj).getLeftValue(),identifier);
-		assertEquals(((RelationExpressionNodeImpl)obj).getRightValue(),identifier2);
-		assertEquals(((RelationExpressionNodeImpl)obj).coverage().get(0), identifierToken);
-		assertEquals(((RelationExpressionNodeImpl)obj).coverage().get(1), equalop);
-		assertEquals(((RelationExpressionNodeImpl)obj).coverage().get(2), identifierToken2);
+		assertTrue(cond instanceof RelationExpressionNodeImpl);
+		assertEquals(((RelationExpressionNodeImpl)cond).getLeftValue(),identifier1);
+		assertEquals(((RelationExpressionNodeImpl)cond).getRightValue(),identifier2);
 		
 	}
 	
 	
 	@Test
 	public void branchWoElseTest(){
-		Token identifierToken1 = new TokenImpl("l",TokenType.ID,1,6);
-		ReduceAction action = ReduceImpl.getReduceAction(ProjectGrammar.Complete.loc2, reportLog);
-
-		Object identifier1 = action.create(identifierToken1);
 		
-		Token identifierToken2 = new TokenImpl("r",TokenType.ID,1,6);
-		ReduceAction action2 = ReduceImpl.getReduceAction(ProjectGrammar.Complete.loc2, reportLog);
-
-		Object identifier2 = action2.create(identifierToken2);
+		Object identifier1 = getIdentifier("l", 1, 6);
 		
-		Token equalop = new TokenImpl("==", TokenType.EQUALS, 2, 3);
-		ReduceAction action3 = ReduceImpl.getReduceAction(ProjectGrammar.Complete.equality1, reportLog);
+		Object identifier2 = getIdentifier("r", 2, 2);
 		
-		Object equal = action3.create(identifier1, equalop, identifier2);
+		Object cond = getEqualsOp(identifier1, identifier2);
 		
-		Object identifierToken = new TokenImpl("l",TokenType.ID,1,6);
-		ReduceAction action4 = ReduceImpl.getReduceAction(ProjectGrammar.Complete.loc2, reportLog);
-
-		Object identifier = action4.create(identifierToken);
+		Object literal = getLiteral("20", 2, 10);
 		
-		Object literalToken = new TokenImpl("20",TokenType.NUM,1,6);
-		ReduceAction action1 = ReduceImpl.getReduceAction(ProjectGrammar.Complete.factor3, reportLog);
+		Object assignment1 = getAssign(identifier1, literal);
 		
-		LiteralNode literal = (LiteralNode) action1.create(literalToken);
-		
-		Object assign = new TokenImpl("=",TokenType.ASSIGNOP,1,7);
-		
-		ReduceAction action5 = ReduceImpl.getReduceAction(ProjectGrammar.Complete.assign1, reportLog);
-		
-		Object assignment = action5.create(identifier,assign,literal);
-		
-		Token ifToken = new TokenImpl("if", TokenType.IF, 3, 9);
-		Token lb = new TokenImpl("(", TokenType.LEFT_PARAN, 3, 10);
-		Token rb = new TokenImpl(")", TokenType.RIGHT_PARAN, 3, 10);
-		
-		ReduceAction action6 = ReduceImpl.getReduceAction(ProjectGrammar.Complete.stmt2, reportLog);
-		Object obj = action6.create(ifToken, lb, equal, rb, assignment);
+		Object obj = getBranchWithoutElse(cond, assignment1);
 		
 		assertTrue(obj instanceof BranchNode);
-		assertEquals(((BranchNode)obj).getStatementNodeOnFalse(),null);
-		assertEquals(((BranchNode)obj).getStatementNodeOnTrue(),assignment);
-		assertEquals(((BranchNode)obj).getCondition(),equal);
+		assertEquals(((BranchNode)obj).getStatementNodeOnTrue(),assignment1);
+		assertEquals(((BranchNode)obj).getCondition(),cond);
 		assertEquals(((BranchNode)obj).getStatementNodeOnTrue().getParentNode(),obj);
+		assertEquals(((BranchNode)obj).getStatementNodeOnFalse(), null);
 		assertEquals(((BranchNode)obj).getCondition().getParentNode(),obj);
-		assertEquals(((BranchNode)obj).coverage().get(0), ifToken);
-		assertEquals(((BranchNode)obj).coverage().get(1), lb);
-		assertEquals(((BranchNode)obj).coverage().get(2), identifierToken1);
-		assertEquals(((BranchNode)obj).coverage().get(3), equalop);
-		assertEquals(((BranchNode)obj).coverage().get(4), identifierToken2);
-		assertEquals(((BranchNode)obj).coverage().get(5), rb);
-		assertEquals(((BranchNode)obj).coverage().get(6), identifierToken);
-		assertEquals(((BranchNode)obj).coverage().get(7), assign);
-		assertEquals(((BranchNode)obj).coverage().get(8), literalToken);
 
 	}
 	
 	
+
+
 	@Test
 	public void testBranchWElse(){
-		Token identifierToken1 = new TokenImpl("l",TokenType.ID,1,6);
+
+		Object identifier1 = getIdentifier("l", 1, 6);
+		
+		Object identifier2 = getIdentifier("r", 2, 2);
+		
+		Object cond = getEqualsOp(identifier1, identifier2);
+		
+		Object literal = getLiteral("20", 2, 10);
+		
+		Object assignment1 = getAssign(identifier1, literal);
+		
+		Object assignment2 = getAssign(identifier2, literal);
+		
+		Object obj = getBranchWithElse(cond, assignment1, assignment2);
+		
+		assertTrue(obj instanceof BranchNode);
+		assertEquals(((BranchNode)obj).getStatementNodeOnTrue(),assignment1);
+		assertEquals(((BranchNode)obj).getStatementNodeOnFalse(),assignment2);
+		assertEquals(((BranchNode)obj).getCondition(),cond);
+		assertEquals(((BranchNode)obj).getStatementNodeOnTrue().getParentNode(),obj);
+		assertEquals(((BranchNode)obj).getStatementNodeOnFalse().getParentNode(),obj);
+		assertEquals(((BranchNode)obj).getCondition().getParentNode(),obj);
+
+	}
+	
+	/**
+	 * Gets name of Identifier and line and row and returns an identifierNode
+	 * @param name
+	 * @param line
+	 * @param row
+	 * @return
+	 */
+	private Object getIdentifier(String name, int line, int row){
+		Token identifierToken = new TokenImpl(name,TokenType.ID,line,row);
 		ReduceAction action = ReduceImpl.getReduceAction(ProjectGrammar.Complete.loc2, reportLog);
-
-		Object identifier1 = action.create(identifierToken1);
-		
-		Token identifierToken2 = new TokenImpl("r",TokenType.ID,1,6);
-		ReduceAction action2 = ReduceImpl.getReduceAction(ProjectGrammar.Complete.loc2, reportLog);
-
-		Object identifier2 = action2.create(identifierToken2);
-		
+		return action.create(identifierToken);
+	}
+	
+	
+	/**
+	 * Gets two identifier and reduce to an equal operation
+	 * @param identifier1
+	 * @param identifier2
+	 * @return
+	 */
+	private Object getEqualsOp(Object identifier1, Object identifier2){
 		Token equalop = new TokenImpl("==", TokenType.EQUALS, 2, 3);
-		ReduceAction action3 = ReduceImpl.getReduceAction(ProjectGrammar.Complete.equality1, reportLog);
+		ReduceAction action = ReduceImpl.getReduceAction(ProjectGrammar.Complete.equality1, reportLog);
 		
-		Object equal = action3.create(identifier1, equalop, identifier2);
+		return action.create(identifier1, equalop, identifier2);
+	}
+	
+	/**
+	 * Gets a value and returns a literal
+	 * @param value
+	 * @param line
+	 * @param row
+	 * @return
+	 */
+	private Object getLiteral(String value, int line, int row){
+		Object literalToken = new TokenImpl(value,TokenType.NUM,line,row);
+		ReduceAction action = ReduceImpl.getReduceAction(ProjectGrammar.Complete.factor3, reportLog);
 		
-		Object identifierToken = new TokenImpl("l",TokenType.ID,1,6);
-		ReduceAction action4 = ReduceImpl.getReduceAction(ProjectGrammar.Complete.loc2, reportLog);
-
-		Object identifier = action4.create(identifierToken);
-		
-		Object literalToken = new TokenImpl("20",TokenType.NUM,1,6);
-		ReduceAction action1 = ReduceImpl.getReduceAction(ProjectGrammar.Complete.factor3, reportLog);
-		
-		LiteralNode literal = (LiteralNode) action1.create(literalToken);
-		
+		return action.create(literalToken);
+	}
+	
+	private Object getAssign(Object identifier, Object literal){
 		Object assign = new TokenImpl("=",TokenType.ASSIGNOP,1,7);
 		
-		ReduceAction action5 = ReduceImpl.getReduceAction(ProjectGrammar.Complete.assign1, reportLog);
+		ReduceAction action = ReduceImpl.getReduceAction(ProjectGrammar.Complete.assign1, reportLog);
 		
-		Object assignment = action5.create(identifier,assign,literal);
-		
+		return action.create(identifier,assign,literal);
+	}
+	
+	/**
+	 * Gets condition, statement1 for true and statement2 for false branch, returns a 
+	 * Branchnode with else condition
+	 * @param cond
+	 * @param assignment1
+	 * @param assignment2
+	 * @return
+	 */
+	private Object getBranchWithElse(Object cond, Object statement1, Object statement2){
 		Token ifToken = new TokenImpl("if", TokenType.IF, 3, 9);
 		Token lb = new TokenImpl("(", TokenType.LEFT_PARAN, 3, 10);
 		Token rb = new TokenImpl(")", TokenType.RIGHT_PARAN, 3, 10);
 		Token elseToken = new TokenImpl("else", TokenType.ELSE,5,1);
-		
 		ReduceAction action6 = ReduceImpl.getReduceAction(ProjectGrammar.Complete.stmt3, reportLog);
-		Object obj = action6.create(ifToken, lb, equal, rb, assignment,elseToken,assignment);
 		
-		assertTrue(obj instanceof BranchNode);
-		assertEquals(((BranchNode)obj).getStatementNodeOnTrue(),assignment);
-		assertEquals(((BranchNode)obj).getStatementNodeOnFalse(),assignment);
-		assertEquals(((BranchNode)obj).getCondition(),equal);
-		assertEquals(((BranchNode)obj).getStatementNodeOnTrue().getParentNode(),obj);
-		assertEquals(((BranchNode)obj).getStatementNodeOnFalse().getParentNode(),obj);
-		assertEquals(((BranchNode)obj).getCondition().getParentNode(),obj);
-		assertEquals(((BranchNode)obj).coverage().get(0), ifToken);
-		assertEquals(((BranchNode)obj).coverage().get(1), lb);
-		assertEquals(((BranchNode)obj).coverage().get(2), identifierToken1);
-		assertEquals(((BranchNode)obj).coverage().get(3), equalop);
-		assertEquals(((BranchNode)obj).coverage().get(4), identifierToken2);
-		assertEquals(((BranchNode)obj).coverage().get(5), rb);
-		assertEquals(((BranchNode)obj).coverage().get(6), identifierToken);
-		assertEquals(((BranchNode)obj).coverage().get(7), assign);
-		assertEquals(((BranchNode)obj).coverage().get(8), literalToken);
-		assertEquals(((BranchNode)obj).coverage().get(9), elseToken);
-		assertEquals(((BranchNode)obj).coverage().get(10), identifierToken);
-		assertEquals(((BranchNode)obj).coverage().get(11), assign);
-		assertEquals(((BranchNode)obj).coverage().get(12), literalToken);
+		return action6.create(ifToken, lb, cond, rb, statement1,elseToken,statement2);
 	}
 	
-	
-	
-	
-	
-	
+	/**
+	 * Gets condition, statement and returns a branch without else
+	 * @param cond
+	 * @param assignment
+	 * @return
+	 */
+	private Object getBranchWithoutElse(Object cond, Object statement) {
+		Token ifToken = new TokenImpl("if", TokenType.IF, 3, 9);
+		Token lb = new TokenImpl("(", TokenType.LEFT_PARAN, 3, 10);
+		Token rb = new TokenImpl(")", TokenType.RIGHT_PARAN, 3, 10);
+		ReduceAction action6 = ReduceImpl.getReduceAction(ProjectGrammar.Complete.stmt2, reportLog);
+		
+		return action6.create(ifToken, lb, cond, rb, statement);
+	}
 
 }
