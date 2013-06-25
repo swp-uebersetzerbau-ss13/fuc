@@ -96,6 +96,11 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 	Boolean arrayAssignment = false;
 
 	/**
+	 * Name of the label to break the current loop
+	 */
+	String loopBreakLabel;
+
+	/**
 	 * Reset the intermediate code generator. This is called first for every
 	 * generateIntermediateCode() to ensure that severeal calls to
 	 * generateIntermediateCode do not interfere.
@@ -333,8 +338,39 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 	 */
 	private void processWhileNode(WhileNode node)
 			throws IntermediateCodeGeneratorException {
-		throw new IntermediateCodeGeneratorException(
-				new UnsupportedOperationException());
+
+		// label before condition
+		String beforeCondition = this.createNewLabel();
+		// label at the beginning of the loop body
+		String loopBody = this.createNewLabel();
+		// label after the loop
+		String endOfLoop = this.createNewLabel();
+
+		this.loopBreakLabel = endOfLoop;
+
+		this.irCode.add(QuadrupleFactory.label(beforeCondition));
+
+		// evaluate thte condition
+		ExpressionNode condition = node.getCondition();
+		this.callProcessing(condition);
+		IntermediateResult conditionResult = this.intermediateResults.pop();
+
+		// if condition does not evaluate to boolean throw an error
+		if (conditionResult.getType().getKind() != Kind.BOOLEAN) {
+			throw new IntermediateCodeGeneratorException("Condition must be of type Boolean but is of type "
+					+ conditionResult.getType());
+		}
+
+		// create the ir code
+		this.irCode.add(QuadrupleFactory.branch(conditionResult.getValue(), loopBody, endOfLoop));
+		this.irCode.add(QuadrupleFactory.label(loopBody));
+
+		this.callProcessing(node.getLoopBody());
+
+		this.irCode.add(QuadrupleFactory.jump(beforeCondition));
+		this.irCode.add(QuadrupleFactory.label(endOfLoop));
+
+		this.loopBreakLabel = null;
 	}
 
 	/**
@@ -532,7 +568,7 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 	}
 
 	/**
-	 * Process a relationexpression node
+	 * Process a DoWhile node
 	 * 
 	 * @param node
 	 *            the node to process
@@ -541,8 +577,34 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 	 */
 	private void processDoWhileNode(DoWhileNode node)
 			throws IntermediateCodeGeneratorException {
-		throw new IntermediateCodeGeneratorException(
-				new UnsupportedOperationException());
+
+		// label before do while loop
+		String beforeLoop = this.createNewLabel();
+		// label at the end of the loop
+		String endOfLoop = this.createNewLabel();
+
+		this.loopBreakLabel = endOfLoop;
+
+		// evaluate thte condition
+		ExpressionNode condition = node.getCondition();
+		this.callProcessing(condition);
+		IntermediateResult conditionResult = this.intermediateResults.pop();
+
+		// if condition does not evaluate to boolean throw an error
+		if (conditionResult.getType().getKind() != Kind.BOOLEAN) {
+			throw new IntermediateCodeGeneratorException("Condition must be of type Boolean but is of type "
+					+ conditionResult.getType());
+		}
+
+		// create the ir code
+		this.irCode.add(QuadrupleFactory.label(beforeLoop));
+
+		this.callProcessing(node.getLoopBody());
+
+		this.irCode.add(QuadrupleFactory.branch(conditionResult.getValue(), beforeLoop, endOfLoop));
+		this.irCode.add(QuadrupleFactory.label(endOfLoop));
+
+		this.loopBreakLabel = null;
 	}
 
 	/**
@@ -571,8 +633,11 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 	 */
 	private void processBreakNode(BreakNode node)
 			throws IntermediateCodeGeneratorException {
-		throw new IntermediateCodeGeneratorException(
-				new UnsupportedOperationException());
+		if (this.loopBreakLabel == null) {
+			throw new IntermediateCodeGeneratorException("You can not use break outside of a loop!");
+		}
+
+		this.irCode.add(QuadrupleFactory.jump(this.loopBreakLabel));
 	}
 
 	/**
