@@ -65,7 +65,7 @@ public class Module
 			case STRING:
 				/* Strings are each a pointer to a string literal
 				   (which itself is a pointer to a memory segment
-				   of signed integers).*/
+				   of signed 8bit integers in UTF-8 encoding).*/
 				irType = "i8*";
 				break;
 		}
@@ -88,17 +88,17 @@ public class Module
 	public static String getIRAType(Type type, List<Integer> dimensions, boolean as_ptr)
 	{
 		String irType = "";
-		// write dimensions
+		/* write dimensions */
 		for (int d : dimensions)
 			irType = irType + "[" + d + " x ";
-		// write actual type
+		/* write actual type */
 		if(type instanceof PrimitiveType) {
 			irType = irType + Module.getIRType(type.getKind());
 		}
 		else if(type instanceof LLVMBackendStructType) {
 			irType += Module.getIRSType(((LLVMBackendStructType) type).getMembers());
 		}
-		// write closing brakets
+		/* write closing brakets */
 		for (int d : dimensions)
 			irType += "]";
 		irType.trim();
@@ -289,21 +289,240 @@ public class Module
 		return irString;
 	}
 
-	static public Kind QuadTypeToKind(Quadruple.Operator op) throws BackendException {
-		switch (op) {
-		case DECLARE_DOUBLE:
-		case ARRAY_GET_DOUBLE:
-		case ARRAY_SET_DOUBLE:
-			return Kind.DOUBLE;
-		case DECLARE_BOOLEAN:
-		case ARRAY_GET_BOOLEAN:
-		case ARRAY_SET_BOOLEAN:
-			return Kind.BOOLEAN;
-		case DECLARE_LONG:
-		case ARRAY_GET_LONG:
-		case ARRAY_SET_LONG:
-			return Kind.LONG;
+	public static Type.Kind toArgument1TypeKind(Quadruple.Operator op) throws BackendException {
+		Type.Kind kind;
+
+		switch(op) {
+			case DECLARE_LONG:
+				kind = Type.Kind.LONG;
+				break;
+			case DECLARE_DOUBLE:
+				kind = Type.Kind.DOUBLE;
+				break;
+			case DECLARE_BOOLEAN:
+				kind = Type.Kind.BOOLEAN;
+				break;
+			case DECLARE_STRING:
+				kind = Type.Kind.STRING;
+				break;
+			case LONG_TO_DOUBLE:
+				kind = Type.Kind.LONG;
+				break;
+			case DOUBLE_TO_LONG:
+				kind = Type.Kind.DOUBLE;
+				break;
+			case BOOLEAN_TO_STRING:
+				kind = Type.Kind.BOOLEAN;
+				break;
+			case LONG_TO_STRING:
+				kind = Type.Kind.LONG;
+				break;
+			case DOUBLE_TO_STRING:
+				kind = Type.Kind.DOUBLE;
+				break;
+			case ASSIGN_LONG:
+				kind = Type.Kind.LONG;
+				break;
+			case ASSIGN_DOUBLE:
+				kind = Type.Kind.DOUBLE;
+				break;
+			case ASSIGN_BOOLEAN:
+				kind = Type.Kind.BOOLEAN;
+				break;
+			case ASSIGN_STRING:
+				kind = Type.Kind.STRING;
+				break;
+			case ARRAY_GET_LONG:
+			case ARRAY_GET_DOUBLE:
+			case ARRAY_GET_BOOLEAN:
+			case ARRAY_GET_STRING:
+			case ARRAY_GET_REFERENCE:
+			case ARRAY_SET_LONG:
+			case ARRAY_SET_DOUBLE:
+			case ARRAY_SET_BOOLEAN:
+			case ARRAY_SET_STRING:
+				kind = Type.Kind.ARRAY;
+				break;
+			case STRUCT_GET_LONG:
+			case STRUCT_GET_DOUBLE:
+			case STRUCT_GET_BOOLEAN:
+			case STRUCT_GET_STRING:
+			case STRUCT_GET_REFERENCE:
+			case STRUCT_SET_LONG:
+			case STRUCT_SET_DOUBLE:
+			case STRUCT_SET_BOOLEAN:
+			case STRUCT_SET_STRING:
+				kind = Type.Kind.STRUCT;
+				break;
+			case ADD_LONG:
+			case SUB_LONG:
+			case MUL_LONG:
+			case DIV_LONG:
+				kind = Type.Kind.LONG;
+				break;
+			case ADD_DOUBLE:
+			case SUB_DOUBLE:
+			case MUL_DOUBLE:
+			case DIV_DOUBLE:
+				kind = Type.Kind.DOUBLE;
+				break;
+			default:
+				throw new BackendException("No argument 1 type kind for " + op.toString());
 		}
-		throw new BackendException("QuadTypeToKind: unimplemented OP -> unknown type");
+
+		return kind;
+	}
+
+	public static Type.Kind toArgument2TypeKind(Quadruple.Operator op) throws BackendException {
+		Type.Kind kind;
+
+		switch(op) {
+			case ARRAY_GET_LONG:
+			case ARRAY_GET_DOUBLE:
+			case ARRAY_GET_BOOLEAN:
+			case ARRAY_GET_STRING:
+			case ARRAY_GET_REFERENCE:
+			case ARRAY_SET_LONG:
+			case ARRAY_SET_DOUBLE:
+			case ARRAY_SET_BOOLEAN:
+			case ARRAY_SET_STRING:
+			case STRUCT_GET_LONG:
+			case STRUCT_GET_DOUBLE:
+			case STRUCT_GET_BOOLEAN:
+			case STRUCT_GET_STRING:
+			case STRUCT_GET_REFERENCE:
+			case STRUCT_SET_LONG:
+			case STRUCT_SET_DOUBLE:
+			case STRUCT_SET_BOOLEAN:
+			case STRUCT_SET_STRING:
+				kind = Type.Kind.LONG;
+				break;
+			case ADD_LONG:
+			case SUB_LONG:
+			case MUL_LONG:
+			case DIV_LONG:
+				kind = Type.Kind.LONG;
+				break;
+			case ADD_DOUBLE:
+			case SUB_DOUBLE:
+			case MUL_DOUBLE:
+			case DIV_DOUBLE:
+				kind = Type.Kind.DOUBLE;
+				break;
+			default:
+				throw new BackendException("No argument 1 type kind for " + op.toString());
+		}
+
+		return kind;
+	}
+
+	public static Type.Kind toResultTypeKind(Quadruple.Operator op) throws BackendException {
+		Type.Kind kind;
+
+		switch(op) {
+			case DECLARE_LONG:
+				kind = Type.Kind.LONG;
+				break;
+			case DECLARE_DOUBLE:
+				kind = Type.Kind.DOUBLE;
+				break;
+			case DECLARE_BOOLEAN:
+				kind = Type.Kind.BOOLEAN;
+				break;
+			case DECLARE_STRING:
+				kind = Type.Kind.STRING;
+				break;
+			case LONG_TO_DOUBLE:
+				kind = Type.Kind.DOUBLE;
+				break;
+			case DOUBLE_TO_LONG:
+				kind = Type.Kind.LONG;
+				break;
+			case BOOLEAN_TO_STRING:
+				kind = Type.Kind.STRING;
+				break;
+			case LONG_TO_STRING:
+				kind = Type.Kind.STRING;
+				break;
+			case DOUBLE_TO_STRING:
+				kind = Type.Kind.STRING;
+				break;
+			case ASSIGN_LONG:
+				kind = Type.Kind.LONG;
+				break;
+			case ASSIGN_DOUBLE:
+				kind = Type.Kind.DOUBLE;
+				break;
+			case ASSIGN_BOOLEAN:
+				kind = Type.Kind.BOOLEAN;
+				break;
+			case ASSIGN_STRING:
+				kind = Type.Kind.STRING;
+				break;
+			case ARRAY_GET_LONG:
+				kind = Type.Kind.LONG;
+				break;
+			case ARRAY_GET_DOUBLE:
+				kind = Type.Kind.DOUBLE;
+				break;
+			case ARRAY_GET_BOOLEAN:
+				kind = Type.Kind.BOOLEAN;
+				break;
+			case ARRAY_GET_STRING:
+				kind = Type.Kind.STRING;
+				break;
+			case ARRAY_SET_LONG:
+				kind = Type.Kind.LONG;
+				break;
+			case ARRAY_SET_DOUBLE:
+				kind = Type.Kind.DOUBLE;
+				break;
+			case ARRAY_SET_BOOLEAN:
+				kind = Type.Kind.BOOLEAN;
+				break;
+			case ARRAY_SET_STRING:
+				kind = Type.Kind.STRING;
+				break;
+			case STRUCT_GET_LONG:
+				kind = Type.Kind.LONG;
+				break;
+			case STRUCT_GET_DOUBLE:
+				kind = Type.Kind.DOUBLE;
+				break;
+			case STRUCT_GET_BOOLEAN:
+				kind = Type.Kind.BOOLEAN;
+				break;
+			case STRUCT_GET_STRING:
+				kind = Type.Kind.STRING;
+				break;
+			case STRUCT_SET_LONG:
+				kind = Type.Kind.LONG;
+				break;
+			case STRUCT_SET_DOUBLE:
+				kind = Type.Kind.DOUBLE;
+				break;
+			case STRUCT_SET_BOOLEAN:
+				kind = Type.Kind.BOOLEAN;
+				break;
+			case STRUCT_SET_STRING:
+				kind = Type.Kind.STRING;
+				break;
+			case ADD_LONG:
+			case SUB_LONG:
+			case MUL_LONG:
+			case DIV_LONG:
+				kind = Type.Kind.LONG;
+				break;
+			case ADD_DOUBLE:
+			case SUB_DOUBLE:
+			case MUL_DOUBLE:
+			case DIV_DOUBLE:
+				kind = Type.Kind.DOUBLE;
+				break;
+			default:
+				throw new BackendException("No result type kind for " + op.toString());
+		}
+
+		return kind;
 	}
 }

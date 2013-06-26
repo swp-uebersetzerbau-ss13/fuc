@@ -262,14 +262,9 @@ public class LLVMBackend implements Backend
 			{
 				/* Variable declaration */
 				case DECLARE_LONG:
-					main.addPrimitiveDeclare(
-						Type.Kind.LONG,
-						q.getResult(),
-						q.getArgument1());
-					break;
 				case DECLARE_DOUBLE:
 					main.addPrimitiveDeclare(
-						Type.Kind.DOUBLE,
+						Module.toArgument1TypeKind(q.getOperator()),
 						q.getResult(),
 						q.getArgument1());
 					break;
@@ -294,62 +289,33 @@ public class LLVMBackend implements Backend
 					size = Integer.parseInt(q.getArgument1().substring(1));
 					assert(size>=0);
 					LLVMBackendArrayType array = this.parseArrayDeclaration(tacIterator, size);
-					main.addArrayDeclare(array, q.getResult());
+					main.addDerivedDeclare(array, q.getResult());
 					break;
 				case DECLARE_STRUCT:
 					size = Integer.parseInt(q.getArgument1().substring(1));
 					assert(size>=0);
 					LLVMBackendStructType struct = this.parseStructDeclaration(tacIterator, size);
-					main.addStructDeclare(struct, q.getResult());
+					main.addDerivedDeclare(struct, q.getResult());
 					break;
 
 				/* Type conversion */
 				case LONG_TO_DOUBLE:
-					main.addPrimitiveConversion(
-						Type.Kind.LONG,
-						q.getArgument1(),
-						Type.Kind.DOUBLE,
-						q.getResult());
-					break;
 				case DOUBLE_TO_LONG:
-					main.addPrimitiveConversion(
-						Type.Kind.DOUBLE,
-						q.getArgument1(),
-						Type.Kind.LONG,
-						q.getResult());
-					break;
 				case BOOLEAN_TO_STRING:
-					main.addPrimitiveConversion(
-						Type.Kind.BOOLEAN,
-						q.getArgument1(),
-						Type.Kind.STRING,
-						q.getResult());
-					break;
 				case LONG_TO_STRING:
-					main.addPrimitiveConversion(
-						Type.Kind.LONG,
-						q.getArgument1(),
-						Type.Kind.STRING,
-						q.getResult());
-					break;
 				case DOUBLE_TO_STRING:
 					main.addPrimitiveConversion(
-						Type.Kind.LONG,
+						Module.toArgument1TypeKind(q.getOperator()),
 						q.getArgument1(),
-						Type.Kind.STRING,
+						Module.toResultTypeKind(q.getOperator()),
 						q.getResult());
 					break;
 
 				/* Unindexed copy */
 				case ASSIGN_LONG:
-					main.addPrimitiveAssign(
-						Type.Kind.LONG,
-						q.getResult(),
-						q.getArgument1());
-					break;
 				case ASSIGN_DOUBLE:
 					main.addPrimitiveAssign(
-						Type.Kind.DOUBLE,
+						Module.toArgument1TypeKind(q.getOperator()),
 						q.getResult(),
 						q.getArgument1());
 					break;
@@ -367,234 +333,68 @@ public class LLVMBackend implements Backend
 					break;
 
 				/* Indexed Copy */
-				case ARRAY_GET_LONG:
-					main.addPrimitiveDerivedSetOrGet(
-						Type.Kind.ARRAY,
-						q.getArgument1(),
-						q.getArgument2(),
-						Type.Kind.LONG,
-						q.getResult(),
-						false);
-					break;
-				case ARRAY_GET_DOUBLE:
-					main.addPrimitiveDerivedSetOrGet(
-						Type.Kind.ARRAY,
-						q.getArgument1(),
-						q.getArgument2(),
-						Type.Kind.DOUBLE,
-						q.getResult(),
-						false);
-					break;
-				case ARRAY_GET_BOOLEAN:
-					main.addPrimitiveDerivedSetOrGet(
-						Type.Kind.ARRAY,
-						q.getArgument1(),
-						q.getArgument2(),
-						Type.Kind.BOOLEAN,
-						q.getResult(),
-						false);
-					break;
-				case ARRAY_GET_STRING:
-					main.addPrimitiveDerivedSetOrGet(
-						Type.Kind.ARRAY,
-						q.getArgument1(),
-						q.getArgument2(),
-						Type.Kind.STRING,
-						q.getResult(),
-						false);
-					break;
 				case ARRAY_GET_REFERENCE:
-					main.addReferenceDerivedGet(
-						Type.Kind.ARRAY,
-						q.getArgument1(),
-						q.getArgument2(),
-						q.getResult());
-					break;
-				case ARRAY_SET_LONG:
-					main.addPrimitiveDerivedSetOrGet(
-						Type.Kind.ARRAY,
-						q.getArgument1(),
-						q.getArgument2(),
-						Type.Kind.LONG,
-						q.getResult(),
-						true);
-					break;
-				case ARRAY_SET_DOUBLE:
-					main.addPrimitiveDerivedSetOrGet(
-						Type.Kind.ARRAY,
-						q.getArgument1(),
-						q.getArgument2(),
-						Type.Kind.DOUBLE,
-						q.getResult(),
-						true);
-					break;
-				case ARRAY_SET_BOOLEAN:
-					main.addPrimitiveDerivedSetOrGet(
-						Type.Kind.ARRAY,
-						q.getArgument1(),
-						q.getArgument2(),
-						Type.Kind.BOOLEAN,
-						q.getResult(),
-						true);
-					break;
-				case ARRAY_SET_STRING:
-					main.addPrimitiveDerivedSetOrGet(
-						Type.Kind.ARRAY,
-						q.getArgument1(),
-						q.getArgument2(),
-						Type.Kind.STRING,
-						q.getResult(),
-						true);
-					break;
-				case STRUCT_GET_LONG:
-					main.addPrimitiveDerivedSetOrGet(
-						Type.Kind.STRUCT,
-						q.getArgument1(),
-						q.getArgument2(),
-						Type.Kind.LONG,
-						q.getResult(),
-						false);
-					break;
-				case STRUCT_GET_DOUBLE:
-					main.addPrimitiveDerivedSetOrGet(
-						Type.Kind.STRUCT,
-						q.getArgument1(),
-						q.getArgument2(),
-						Type.Kind.DOUBLE,
-						q.getResult(),
-						false);
-					break;
-				case STRUCT_GET_BOOLEAN:
-					main.addPrimitiveDerivedSetOrGet(
-						Type.Kind.STRUCT,
-						q.getArgument1(),
-						q.getArgument2(),
-						Type.Kind.BOOLEAN,
-						q.getResult(),
-						false);
-					break;
-				case STRUCT_GET_STRING:
-					main.addPrimitiveDerivedSetOrGet(
-						Type.Kind.STRUCT,
-						q.getArgument1(),
-						q.getArgument2(),
-						Type.Kind.STRING,
-						q.getResult(),
-						false);
-					break;
 				case STRUCT_GET_REFERENCE:
 					main.addReferenceDerivedGet(
-						Type.Kind.STRUCT,
+						Module.toArgument1TypeKind(q.getOperator()),
 						q.getArgument1(),
 						q.getArgument2(),
 						q.getResult());
 					break;
+				case ARRAY_GET_LONG:
+				case ARRAY_GET_DOUBLE:
+				case ARRAY_GET_BOOLEAN:
+				case ARRAY_GET_STRING:
+				case STRUCT_GET_LONG:
+				case STRUCT_GET_DOUBLE:
+				case STRUCT_GET_BOOLEAN:
+				case STRUCT_GET_STRING:
+					main.addPrimitiveDerivedSetOrGet(
+						Module.toArgument1TypeKind(q.getOperator()),
+						q.getArgument1(),
+						q.getArgument2(),
+						Module.toResultTypeKind(q.getOperator()),
+						q.getResult(),
+						false);
+					break;
+				case ARRAY_SET_LONG:
+				case ARRAY_SET_DOUBLE:
+				case ARRAY_SET_BOOLEAN:
+				case ARRAY_SET_STRING:
 				case STRUCT_SET_LONG:
-					main.addPrimitiveDerivedSetOrGet(
-						Type.Kind.STRUCT,
-						q.getArgument1(),
-						q.getArgument2(),
-						Type.Kind.LONG,
-						q.getResult(),
-						true);
-					break;
 				case STRUCT_SET_DOUBLE:
-					main.addPrimitiveDerivedSetOrGet(
-						Type.Kind.STRUCT,
-						q.getArgument1(),
-						q.getArgument2(),
-						Type.Kind.DOUBLE,
-						q.getResult(),
-						true);
-					break;
 				case STRUCT_SET_BOOLEAN:
-					main.addPrimitiveDerivedSetOrGet(
-						Type.Kind.STRUCT,
-						q.getArgument1(),
-						q.getArgument2(),
-						Type.Kind.BOOLEAN,
-						q.getResult(),
-						true);
-					break;
 				case STRUCT_SET_STRING:
 					main.addPrimitiveDerivedSetOrGet(
-						Type.Kind.STRUCT,
+						Module.toArgument1TypeKind(q.getOperator()),
 						q.getArgument1(),
 						q.getArgument2(),
-						Type.Kind.STRING,
+						Module.toResultTypeKind(q.getOperator()),
 						q.getResult(),
 						true);
 					break;
 
 				/* Arithmetic */
 				case ADD_LONG:
-					main.addPrimitiveBinaryInstruction(
-						q.getOperator(),
-						Type.Kind.LONG,
-						Type.Kind.LONG,
-						q.getArgument1(),
-						q.getArgument2(),
-						q.getResult());
-					break;
 				case ADD_DOUBLE:
-					main.addPrimitiveBinaryInstruction(
-						q.getOperator(),
-						Type.Kind.DOUBLE,
-						Type.Kind.DOUBLE,
-						q.getArgument1(),
-						q.getArgument2(),
-						q.getResult());
-					break;
 				case SUB_LONG:
-					main.addPrimitiveBinaryInstruction(
-						q.getOperator(),
-						Type.Kind.LONG,
-						Type.Kind.LONG,
-						q.getArgument1(),
-						q.getArgument2(),
-						q.getResult());
-					break;
 				case SUB_DOUBLE:
-					main.addPrimitiveBinaryInstruction(
-						q.getOperator(),
-						Type.Kind.DOUBLE,
-						Type.Kind.DOUBLE,
-						q.getArgument1(),
-						q.getArgument2(),
-						q.getResult());
-					break;
 				case MUL_LONG:
-					main.addPrimitiveBinaryInstruction(
-						q.getOperator(),
-						Type.Kind.LONG,
-						Type.Kind.LONG,
-						q.getArgument1(),
-						q.getArgument2(),
-						q.getResult());
-					break;
 				case MUL_DOUBLE:
 					main.addPrimitiveBinaryInstruction(
 						q.getOperator(),
-						Type.Kind.DOUBLE,
-						Type.Kind.DOUBLE,
+						Module.toResultTypeKind(q.getOperator()),
+						Module.toArgument1TypeKind(q.getOperator()),
 						q.getArgument1(),
 						q.getArgument2(),
 						q.getResult());
 					break;
 				case DIV_LONG:
-					main.addPrimitiveBinaryCall(
-						q.getOperator(),
-						Type.Kind.LONG,
-						Type.Kind.LONG,
-						q.getArgument1(),
-						q.getArgument2(),
-						q.getResult());
-					break;
 				case DIV_DOUBLE:
 					main.addPrimitiveBinaryCall(
 						q.getOperator(),
-						Type.Kind.DOUBLE,
-						Type.Kind.DOUBLE,
+						Module.toResultTypeKind(q.getOperator()),
+						Module.toArgument1TypeKind(q.getOperator()),
 						q.getArgument1(),
 						q.getArgument2(),
 						q.getResult());
@@ -653,7 +453,7 @@ public class LLVMBackend implements Backend
 
 				/* Control flow */
 				case RETURN:
-					main.addMainReturn(q.getArgument1());
+					main.addReturn(q.getArgument1());
 					break;
 				case LABEL:
 					main.addLabel(q.getArgument1());

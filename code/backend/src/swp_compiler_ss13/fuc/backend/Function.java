@@ -228,22 +228,35 @@ public class Function
 		return variableIdentifier;
 	}
 
-	public String addArrayDeclare(LLVMBackendArrayType type, String identifier)	{
-		String irType = Module.getIRAType(type.getStorageType(), type.getDimensions());
-		String variableIdentifier = "%" + identifier;
-		variableUseCount.put(identifier, 0);
-		derivedTypes.put(identifier, type);
-		gen(variableIdentifier + " = alloca " + irType);
-		return variableIdentifier;
-	}
+	/**
+	 *  Conditionally loads a constant or an identifier. If given a constant, just the leading # character
+	 *  is removed. If given a variable (anything without leading # character),
+	 *  it is being loaded and the temporary register name is returned.
+	 *
+	 *	@param constantOrIdentifier Name of a constant or identifier.
+	 *  @returns name of usable primitive
+	 */
+	private String cdl(String constantOrIdentifier, Kind type) throws BackendException {
+		if(constantOrIdentifier.charAt(0) == '#')
+			/* constant */
+			if(type==Kind.STRING)
+			{
+				int literalID = addStringLiteral(constantOrIdentifier.substring(1));
+				String literalIdentifier = Module.getStringLiteralIdentifier(literalID);
+				String literalType = getStringLiteralType(literalID);
+				String variableUseIdentifier = getUseIdentifierForVariable(".tmp");
+				gen(variableUseIdentifier + " = getelementptr " + literalType + "* " + literalIdentifier + ", i64 0, i64 0");
 
-	public String addStructDeclare(LLVMBackendStructType type, String identifier) {
-		String irType = Module.getIRSType(type.getMembers());
-		String variableIdentifier = "%" + identifier;
-		variableUseCount.put(identifier, 0);
-		derivedTypes.put(identifier, type);
-		gen(variableIdentifier + " = alloca " + irType);
-		return variableIdentifier;
+				return variableUseIdentifier;
+			}
+			else
+				return constantOrIdentifier.substring(1);
+		else {
+			/* identifier */
+			String id = getUseIdentifierForVariable(constantOrIdentifier);
+			gen(id + " = load " + Module.getIRType(type,true) + " %"+constantOrIdentifier);
+			return id;
+		}
 	}
 
 	/**
@@ -268,7 +281,7 @@ public class Function
 					initializer = "#0.0";
 					break;
 				case BOOLEAN:
-					initializer = "#FALSE";
+					initializer = "#0";
 					break;
 				case STRING:
 					initializer = "#\"\"";
@@ -277,6 +290,28 @@ public class Function
 		}
 
 		addPrimitiveAssign(type, variable, initializer);
+	}
+
+	public String addDerivedDeclare(DerivedType type, String identifier) throws BackendException {
+		String irType = "";
+
+		if(type instanceof LLVMBackendArrayType) {
+			LLVMBackendArrayType arType = (LLVMBackendArrayType) type;
+			irType = Module.getIRAType(arType.getStorageType(), arType.getDimensions());
+		}
+		else if(type instanceof LLVMBackendStructType) {
+			LLVMBackendStructType stType = (LLVMBackendStructType) type;
+			irType = Module.getIRSType(stType.getMembers());
+		}
+		else {
+			throw new BackendException("Unexpected type: " + type.getClass().getName());
+		}
+
+		String variableIdentifier = "%" + identifier;
+		variableUseCount.put(identifier, 0);
+		derivedTypes.put(identifier, type);
+		gen(variableIdentifier + " = alloca " + irType);
+		return variableIdentifier;
 	}
 
 	/**
@@ -319,37 +354,6 @@ public class Function
 			String srcIdentifier = "%" + src;
 			gen(srcUseIdentifier + " = load " + irType + "* " + srcIdentifier);
 			gen("store " + irType + " " + srcUseIdentifier + ", " + irType + "* " + dstIdentifier);
-		}
-	}
-
-	/**
-	 *  Conditionally loads a constant or an identifier. If given a constant, just the leading # character
-	 *  is removed. If given a variable (anything without leading # character),
-	 *  it is being loaded and the temporary register name is returned.
-	 *
-	 *	@param constantOrIdentifier Name of a constant or identifier.
-	 *  @returns name of usable primitive
-	 */
-	private String cdl(String constantOrIdentifier, Kind type) throws BackendException {
-		if(constantOrIdentifier.charAt(0) == '#')
-			// constant
-			if(type==Kind.STRING)
-			{
-				int literalID = addStringLiteral(constantOrIdentifier.substring(1));
-				String literalIdentifier = Module.getStringLiteralIdentifier(literalID);
-				String literalType = getStringLiteralType(literalID);
-				String variableUseIdentifier = getUseIdentifierForVariable(".tmp");
-				gen(variableUseIdentifier + " = getelementptr " + literalType + "* " + literalIdentifier + ", i64 0, i64 0");
-
-				return variableUseIdentifier;
-			}
-			else
-				return constantOrIdentifier.substring(1);
-		else {
-			// identifier
-			String id = getUseIdentifierForVariable(constantOrIdentifier);
-			gen(id + " = load " + Module.getIRType(type,true) + " %"+constantOrIdentifier);
-			return id;
 		}
 	}
 
@@ -478,24 +482,6 @@ public class Function
 		}
 	}
 
-	static public Kind QuadTypeToKind(Quadruple.Operator op) throws BackendException {
-		switch (op) {
-		case DECLARE_DOUBLE:
-		case ARRAY_GET_DOUBLE:
-		case ARRAY_SET_DOUBLE:
-			return Kind.DOUBLE;
-		case DECLARE_BOOLEAN:
-		case ARRAY_GET_BOOLEAN:
-		case ARRAY_SET_BOOLEAN:
-			return Kind.BOOLEAN;
-		case DECLARE_LONG:
-		case ARRAY_GET_LONG:
-		case ARRAY_SET_LONG:
-			return Kind.LONG;
-		}
-		throw new BackendException("QuadTypeToKind: unimplemented OP -> unknown type");
-	}
-
 	/**
 	 * Assigns the value of one variable (<code>src</code>)
 	 * to another variable (<code>dst</code>), where their types
@@ -576,27 +562,8 @@ public class Function
 		String irResultType = Module.getIRType(resultType);
 		String irInst = Module.getIRBinaryInstruction(op);
 
-		if(lhs.charAt(0) == '#')
-		{
-			lhs = lhs.substring(1);
-		}
-		else
-		{
-			String lhsIdentifier = "%" + lhs;
-			lhs = getUseIdentifierForVariable(lhs);
-			gen(lhs + " = load " + irArgumentType + "* " + lhsIdentifier);
-		}
-
-		if(rhs.charAt(0) == '#')
-		{
-			rhs = rhs.substring(1);
-		}
-		else
-		{
-			String rhsIdentifier = "%" + rhs;
-			rhs = getUseIdentifierForVariable(rhs);
-			gen(rhs + " = load " + irArgumentType + "* " + rhsIdentifier);
-		}
+		lhs = cdl(lhs, argumentType);
+		rhs = cdl(rhs, argumentType);
 
 		String dstUseIdentifier = getUseIdentifierForVariable(dst);
 		String dstIdentifier = "%" + dst;
@@ -674,21 +641,9 @@ public class Function
 	 */
 	public void addBooleanNot(String source, String destination) throws BackendException {
 
-		String irType = Module.getIRType(BOOLEAN);
+		String irType = Module.getIRType(Type.Kind.BOOLEAN);
 
-		/* source (ir boolean) is #1 or #0 constant */
-		if(source.charAt(0) == '#')
-		{
-			source = source.substring(1);
-		}
-		/* source is identifier */
-		else
-		{
-			String sourceIdentifier = "%" + source;
-			source = getUseIdentifierForVariable(source);
-			gen(source + " = load " + irType + "* " + sourceIdentifier);
-		}
-
+		source = cdl(source, Type.Kind.BOOLEAN);
 		String dstUseIdentifier = getUseIdentifierForVariable(destination);
 		String dstIdentifier = "%" + destination;
 
@@ -698,13 +653,12 @@ public class Function
 
 
 	/**
-	 * Adds the return instruction for the
-	 * main method.
+	 * Adds the basic return instruction.
 	 *
 	 * @param value the value to return (exit code)
 	 * @exception BackendException if an error occurs
 	 */
-	public void addMainReturn(String value) throws BackendException {
+	public void addReturn(String value) throws BackendException {
 		if(value.charAt(0) == '#')
 		{
 			gen("ret i64 " + value.substring(1));
@@ -725,7 +679,7 @@ public class Function
 	 * @param name the label's name, must be unique in the program
 	 */
 	public void addLabel(String name){
-		gen(name+":");
+		gen(name + ":");
 	}
 
 	/**
@@ -746,11 +700,11 @@ public class Function
 	 */
 	public void addBranch(String target1, String target2, String condition) throws BackendException {
 		/* conditional branch */
-		if (!target2.equals(Quadruple.EmptyArgument)){
+		if(!target2.equals(Quadruple.EmptyArgument)) {
 			String irType = Module.getIRType(Kind.BOOLEAN);
 			String conditionUseIdentifier = getUseIdentifierForVariable(condition);
 			gen(conditionUseIdentifier + " = load " + irType + "* %" + condition);
-			gen("br " + irType + " " + conditionUseIdentifier + ", label %" + target1 + ", label %"+ target2);
+			gen("br " + irType + " " + conditionUseIdentifier + ", label %" + target1 + ", label %" + target2);
 		}
 		else {
 			gen("br label %" + target1);
@@ -770,19 +724,7 @@ public class Function
 		String irType = Module.getIRType(type);
 		boolean constantSrc = false;
 
-		/* value is constant */
-		if(value.charAt(0) == '#')
-		{
-			value = value.substring(1);
-			constantSrc = true;
-		}
-		/* value is identifier */
-		else
-		{
-			String valueIdentifier = "%" + value;
-			value = getUseIdentifierForVariable(value);
-			gen(value + " = load " + irType + "* " + valueIdentifier);
-		}
+		value = cdl(value, type);
 
 		String temporaryIdentifier = "";
 
