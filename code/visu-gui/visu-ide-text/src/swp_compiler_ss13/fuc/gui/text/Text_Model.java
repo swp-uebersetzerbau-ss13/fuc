@@ -239,8 +239,7 @@ public abstract class Text_Model implements Model {
 	@Override
 	public boolean setProgramResult(String result) {
 		if (this.types.contains(ModelType.RESULT)) {
-			this.viewInformation.put(ModelType.RESULT, Arrays.asList(new StringColourPair()
-					.setText(result)));
+			this.viewInformation.put(ModelType.RESULT, resultToViewInformation(result));
 			return true;
 		} else {
 			return false;

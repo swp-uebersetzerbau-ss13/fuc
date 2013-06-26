@@ -21,6 +21,7 @@ import swp_compiler_ss13.common.lexer.Lexer;
 import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.parser.Parser;
 import swp_compiler_ss13.common.semanticAnalysis.SemanticAnalyser;
+import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
 import swp_compiler_ss13.fuc.gui.ide.data.FucIdeButton;
 import swp_compiler_ss13.fuc.gui.ide.data.FucIdeMenu;
 import swp_compiler_ss13.fuc.gui.ide.data.FucIdeStatusLabel;
@@ -111,6 +112,8 @@ public class FucIdeModel implements IDE {
 	private String sourcecode;
 
 	private Map<String, InputStream> executable;
+
+	private ReportLogImpl reportLog;
 
 	/**
 	 * Initialize the model
@@ -368,5 +371,17 @@ public class FucIdeModel implements IDE {
 
 	public void setExecutable(Map<String, InputStream> executable) {
 		this.executable = executable;
+	}
+
+	@Override
+	public ReportLogImpl getReportLog() {
+		if (this.reportLog == null) {
+			return new ReportLogImpl();
+		}
+		return this.reportLog;
+	}
+
+	public void setReportLog(ReportLogImpl reportLogImpl) {
+		this.reportLog = reportLogImpl;
 	}
 }

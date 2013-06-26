@@ -79,4 +79,8 @@ public class AST_Controller implements Controller {
 		this.root.view.recalculateLayout();
 	}
 
+	public void toggleNodeSize() {
+		this.view.toggleNodeSize();
+	}
+
 }

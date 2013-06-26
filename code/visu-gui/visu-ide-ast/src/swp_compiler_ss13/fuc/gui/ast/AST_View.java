@@ -1,5 +1,9 @@
 package swp_compiler_ss13.fuc.gui.ast;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.JButton;
 import javax.swing.JComponent;
 
 import swp_compiler_ss13.common.ast.ASTNode;
@@ -38,6 +42,10 @@ public class AST_View implements View {
 	public void recalculateLayout() {
 		component.recalculateLayout();
 	}
+	
+	public void toggleNodeSize(){
+		component.toggleSize();
+	}
 
 	@Override
 	public String getName() {
@@ -60,5 +68,17 @@ public class AST_View implements View {
 	}
 
 	@Override
-	public void initComponents(IDE ide) {}
+	public void initComponents(IDE ide) {
+		if (component.isRoot()) {
+			JButton button = new JButton("toggle node size");
+			button.addActionListener(new ActionListener() {
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					controller.toggleNodeSize();
+				}
+			});
+			ide.addButton(button, getPosition(), false);
+		}
+	}
 }

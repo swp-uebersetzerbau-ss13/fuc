@@ -21,6 +21,7 @@ class AST_LayoutManager implements LayoutManager {
 	private int preferredHeight;
 	private int minWidth;
 	private int minHeight;
+	private int buttonDif;
 	private static final int VGAP = 50;
 	private static final int HGAP = 20;
 
@@ -44,7 +45,7 @@ class AST_LayoutManager implements LayoutManager {
 		case ARROWS:
 			if (arrows != null) {
 				throw new IllegalStateException("Layout manager has already an arrow panel");
-			} 
+			}
 			if (comp instanceof Arrow_Panel) {
 				arrows = (Arrow_Panel) comp;
 				break;
@@ -100,6 +101,9 @@ class AST_LayoutManager implements LayoutManager {
 				arrows.deletePoints();
 			}
 			for (int i = 0; i < children.size(); i++) {
+				if (buttonDif > 0) {
+					x += buttonDif / 2;
+				}
 				Component comp = children.get(i);
 				dim = comp.getPreferredSize();
 				comp.setBounds(x, y, dim.width, dim.height);
@@ -129,6 +133,7 @@ class AST_LayoutManager implements LayoutManager {
 		preferredHeight = 0;
 		minWidth = 0;
 		minHeight = 0;
+		buttonDif = 0;
 		if (buttonComponent != null) {
 			for (int i = 0; i < children.size(); i++) {
 				Component child = children.get(i);
@@ -145,6 +150,7 @@ class AST_LayoutManager implements LayoutManager {
 				preferredWidth -= HGAP;
 			}
 			dimension = buttonComponent.getPreferredSize();
+			buttonDif = dimension.width - preferredWidth;
 			preferredWidth = Math.max(preferredWidth, dimension.width);
 			preferredHeight += (preferredHeight == 0 ? 0 : VGAP) + dimension.height;
 			dimension = buttonComponent.getMinimumSize();

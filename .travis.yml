@@ -1,4 +1,6 @@
 language: java
+before_script:
+  - echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
 before_install:
   - git submodule update --init --recursive
 script: cd code && ant run-tests -keep-going
