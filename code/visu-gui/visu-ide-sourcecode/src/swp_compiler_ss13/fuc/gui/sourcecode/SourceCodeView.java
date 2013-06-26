@@ -13,10 +13,12 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -43,6 +45,9 @@ import org.apache.log4j.Logger;
 import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
+import swp_compiler_ss13.fuc.errorLog.LogEntry;
+import swp_compiler_ss13.fuc.errorLog.LogEntry.Type;
+import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
 import swp_compiler_ss13.fuc.gui.ide.mvc.Controller;
 import swp_compiler_ss13.fuc.gui.ide.mvc.IDE;
 import swp_compiler_ss13.fuc.gui.ide.mvc.Position;
@@ -61,13 +66,18 @@ public class SourceCodeView implements View {
 	private final JTextPane sourceCodeField;
 	private final JTextPane lineNumberField;
 	private final JTextPane markErrorField;
-	private final List<Integer> errorLines;
+	private final MyList errorLines;
 	private final JScrollPane component;
 	private final SimpleAttributeSet keywordAttributes = new SimpleAttributeSet();
 	private final SimpleAttributeSet stringAttributes = new SimpleAttributeSet();
 	private final SimpleAttributeSet commentAttributes = new SimpleAttributeSet();
 	private final SimpleAttributeSet defaultAttributes = new SimpleAttributeSet();
 	private final SimpleAttributeSet errorAttributes = new SimpleAttributeSet();
+	private final SimpleAttributeSet warningAttributes = new SimpleAttributeSet();
+	private final SimpleAttributeSet markErrorAttributes = new SimpleAttributeSet();
+	private final SimpleAttributeSet markWarningAttributes = new SimpleAttributeSet();
+	private static final Color WARNING_YELLOW = new Color(240, 240, 0);
+
 	private final List<TokenType> highlightedKeywords = Arrays.asList(TokenType.BOOL_SYMBOL,
 			TokenType.BREAK, TokenType.DO, TokenType.DOUBLE_SYMBOL, TokenType.ELSE,
 			TokenType.FALSE, TokenType.IF, TokenType.LONG_SYMBOL, TokenType.PRINT,
@@ -95,7 +105,7 @@ public class SourceCodeView implements View {
 		markErrorField.setEditable(false);
 		markErrorField.setBackground(new Color(224, 224, 224));
 		markErrorField.setForeground(Color.RED);
-		errorLines = new LinkedList<>();
+		errorLines = new MyList();
 		JPanel viewPort = new JPanel(new BorderLayout(2, 1));
 		viewPort.add(lineNumberField, BorderLayout.WEST);
 		viewPort.add(sourceCodeField, BorderLayout.CENTER);
@@ -106,8 +116,12 @@ public class SourceCodeView implements View {
 		StyleConstants.setForeground(stringAttributes, new Color(42, 0, 255));
 		StyleConstants.setItalic(commentAttributes, true);
 		StyleConstants.setForeground(commentAttributes, Color.GRAY);
+		StyleConstants.setForeground(markErrorAttributes, Color.RED);
+		StyleConstants.setForeground(markWarningAttributes, WARNING_YELLOW);
 		errorAttributes.addAttribute(UnderlineStyledEditorKit.WAVY_LINE, true);
 		errorAttributes.addAttribute(UnderlineStyledEditorKit.UNDERLINE_COLOR, Color.RED);
+		warningAttributes.addAttribute(UnderlineStyledEditorKit.WAVY_LINE, true);
+		warningAttributes.addAttribute(UnderlineStyledEditorKit.UNDERLINE_COLOR, WARNING_YELLOW);
 		attributes = new HashMap<>();
 		for (TokenType type : highlightedKeywords) {
 			attributes.put(type, keywordAttributes);
@@ -146,20 +160,24 @@ public class SourceCodeView implements View {
 	@Override
 	public void initComponents(IDE ide) {
 		sourceCodeField.getDocument().addDocumentListener(new CopyListener(ide));
-		SaveFileListener saveListener = new SaveFileListener();
+		FileListener listener = new FileListener(ide);
 		JMenu menu = new JMenu("File");
 		JMenuItem loadFile = new JMenuItem("Open File...");
-		loadFile.addActionListener(new LoadFileListener(ide, saveListener));
+		loadFile.setActionCommand(FileListener.LOAD_FILE);
+		loadFile.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.META_DOWN_MASK));
+		loadFile.addActionListener(listener);
 		menu.add(loadFile);
 		JMenuItem saveNewFile = new JMenuItem("Save File...");
-		saveNewFile.setActionCommand(SaveFileListener.SAFE_NEW_FILE);
-		saveNewFile.addActionListener(saveListener);
+		saveNewFile.setActionCommand(FileListener.SAFE_NEW_FILE);
+		saveNewFile.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.META_DOWN_MASK
+				| InputEvent.SHIFT_DOWN_MASK));
+		saveNewFile.addActionListener(listener);
 		menu.add(saveNewFile);
 		JMenuItem saveOldFile = new JMenuItem("Save File");
-		saveOldFile.setActionCommand(SaveFileListener.SAFE_OLD_FILE);
+		saveOldFile.setActionCommand(FileListener.SAFE_OLD_FILE);
 		saveOldFile
 				.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.META_DOWN_MASK));
-		saveOldFile.addActionListener(saveListener);
+		saveOldFile.addActionListener(listener);
 		menu.add(saveOldFile);
 		ide.addMenu(menu, Position.SOURCE_CODE, true);
 	}
@@ -174,23 +192,33 @@ public class SourceCodeView implements View {
 	}
 
 	protected void paintErrors() {
-		int actualLine = 0;
-		StringBuilder builder = new StringBuilder("");
-		for (int line : errorLines) {
-			for (; actualLine < line; actualLine++) {
-				builder.append('\n');
+		int actualLine = 1;
+		int line;
+		int textIndex = 0;
+		Document document = markErrorField.getDocument();
+		try {
+			document.remove(0, document.getLength());
+			for (int transferredLine : errorLines) {
+				line = Math.abs(transferredLine);
+				for (; actualLine < line; actualLine++) {
+					document.insertString(textIndex++, "\n", defaultAttributes);
+				}
+				document.insertString(textIndex++, "I",
+						line == transferredLine ? markErrorAttributes : markWarningAttributes);
 			}
-			builder.append('I');
+			if (textIndex == 0) {
+				document.insertString(0, " ", defaultAttributes);
+			}
+		} catch (BadLocationException e) {
+			LOG.error("error on marking errors", e);
 		}
-		if (builder.length() == 0) {
-			builder.append(' ');
-		}
-		markErrorField.setText(builder.toString());
 	}
 
 	private class CopyListener implements ActionListener, DocumentListener {
 
 		private final IDE ide;
+		private int modCount = 0;
+		private final Lock lock = new ReentrantLock();
 
 		public CopyListener(IDE ide) {
 			this.ide = ide;
@@ -198,17 +226,23 @@ public class SourceCodeView implements View {
 
 		private void statusChanged() {
 			LOG.trace("wrote source code");
+			final int expectedModCount;
+			final String text;
+			lock.lock();
+			try {
+				expectedModCount = ++modCount;
+				text = sourceCodeField.getText();
+			} finally {
+				lock.unlock();
+			}
 			SwingUtilities.invokeLater(new Runnable() {
 
 				@Override
 				public void run() {
-					String text = sourceCodeField.getText();
 					int caretPosition = sourceCodeField.getCaretPosition();
 					Document document = sourceCodeField.getDocument();
 					document.removeDocumentListener(CopyListener.this);
 					try {
-						document.remove(0, document.getLength());
-						document.insertString(0, text, defaultAttributes);
 						{
 							int newLineAmount = 1;
 							char newLine = '\n';
@@ -219,17 +253,24 @@ public class SourceCodeView implements View {
 							}
 							setLineNumbers(newLineAmount);
 						}
-
 						String[] lines = text.split("\n");
-						int[] lineLength = new int[lines.length];
-						lineLength[0] = 0;
+						int[] lineOffset = new int[lines.length];
+						lineOffset[0] = 0;
 						for (int i = 0; i < lines.length - 1; i++) {
-							lineLength[i + 1] = lineLength[i] + 1 + lines[i].length();
+							lineOffset[i + 1] = lineOffset[i] + 1 + lines[i].length();
 						}
-						// List<Token> tokens =
-						lexerCheck(document, text, lineLength);
-						// parserCheck(document, tokens, lineLength);
-						sourceCodeField.setCaretPosition(caretPosition);
+						List<Token> tokens = lexerCheck(document, text, lineOffset,
+								expectedModCount);
+						if (tokens != null) {
+							AST ast = parserCheck(document, tokens, lineOffset, expectedModCount);
+							if (ast != null) {
+								ast = semanticCheck(document, ast, lineOffset, expectedModCount);
+								sourceCodeField.setCaretPosition(caretPosition);
+							} else {
+								sourceCodeField.setCaretPosition(caretPosition);
+							}
+						}
+
 					} catch (Exception e) {
 						LOG.warn("error durring highlighting", e);
 					} finally {
@@ -247,45 +288,87 @@ public class SourceCodeView implements View {
 					}
 				}
 
-				private List<Token> lexerCheck(Document document, String text, int[] lineLength)
-						throws BadLocationException {
+				private List<Token> lexerCheck(Document document, String text, int[] lineLength,
+						int expectedModCount) throws BadLocationException {
 					SimpleAttributeSet attrs;
 					int tokenstart;
 					errorLines.clear();
 					List<Token> tokens = ide.runLexer(text, true);
-					for (Token token : tokens) {
-						attrs = attributes.get(token.getTokenType());
-						if (attrs != null) {
-							if (attrs == errorAttributes) {
-								errorLines.add(token.getLine() - 1);
-								LOG.info("Found Error in line " + (token.getLine() - 1));
+					lock.lock();
+					try {
+						if (expectedModCount == modCount) {
+							document.remove(0, document.getLength());
+							document.insertString(0, text, defaultAttributes);
+							for (Token token : tokens) {
+								attrs = attributes.get(token.getTokenType());
+								if (attrs != null) {
+									if (attrs == errorAttributes) {
+										errorLines.add(token.getLine());
+									}
+									tokenstart = lineLength[token.getLine() - 1]
+											+ token.getColumn() - 1;
+									document.remove(tokenstart, token.getValue().length());
+									document.insertString(tokenstart, token.getValue(), attrs);
+								}
 							}
-							tokenstart = lineLength[token.getLine() - 1] + token.getColumn() - 1;
-							document.remove(tokenstart, token.getValue().length());
-							document.insertString(tokenstart, token.getValue(), attrs);
+							paintErrors();
+						} else {
+							return null;
 						}
+					} finally {
+						lock.unlock();
 					}
-					paintErrors();
 					return tokens;
 				}
 
-				private void parserCheck(Document document, List<Token> tokens, int[] lineLength)
-						throws BadLocationException {
-					SimpleAttributeSet attrs;
-					AST ast = ide.runParser(tokens, true);
-					/*
-					 * TODO get reportLog
-					 */
-					int tokenstart;
-					for (Token token : tokens) {
-						attrs = attributes.get(token.getTokenType());
-						if (attrs != null) {
-							tokenstart = lineLength[token.getLine() - 1] + token.getColumn() - 1;
-							document.remove(tokenstart, token.getValue().length());
-							document.insertString(tokenstart, token.getValue(), attrs);
-						}
-					}
+				private AST parserCheck(Document document, List<Token> tokens, int[] lineLength,
+						int expectedModCount) throws BadLocationException {
+					AST ast = ide.runParser(tokens, false);
+					return printAstErrors(document, lineLength, expectedModCount, ast);
 				}
+
+				private AST semanticCheck(Document document, AST ast, int[] lineLength,
+						int expectedModCount) throws BadLocationException {
+					ast = ide.runSemanticAnalysis(ast, false);
+					return printAstErrors(document, lineLength, expectedModCount, ast);
+				}
+
+				private AST printAstErrors(Document document, int[] lineLength,
+						int expectedModCount, AST ast) throws BadLocationException {
+					ReportLogImpl reportLog = ide.getReportLog();
+					lock.lock();
+					try {
+						if (expectedModCount == modCount && reportLog != null) {
+							// errors from Lexer can be removed, because they
+							// are repeated in the parser
+							errorLines.clear();
+							int tokenstart;
+							boolean isError;
+							List<Token> tokens;
+							for (LogEntry entry : reportLog.getEntries()) {
+								isError = entry.getLogType() == Type.ERROR;
+								tokens = entry.getTokens();
+								errorLines.add(tokens.get(0).getLine() * (isError ? 1 : -1));
+								for (Token token : tokens) {
+									if (!token.getTokenType().equals(TokenType.EOF)) {
+										tokenstart = lineLength[token.getLine() - 1]
+												+ token.getColumn() - 1;
+										document.remove(tokenstart, token.getValue().length());
+										document.insertString(tokenstart, token.getValue(),
+												isError ? errorAttributes : warningAttributes);
+									}
+								}
+								paintErrors();
+							}
+						} else {
+							return null;
+						}
+					} finally {
+						lock.unlock();
+					}
+					return ast;
+				}
+
 			});
 		}
 
@@ -311,84 +394,18 @@ public class SourceCodeView implements View {
 
 	}
 
-	private class LoadFileListener implements ActionListener {
-
-		private final IDE ide;
-		private final SaveFileListener listener;
-		private final JFileChooser chooser;
-
-		public LoadFileListener(IDE ide, SaveFileListener listener) {
-			this.ide = ide;
-			this.listener = listener;
-			this.chooser = new JFileChooser();
-			this.chooser.setFileFilter(new FileNameExtensionFilter("choose a prog file", "prog"));
-		}
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			SwingUtilities.invokeLater(new Runnable() {
-
-				@Override
-				public void run() {
-					int showOpenDialog = chooser.showOpenDialog(component);
-					switch (showOpenDialog) {
-					case JFileChooser.APPROVE_OPTION:
-						File file = chooser.getSelectedFile();
-						BufferedReader reader = null;
-						StringBuilder sourceCode = new StringBuilder();
-						String line;
-						try {
-							reader = new BufferedReader(new InputStreamReader(new FileInputStream(
-									file)));
-							while ((line = reader.readLine()) != null) {
-								sourceCode.append(line);
-								sourceCode.append('\n');
-							}
-							sourceCodeLock.lock();
-							try {
-								boolean oldValue = setSourceCode;
-								setSourceCode = true;
-								ide.setSourceCode(sourceCode.substring(0, sourceCode.length() - 1));
-								setSourceCode = oldValue;
-							} finally {
-								sourceCodeLock.unlock();
-							}
-							if (listener != null) {
-								listener.file = file;
-							}
-						} catch (FileNotFoundException e1) {
-							LOG.error("choosen file doesn't exist", e1);
-						} catch (IOException e1) {
-							LOG.error("error while reading from file", e1);
-						} finally {
-							if (reader != null) {
-								try {
-									reader.close();
-								} catch (IOException e1) {
-									LOG.error("error while closing file", e1);
-								}
-							}
-						}
-					case JFileChooser.CANCEL_OPTION:
-					case JFileChooser.ERROR_OPTION:
-						break;
-					default:
-						LOG.warn("unknown result while choosing the load file");
-						break;
-					}
-				}
-			});
-		}
-	}
-
-	private class SaveFileListener implements ActionListener {
-		private File file = null;
-
+	private class FileListener implements ActionListener {
 		private static final String SAFE_NEW_FILE = "safe new";
 		private static final String SAFE_OLD_FILE = "safe old";
-		private final JFileChooser chooser;
+		private static final String LOAD_FILE = "load";
 
-		public SaveFileListener() {
+		private final JFileChooser chooser;
+		private final IDE ide;
+
+		private File file = null;
+
+		public FileListener(IDE ide) {
+			this.ide = ide;
 			this.chooser = new JFileChooser();
 			this.chooser.setFileFilter(new FileNameExtensionFilter("choose a filename", "prog"));
 		}
@@ -397,14 +414,20 @@ public class SourceCodeView implements View {
 		public void actionPerformed(ActionEvent e) {
 			final String text = sourceCodeField.getText();
 			final boolean safeNew = SAFE_NEW_FILE.equals(e.getActionCommand());
-			if (safeNew || SAFE_OLD_FILE.equals(e.getActionCommand())) {
+			final boolean load = LOAD_FILE.equals(e.getActionCommand());
+			if (safeNew || load || SAFE_OLD_FILE.equals(e.getActionCommand())) {
 				SwingUtilities.invokeLater(new Runnable() {
 
 					@Override
 					public void run() {
 						File newFile = file;
-						if (safeNew || newFile == null) {
-							int showOpenDialog = chooser.showSaveDialog(component);
+						if (load || safeNew || newFile == null) {
+							int showOpenDialog;
+							if (load) {
+								showOpenDialog = chooser.showOpenDialog(component);
+							} else {
+								showOpenDialog = chooser.showSaveDialog(component);
+							}
 							switch (showOpenDialog) {
 							case JFileChooser.APPROVE_OPTION:
 								newFile = new File(chooser.getSelectedFile().getPath()
@@ -416,6 +439,44 @@ public class SourceCodeView implements View {
 										LOG.error("couldn't create file", e);
 										return;
 									}
+								} else if (load) {
+									BufferedReader reader = null;
+									StringBuilder sourceCode = new StringBuilder();
+									String line;
+									try {
+										reader = new BufferedReader(new InputStreamReader(
+												new FileInputStream(newFile)));
+										while ((line = reader.readLine()) != null) {
+											sourceCode.append(line);
+											sourceCode.append('\n');
+										}
+										if (sourceCode.length() != 0) {
+											sourceCode.setLength(sourceCode.length() - 1);
+										}
+										sourceCodeLock.lock();
+										try {
+											boolean oldValue = setSourceCode;
+											setSourceCode = true;
+											ide.setSourceCode(sourceCode.toString());
+											setSourceCode = oldValue;
+										} finally {
+											sourceCodeLock.unlock();
+										}
+										file = newFile;
+									} catch (FileNotFoundException e1) {
+										LOG.error("choosen file doesn't exist", e1);
+									} catch (IOException e1) {
+										LOG.error("error while reading from file", e1);
+									} finally {
+										if (reader != null) {
+											try {
+												reader.close();
+											} catch (IOException e1) {
+												LOG.error("error while closing file", e1);
+											}
+										}
+									}
+									return;
 								}
 								file = newFile;
 								break;
@@ -442,6 +503,33 @@ public class SourceCodeView implements View {
 					}
 				});
 			}
+		}
+	}
+
+	private static class MyList implements Iterable<Integer> {
+		private List<Integer> list = new ArrayList<>();
+
+		public void clear() {
+			list.clear();
+		}
+
+		public void add(int i) {
+			int index = list.size();
+			int element;
+			for (ListIterator<Integer> iterator = list.listIterator(list.size()); iterator
+					.hasPrevious();) {
+				element = iterator.previous();
+				if (element == i || element == -i) {
+					index = iterator.nextIndex();
+					break;
+				}
+			}
+			list.add(index, i);
+		}
+
+		@Override
+		public Iterator<Integer> iterator() {
+			return list.iterator();
 		}
 	}
 

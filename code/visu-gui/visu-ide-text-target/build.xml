@@ -1,4 +1,4 @@
-<project basedir="." name="FUC Visualisation - Source code creation" default="help">
+<project basedir="." name="FUC Visualisation - Program Targetcode to text" default="help">
 	<!-- === load the properties === -->
 	<loadproperties srcFile="../../build.properties" />
 
@@ -23,11 +23,11 @@
 	<target name="ide" description="Build the ide">
 		<ant antfile="build.xml" dir="../../${visu.gui.ide.dir}" target="build" inheritall="false" />
 	</target>
-
-	<!-- === depends on the errorLog === -->
-	<target name="errorLog" description="Build the error log">
-		<ant antfile="build.xml" dir="../../${errorLog.dir}" target="build" inheritall="false" />
-	</target>
+	
+	<!-- === depends on the text ide === -->
+		<target name="text-ide" description="Build the text ide">
+			<ant antfile="build.xml" dir="../../${visu.gui.ide.text.dir}" target="build" inheritall="false" />
+		</target>
 
 	<!-- === clean === -->
 	<target name="clean" description="clean this project">
@@ -36,15 +36,38 @@
 	</target>
 
 	<!-- === build === -->
-	<target name="build" depends="clean, interfaces, ide,errorLog" description="build the source files">
+	<target name="build" depends="clean, interfaces, ide, text-ide" description="build the source files">
 		<mkdir dir="${bin.dir}" />
-		<javac debug="true" debuglevel="lines,vars,source" srcdir="${src.dir}" destdir="${bin.dir}" target="1.7" classpathref="classpath" includeantruntime="false" />
+		<javac 
+			debug="true"
+			debuglevel="lines,vars,source"
+			srcdir="${src.dir}"
+			destdir="${bin.dir}"
+			target="1.7"
+			classpathref="classpath"
+			includeantruntime="false" />
 	</target>
 
 	<!-- === doc === -->
 	<target name="doc" description="create the javadoc">
 		<mkdir dir="${doc.dir}" />
-		<javadoc access="private" author="true" destdir="${doc.dir}" doctitle="${ant.project.name}" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" source="1.7" sourcepathref="sourcepath" classpathref="classpath" splitindex="true" use="true" version="true" linksource="true" />
+		<javadoc
+	    	access="private"
+	    	author="true"
+	    	destdir="${doc.dir}"
+	    	doctitle="${ant.project.name}"
+	    	nodeprecated="false"
+	    	nodeprecatedlist="false"
+	    	noindex="false"
+	    	nonavbar="false"
+	    	notree="false"
+	    	source="1.7"
+	    	sourcepathref="sourcepath"
+			classpathref="classpath"
+	    	splitindex="true"
+	    	use="true"
+	    	version="true"
+	    	linksource="true" />
 	</target>
 
 	<!-- === build tests === -->
