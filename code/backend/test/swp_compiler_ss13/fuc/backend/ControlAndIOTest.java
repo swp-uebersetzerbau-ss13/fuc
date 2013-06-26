@@ -112,49 +112,6 @@ public class ControlAndIOTest extends TestBase {
 		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
-
-	@org.junit.Test
-	public void generateTargetCodeTest_PrintLong() throws IOException, BackendException {
-		tac.add(new QuadrupleImpl(Operator.DECLARE_LONG, "#2", EmptyArgument, "l1"));
-		tac.add(new QuadrupleImpl(Operator.PRINT_LONG, "l1", EmptyArgument, EmptyArgument));
-		String mainFunctionCode = "" +
-				"  %l1 = alloca i64\n" +
-				"  store i64 2, i64* %l1\n" +
-				"  %l1.0 = load i64* %l1\n" +
-				"  %.tmp.0 = call i8* (i64)* @ltoa(i64 %l1.0)\n" +
-				"  call i32 (i8*, ...)* @printf(i8* %.tmp.0)\n" +
-				"  ret i64 0\n";
-		expectMain(mainFunctionCode, generateCodeAsString(tac));
-	}
-
-	@org.junit.Test
-	public void generateTargetCodeTest_PrintDouble() throws IOException, BackendException {
-		tac.add(new QuadrupleImpl(Operator.DECLARE_DOUBLE, "#2.0", EmptyArgument, "d1"));
-		tac.add(new QuadrupleImpl(Operator.PRINT_DOUBLE, "d1", EmptyArgument, EmptyArgument));
-		String mainFunctionCode = "" +
-				"  %d1 = alloca double\n" +
-				"  store double 2.0, double* %d1\n" +
-				"  %d1.0 = load double* %d1\n" +
-				"  %.tmp.0 = call i8* (double)* @dtoa(double %d1.0)\n" +
-				"  call i32 (i8*, ...)* @printf(i8* %.tmp.0)\n" +
-				"  ret i64 0\n";
-		expectMain(mainFunctionCode, generateCodeAsString(tac));
-	}
-
-	@org.junit.Test
-	public void generateTargetCodeTest_PrintBoolean() throws IOException, BackendException {
-		tac.add(new QuadrupleImpl(Operator.DECLARE_BOOLEAN, "#FALSE", EmptyArgument, "b1"));
-		tac.add(new QuadrupleImpl(Operator.PRINT_BOOLEAN, "b1", EmptyArgument, EmptyArgument));
-		String mainFunctionCode = "" +
-				"  %b1 = alloca i1\n" +
-				"  store i1 0, i1* %b1\n" +
-				"  %b1.0 = load i1* %b1\n" +
-				"  %.tmp.0 = call i8* (i1)* @btoa(i1 %b1.0)\n" +
-				"  call i32 (i8*, ...)* @printf(i8* %.tmp.0)\n" +
-				"  ret i64 0\n";
-		expectMain(mainFunctionCode, generateCodeAsString(tac));
-	}
-
 	@org.junit.Test
 	public void generateTargetCodeTest_PrintString() throws IOException, BackendException {
 		tac.add(new QuadrupleImpl(Operator.DECLARE_STRING, "#\"bla\"", EmptyArgument, "s1"));

@@ -14,8 +14,7 @@ import static org.junit.Assert.assertEquals;
  */
 public class ModuleTest {
 
-    private static Module module;
-    private static ByteArrayOutputStream outStream;
+	//private static ByteArrayOutputStream outStream;
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
@@ -27,15 +26,15 @@ public class ModuleTest {
 
     @Before
     public void setUp() throws Exception {
-        outStream = new ByteArrayOutputStream();
-        PrintWriter out = new PrintWriter(outStream);
-        module = new Module(out);
+	    //outStream = new ByteArrayOutputStream();
+	    //PrintWriter out = new PrintWriter(outStream);
     }
 
     @After
     public void tearDown() throws Exception {
     }
 
+	/*
     @Test
     public void generateTest() throws IOException {
         String code = "code stub";
@@ -49,18 +48,17 @@ public class ModuleTest {
         assertEquals(result.charAt(0), ' ');
         assertEquals(result.charAt(1), ' ');
     }
+	*/
 
     @Test
     public void getIRTypeLongTest() {
-        Class kindClass = Type.Kind.class;
-        String type = (String) PA.invokeMethod(module, "getIRType(swp_compiler_ss13.common.types.Type$Kind)", Type.Kind.LONG);
+        String type = Module.getIRType(Type.Kind.LONG);
         assertEquals(type, "i64");
     }
 
     @Test
     public void getIRTypeDoubleTest() {
-        Class kindClass = Type.Kind.class;
-        String type = (String) PA.invokeMethod(module, "getIRType(swp_compiler_ss13.common.types.Type$Kind)", Type.Kind.DOUBLE);
+        String type = Module.getIRType(Type.Kind.DOUBLE);
         assertEquals(type, "double");
     }
 }
