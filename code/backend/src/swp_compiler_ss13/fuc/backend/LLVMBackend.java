@@ -141,7 +141,7 @@ public class LLVMBackend implements Backend
 		return tac;
 	}
 
-	private LLVMBackendArrayType parseArrayDeclaration(Module m, Iterator<Quadruple> tacIterator, int size) throws BackendException {
+	private LLVMBackendArrayType parseArrayDeclaration(Iterator<Quadruple> tacIterator, int size) throws BackendException {
 		boolean done = false;
 		Type type = null;
 		List<Integer> dimensions = new LinkedList<Integer>();
@@ -172,7 +172,7 @@ public class LLVMBackend implements Backend
 					case DECLARE_STRUCT:
 						size = Integer.parseInt(q.getArgument1().substring(1));
 						assert(size >= 0);
-						type = this.parseStructDeclaration(m, tacIterator, size);
+						type = this.parseStructDeclaration(tacIterator, size);
 						break;
 					default:
 						throw new BackendException("Unknown type for array declaration");
@@ -185,7 +185,7 @@ public class LLVMBackend implements Backend
 		return new LLVMBackendArrayType(dimensions, type);
 	}
 
-	private LLVMBackendStructType parseStructDeclaration(Module m, Iterator<Quadruple> tacIterator, int size) throws BackendException {
+	private LLVMBackendStructType parseStructDeclaration(Iterator<Quadruple> tacIterator, int size) throws BackendException {
 		int i = 0;
 		List<Member> members = new LinkedList<Member>();
 
@@ -209,12 +209,12 @@ public class LLVMBackend implements Backend
 				case DECLARE_ARRAY:
 					memberSize = Integer.parseInt(q.getArgument1().substring(1));
 					assert(size>=0);
-					members.add(new Member(q.getResult(), this.parseArrayDeclaration(m, tacIterator, memberSize)));
+					members.add(new Member(q.getResult(), this.parseArrayDeclaration(tacIterator, memberSize)));
 					break;
 				case DECLARE_STRUCT:
 					memberSize = Integer.parseInt(q.getArgument1().substring(1));
 					assert(size>=0);
-					members.add(new Member(q.getResult(), this.parseStructDeclaration(m, tacIterator, memberSize)));
+					members.add(new Member(q.getResult(), this.parseStructDeclaration(tacIterator, memberSize)));
 					break;
 				default:
 					break;
@@ -241,16 +241,18 @@ public class LLVMBackend implements Backend
 		/* Run passes on the three address code to ensure it is correct. */
 		tac = basicBlocksTerminatedPass(tac);
 
-		Module m = new Module(out);
-
 		/* Write preamble */
 		out.println(this.llvm_preamble);
 
-		/* Write begin for main function */
-		out.println("define i64 @main() {");
-
 		Iterator<Quadruple> tacIterator = tac.iterator();
 
+		Function main = new Function(
+			"main",
+			Type.Kind.LONG,
+			new LinkedList<Map.Entry<String,Type.Kind>>());
+
+		/* Generate LLVM IR code corresponding
+		 * to the TAC given as input */
 		while(tacIterator.hasNext())
 		{
 			Quadruple q = tacIterator.next();
@@ -260,25 +262,20 @@ public class LLVMBackend implements Backend
 			{
 				/* Variable declaration */
 				case DECLARE_LONG:
-					m.addPrimitiveDeclare(
-						Type.Kind.LONG,
-						q.getResult(),
-						q.getArgument1());
-					break;
 				case DECLARE_DOUBLE:
-					m.addPrimitiveDeclare(
-						Type.Kind.DOUBLE,
+					main.addPrimitiveDeclare(
+						Module.toArgument1TypeKind(q.getOperator()),
 						q.getResult(),
 						q.getArgument1());
 					break;
 				case DECLARE_BOOLEAN:
-					m.addPrimitiveDeclare(
+					main.addPrimitiveDeclare(
 						Type.Kind.BOOLEAN,
 						q.getResult(),
 						Module.toIRBoolean(q.getArgument1()));
 					break;
 				case DECLARE_STRING:
-					m.addPrimitiveDeclare(
+					main.addPrimitiveDeclare(
 						Type.Kind.STRING,
 						q.getResult(),
 						Module.toIRString(q.getArgument1()));
@@ -291,292 +288,123 @@ public class LLVMBackend implements Backend
 				case DECLARE_ARRAY:
 					size = Integer.parseInt(q.getArgument1().substring(1));
 					assert(size>=0);
-					LLVMBackendArrayType array = this.parseArrayDeclaration(m, tacIterator, size);
-					m.addArrayDeclare(array, q.getResult());
+					LLVMBackendArrayType array = this.parseArrayDeclaration(tacIterator, size);
+					main.addDerivedDeclare(array, q.getResult());
 					break;
 				case DECLARE_STRUCT:
 					size = Integer.parseInt(q.getArgument1().substring(1));
 					assert(size>=0);
-					LLVMBackendStructType struct = this.parseStructDeclaration(m, tacIterator, size);
-					m.addStructDeclare(struct, q.getResult());
+					LLVMBackendStructType struct = this.parseStructDeclaration(tacIterator, size);
+					main.addDerivedDeclare(struct, q.getResult());
 					break;
 
 				/* Type conversion */
 				case LONG_TO_DOUBLE:
-					m.addPrimitiveConversion(
-						Type.Kind.LONG,
-						q.getArgument1(),
-						Type.Kind.DOUBLE,
-						q.getResult());
-					break;
 				case DOUBLE_TO_LONG:
-					m.addPrimitiveConversion(
-						Type.Kind.DOUBLE,
-						q.getArgument1(),
-						Type.Kind.LONG,
-						q.getResult());
-					break;
 				case BOOLEAN_TO_STRING:
-					m.addPrimitiveConversion(
-						Type.Kind.BOOLEAN,
-						q.getArgument1(),
-						Type.Kind.STRING,
-						q.getResult());
-					break;
 				case LONG_TO_STRING:
-					m.addPrimitiveConversion(
-						Type.Kind.LONG,
-						q.getArgument1(),
-						Type.Kind.STRING,
-						q.getResult());
-					break;
 				case DOUBLE_TO_STRING:
-					m.addPrimitiveConversion(
-						Type.Kind.LONG,
+					main.addPrimitiveConversion(
+						Module.toArgument1TypeKind(q.getOperator()),
 						q.getArgument1(),
-						Type.Kind.STRING,
+						Module.toResultTypeKind(q.getOperator()),
 						q.getResult());
 					break;
 
 				/* Unindexed copy */
 				case ASSIGN_LONG:
-					m.addPrimitiveAssign(
-						Type.Kind.LONG,
-						q.getResult(),
-						q.getArgument1());
-					break;
 				case ASSIGN_DOUBLE:
-					m.addPrimitiveAssign(
-						Type.Kind.DOUBLE,
+					main.addPrimitiveAssign(
+						Module.toArgument1TypeKind(q.getOperator()),
 						q.getResult(),
 						q.getArgument1());
 					break;
 				case ASSIGN_BOOLEAN:
-					m.addPrimitiveAssign(
+					main.addPrimitiveAssign(
 						Type.Kind.BOOLEAN,
 						q.getResult(),
 						Module.toIRBoolean(q.getArgument1()));
 					break;
 				case ASSIGN_STRING:
-					m.addPrimitiveAssign(
+					main.addPrimitiveAssign(
 						Type.Kind.STRING,
 						q.getResult(),
 						Module.toIRString(q.getArgument1()));
 					break;
 
 				/* Indexed Copy */
-				case ARRAY_GET_LONG:
-					m.addPrimitiveArrayGet(
-						q.getArgument1(),
-						Long.parseLong(q.getArgument2().substring(1)),
-						Type.Kind.LONG,
-						q.getResult());
-					break;
-				case ARRAY_GET_DOUBLE:
-					m.addPrimitiveArrayGet(
-						q.getArgument1(),
-						Long.parseLong(q.getArgument2().substring(1)),
-						Type.Kind.DOUBLE,
-						q.getResult());
-					break;
-				case ARRAY_GET_BOOLEAN:
-					m.addPrimitiveArrayGet(
-						q.getArgument1(),
-						Long.parseLong(q.getArgument2().substring(1)),
-						Type.Kind.BOOLEAN,
-						q.getResult());
-					break;
-				case ARRAY_GET_STRING:
-					m.addPrimitiveArrayGet(
-						q.getArgument1(),
-						Long.parseLong(q.getArgument2().substring(1)),
-						Type.Kind.STRING,
-						q.getResult());
-					break;
 				case ARRAY_GET_REFERENCE:
-					m.addReferenceArrayGet(
+				case STRUCT_GET_REFERENCE:
+					main.addReferenceDerivedGet(
+						Module.toArgument1TypeKind(q.getOperator()),
 						q.getArgument1(),
-						Long.parseLong(q.getArgument2().substring(1)),
+						q.getArgument2(),
 						q.getResult());
+					break;
+				case ARRAY_GET_LONG:
+				case ARRAY_GET_DOUBLE:
+				case ARRAY_GET_BOOLEAN:
+				case ARRAY_GET_STRING:
+				case STRUCT_GET_LONG:
+				case STRUCT_GET_DOUBLE:
+				case STRUCT_GET_BOOLEAN:
+				case STRUCT_GET_STRING:
+					main.addPrimitiveDerivedSetOrGet(
+						Module.toArgument1TypeKind(q.getOperator()),
+						q.getArgument1(),
+						q.getArgument2(),
+						Module.toResultTypeKind(q.getOperator()),
+						q.getResult(),
+						false);
 					break;
 				case ARRAY_SET_LONG:
-					m.addPrimitiveArraySet(
-						q.getArgument1(),
-						Long.parseLong(q.getArgument2().substring(1)),
-						Type.Kind.LONG,
-						q.getResult());
-					break;
 				case ARRAY_SET_DOUBLE:
-					m.addPrimitiveArraySet(
-						q.getArgument1(),
-						Long.parseLong(q.getArgument2().substring(1)),
-						Type.Kind.DOUBLE,
-						q.getResult());
-					break;
 				case ARRAY_SET_BOOLEAN:
-					m.addPrimitiveArraySet(
-						q.getArgument1(),
-						Long.parseLong(q.getArgument2().substring(1)),
-						Type.Kind.BOOLEAN,
-						q.getResult());
-					break;
 				case ARRAY_SET_STRING:
-					m.addPrimitiveArraySet(
-						q.getArgument1(),
-						Long.parseLong(q.getArgument2().substring(1)),
-						Type.Kind.STRING,
-						q.getResult());
-					break;
-				case STRUCT_GET_LONG:
-					m.addPrimitiveStructGet(
-						q.getArgument1(),
-						q.getArgument2(),
-						Type.Kind.LONG,
-						q.getResult());
-					break;
-				case STRUCT_GET_DOUBLE:
-					m.addPrimitiveStructGet(
-						q.getArgument1(),
-						q.getArgument2(),
-						Type.Kind.DOUBLE,
-						q.getResult());
-					break;
-				case STRUCT_GET_BOOLEAN:
-					m.addPrimitiveStructGet(
-						q.getArgument1(),
-						q.getArgument2(),
-						Type.Kind.BOOLEAN,
-						q.getResult());
-					break;
-				case STRUCT_GET_STRING:
-					m.addPrimitiveStructGet(
-						q.getArgument1(),
-						q.getArgument2(),
-						Type.Kind.STRING,
-						q.getResult());
-					break;
-				case STRUCT_GET_REFERENCE:
-					m.addReferenceStructGet(
-						q.getArgument1(),
-						q.getArgument2(),
-						q.getResult());
-					break;
 				case STRUCT_SET_LONG:
-					m.addPrimitiveStructSet(
-						q.getArgument1(),
-						q.getArgument2(),
-						Type.Kind.LONG,
-						q.getResult());
-					break;
 				case STRUCT_SET_DOUBLE:
-					m.addPrimitiveStructSet(
-						q.getArgument1(),
-						q.getArgument2(),
-						Type.Kind.DOUBLE,
-						q.getResult());
-					break;
 				case STRUCT_SET_BOOLEAN:
-					m.addPrimitiveStructSet(
-						q.getArgument1(),
-						q.getArgument2(),
-						Type.Kind.BOOLEAN,
-						q.getResult());
-					break;
 				case STRUCT_SET_STRING:
-					m.addPrimitiveStructSet(
+					main.addPrimitiveDerivedSetOrGet(
+						Module.toArgument1TypeKind(q.getOperator()),
 						q.getArgument1(),
 						q.getArgument2(),
-						Type.Kind.STRING,
-						q.getResult());
+						Module.toResultTypeKind(q.getOperator()),
+						q.getResult(),
+						true);
 					break;
 
 				/* Arithmetic */
 				case ADD_LONG:
-					m.addPrimitiveBinaryInstruction(
-						q.getOperator(),
-						Type.Kind.LONG,
-						Type.Kind.LONG,
-						q.getArgument1(),
-						q.getArgument2(),
-						q.getResult());
-					break;
 				case ADD_DOUBLE:
-					m.addPrimitiveBinaryInstruction(
-						q.getOperator(),
-						Type.Kind.DOUBLE,
-						Type.Kind.DOUBLE,
-						q.getArgument1(),
-						q.getArgument2(),
-						q.getResult());
-					break;
 				case SUB_LONG:
-					m.addPrimitiveBinaryInstruction(
-						q.getOperator(),
-						Type.Kind.LONG,
-						Type.Kind.LONG,
-						q.getArgument1(),
-						q.getArgument2(),
-						q.getResult());
-					break;
 				case SUB_DOUBLE:
-					m.addPrimitiveBinaryInstruction(
-						q.getOperator(),
-						Type.Kind.DOUBLE,
-						Type.Kind.DOUBLE,
-						q.getArgument1(),
-						q.getArgument2(),
-						q.getResult());
-					break;
 				case MUL_LONG:
-					m.addPrimitiveBinaryInstruction(
-						q.getOperator(),
-						Type.Kind.LONG,
-						Type.Kind.LONG,
-						q.getArgument1(),
-						q.getArgument2(),
-						q.getResult());
-					break;
 				case MUL_DOUBLE:
-					m.addPrimitiveBinaryInstruction(
+					main.addPrimitiveBinaryInstruction(
 						q.getOperator(),
-						Type.Kind.DOUBLE,
-						Type.Kind.DOUBLE,
+						Module.toResultTypeKind(q.getOperator()),
+						Module.toArgument1TypeKind(q.getOperator()),
 						q.getArgument1(),
 						q.getArgument2(),
 						q.getResult());
 					break;
 				case DIV_LONG:
-					m.addPrimitiveBinaryCall(
-						q.getOperator(),
-						Type.Kind.LONG,
-						Type.Kind.LONG,
-						q.getArgument1(),
-						q.getArgument2(),
-						q.getResult());
-					break;
 				case DIV_DOUBLE:
-					m.addPrimitiveBinaryCall(
+					main.addPrimitiveBinaryCall(
 						q.getOperator(),
-						Type.Kind.DOUBLE,
-						Type.Kind.DOUBLE,
+						Module.toResultTypeKind(q.getOperator()),
+						Module.toArgument1TypeKind(q.getOperator()),
 						q.getArgument1(),
 						q.getArgument2(),
 						q.getResult());
 					break;
 				case NOT_BOOLEAN:
-					m.addBooleanNot(Module.toIRBoolean(q.getArgument1()), q.getResult());
+					main.addBooleanNot(Module.toIRBoolean(q.getArgument1()), q.getResult());
 					break;
 				case OR_BOOLEAN:
-					m.addPrimitiveBinaryInstruction(
-							q.getOperator(),
-							Type.Kind.BOOLEAN,
-							Type.Kind.BOOLEAN,
-							Module.toIRBoolean(q.getArgument1()),
-							Module.toIRBoolean(q.getArgument2()),
-							q.getResult());
-					break;
 				case AND_BOOLEAN:
-					m.addPrimitiveBinaryInstruction(
+					main.addPrimitiveBinaryInstruction(
 							q.getOperator(),
 							Type.Kind.BOOLEAN,
 							Type.Kind.BOOLEAN,
@@ -585,7 +413,7 @@ public class LLVMBackend implements Backend
 							q.getResult());
 					break;
 				case CONCAT_STRING:
-					m.addPrimitiveBinaryCall(
+					main.addPrimitiveBinaryCall(
 						q.getOperator(),
 						Type.Kind.STRING,
 						Type.Kind.STRING,
@@ -596,115 +424,55 @@ public class LLVMBackend implements Backend
 
 				/* Comparisons */
 				case COMPARE_LONG_E:
-				m.addPrimitiveBinaryInstruction(
+				case COMPARE_LONG_G:
+				case COMPARE_LONG_L:
+				case COMPARE_LONG_GE:
+				case COMPARE_LONG_LE:
+					main.addPrimitiveBinaryInstruction(
 						q.getOperator(),
 						Type.Kind.BOOLEAN,
 						Type.Kind.LONG,
 						q.getArgument1(),
 						q.getArgument2(),
 						q.getResult());
-				break;
-				case COMPARE_LONG_G:
-					m.addPrimitiveBinaryInstruction(
-							q.getOperator(),
-							Type.Kind.LONG,
-							Type.Kind.BOOLEAN,
-							q.getArgument1(),
-							q.getArgument2(),
-							q.getResult());
 					break;
-				case COMPARE_LONG_L:
-					m.addPrimitiveBinaryInstruction(
-							q.getOperator(),
-							Type.Kind.BOOLEAN,
-							Type.Kind.LONG,
-							q.getArgument1(),
-							q.getArgument2(),
-							q.getResult());
-					break;
-				case COMPARE_LONG_GE:
-					m.addPrimitiveBinaryInstruction(
-							q.getOperator(),
-							Type.Kind.BOOLEAN,
-							Type.Kind.LONG,
-							q.getArgument1(),
-							q.getArgument2(),
-							q.getResult());
-					break;
-				case COMPARE_LONG_LE:
-					m.addPrimitiveBinaryInstruction(
-							q.getOperator(),
-							Type.Kind.BOOLEAN,
-							Type.Kind.LONG,
-							q.getArgument1(),
-							q.getArgument2(),
-							q.getResult());
-					break;
+
 				case COMPARE_DOUBLE_E:
-					m.addPrimitiveBinaryInstruction(
-							q.getOperator(),
-							Type.Kind.BOOLEAN,
-							Type.Kind.DOUBLE,
-							q.getArgument1(),
-							q.getArgument2(),
-							q.getResult());
-					break;
 				case COMPARE_DOUBLE_G:
-					m.addPrimitiveBinaryInstruction(
-							q.getOperator(),
-							Type.Kind.BOOLEAN,
-							Type.Kind.DOUBLE,
-							q.getArgument1(),
-							q.getArgument2(),
-							q.getResult());
-					break;
 				case COMPARE_DOUBLE_L:
-					m.addPrimitiveBinaryInstruction(
-							q.getOperator(),
-							Type.Kind.BOOLEAN,
-							Type.Kind.DOUBLE,
-							q.getArgument1(),
-							q.getArgument2(),
-							q.getResult());
-					break;
 				case COMPARE_DOUBLE_GE:
-					m.addPrimitiveBinaryInstruction(
-							q.getOperator(),
-							Type.Kind.BOOLEAN,
-							Type.Kind.DOUBLE,
-							q.getArgument1(),
-							q.getArgument2(),
-							q.getResult());
-					break;
 				case COMPARE_DOUBLE_LE:
-					m.addPrimitiveBinaryInstruction(
-							q.getOperator(),
-							Type.Kind.BOOLEAN,
-							Type.Kind.DOUBLE,
-							q.getArgument1(),
-							q.getArgument2(),
-							q.getResult());
+					main.addPrimitiveBinaryInstruction(
+						q.getOperator(),
+						Type.Kind.BOOLEAN,
+						Type.Kind.DOUBLE,
+						q.getArgument1(),
+						q.getArgument2(),
+						q.getResult());
 					break;
 
 				/* Control flow */
 				case RETURN:
-					m.addMainReturn(q.getArgument1());
+					main.addReturn(q.getArgument1());
 					break;
 				case LABEL:
-					m.addLabel(q.getArgument1());
+					main.addLabel(q.getArgument1());
 					break;
 				case BRANCH:
-					m.addBranch(q.getArgument1(),
+					main.addBranch(q.getArgument1(),
 							q.getArgument2(),
 							q.getResult());
 					break;
 
 				/* Print */
 				case PRINT_STRING:
-					m.addPrint(Module.toIRString(q.getArgument1()), Type.Kind.STRING);
+					main.addPrint(Module.toIRString(q.getArgument1()), Type.Kind.STRING);
 					break;
 			}
 		}
+
+		/* Write the generated LLVM IR code */
+		out.print(main.getCode());
 
 		/* Write handler for uncaught exceptions */
 		out.print(this.llvm_uncaught);
@@ -717,7 +485,7 @@ public class LLVMBackend implements Backend
 
 		/* Convert written target code to readable input format */
 		Map<String,InputStream> map = new HashMap<String,InputStream>();
-		map.put(baseFileName+".ll", new ByteArrayInputStream(outStream.toByteArray()));
+		map.put(baseFileName + ".ll", new ByteArrayInputStream(outStream.toByteArray()));
 
 		/* Return the map containing the readable target code */
 		return map;
