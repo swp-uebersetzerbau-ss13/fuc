@@ -241,7 +241,7 @@ public class LLVMBackend implements Backend
 		/* Run passes on the three address code to ensure it is correct. */
 		tac = basicBlocksTerminatedPass(tac);
 
-		Module m = new Module(out);
+		Module m = new Module();
 
 		/* Write preamble */
 		out.println(this.llvm_preamble);
@@ -251,6 +251,8 @@ public class LLVMBackend implements Backend
 
 		Iterator<Quadruple> tacIterator = tac.iterator();
 
+		/* Generate LLVM IR code corresponding
+		 * to the TAC given as input */
 		while(tacIterator.hasNext())
 		{
 			Quadruple q = tacIterator.next();
@@ -739,6 +741,9 @@ public class LLVMBackend implements Backend
 					break;
 			}
 		}
+
+		/* Write the generated LLVM IR code */
+		out.print(m.getCode());
 
 		/* Write handler for uncaught exceptions */
 		out.print(this.llvm_uncaught);

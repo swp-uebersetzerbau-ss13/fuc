@@ -52,12 +52,17 @@ public class Module
 	 */
 	private Map<String,Integer> variableUseCount;
 
-	/**
-	 * The <code>PrintWriter</code> which
-	 * the generated LLVM IR is written with.
-	 *
-	 */
-	private PrintWriter out;
+	private StringBuffer code;
+
+	public String getCode() {
+		return getCode(true);
+	}
+
+	public String getCode(boolean delete) {
+		String code = this.code.toString();
+		this.code.delete(0, this.code.length());
+		return code;
+	}
 
 	private Map<String,Map.Entry<String,List<Long>>> references;
 
@@ -66,44 +71,41 @@ public class Module
 	/**
 	 * Creates a new <code>Module</code> instance.
 	 *
-	 * @param out <code>PrintWriter</code> used
 	 * to write the LLVM IR
 	 */
-	public Module(PrintWriter out)
+	public Module()
 	{
-		reset(out);
+		reset();
 	}
 
 	/**
 	 * Completely resets this <code>Module</code>,
 	 * so it can be reused.
 	 *
-	 * @param out <code>PrintWriter</code> used
-	 * to write the LLVM IR
 	 */
-	public void reset(PrintWriter out)
+	public void reset()
 	{
 		stringLiterals = new ArrayList<Integer>();
 		variableUseCount = new HashMap<String,Integer>();
 		references = new HashMap<String,Map.Entry<String,List<Long>>>();
 		derivedTypes = new HashMap<String,DerivedType>();
+		code = new StringBuffer();
 
 		/* Add fake temporary variable */
 		variableUseCount.put(".tmp", 0);
-
-		this.out = out;
 	}
 
 	/**
-	 * Prefix the LLVM IR with two spaces
-	 * (as it may only exist inside the main
-	 * function for now) and write it with <code>out</code>
+	 * Append the LLVM IR prefixed with two spaces
+	 * to the code <code>StringBuffer</code>
 	 *
 	 * @param code a <code>String</code> value
 	 */
 	private void gen(String code)
 	{
-		out.println("  " + code);
+		this.code.append("  ");
+		this.code.append(code);
+		this.code.append("\n");
 	}
 
 	/**
