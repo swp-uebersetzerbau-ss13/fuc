@@ -614,8 +614,8 @@ public class Module
 		}
 	}
 
-	public void addReferenceArrayGet(String array, long index, String dst) {
-		String src = array;
+	public void addReferenceDerivedGet(Type.Kind derivedType, String derived, String index, String dst) throws BackendException {
+		String src = derived;
 		List<Long> indices = new LinkedList<Long>();
 
 		while(references.containsKey(src)) {
@@ -624,156 +624,75 @@ public class Module
 			src = reference.getKey();
 		}
 
-		indices.add(index);
+		switch(derivedType) {
+			case ARRAY:
+				indices.add(Long.valueOf(index.substring(1)));
+				break;
+			case STRUCT:
+				DerivedType type = derivedTypes.get(src);
 
-		references.put(dst,new AbstractMap.SimpleEntry<String,List<Long>>(src, indices));
-	}
-
-	public void addPrimitiveArrayGet(String array, long index, Kind dstType, String dst) throws BackendException {
-		String src = array;
-		List<Long> indices = new LinkedList<Long>();
-
-		while(references.containsKey(src)) {
-			Map.Entry<String,List<Long>> reference = references.get(src);
-			indices.addAll(reference.getValue());
-			src = reference.getKey();
-		}
-
-		indices.add(index);
-
-		String indexList = "";
-		for(Long i: indices) {
-			indexList += ", " + i.toString();
-		}
-
-		String dstUseIdentifier = getUseIdentifierForVariable(dst);
-		String dstIdentifier = "%" + dst;
-		String dstIRType = getIRType(dstType);
-
-		String srcUseIdentifier = getUseIdentifierForVariable(src);
-		String srcIdentifier = "%" + src;
-		DerivedType srcType = derivedTypes.get(src);
-		String srcIRType = "";
-		if(srcType instanceof LLVMBackendArrayType) {
-			LLVMBackendArrayType srcArType = (LLVMBackendArrayType) srcType;
-			srcIRType = getIRAType(srcArType.getStorageType(), srcArType.getDimensions());
-		}
-		else if(srcType instanceof LLVMBackendStructType) {
-			LLVMBackendStructType srcStType = (LLVMBackendStructType) srcType;
-			srcIRType = getIRSType(srcStType.getMembers());
-		}
-		else {
-			throw new BackendException("Expected source type of LLVMBackendArrayType or LLVMBackendStructType for variable, not " + srcType.getClass().getName());
-		}
-
-		gen(srcUseIdentifier + " = load " + srcIRType + "* " + srcIdentifier);
-		gen(dstUseIdentifier + " = extractvalue " + srcIRType + " " + srcUseIdentifier + indexList);
-		gen("store " + dstIRType + " " + dstUseIdentifier + ", " + dstIRType + "* " + dstIdentifier);
-	}
-
-	public void addPrimitiveArraySet(String array, long index, Kind srcType, String src) throws BackendException {
-		String dst = array;
-		List<Long> indices = new LinkedList<Long>();
-
-		while(references.containsKey(dst)) {
-			Map.Entry<String,List<Long>> reference = references.get(dst);
-			indices.addAll(reference.getValue());
-			dst = reference.getKey();
-		}
-
-		indices.add(index);
-
-		String indexList = "";
-		for(Long i: indices) {
-			indexList += ", " + i.toString();
-		}
-
-		String srcIRType = getIRType(srcType);
-
-		String dstUseIdentifier1 = getUseIdentifierForVariable(dst);
-		String dstUseIdentifier2 = getUseIdentifierForVariable(dst);
-		String dstIdentifier = "%" + dst;
-
-		DerivedType dstType = derivedTypes.get(dst);
-		String dstIRType = "";
-		if(dstType instanceof LLVMBackendArrayType) {
-			LLVMBackendArrayType dstArType = (LLVMBackendArrayType) dstType;
-			dstIRType = getIRAType(dstArType.getStorageType(), dstArType.getDimensions());
-		}
-		else if(dstType instanceof LLVMBackendStructType) {
-			LLVMBackendStructType dstStType = (LLVMBackendStructType) dstType;
-			dstIRType = getIRSType(dstStType.getMembers());
-		}
-		else {
-			throw new BackendException("Expected destination type of LLVMBackendArrayType or LLVMBackendStructType for variable, not " + dstType.getClass().getName());
-		}
-
-		src = cdl(src, srcType);
-		gen(dstUseIdentifier1 + " = load " + dstIRType + "* " + dstIdentifier);
-		gen(dstUseIdentifier2 + " = insertvalue " + dstIRType + " " + dstUseIdentifier1 +
-		    ", " + srcIRType + " " + src + indexList);
-		gen("store " + dstIRType + " " + dstUseIdentifier2 + ", " + dstIRType + "* " + dstIdentifier);
-	}
-
-	public void addReferenceStructGet(String struct, String member, String dst) throws BackendException {
-		String src = struct;
-		List<Long> indices = new LinkedList<Long>();
-
-		while(references.containsKey(src)) {
-			Map.Entry<String,List<Long>> reference = references.get(src);
-			indices.addAll(reference.getValue());
-			src = reference.getKey();
-		}
-
-		DerivedType type = derivedTypes.get(src);
-
-		if(type instanceof LLVMBackendArrayType) {
-			type = (DerivedType) ((LLVMBackendArrayType) type).getStorageType();
-		}
-
-		if(type instanceof LLVMBackendStructType) {
-			List<Member> members = ((LLVMBackendStructType) type).getMembers();
-			for(Member m: members) {
-				if(m.getName().equals(member)) {
-					indices.add(Long.valueOf(members.indexOf(m)));
-					break;
+				if(type instanceof LLVMBackendArrayType) {
+					type = (DerivedType) ((LLVMBackendArrayType) type).getStorageType();
 				}
-			}
-		}
-		else {
-			throw new BackendException("Expected final type of LLVMBackendStructType, not " + type.getClass().getName());
+
+				if(type instanceof LLVMBackendStructType) {
+					List<Member> members = ((LLVMBackendStructType) type).getMembers();
+					for(Member m: members) {
+						if(m.getName().equals(index)) {
+							indices.add(Long.valueOf(members.indexOf(m)));
+							break;
+						}
+					}
+				}
+				else {
+					throw new BackendException("Expected final type of LLVMBackendStructType, not " + type.getClass().getName());
+				}
+				break;
 		}
 
 		references.put(dst,new AbstractMap.SimpleEntry<String,List<Long>>(src, indices));
 	}
 
-	public void addPrimitiveStructGet(String struct, String member, Kind dstType, String dst) throws BackendException {
-		String src = struct;
+	public void addPrimitiveDerivedSetOrGet(Type.Kind derivedTypeKind,
+	                                        String derived,
+	                                        String index,
+	                                        Kind primitiveType,
+	                                        String primitive,
+	                                        boolean set) throws BackendException {
 		List<Long> indices = new LinkedList<Long>();
 
-		while(references.containsKey(src)) {
-			Map.Entry<String,List<Long>> reference = references.get(src);
+		while(references.containsKey(derived)) {
+			Map.Entry<String,List<Long>> reference = references.get(derived);
 			indices.addAll(reference.getValue());
-			src = reference.getKey();
+			derived = reference.getKey();
 		}
 
-		DerivedType type = derivedTypes.get(src);
+		switch(derivedTypeKind) {
+			case ARRAY:
+				indices.add(Long.valueOf(index.substring(1)));
+				break;
+			case STRUCT:
+				DerivedType type = derivedTypes.get(derived);
 
-		if(type instanceof LLVMBackendArrayType) {
-			type = (DerivedType) ((LLVMBackendArrayType) type).getStorageType();
-		}
-
-		if(type instanceof LLVMBackendStructType) {
-			List<Member> members = ((LLVMBackendStructType) type).getMembers();
-			for(Member m: members) {
-				if(m.getName().equals(member)) {
-					indices.add(Long.valueOf(members.indexOf(m)));
-					break;
+				if(type instanceof LLVMBackendArrayType) {
+					type = (DerivedType) ((LLVMBackendArrayType) type).getStorageType();
 				}
-			}
-		}
-		else {
-			throw new BackendException("Expected final type of LLVMBackendStructType, not " + type.getClass().getName());
+
+				if(type instanceof LLVMBackendStructType) {
+					List<Member> members = ((LLVMBackendStructType) type).getMembers();
+					for(Member m: members) {
+						if(m.getName().equals(index)) {
+							indices.add(Long.valueOf(members.indexOf(m)));
+							break;
+						}
+					}
+				}
+				else {
+					throw new BackendException("Unexpected final derived type: " + type.getClass().getName());
+				}
+				break;
+			default:
+				throw new BackendException("Unexpected derived type: " + derivedTypeKind.toString());
 		}
 
 		String indexList = "";
@@ -781,90 +700,43 @@ public class Module
 			indexList += ", " + i.toString();
 		}
 
-		String dstUseIdentifier = getUseIdentifierForVariable(dst);
-		String dstIdentifier = "%" + dst;
-		String dstIRType = getIRType(dstType);
+		String primitiveIRType = getIRType(primitiveType);
 
-		String srcUseIdentifier = getUseIdentifierForVariable(src);
-		String srcIdentifier = "%" + src;
-		DerivedType srcType = derivedTypes.get(src);
-		String srcIRType = "";
-		if(srcType instanceof LLVMBackendArrayType) {
-			LLVMBackendArrayType srcArType = (LLVMBackendArrayType) srcType;
-			srcIRType = getIRAType(srcArType.getStorageType(), srcArType.getDimensions());
+		DerivedType derivedType = derivedTypes.get(derived);
+		String derivedIRType = "";
+		if(derivedType instanceof LLVMBackendArrayType) {
+			LLVMBackendArrayType derivedArType = (LLVMBackendArrayType) derivedType;
+			derivedIRType = getIRAType(derivedArType.getStorageType(), derivedArType.getDimensions());
 		}
-		else if(srcType instanceof LLVMBackendStructType) {
-			LLVMBackendStructType srcStType = (LLVMBackendStructType) srcType;
-			srcIRType = getIRSType(srcStType.getMembers());
+		else if(derivedType instanceof LLVMBackendStructType) {
+			LLVMBackendStructType derivedStType = (LLVMBackendStructType) derivedType;
+			derivedIRType = getIRSType(derivedStType.getMembers());
 		}
 		else {
-			throw new BackendException("Expected source type of LLVMBackendArrayType or LLVMBackendStructType for variable, not " + srcType.getClass().getName());
+			throw new BackendException("Unexpected derived type: " + derivedType.getClass().getName());
 		}
 
-		gen(srcUseIdentifier + " = load " + srcIRType + "* " + srcIdentifier);
-		gen(dstUseIdentifier + " = extractvalue " + srcIRType + " " + srcUseIdentifier + indexList);
-		gen("store " + dstIRType + " " + dstUseIdentifier + ", " + dstIRType + "* " + dstIdentifier);
-	}
+		if(set) {
+			String derivedUseIdentifier1 = getUseIdentifierForVariable(derived);
+			String derivedUseIdentifier2 = getUseIdentifierForVariable(derived);
+			String derivedIdentifier = "%" + derived;
 
-	public void addPrimitiveStructSet(String struct, String member, Kind srcType, String src) throws BackendException {
-		String dst = struct;
-		List<Long> indices = new LinkedList<Long>();
-
-		while(references.containsKey(dst)) {
-			Map.Entry<String,List<Long>> reference = references.get(dst);
-			indices.addAll(reference.getValue());
-			dst = reference.getKey();
-		}
-
-		DerivedType type = derivedTypes.get(dst);
-
-		if(type instanceof LLVMBackendArrayType) {
-			type = (DerivedType) ((LLVMBackendArrayType) type).getStorageType();
-		}
-
-		if(type instanceof LLVMBackendStructType) {
-			List<Member> members = ((LLVMBackendStructType) type).getMembers();
-			for(Member m: members) {
-				if(m.getName().equals(member)) {
-					indices.add(Long.valueOf(members.indexOf(m)));
-					break;
-				}
-			}
+			primitive = cdl(primitive, primitiveType);
+			gen(derivedUseIdentifier1 + " = load " + derivedIRType + "* " + derivedIdentifier);
+			gen(derivedUseIdentifier2 + " = insertvalue " + derivedIRType + " " + derivedUseIdentifier1 +
+			    ", " + primitiveIRType + " " + primitive + indexList);
+			gen("store " + derivedIRType + " " + derivedUseIdentifier2 + ", " + derivedIRType + "* " + derivedIdentifier);
 		}
 		else {
-			throw new BackendException("Expected final type of LLVMBackendStructType, not " + type.getClass().getName());
-		}
+			String primitiveUseIdentifier = getUseIdentifierForVariable(primitive);
+			String primitiveIdentifier = "%" + primitive;
+			String derivedUseIdentifier = getUseIdentifierForVariable(derived);
+			String derivedIdentifier = "%" + derived;
 
-		String indexList = "";
-		for(Long i: indices) {
-			indexList += ", " + i.toString();
+			gen(derivedUseIdentifier + " = load " + derivedIRType + "* " + derivedIdentifier);
+			gen(primitiveUseIdentifier + " = extractvalue " + derivedIRType + " " + derivedUseIdentifier + indexList);
+			gen("store " + primitiveIRType + " " + primitiveUseIdentifier + ", " + primitiveIRType + "* " + primitiveIdentifier);
 		}
-
-		String srcIRType = getIRType(srcType);
-
-		String dstUseIdentifier1 = getUseIdentifierForVariable(dst);
-		String dstUseIdentifier2 = getUseIdentifierForVariable(dst);
-		String dstIdentifier = "%" + dst;
-
-		DerivedType dstType = derivedTypes.get(dst);
-		String dstIRType = "";
-		if(dstType instanceof LLVMBackendArrayType) {
-			LLVMBackendArrayType dstArType = (LLVMBackendArrayType) dstType;
-			dstIRType = getIRAType(dstArType.getStorageType(), dstArType.getDimensions());
-		}
-		else if(dstType instanceof LLVMBackendStructType) {
-			LLVMBackendStructType dstStType = (LLVMBackendStructType) dstType;
-			dstIRType = getIRSType(dstStType.getMembers());
-		}
-		else {
-			throw new BackendException("Expected destination type of LLVMBackendArrayType or LLVMBackendStructType for variable, not " + dstType.getClass().getName());
-		}
-
-		src = cdl(src, srcType);
-		gen(dstUseIdentifier1 + " = load " + dstIRType + "* " + dstIdentifier);
-		gen(dstUseIdentifier2 + " = insertvalue " + dstIRType + " " + dstUseIdentifier1 +
-		    ", " + srcIRType + " " + src + indexList);
-		gen("store " + dstIRType + " " + dstUseIdentifier2 + ", " + dstIRType + "* " + dstIdentifier);
 	}
 
 	static public Kind QuadTypeToKind(Quadruple.Operator op) throws BackendException {

@@ -366,128 +366,162 @@ public class LLVMBackend implements Backend
 
 				/* Indexed Copy */
 				case ARRAY_GET_LONG:
-					m.addPrimitiveArrayGet(
+					m.addPrimitiveDerivedSetOrGet(
+						Type.Kind.ARRAY,
 						q.getArgument1(),
-						Long.parseLong(q.getArgument2().substring(1)),
+						q.getArgument2(),
 						Type.Kind.LONG,
-						q.getResult());
+						q.getResult(),
+						false);
 					break;
 				case ARRAY_GET_DOUBLE:
-					m.addPrimitiveArrayGet(
+					m.addPrimitiveDerivedSetOrGet(
+						Type.Kind.ARRAY,
 						q.getArgument1(),
-						Long.parseLong(q.getArgument2().substring(1)),
+						q.getArgument2(),
 						Type.Kind.DOUBLE,
-						q.getResult());
+						q.getResult(),
+						false);
 					break;
 				case ARRAY_GET_BOOLEAN:
-					m.addPrimitiveArrayGet(
+					m.addPrimitiveDerivedSetOrGet(
+						Type.Kind.ARRAY,
 						q.getArgument1(),
-						Long.parseLong(q.getArgument2().substring(1)),
+						q.getArgument2(),
 						Type.Kind.BOOLEAN,
-						q.getResult());
+						q.getResult(),
+						false);
 					break;
 				case ARRAY_GET_STRING:
-					m.addPrimitiveArrayGet(
+					m.addPrimitiveDerivedSetOrGet(
+						Type.Kind.ARRAY,
 						q.getArgument1(),
-						Long.parseLong(q.getArgument2().substring(1)),
+						q.getArgument2(),
 						Type.Kind.STRING,
-						q.getResult());
+						q.getResult(),
+						false);
 					break;
 				case ARRAY_GET_REFERENCE:
-					m.addReferenceArrayGet(
+					m.addReferenceDerivedGet(
+						Type.Kind.ARRAY,
 						q.getArgument1(),
-						Long.parseLong(q.getArgument2().substring(1)),
+						q.getArgument2(),
 						q.getResult());
 					break;
 				case ARRAY_SET_LONG:
-					m.addPrimitiveArraySet(
+					m.addPrimitiveDerivedSetOrGet(
+						Type.Kind.ARRAY,
 						q.getArgument1(),
-						Long.parseLong(q.getArgument2().substring(1)),
+						q.getArgument2(),
 						Type.Kind.LONG,
-						q.getResult());
+						q.getResult(),
+						true);
 					break;
 				case ARRAY_SET_DOUBLE:
-					m.addPrimitiveArraySet(
+					m.addPrimitiveDerivedSetOrGet(
+						Type.Kind.ARRAY,
 						q.getArgument1(),
-						Long.parseLong(q.getArgument2().substring(1)),
+						q.getArgument2(),
 						Type.Kind.DOUBLE,
-						q.getResult());
+						q.getResult(),
+						true);
 					break;
 				case ARRAY_SET_BOOLEAN:
-					m.addPrimitiveArraySet(
+					m.addPrimitiveDerivedSetOrGet(
+						Type.Kind.ARRAY,
 						q.getArgument1(),
-						Long.parseLong(q.getArgument2().substring(1)),
+						q.getArgument2(),
 						Type.Kind.BOOLEAN,
-						q.getResult());
+						q.getResult(),
+						true);
 					break;
 				case ARRAY_SET_STRING:
-					m.addPrimitiveArraySet(
+					m.addPrimitiveDerivedSetOrGet(
+						Type.Kind.ARRAY,
 						q.getArgument1(),
-						Long.parseLong(q.getArgument2().substring(1)),
+						q.getArgument2(),
 						Type.Kind.STRING,
-						q.getResult());
+						q.getResult(),
+						true);
 					break;
 				case STRUCT_GET_LONG:
-					m.addPrimitiveStructGet(
+					m.addPrimitiveDerivedSetOrGet(
+						Type.Kind.STRUCT,
 						q.getArgument1(),
 						q.getArgument2(),
 						Type.Kind.LONG,
-						q.getResult());
+						q.getResult(),
+						false);
 					break;
 				case STRUCT_GET_DOUBLE:
-					m.addPrimitiveStructGet(
+					m.addPrimitiveDerivedSetOrGet(
+						Type.Kind.STRUCT,
 						q.getArgument1(),
 						q.getArgument2(),
 						Type.Kind.DOUBLE,
-						q.getResult());
+						q.getResult(),
+						false);
 					break;
 				case STRUCT_GET_BOOLEAN:
-					m.addPrimitiveStructGet(
+					m.addPrimitiveDerivedSetOrGet(
+						Type.Kind.STRUCT,
 						q.getArgument1(),
 						q.getArgument2(),
 						Type.Kind.BOOLEAN,
-						q.getResult());
+						q.getResult(),
+						false);
 					break;
 				case STRUCT_GET_STRING:
-					m.addPrimitiveStructGet(
+					m.addPrimitiveDerivedSetOrGet(
+						Type.Kind.STRUCT,
 						q.getArgument1(),
 						q.getArgument2(),
 						Type.Kind.STRING,
-						q.getResult());
+						q.getResult(),
+						false);
 					break;
 				case STRUCT_GET_REFERENCE:
-					m.addReferenceStructGet(
+					m.addReferenceDerivedGet(
+						Type.Kind.STRUCT,
 						q.getArgument1(),
 						q.getArgument2(),
 						q.getResult());
 					break;
 				case STRUCT_SET_LONG:
-					m.addPrimitiveStructSet(
+					m.addPrimitiveDerivedSetOrGet(
+						Type.Kind.STRUCT,
 						q.getArgument1(),
 						q.getArgument2(),
 						Type.Kind.LONG,
-						q.getResult());
+						q.getResult(),
+						true);
 					break;
 				case STRUCT_SET_DOUBLE:
-					m.addPrimitiveStructSet(
+					m.addPrimitiveDerivedSetOrGet(
+						Type.Kind.STRUCT,
 						q.getArgument1(),
 						q.getArgument2(),
 						Type.Kind.DOUBLE,
-						q.getResult());
+						q.getResult(),
+						true);
 					break;
 				case STRUCT_SET_BOOLEAN:
-					m.addPrimitiveStructSet(
+					m.addPrimitiveDerivedSetOrGet(
+						Type.Kind.STRUCT,
 						q.getArgument1(),
 						q.getArgument2(),
 						Type.Kind.BOOLEAN,
-						q.getResult());
+						q.getResult(),
+						true);
 					break;
 				case STRUCT_SET_STRING:
-					m.addPrimitiveStructSet(
+					m.addPrimitiveDerivedSetOrGet(
+						Type.Kind.STRUCT,
 						q.getArgument1(),
 						q.getArgument2(),
 						Type.Kind.STRING,
-						q.getResult());
+						q.getResult(),
+						true);
 					break;
 
 				/* Arithmetic */
