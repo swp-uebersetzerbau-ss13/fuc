@@ -7,9 +7,11 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import swp_compiler_ss13.common.ast.AST;
+import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode.BinaryOperator;
 import swp_compiler_ss13.common.types.derived.ArrayType;
 import swp_compiler_ss13.common.types.primitive.LongType;
 import swp_compiler_ss13.fuc.ast.ASTFactory;
+import swp_compiler_ss13.fuc.parser.errorHandling.ParserASTXMLVisualization;
 
 public class M3FibTest {
 	static {
@@ -42,23 +44,23 @@ public class M3FibTest {
 	}
 
 	@Test
-	@Ignore
 	public void testFibOrgLexer() throws Exception {
 		String input = "# returns 98\n"
 				+ "# prints:\n"
 				+ "# 6765\n"
 				+ "\n"
 				+ "long[21] numbers;\n"
-				+ "long i = 0;\n"
+				+ "long i;\n"
+				+ "i = 0;\n"
 				+ "\n"
 				+ "{\n"
 				+ "long i;\n"
-				+ "long i = 2;\n"
+				+ "i = 2;\n"
 				+ "numbers[0] = 0;\n"
 				+ "numbers[1] = 1;\n"
 				+ "\n"
 				+ "while ( i < 21 ) {\n"
-				+ "numbers[i] = numbers[i-1] + numbers[i-2];\n"
+				+ "numbers[i] = numbers[i - 1] + numbers[i - 2];\n"
 				+ "i = i + 1;\n"
 				+ "}\n"
 				+ "\n"
@@ -73,9 +75,13 @@ public class M3FibTest {
 
 	private static void checkAst(AST ast) {
 		assertNotNull(ast);
-		ASTFactory factory = new ASTFactory();		
+		
+		ASTFactory factory = new ASTFactory();
+		
 		//Array
 		factory.addDeclaration("numbers",  new ArrayType(new LongType(), 21));
+		// long i;
+		factory.addDeclaration("i", new LongType());
 		//Assignment
 		factory.addAssignment(factory.newBasicIdentifier("i"), factory.newLiteral("0", new LongType()));
 		//Begin Block
@@ -83,33 +89,76 @@ public class M3FibTest {
 		
 		//Assignment
 		factory.addDeclaration("i", new LongType());
-		factory.addAssignment(factory.newBasicIdentifier("i"), factory.newLiteral("2", new LongType()));
+		factory.addAssignment(
+				factory.newBasicIdentifier("i"),
+				factory.newLiteral("2", new LongType()));
 		//Assignment for  the two arrays
-        factory.addAssignment(factory.newBasicIdentifier("numbers"), factory.newLiteral("0", new ArrayType(new LongType(), 0)));
-        factory.addAssignment(factory.newBasicIdentifier("numbers"), factory.newLiteral("1", new ArrayType(new LongType(), 1)));
+        factory.addAssignment(
+        		factory.newArrayIdentifier(
+        				factory.newLiteral("0", new LongType()),
+        				factory.newBasicIdentifier("numbers")),
+        		factory.newLiteral("0", new LongType()));
+        factory.addAssignment(
+        		factory.newArrayIdentifier(
+        				factory.newLiteral("1", new LongType()),
+        				factory.newBasicIdentifier("numbers")),
+        		factory.newLiteral("1", new LongType()));
 		
         // while loop
-        factory.addWhile(factory.newBasicIdentifier("i < 21"));
-        	//Begin Block
-      		factory.addBlock();
-      		
-      		
-      		//End Block
-    		factory.addBlock();
+        factory.addWhile(
+        		factory.newBinaryExpression(
+        				BinaryOperator.LESSTHAN,
+        				factory.newBasicIdentifier("i"),
+        				factory.newLiteral("21", new LongType())));
+    	// begin While block
+//  		factory.addBlock();
+  		
+  		factory.addAssignment(
+  				factory.newArrayIdentifier(
+  						factory.newBasicIdentifier("i"),
+  						factory.newBasicIdentifier("numbers")),
+				factory.newBinaryExpression(
+						BinaryOperator.ADDITION,
+						factory.newArrayIdentifier(
+								factory.newBinaryExpression(
+										BinaryOperator.SUBSTRACTION,
+										factory.newBasicIdentifier("i"),
+										factory.newLiteral("1", new LongType())),
+										factory.newBasicIdentifier("numbers")),
+						factory.newArrayIdentifier(
+								factory.newBinaryExpression(
+										BinaryOperator.SUBSTRACTION,
+										factory.newBasicIdentifier("i"),
+										factory.newLiteral("2", new LongType())),
+										factory.newBasicIdentifier("numbers"))));
+  		factory.addAssignment(
+  				factory.newBasicIdentifier("i"),
+  				factory.newBinaryExpression(
+  						BinaryOperator.ADDITION,
+  						factory.newBasicIdentifier("i"),
+  								factory.newLiteral("1", new LongType())));
+  		
+  		// end While block
+		factory.goToParent();	// -> WhileNode
+		factory.goToParent();	// -> BlockNode around WhileNode
        
- 		//print numbers[20]; 
-    	 
- 		factory.addPrint(factory.newArrayIdentifier(factory.newBasicIdentifier("20"), factory.newBasicIdentifier("numbers")));
+ 		//print numbers[20];
+ 		factory.addPrint(
+ 				factory.newArrayIdentifier(
+ 						factory.newLiteral("20", new LongType()),
+ 						factory.newBasicIdentifier("numbers")));
+ 		
  		//return numbers[15];
- 		factory.addReturn(factory.newArrayIdentifier(factory.newBasicIdentifier("15"), factory.newBasicIdentifier("numbers")));
- 		
- 		
- 		//End Block
- 		factory.addBlock();
+ 		factory.addReturn(
+ 				factory.newArrayIdentifier(
+ 						factory.newLiteral("15", new LongType()),
+ 						factory.newBasicIdentifier("numbers")));
 		
-
-		
-		AST expected = factory.getAST();
+ 		ParserASTXMLVisualization vis = new ParserASTXMLVisualization();
+ 		vis.visualizeAST(ast);
+ 		
+ 		AST expected = factory.getAST();
+ 		vis.visualizeAST(expected);
 		ASTComparator.compareAST(expected, ast);
 	}
 }

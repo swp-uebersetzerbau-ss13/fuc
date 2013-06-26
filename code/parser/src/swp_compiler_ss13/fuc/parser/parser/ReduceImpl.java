@@ -424,20 +424,15 @@ public class ReduceImpl {
 					
 					whileImpl.setCoverage(paraRight);
 					
-					Object stmt = objs[2];
+					Object stmt = objs[4];
 					
-					if(stmt instanceof StatementNode){
-						StatementNode block = (StatementNode) stmt;
+					if (stmt instanceof StatementNode){
+						StatementNode loopBody = (StatementNode) stmt;
 						//TODO: whileImpl.setLoopBody(block);
-						whileImpl.setCoverage(block.coverage());
-						block.setParentNode(whileImpl);
-					}else{
-						if(stmt instanceof BlockNode){
-							BlockNode block = (BlockNode) stmt;
-							whileImpl.setLoopBody(block);
-							whileImpl.setCoverage(block.coverage());
-							block.setParentNode(whileImpl);
-						}
+						whileImpl.setLoopBody(loopBody);
+						whileImpl.setCoverage(loopBody.coverage());
+						loopBody.setParentNode(whileImpl);
+					} else {
 						writeReportError(reportLog, stmt, "Statement");
 					}
 					
