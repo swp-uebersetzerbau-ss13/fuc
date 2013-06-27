@@ -1,4 +1,4 @@
-package swp_compiler_ss13.fuc.test;
+package swp_compiler_ss13.common.test;
 
 import java.io.*;
 import java.util.List;
@@ -9,6 +9,7 @@ import junit.extensions.PA;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+import org.junit.Assert;
 import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.backend.Backend;
 import swp_compiler_ss13.common.backend.BackendException;

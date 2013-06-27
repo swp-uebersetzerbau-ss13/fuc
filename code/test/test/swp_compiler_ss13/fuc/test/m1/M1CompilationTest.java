@@ -2,7 +2,6 @@ package swp_compiler_ss13.fuc.test.m1;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -14,8 +13,8 @@ import swp_compiler_ss13.fuc.ir.IntermediateCodeGeneratorImpl;
 import swp_compiler_ss13.fuc.lexer.LexerImpl;
 import swp_compiler_ss13.fuc.parser.ParserImpl;
 import swp_compiler_ss13.fuc.semantic_analyser.SemanticAnalyser;
-import swp_compiler_ss13.fuc.test.ExampleProgs;
-import swp_compiler_ss13.fuc.test.TestBase;
+import swp_compiler_ss13.common.test.ExampleProgs;
+import swp_compiler_ss13.common.test.TestBase;
 
 import java.io.IOException;
 
@@ -27,7 +26,7 @@ import java.io.IOException;
  * </p>
  * <p>
  * All example progs can be found in
- * {@link swp_compiler_ss13.fuc.test.ExampleProgs}.
+ * {@link swp_compiler_ss13.common.test.ExampleProgs}.
  * </p>
  * 
  * @author Jens V. Fischer
