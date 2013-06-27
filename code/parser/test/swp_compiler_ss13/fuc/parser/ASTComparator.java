@@ -41,6 +41,7 @@ import swp_compiler_ss13.common.types.Type;
 import swp_compiler_ss13.common.types.derived.ArrayType;
 import swp_compiler_ss13.common.types.derived.Member;
 import swp_compiler_ss13.common.types.derived.StructType;
+import swp_compiler_ss13.fuc.ast.ASTImpl;
 
 public class ASTComparator {
 	
@@ -67,7 +68,15 @@ public class ASTComparator {
 			ASTNode actualNode = actualIt.next();
 			
 			log.debug("Expected: " + expectedNode.toString() + " | Actual: " + actualNode.toString());
-			compare(expectedNode, actualNode);
+			try {
+				compare(expectedNode, actualNode);
+			} catch (AssertionError err) {
+				StringBuilder b = new StringBuilder();
+				ASTImpl.toString(b, "expected: ", expectedNode);
+				ASTImpl.toString(b, "actual:   ", actualNode);
+				log.error(b.toString());
+				throw err;	// rethrow
+			}
 		}
 		
 		if (actualIt.hasNext() != expectedIt.hasNext()) {
