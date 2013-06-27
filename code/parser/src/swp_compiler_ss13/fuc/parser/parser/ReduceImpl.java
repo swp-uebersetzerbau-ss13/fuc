@@ -167,23 +167,14 @@ public class ReduceImpl {
 			return new ReduceAction() {
 				@Override
 				public Object create(Object... objs) throws ParserException  {
-					
-					if(!(objs[0] instanceof DeclarationNode)){
-						if(objs[0] instanceof ASTNode){
-							reportLog.reportError(ReportType.UNDEFINED, ((ASTNode)objs[0]).coverage(), "there is no Declarationnode found!");
-							throw new ParserException("Declarationnode expected");
-						}
-						if(objs[0] instanceof Token){
-							List<Token> list = new ArrayList<Token>();
-							list.add((Token)objs[0]);
-							reportLog.reportError(ReportType.UNDEFINED, list, "there is no Declarationnode found!");
-							throw new ParserException("Declarationnode expected");
 
-						}
+					if(!(objs[0] instanceof DeclarationNode)){
+						reportLog.reportError(ReportType.UNDEFINED, ((ASTNode)objs[0]).coverage(), "there is no Declarationnode found!");
+						throw new ParserException("Declarationnode expected");
 					}
-					
+
 					DeclarationNode decl = (DeclarationNode) objs[0];
-					
+
 					if(!(objs[1] instanceof Token)){
 						writeReportError(reportLog, objs[1], "Identifier");
 					}
@@ -1031,8 +1022,6 @@ public class ReduceImpl {
 					StructType type = new StructType("record", members);
 					struct.setType(type);
 					
-					struct.setCoverage(blockNode.coverage());
-					
 					if(!(objs[3] instanceof Token)){
 						writeReportError(reportLog, objs[1], "}");
 					}
@@ -1101,13 +1090,22 @@ public class ReduceImpl {
 						((SymbolTableImpl)node.getSymbolTable()).setParent(newBlock.getSymbolTable());
 					}					
 				}else{
-					if(stmt instanceof BlockNode){
-						((SymbolTableImpl)((BlockNode)stmt).getSymbolTable()).setParent(newBlock.getSymbolTable());
-					} else if (stmt instanceof LoopNode) {
-						StatementNode childStmt = ((LoopNode)stmt).getLoopBody();
-						if (childStmt instanceof BlockNode) {
-							BlockNode block = (BlockNode) childStmt;
-							((SymbolTableImpl)block.getSymbolTable()).setParent(newBlock.getSymbolTable());
+					if(stmt instanceof LoopNode){
+						LoopNode loop = (LoopNode)stmt;
+						StatementNode loopBody = loop.getLoopBody();
+						if(loopBody instanceof BlockNode){
+							BlockNode node = (BlockNode) loopBody;
+							((SymbolTableImpl)node.getSymbolTable()).setParent(newBlock.getSymbolTable());
+						}
+					}else{
+						if(stmt instanceof BlockNode){
+							((SymbolTableImpl)((BlockNode)stmt).getSymbolTable()).setParent(newBlock.getSymbolTable());
+						} else if (stmt instanceof LoopNode) {
+							StatementNode childStmt = ((LoopNode)stmt).getLoopBody();
+							if (childStmt instanceof BlockNode) {
+								BlockNode block = (BlockNode) childStmt;
+								((SymbolTableImpl)block.getSymbolTable()).setParent(newBlock.getSymbolTable());
+							}
 						}
 					}
 				}
