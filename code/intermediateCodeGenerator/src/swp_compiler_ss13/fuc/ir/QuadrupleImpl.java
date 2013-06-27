@@ -70,4 +70,8 @@ public class QuadrupleImpl implements Quadruple {
 		return this.res;
 	}
 
+	public String toString() {
+		return "QUAD(" + operator + "|" + arg1 + "|" + arg2 + "|" + res + ")";
+	}
+
 }
