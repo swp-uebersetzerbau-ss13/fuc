@@ -23,7 +23,6 @@ import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode.BinaryOper
 import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.LiteralNode;
 import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
-import swp_compiler_ss13.common.ast.nodes.unary.ArrayIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
 import swp_compiler_ss13.common.ast.nodes.unary.StructIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.unary.UnaryExpressionNode;
@@ -69,7 +68,7 @@ public class NodeComponent {
 		this.infoComponent.setVisible(this.large);
 	}
 
-	private JComponent getInfoComponent(ASTNode node) {
+	protected JComponent getInfoComponent(ASTNode node) {
 		JPanel result = new JPanel();
 		result.setLayout(new BoxLayout(result, BoxLayout.Y_AXIS));
 		switch (node.getNodeType()) {
@@ -90,7 +89,7 @@ public class NodeComponent {
 			result.add(new JLabel("operator: " + unaryNode.getOperator()));
 			break;
 		case ArrayIdentifierNode:
-			ArrayIdentifierNode arrayNode = (ArrayIdentifierNode) node;
+			//ArrayIdentifierNode arrayNode = (ArrayIdentifierNode) node;
 			//result.add(new JLabel("index: " + arrayNode.getIndex()));
 			break;
 		case BasicIdentifierNode:

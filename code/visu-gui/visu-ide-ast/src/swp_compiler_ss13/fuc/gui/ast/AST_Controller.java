@@ -22,14 +22,25 @@ public class AST_Controller implements Controller {
 
 	private final AST_Controller root;
 
+	private final boolean checkAST;
+
 	public AST_Controller() {
-		this(null);
+		this(false);
 	}
 
-	AST_Controller(AST_Controller root) {
+	public AST_Controller(boolean checkedAST) {
+		this(null, checkedAST);
+	}
+
+	AST_Controller(AST_Controller root, boolean checkAST) {
+		this.checkAST = checkAST;
 		this.root = root == null ? this : root;
 		this.model = new AST_Model(this);
-		this.view = new AST_View(this, root == null);
+		this.view = new AST_View(this, root == null, getAstGuiElementFactory(), checkAST);
+	}
+
+	protected AstGuiElementFactory getAstGuiElementFactory() {
+		return AstGuiElementFactory.DEFAULT_FACTORY;
 	}
 
 	@Override
@@ -54,7 +65,7 @@ public class AST_Controller implements Controller {
 		AST_Controller ast_Controller;
 		for (ASTNode node : this.model.getChildren()) {
 			LOG.trace("childnode: " + this.nodeToString(node));
-			ast_Controller = new AST_Controller(this.root);
+			ast_Controller = getAstGuiElementFactory().getController(this.root, checkAST);
 			ast_Controller.model.setNode(node);
 			ast_Controller.notifyModelChangedWithoutLayoutChange();
 			this.view.addChild(ast_Controller.view);
