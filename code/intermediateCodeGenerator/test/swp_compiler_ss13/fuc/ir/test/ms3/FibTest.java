@@ -1,14 +1,12 @@
 package swp_compiler_ss13.fuc.ir.test.ms3;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 
 import junit.extensions.PA;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import swp_compiler_ss13.common.ast.AST;
@@ -19,7 +17,6 @@ import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 import swp_compiler_ss13.common.types.derived.ArrayType;
 import swp_compiler_ss13.common.types.primitive.LongType;
 import swp_compiler_ss13.fuc.ast.ASTFactory;
-import swp_compiler_ss13.fuc.backend.TACExecutor;
 import swp_compiler_ss13.fuc.ir.IntermediateCodeGeneratorImpl;
 import swp_compiler_ss13.fuc.symbolTable.SymbolTableImpl;
 
@@ -27,6 +24,7 @@ public class FibTest {
 
 	private AST ast;
 
+	@Ignore
 	@Before
 	public void setUp() throws Exception {
 		PA.setValue(SymbolTableImpl.class, "ext", 0);
@@ -85,11 +83,6 @@ public class FibTest {
 		}
 		String actual = b.toString();
 		System.out.println(actual);
-
-		TACExecutor tace = new TACExecutor();
-		ByteArrayOutputStream bout = new ByteArrayOutputStream();
-		InputStream s = new ByteArrayInputStream(actual.getBytes());
-		System.out.println(tace.runTAC(s));
 	}
 
 }

@@ -12,6 +12,7 @@ import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.sem;
 
 import org.apache.log4j.BasicConfigurator;
 import org.junit.Test;
+import org.junit.Ignore;
 
 import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.lexer.Lexer;
@@ -31,6 +32,7 @@ public class M2PrintTest {
 	}
 	
 	@Test
+	@Ignore
 	public void testPrint() {
 		// Simulate input
 		Lexer lexer = new TestLexer(
@@ -56,6 +58,7 @@ public class M2PrintTest {
 	}
 
 	@Test
+	@Ignore
 	public void testPrintOrgLexer() throws Exception {
 		String input = "# return 0\n"
 				+ "# prints:\n"
