@@ -44,6 +44,7 @@ public class M3FibTest {
 	}
 
 	@Test
+	@Ignore
 	public void testFibOrgLexer() throws Exception {
 		String input = "# returns 98\n"
 				+ "# prints:\n"

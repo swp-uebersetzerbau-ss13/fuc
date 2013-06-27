@@ -46,6 +46,7 @@ public class M3MatrixMultiplicationTest {
 	}
 
 	@Test
+	@Ignore
 	public void testMatrixMultiplicationOrgLexer() throws Exception {
 		String input = "# return 0\n"
 				+ "# prints:\n"
