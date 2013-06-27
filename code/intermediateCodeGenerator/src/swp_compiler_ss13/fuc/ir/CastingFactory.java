@@ -104,6 +104,8 @@ public class CastingFactory {
 			switch (toType.getKind()) {
 			case LONG:
 				return new QuadrupleImpl(Quadruple.Operator.DOUBLE_TO_LONG, fromId, Quadruple.EmptyArgument, toId);
+			case STRING:
+				return new QuadrupleImpl(Quadruple.Operator.DOUBLE_TO_STRING, fromId, Quadruple.EmptyArgument, toId);
 			default:
 				break;
 			}
@@ -111,6 +113,15 @@ public class CastingFactory {
 			switch (toType.getKind()) {
 			case DOUBLE:
 				return new QuadrupleImpl(Quadruple.Operator.LONG_TO_DOUBLE, fromId, Quadruple.EmptyArgument, toId);
+			case STRING:
+				return new QuadrupleImpl(Quadruple.Operator.LONG_TO_STRING, fromId, Quadruple.EmptyArgument, toId);
+			default:
+				break;
+			}
+		case BOOLEAN:
+			switch (toType.getKind()) {
+			case STRING:
+				return new QuadrupleImpl(Quadruple.Operator.BOOLEAN_TO_STRING, fromId, Quadruple.EmptyArgument, toId);
 			default:
 				break;
 			}

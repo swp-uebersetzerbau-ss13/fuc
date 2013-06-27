@@ -14,5 +14,4 @@ public class WhileNodeImpl extends LoopNodeImpl implements WhileNode {
 	public ASTNodeType getNodeType() {
 		return ASTNodeType.WhileNode;
 	}
-
 }

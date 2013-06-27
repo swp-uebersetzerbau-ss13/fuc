@@ -23,7 +23,6 @@ import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode.BinaryOper
 import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.LiteralNode;
 import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
-import swp_compiler_ss13.common.ast.nodes.unary.ArrayIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
 import swp_compiler_ss13.common.ast.nodes.unary.StructIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.unary.UnaryExpressionNode;
@@ -46,30 +45,30 @@ public class NodeComponent {
 
 	public NodeComponent(ASTNode node) {
 		if (node.getChildren().isEmpty()) {
-			component = new JPanel();
+			this.component = new JPanel();
 		} else {
-			component = new JButton();
+			this.component = new JButton();
 		}
-		getComponent().setLayout(new BorderLayout(3, 3));
+		this.getComponent().setLayout(new BorderLayout(3, 3));
 		if (IMAGE_TYPE_MAP.isEmpty()) {
-			IMAGE_TYPE_MAP.put(null, getIconFromString(dir + "default.png"));
-			IMAGE_OPERATOR_MAP.put(null, getIconFromString(dir + "default.png"));
+			IMAGE_TYPE_MAP.put(null, this.getIconFromString(dir + "default.png"));
+			IMAGE_OPERATOR_MAP.put(null, this.getIconFromString(dir + "default.png"));
 		}
-		iconComponent = new JLabel(getIcon(node));
-		getComponent().add(iconComponent, BorderLayout.WEST);
-		nameComponent = new JLabel(node.getNodeType().name());
-		getComponent().add(nameComponent, BorderLayout.NORTH);
-		infoComponent = getInfoComponent(node);
-		getComponent().add(infoComponent, BorderLayout.CENTER);
+		this.iconComponent = new JLabel(this.getIcon(node));
+		this.getComponent().add(this.iconComponent, BorderLayout.WEST);
+		this.nameComponent = new JLabel(node.getNodeType().name());
+		this.getComponent().add(this.nameComponent, BorderLayout.NORTH);
+		this.infoComponent = this.getInfoComponent(node);
+		this.getComponent().add(this.infoComponent, BorderLayout.CENTER);
 	}
 
 	void toggleSize() {
-		large = !large;
-		nameComponent.setVisible(large);
-		infoComponent.setVisible(large);
+		this.large = !this.large;
+		this.nameComponent.setVisible(this.large);
+		this.infoComponent.setVisible(this.large);
 	}
 
-	private JComponent getInfoComponent(ASTNode node) {
+	protected JComponent getInfoComponent(ASTNode node) {
 		JPanel result = new JPanel();
 		result.setLayout(new BoxLayout(result, BoxLayout.Y_AXIS));
 		switch (node.getNodeType()) {
@@ -90,8 +89,8 @@ public class NodeComponent {
 			result.add(new JLabel("operator: " + unaryNode.getOperator()));
 			break;
 		case ArrayIdentifierNode:
-			ArrayIdentifierNode arrayNode = (ArrayIdentifierNode) node;
-			result.add(new JLabel("index: " + arrayNode.getIndex()));
+			//ArrayIdentifierNode arrayNode = (ArrayIdentifierNode) node;
+			//result.add(new JLabel("index: " + arrayNode.getIndex()));
 			break;
 		case BasicIdentifierNode:
 			BasicIdentifierNode basicNode = (BasicIdentifierNode) node;
@@ -177,7 +176,7 @@ public class NodeComponent {
 			default:
 				return IMAGE_OPERATOR_MAP.get(null);
 			}
-			imageIcon = getIconFromString(dir + imageName + ".png");
+			imageIcon = this.getIconFromString(dir + imageName + ".png");
 			IMAGE_OPERATOR_MAP.put(operator, imageIcon);
 			return imageIcon;
 		case LogicUnaryExpressionNode:
@@ -226,7 +225,7 @@ public class NodeComponent {
 		default:
 			return IMAGE_TYPE_MAP.get(null);
 		}
-		imageIcon = getIconFromString(dir + imageName + ".png");
+		imageIcon = this.getIconFromString(dir + imageName + ".png");
 		IMAGE_TYPE_MAP.put(node.getNodeType(), imageIcon);
 		return imageIcon;
 	}
@@ -242,7 +241,7 @@ public class NodeComponent {
 	}
 
 	public JComponent getComponent() {
-		return component;
+		return this.component;
 	}
 
 }

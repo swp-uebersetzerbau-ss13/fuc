@@ -1,6 +1,6 @@
 package swp_compiler_ss13.fuc.parser.generator.automaton;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -23,13 +23,17 @@ public class Dfa<I extends Item, S extends AState<I>> {
    // --------------------------------------------------------------------------
    // --- variables and constants ----------------------------------------------
    // --------------------------------------------------------------------------
-   private final Set<S> states = new HashSet<>();
-   private final Set<DfaEdge<S>> edges = new HashSet<>();
+   private final Set<S> states = new LinkedHashSet<>();
+   private final Set<DfaEdge<S>> edges = new LinkedHashSet<>();
    private final S startState;
    
    // --------------------------------------------------------------------------
    // --- constructors ---------------------------------------------------------
    // --------------------------------------------------------------------------
+   /**
+    * @see Dfa
+    * @param startState
+    */
    public Dfa(S startState) {
       states.add(startState);
       this.startState = startState;
@@ -38,6 +42,10 @@ public class Dfa<I extends Item, S extends AState<I>> {
    // --------------------------------------------------------------------------
    // --- methods --------------------------------------------------------------
    // --------------------------------------------------------------------------
+   /**
+    * @param state
+    * @return All edges that start form the given state
+    */
    public List<DfaEdge<S>> getEdgesFrom(S state) {
       LinkedList<DfaEdge<S>> result = new LinkedList<>();
       for (DfaEdge<S> edge : edges) {
@@ -47,7 +55,11 @@ public class Dfa<I extends Item, S extends AState<I>> {
       }
       return result;
    }
-   
+
+   /**
+    * @param state
+    * @return All edges that end in the given state
+    */
    public List<DfaEdge<S>> getEdgesTo(S state) {
       LinkedList<DfaEdge<S>> result = new LinkedList<>();
       for (DfaEdge<S> edge : edges) {
@@ -61,14 +73,23 @@ public class Dfa<I extends Item, S extends AState<I>> {
    // --------------------------------------------------------------------------
    // --- getter/setter --------------------------------------------------------
    // --------------------------------------------------------------------------
+   /**
+    * @return All states this automaton consists of
+    */
    public Set<S> getStates() {
       return states;
    }
-   
+
+   /**
+    * @return All edges this automaton consists of
+    */
    public Set<DfaEdge<S>> getEdges() {
       return edges;
    }
-   
+
+   /**
+    * @return The start state of this automaton
+    */
    public S getStartState() {
       return startState;
    }

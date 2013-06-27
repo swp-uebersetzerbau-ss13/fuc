@@ -4,9 +4,12 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import swp_compiler_ss13.common.ast.AST;
+import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode.BinaryOperator;
+import swp_compiler_ss13.common.ast.nodes.unary.UnaryExpressionNode.UnaryOperator;
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.ir.IntermediateCodeGenerator;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
@@ -37,7 +40,7 @@ public class ArrayTest {
 
 	private String textifyQuadruples(AST ast)
 			throws IntermediateCodeGeneratorException {
-		return this.textifyQuadruples(generateQuadruples(ast));
+		return this.textifyQuadruples(this.generateQuadruples(ast));
 	}
 
 	@Test
@@ -75,7 +78,7 @@ public class ArrayTest {
 		// Long array[10];
 		f.addDeclaration("array", new ArrayType(new LongType(), 10));
 		// return array[3];
-		f.addReturn(f.newArrayIdentifier(3, f.newBasicIdentifier("array")));
+		f.addReturn(f.newArrayIdentifier(f.newLiteral("3", new LongType()), f.newBasicIdentifier("array")));
 
 		long tmp_n = Long.parseLong(new SymbolTableImpl()
 				.getNextFreeTemporary().replaceFirst("\\D*", ""));
@@ -97,8 +100,8 @@ public class ArrayTest {
 		f.addDeclaration("array", new ArrayType(
 				new ArrayType(new LongType(), 5), 10));
 		// return array[3][6];
-		f.addReturn(f.newArrayIdentifier(6,
-				f.newArrayIdentifier(3, f.newBasicIdentifier("array"))));
+		f.addReturn(f.newArrayIdentifier(f.newLiteral("6", new LongType()),
+				f.newArrayIdentifier(f.newLiteral("3", new LongType()), f.newBasicIdentifier("array"))));
 
 		long tmp_n = Long.parseLong(new SymbolTableImpl()
 				.getNextFreeTemporary().replaceFirst("\\D*", ""));
@@ -123,7 +126,7 @@ public class ArrayTest {
 		// Long array[10];
 		f.addDeclaration("array", new ArrayType(new LongType(), 10));
 		// array[5] = 3;
-		f.addAssignment(f.newArrayIdentifier(5, f.newBasicIdentifier("array")),
+		f.addAssignment(f.newArrayIdentifier(f.newLiteral("5", new LongType()), f.newBasicIdentifier("array")),
 				f.newLiteral("3", new LongType()));
 
 		Long.parseLong(new SymbolTableImpl().getNextFreeTemporary()
@@ -145,8 +148,8 @@ public class ArrayTest {
 				new ArrayType(new LongType(), 5), 10));
 		// array[3][6] = 9;
 		f.addAssignment(
-				f.newArrayIdentifier(6,
-						f.newArrayIdentifier(3, f.newBasicIdentifier("array"))),
+				f.newArrayIdentifier(f.newLiteral("6", new LongType()),
+						f.newArrayIdentifier(f.newLiteral("3", new LongType()), f.newBasicIdentifier("array"))),
 				f.newLiteral("9", new LongType()));
 
 		long tmp_n = Long.parseLong(new SymbolTableImpl()
@@ -171,7 +174,7 @@ public class ArrayTest {
 		// Long variable;
 		f.addDeclaration("variable", new LongType());
 		// array[5] = variable;
-		f.addAssignment(f.newArrayIdentifier(5, f.newBasicIdentifier("array")),
+		f.addAssignment(f.newArrayIdentifier(f.newLiteral("5", new LongType()), f.newBasicIdentifier("array")),
 				f.newBasicIdentifier("variable"));
 
 		String expected = "";
@@ -193,8 +196,8 @@ public class ArrayTest {
 		f.addDeclaration("variable", new LongType());
 		// array[3][6] = variable;
 		f.addAssignment(
-				f.newArrayIdentifier(6,
-						f.newArrayIdentifier(3, f.newBasicIdentifier("array"))),
+				f.newArrayIdentifier(f.newLiteral("6", new LongType()),
+						f.newArrayIdentifier(f.newLiteral("3", new LongType()), f.newBasicIdentifier("array"))),
 				f.newBasicIdentifier("variable"));
 
 		long tmp_n = Long.parseLong(new SymbolTableImpl()
@@ -221,7 +224,7 @@ public class ArrayTest {
 		f.addDeclaration("variable", new LongType());
 		// variable = array[7];
 		f.addAssignment(f.newBasicIdentifier("variable"),
-				f.newArrayIdentifier(7, f.newBasicIdentifier("array")));
+				f.newArrayIdentifier(f.newLiteral("7", new LongType()), f.newBasicIdentifier("array")));
 
 		String expected = "";
 		expected += "(DECLARE_ARRAY|#10|!|array)" + "\n";
@@ -242,8 +245,8 @@ public class ArrayTest {
 		f.addDeclaration("variable", new LongType());
 		// array[3][6] = variable;
 		f.addAssignment(
-				f.newArrayIdentifier(6,
-						f.newArrayIdentifier(3, f.newBasicIdentifier("array"))),
+				f.newArrayIdentifier(f.newLiteral("6", new LongType()),
+						f.newArrayIdentifier(f.newLiteral("3", new LongType()), f.newBasicIdentifier("array"))),
 				f.newBasicIdentifier("variable"));
 
 		long tmp_n = Long.parseLong(new SymbolTableImpl()
@@ -269,8 +272,8 @@ public class ArrayTest {
 		// Long arrei[6];
 		f.addDeclaration("arrei", new ArrayType(new LongType(), 6));
 		// array[5] = arrei[3];
-		f.addAssignment(f.newArrayIdentifier(5, f.newBasicIdentifier("array")),
-				f.newArrayIdentifier(3, f.newBasicIdentifier("arrei")));
+		f.addAssignment(f.newArrayIdentifier(f.newLiteral("5", new LongType()), f.newBasicIdentifier("array")),
+				f.newArrayIdentifier(f.newLiteral("3", new LongType()), f.newBasicIdentifier("arrei")));
 
 		long tmp_n = Long.parseLong(new SymbolTableImpl()
 				.getNextFreeTemporary().replaceFirst("\\D*", ""));
@@ -296,7 +299,7 @@ public class ArrayTest {
 		f.addDeclaration("variable", new DoubleType());
 		// variable = array[7];
 		f.addAssignment(f.newBasicIdentifier("variable"),
-				f.newArrayIdentifier(7, f.newBasicIdentifier("array")));
+				f.newArrayIdentifier(f.newLiteral("7", new LongType()), f.newBasicIdentifier("array")));
 
 		long tmp_n = Long.parseLong(new SymbolTableImpl()
 				.getNextFreeTemporary().replaceFirst("\\D*", ""));
@@ -320,7 +323,7 @@ public class ArrayTest {
 		// Double variable;
 		f.addDeclaration("variable", new DoubleType());
 		// array[7] = variable;
-		f.addAssignment(f.newArrayIdentifier(7, f.newBasicIdentifier("array")),
+		f.addAssignment(f.newArrayIdentifier(f.newLiteral("7", new LongType()), f.newBasicIdentifier("array")),
 				f.newBasicIdentifier("variable"));
 
 		long tmp_n = Long.parseLong(new SymbolTableImpl()
@@ -345,8 +348,8 @@ public class ArrayTest {
 		// Double arrei[6];
 		f.addDeclaration("arrei", new ArrayType(new DoubleType(), 6));
 		// array[5] = arrei[3];
-		f.addAssignment(f.newArrayIdentifier(5, f.newBasicIdentifier("array")),
-				f.newArrayIdentifier(3, f.newBasicIdentifier("arrei")));
+		f.addAssignment(f.newArrayIdentifier(f.newLiteral("5", new LongType()), f.newBasicIdentifier("array")),
+				f.newArrayIdentifier(f.newLiteral("3", new LongType()), f.newBasicIdentifier("arrei")));
 
 		long tmp_n = Long.parseLong(new SymbolTableImpl()
 				.getNextFreeTemporary().replaceFirst("\\D*", ""));
@@ -372,7 +375,7 @@ public class ArrayTest {
 		// Double array[10];
 		f.addDeclaration("array", new ArrayType(new DoubleType(), 10));
 		// return array[3];
-		f.addReturn(f.newArrayIdentifier(3, f.newBasicIdentifier("array")));
+		f.addReturn(f.newArrayIdentifier(f.newLiteral("3", new LongType()), f.newBasicIdentifier("array")));
 
 		long tmp_n = Long.parseLong(new SymbolTableImpl()
 				.getNextFreeTemporary().replaceFirst("\\D*", ""));
@@ -383,6 +386,46 @@ public class ArrayTest {
 		expected += "(DECLARE_DOUBLE|!|!|" + tmp0 + ")" + "\n";
 		expected += "(ARRAY_GET_DOUBLE|array|#3|" + tmp0 + ")" + "\n";
 		expected += "(RETURN|" + tmp0 + "|!|!)" + "\n";
+		assertEquals(expected, this.textifyQuadruples(f.getAST()));
+	}
+
+	@Test
+	public void itCanAssignExpressionsToArrays() throws IntermediateCodeGeneratorException {
+		ASTFactory f = new ASTFactory();
+		// Long array[10];
+		f.addDeclaration("array", new ArrayType(new LongType(), 10));
+		// array[3] = -(3);
+		f.addAssignment(f.newArrayIdentifier(f.newLiteral("5", new LongType()), f.newBasicIdentifier("array")),
+				f.newUnaryExpression(UnaryOperator.MINUS, f.newLiteral("4", new LongType())));
+
+		long tmp_n = Long.parseLong(new SymbolTableImpl().getNextFreeTemporary().replaceFirst("\\D*", ""));
+		String tmp0 = "tmp" + ++tmp_n;
+		String expected = "";
+		expected += "(DECLARE_ARRAY|#10|!|array)" + "\n";
+		expected += "(DECLARE_LONG|!|!|!)" + "\n";
+		expected += "(DECLARE_LONG|!|!|" + tmp0 + ")" + "\n";
+		expected += "(SUB_LONG|#0|#4|" + tmp0 + ")" + "\n";
+		expected += "(ARRAY_SET_LONG|array|#5|" + tmp0 + ")" + "\n";
+		assertEquals(expected, this.textifyQuadruples(f.getAST()));
+	}
+
+	@Ignore
+	public void itCanReturnArrayElementsWithComputedIndexes() throws IntermediateCodeGeneratorException {
+		ASTFactory f = new ASTFactory();
+
+		// long i;
+		f.addDeclaration("i", new LongType());
+		// long array[10];
+		f.addDeclaration("array", new ArrayType(new LongType(), 10));
+		// return array[i-1];
+		f.addReturn(f.newArrayIdentifier(
+				f.newBinaryExpression(BinaryOperator.SUBSTRACTION, f.newBasicIdentifier("i"),
+						f.newLiteral("1", new LongType())), f.newBasicIdentifier("array")));
+
+		long tmp_n = Long.parseLong(new SymbolTableImpl().getNextFreeTemporary().replaceFirst("\\D*", ""));
+		String tmp0 = "tmp" + ++tmp_n;
+		String expected = "";
+		expected += "(" + tmp0 + ")" + "\n";
 		assertEquals(expected, this.textifyQuadruples(f.getAST()));
 	}
 

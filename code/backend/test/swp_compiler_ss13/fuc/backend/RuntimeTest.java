@@ -77,7 +77,9 @@ public class RuntimeTest {
 		tac.add(new Q(Quadruple.Operator.DECLARE_LONG, "#2", Quadruple.EmptyArgument, "longVar2"));
 		tac.add(new Q(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "result"));
 		tac.add(new Q(Quadruple.Operator.ADD_LONG, "longVar1", "longVar2", "result"));
-		tac.add(new Q(Quadruple.Operator.PRINT_LONG, "result", Quadruple.EmptyArgument, Quadruple.EmptyArgument));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_STRING, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "s"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.LONG_TO_STRING, "result", Quadruple.EmptyArgument, "s"));
+		tac.add(new Q(Quadruple.Operator.PRINT_STRING, "s", Quadruple.EmptyArgument, Quadruple.EmptyArgument));
 		tac.add(new Q(Quadruple.Operator.RETURN, "result", Quadruple.EmptyArgument, Quadruple.EmptyArgument));
 
 		ExecutionResult result = TACExecutor.runIR(generateCode(tac));
@@ -94,7 +96,9 @@ public class RuntimeTest {
 		tac.add(new Q(Quadruple.Operator.ASSIGN_BOOLEAN, "#FALSE", Quadruple.EmptyArgument, "b1"));
 		tac.add(new Q(Quadruple.Operator.ASSIGN_BOOLEAN, "#TRUE", Quadruple.EmptyArgument, "b2"));
 		tac.add(new Q(Quadruple.Operator.AND_BOOLEAN, "b1", "b2", "b3"));
-		tac.add(new Q(Quadruple.Operator.PRINT_BOOLEAN, "b3", Quadruple.EmptyArgument, Quadruple.EmptyArgument));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_STRING, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "s"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.BOOLEAN_TO_STRING, "b3", Quadruple.EmptyArgument, "s"));
+		tac.add(new Q(Quadruple.Operator.PRINT_STRING, "s", Quadruple.EmptyArgument, Quadruple.EmptyArgument));
 
 		ExecutionResult res = TACExecutor.runIR(generateCode(tac));
 		assertEquals("false\n", res.output);
@@ -112,16 +116,11 @@ public class RuntimeTest {
 
 	@Test
 	public void printTest() throws Exception {
-		tac.add(new Q(Quadruple.Operator.PRINT_LONG, "#1", Quadruple.EmptyArgument, Quadruple.EmptyArgument));
-		tac.add(new Q(Quadruple.Operator.PRINT_STRING, "#\"\n\"", Quadruple.EmptyArgument, Quadruple.EmptyArgument));
-		tac.add(new Q(Quadruple.Operator.PRINT_DOUBLE, "#1.0", Quadruple.EmptyArgument, Quadruple.EmptyArgument));
-		tac.add(new Q(Quadruple.Operator.PRINT_STRING, "#\"\n\"", Quadruple.EmptyArgument, Quadruple.EmptyArgument));
-		tac.add(new Q(Quadruple.Operator.PRINT_BOOLEAN, "#TRUE", Quadruple.EmptyArgument, Quadruple.EmptyArgument));
 		tac.add(new Q(Quadruple.Operator.PRINT_STRING, "#\"\n\"", Quadruple.EmptyArgument, Quadruple.EmptyArgument));
 		tac.add(new Q(Quadruple.Operator.PRINT_STRING, "#\"bla\"", Quadruple.EmptyArgument, Quadruple.EmptyArgument));
 
 		ExecutionResult res = TACExecutor.runIR(generateCode(tac));
-		assertEquals("1\n1.000000e+00\ntrue\nbla\n", res.output);
+		assertEquals("\nbla\n", res.output);
 
 	}
 
@@ -130,10 +129,13 @@ public class RuntimeTest {
 		tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_BOOLEAN, EmptyArgument, EmptyArgument, "res1"));
 		tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_BOOLEAN, EmptyArgument, EmptyArgument, "res2"));
 		tac.add(new QuadrupleImpl(Quadruple.Operator.COMPARE_LONG_LE, "#23", "#42", "res1"));
-		tac.add(new Q(Quadruple.Operator.PRINT_BOOLEAN, "res1", Quadruple.EmptyArgument, Quadruple.EmptyArgument));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_STRING, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "s"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.BOOLEAN_TO_STRING, "res1", Quadruple.EmptyArgument, "s"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.PRINT_STRING, "s", Quadruple.EmptyArgument, Quadruple.EmptyArgument));
 		tac.add(new Q(Quadruple.Operator.PRINT_STRING, "#\"\n\"", Quadruple.EmptyArgument, Quadruple.EmptyArgument));
 		tac.add(new QuadrupleImpl(Quadruple.Operator.COMPARE_DOUBLE_G, "#23.0", "#42.0", "res2"));
-		tac.add(new Q(Quadruple.Operator.PRINT_BOOLEAN, "res2", Quadruple.EmptyArgument, Quadruple.EmptyArgument));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.BOOLEAN_TO_STRING, "res2", Quadruple.EmptyArgument, "s"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.PRINT_STRING, "s", Quadruple.EmptyArgument, Quadruple.EmptyArgument));
 
 		ExecutionResult res = TACExecutor.runIR(generateCode(tac));
 		assertEquals("true\nfalse\n", res.output);
@@ -159,7 +161,9 @@ public class RuntimeTest {
 		tac.add(new QuadrupleImpl(Quadruple.Operator.ADD_LONG, "acc", "tmp", "acc"));
 		tac.add(new QuadrupleImpl(Quadruple.Operator.ARRAY_GET_LONG, "array", "#4", "tmp"));
 		tac.add(new QuadrupleImpl(Quadruple.Operator.ADD_LONG, "acc", "tmp", "acc"));
-		tac.add(new QuadrupleImpl(Quadruple.Operator.PRINT_LONG, "acc", Quadruple.EmptyArgument, Quadruple.EmptyArgument));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_STRING, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "s"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.LONG_TO_STRING, "acc", Quadruple.EmptyArgument, "s"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.PRINT_STRING, "s", Quadruple.EmptyArgument, Quadruple.EmptyArgument));
 		ExecutionResult res = TACExecutor.runIR(generateCode(tac));
 		assertEquals("15\n", res.output);
   }

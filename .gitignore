@@ -12,6 +12,7 @@
 .idea/
 bin/
 doc/
+.settings/
 
 # allow the lib directory #
 !code/lib/*.jar
