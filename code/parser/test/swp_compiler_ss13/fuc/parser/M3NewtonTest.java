@@ -7,7 +7,13 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import swp_compiler_ss13.common.ast.AST;
+import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode.BinaryOperator;
+import swp_compiler_ss13.common.types.primitive.DoubleType;
+import swp_compiler_ss13.common.types.primitive.LongType;
+import swp_compiler_ss13.common.types.primitive.StringType;
 import swp_compiler_ss13.fuc.ast.ASTFactory;
+import swp_compiler_ss13.fuc.parser.errorHandling.ParserASTXMLVisualization;
+import swp_compiler_ss13.fuc.parser.parser.LRParser;
 
 public class M3NewtonTest {
 	static {
@@ -75,28 +81,86 @@ public class M3NewtonTest {
 
 	private static void checkAst(AST ast) {
 		assertNotNull(ast);
-		
 		ASTFactory factory = new ASTFactory();
-//		factory.addDeclaration("l", new LongType());
-//		factory.addDeclaration("d", new DoubleType());
-//		factory.addDeclaration("s", new StringType(LRParser.STRING_LENGTH));
-//		factory.addDeclaration("b", new BooleanType());
-//
-//		factory.addDeclaration("linebreak", new StringType(LRParser.STRING_LENGTH));
-//		factory.addAssignment(factory.newBasicIdentifier("linebreak"), factory.newLiteral("\"\\n\"", new StringType(4L)));
-//		factory.addAssignment(factory.newBasicIdentifier("b"), factory.newLiteral("true", new BooleanType()));
-//		factory.addAssignment(factory.newBasicIdentifier("l"), factory.newLiteral("18121313223", new LongType()));
-//		factory.addAssignment(factory.newBasicIdentifier("d"), factory.newLiteral("-23.23e-100", new DoubleType()));
-//		factory.addAssignment(factory.newBasicIdentifier("s"), factory.newLiteral("\"jagÄrEttString\\\"\\n\"", new StringType(20L)));
-//		
-//		factory.addPrint(factory.newBasicIdentifier("b")); factory.addPrint(factory.newBasicIdentifier("linebreak"));
-//		factory.addPrint(factory.newBasicIdentifier("l")); factory.addPrint(factory.newBasicIdentifier("linebreak"));
-//		factory.addPrint(factory.newBasicIdentifier("d")); factory.addPrint(factory.newBasicIdentifier("linebreak"));
-//		factory.addPrint(factory.newBasicIdentifier("s"));
-//		
-//		factory.addReturn(null);
+		factory.addDeclaration("radicand", new DoubleType());
+ 		factory.addDeclaration("guess", new DoubleType());
+ 		factory.addDeclaration("res", new StringType(LRParser.STRING_LENGTH));
+ 		//Assign values
+ 		factory.addAssignment(factory.newBasicIdentifier("radicand"), factory.newLiteral("2", new DoubleType()));
+ 		factory.addAssignment(factory.newBasicIdentifier("guess"), factory.newLiteral("1;x", new DoubleType()));
+ 		factory.addAssignment(factory.newBasicIdentifier("error"), factory.newLiteral("radicand", new DoubleType()));
+ 		factory.addAssignment(factory.newBasicIdentifier("res"), factory.newLiteral("i hate floating point numbers", new StringType(4L)));
+ 		 
+ 		//while loop 
+ 		//need to proof the correctness of the assignments
+ 		factory.addWhile(factory.newBasicIdentifier("error >= 0.0001") );
+ 		
+ 		factory.addWhile(
+        		factory.newBinaryExpression(
+        				BinaryOperator.GREATERTHANEQUAL,
+        				factory.newBasicIdentifier("error"),
+        				factory.newLiteral(" 0.0001", new LongType()))
+        				);
+        		factory.addAssignment(        				 
+          				factory.newBasicIdentifier("guess"),
+          				(          						
+          				factory.newBinaryExpression(
+								BinaryOperator.ADDITION,
+          				(factory.newBinaryExpression
+          						(
+								BinaryOperator.DIVISION,
+								factory.newBasicIdentifier("radicand"),
+								factory.newBasicIdentifier("guess"))
+								),
+								factory.newBasicIdentifier("guess"))							
+        				));
+ 				// another assignment
+        				factory.addAssignment(  
+        						factory.newBasicIdentifier("error"),
+        						(          						
+        		          				factory.newBinaryExpression(
+        										BinaryOperator.MULTIPLICATION,
+        										factory.newBasicIdentifier("guess"),
+        											(factory.newBinaryExpression
+        													(
+        															BinaryOperator.SUBSTRACTION,
+        															factory.newBasicIdentifier("gues"),
+        															factory.newBasicIdentifier("radicand"))
+        													)
+        		          							)							
+        		        		)
+        		        		);
+        					 
+        		// if statement
+        				factory.addBranch(
+        						factory.newBinaryExpression(
+        		        				BinaryOperator.LESSTHAN,
+        		        				factory.newBasicIdentifier("error"),
+        		        				factory.newLiteral("0", new LongType()))
+        						);
+        				
+        				factory.addAssignment(factory.newBasicIdentifier("error"), 
+        						factory.newBinaryExpression(
+        		        				BinaryOperator.MULTIPLICATION,
+        		        				factory.newBasicIdentifier("error"),
+        		        				factory.newLiteral("-1", new LongType())
+        						
+        						
+        						));
+        	 				 
+		factory.goToParent();
+ 		
+ 		//print
+ 		factory.addPrint(factory.newBasicIdentifier("res"));
+ 		factory.addPrint(factory.newBasicIdentifier("guess"));
+ 		factory.addReturn(null);
 		
-		AST expected = factory.getAST();
+		 
+ 		ParserASTXMLVisualization vis = new ParserASTXMLVisualization();
+ 		vis.visualizeAST(ast);
+ 		
+ 		AST expected = factory.getAST();
+ 		vis.visualizeAST(expected);
 		ASTComparator.compareAST(expected, ast);
 	}
 }

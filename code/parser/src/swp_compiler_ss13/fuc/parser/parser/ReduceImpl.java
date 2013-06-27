@@ -438,7 +438,8 @@ public class ReduceImpl {
 //							whileImpl.setCoverage(block.coverage());
 //							block.setParentNode(whileImpl);
 //						}
-						writeReportError(reportLog, stmt, "Statement");
+
+						writeReportError(reportLog, stmt, "Statement or block of statements");
 					}
 					
 					return whileImpl;
