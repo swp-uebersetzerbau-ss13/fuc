@@ -4,9 +4,12 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import swp_compiler_ss13.common.ast.AST;
+import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode.BinaryOperator;
+import swp_compiler_ss13.common.ast.nodes.unary.UnaryExpressionNode.UnaryOperator;
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.ir.IntermediateCodeGenerator;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
@@ -383,6 +386,46 @@ public class ArrayTest {
 		expected += "(DECLARE_DOUBLE|!|!|" + tmp0 + ")" + "\n";
 		expected += "(ARRAY_GET_DOUBLE|array|#3|" + tmp0 + ")" + "\n";
 		expected += "(RETURN|" + tmp0 + "|!|!)" + "\n";
+		assertEquals(expected, this.textifyQuadruples(f.getAST()));
+	}
+
+	@Test
+	public void itCanAssignExpressionsToArrays() throws IntermediateCodeGeneratorException {
+		ASTFactory f = new ASTFactory();
+		// Long array[10];
+		f.addDeclaration("array", new ArrayType(new LongType(), 10));
+		// array[3] = -(3);
+		f.addAssignment(f.newArrayIdentifier(f.newLiteral("5", new LongType()), f.newBasicIdentifier("array")),
+				f.newUnaryExpression(UnaryOperator.MINUS, f.newLiteral("4", new LongType())));
+
+		long tmp_n = Long.parseLong(new SymbolTableImpl().getNextFreeTemporary().replaceFirst("\\D*", ""));
+		String tmp0 = "tmp" + ++tmp_n;
+		String expected = "";
+		expected += "(DECLARE_ARRAY|#10|!|array)" + "\n";
+		expected += "(DECLARE_LONG|!|!|!)" + "\n";
+		expected += "(DECLARE_LONG|!|!|" + tmp0 + ")" + "\n";
+		expected += "(SUB_LONG|#0|#4|" + tmp0 + ")" + "\n";
+		expected += "(ARRAY_SET_LONG|array|#5|" + tmp0 + ")" + "\n";
+		assertEquals(expected, this.textifyQuadruples(f.getAST()));
+	}
+
+	@Ignore
+	public void itCanReturnArrayElementsWithComputedIndexes() throws IntermediateCodeGeneratorException {
+		ASTFactory f = new ASTFactory();
+
+		// long i;
+		f.addDeclaration("i", new LongType());
+		// long array[10];
+		f.addDeclaration("array", new ArrayType(new LongType(), 10));
+		// return array[i-1];
+		f.addReturn(f.newArrayIdentifier(
+				f.newBinaryExpression(BinaryOperator.SUBSTRACTION, f.newBasicIdentifier("i"),
+						f.newLiteral("1", new LongType())), f.newBasicIdentifier("array")));
+
+		long tmp_n = Long.parseLong(new SymbolTableImpl().getNextFreeTemporary().replaceFirst("\\D*", ""));
+		String tmp0 = "tmp" + ++tmp_n;
+		String expected = "";
+		expected += "(" + tmp0 + ")" + "\n";
 		assertEquals(expected, this.textifyQuadruples(f.getAST()));
 	}
 

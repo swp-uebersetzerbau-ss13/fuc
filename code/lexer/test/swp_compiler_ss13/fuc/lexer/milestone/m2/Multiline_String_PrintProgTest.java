@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.Ignore;
 
 /**
  * @author Tay, Ho Phuong
@@ -87,6 +88,7 @@ public class Multiline_String_PrintProgTest {
 	}
 
 	@Test
+	@Ignore
 	public void testgetNextToken() {
 		Token token = null;
 		Token comparisonToken = null;

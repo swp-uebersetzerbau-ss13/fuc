@@ -38,6 +38,7 @@
 		<ant antfile="build.xml" dir="${visu.gui.ide.text.token.dir}" target="clean" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.gui.ide.text.tac.dir}" target="clean" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.gui.ide.text.result.dir}" target="clean" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.gui.ide.text.target.dir}" target="clean" inheritall="false" />
 	</target>
 
 	<!-- === build all projects === -->
@@ -65,6 +66,7 @@
 		<ant antfile="build.xml" dir="${visu.gui.ide.text.token.dir}" target="build" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.gui.ide.text.tac.dir}" target="build" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.gui.ide.text.result.dir}" target="build" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.gui.ide.text.target.dir}" target="build" inheritall="false" />
 	</target>
 
 	<!-- === doc all projects === -->
@@ -92,6 +94,7 @@
 		<ant antfile="build.xml" dir="${visu.gui.ide.text.token.dir}" target="doc" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.gui.ide.text.tac.dir}" target="doc" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.gui.ide.text.result.dir}" target="doc" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.gui.ide.text.target.dir}" target="doc" inheritall="false" />
 	</target>
 
 	<!-- === build all tests === -->
@@ -275,6 +278,12 @@
 		<!-- create the visu-gui-ide-text-result package -->
 		<echo message="swp_compiler_ss13.fuc.gui.text.result.TextGUIResultVisualizationController" file="${dist.dir}/temp/swp_compiler_ss13.fuc.gui.ide.mvc.Controller" />
 		<jar destfile="${dist.dir}/Fuc-Gui-Ide-Text-Result.jar" basedir="${visu.gui.ide.text.result.dir}/${bin.dir}">
+			<zipfileset dir="${dist.dir}/temp" includes="swp_compiler_ss13.fuc.gui.ide.mvc.Controller" fullpath="META-INF/services/swp_compiler_ss13.fuc.gui.ide.mvc.Controller" />
+		</jar>
+		
+		<!-- create the visu-gui-ide-text-target package -->
+		<echo message="swp_compiler_ss13.fuc.gui.text.target.TextGUITargetVisualizationController" file="${dist.dir}/temp/swp_compiler_ss13.fuc.gui.ide.mvc.Controller" />
+		<jar destfile="${dist.dir}/Fuc-Gui-Ide-Text-Target.jar" basedir="${visu.gui.ide.text.target.dir}/${bin.dir}">
 			<zipfileset dir="${dist.dir}/temp" includes="swp_compiler_ss13.fuc.gui.ide.mvc.Controller" fullpath="META-INF/services/swp_compiler_ss13.fuc.gui.ide.mvc.Controller" />
 		</jar>
 

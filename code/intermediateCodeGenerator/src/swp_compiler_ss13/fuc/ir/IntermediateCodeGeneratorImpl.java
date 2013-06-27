@@ -1,8 +1,10 @@
 package swp_compiler_ss13.fuc.ir;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Stack;
 
 import org.apache.log4j.Logger;
@@ -59,6 +61,8 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 	private static Logger logger = Logger
 			.getLogger(IntermediateCodeGeneratorImpl.class);
 
+	private static String loggerIndent = "";
+
 	/**
 	 * Number of the next free label
 	 */
@@ -67,7 +71,67 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 	/**
 	 * The generated intermediate code
 	 */
-	private List<Quadruple> irCode;
+	private WatchedList<Quadruple> irCode;
+
+	private class WatchedList<T> {
+
+		private Logger logger = Logger.getLogger(WatchedList.class);
+
+		private List<T> list;
+
+		public List<T> getInnerList() {
+			return list;
+		}
+
+		public WatchedList() {
+			this.list = new LinkedList<T>();
+		}
+
+		public WatchedList(List<T> list) {
+			this.list = list;
+		}
+
+		public void add(T e) {
+			logger.debug(loggerIndent + "          " + "add " + e);
+			list.add(e);
+		}
+
+		public void addAll(Collection<? extends T> es) {
+			for (T e : es) {
+				logger.debug(loggerIndent + "          " + "add " + e);
+			}
+			list.addAll(es);
+		}
+
+
+	}
+
+	private class WatchedStack<T> {
+
+		private Logger logger = Logger.getLogger(WatchedStack.class);
+
+		private Stack<T> stack;
+
+		public WatchedStack() {
+			this.stack = new Stack<T>();
+		}
+
+		public WatchedStack(Stack<T> stack) {
+			this.stack = stack;
+		}
+
+		public T pop() {
+			T e = stack.pop();
+			logger.debug(loggerIndent + "         " + "pop " + e);
+			return e;
+		}
+
+		public T push(T e) {
+			logger.debug(loggerIndent + "         " + "push " + e);
+			return stack.push(e);
+		}
+
+	}
 
 	/**
 	 * List of used names. This is needed for single static assignment.
@@ -82,7 +146,7 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 	/**
 	 * Store for intermediate results
 	 */
-	private Stack<IntermediateResult> intermediateResults;
+	private WatchedStack<IntermediateResult> intermediateResults;
 
 	/**
 	 * is used to store the level of the outermost array index
@@ -109,10 +173,10 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 
 		logger.trace("Resetting the intermediate code generator.");
 
-		this.irCode = new LinkedList<>();
+		this.irCode = new WatchedList<>(new LinkedList<Quadruple>());
 		this.usedNames = new LinkedList<>();
 		this.currentSymbolTable = new Stack<>();
-		this.intermediateResults = new Stack<>();
+		this.intermediateResults = new WatchedStack<IntermediateResult>();
 	}
 
 	@Override
@@ -132,7 +196,7 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 		}
 		this.reset();
 		this.callProcessing(program);
-		return this.irCode;
+		return this.irCode.getInnerList();
 	}
 
 	/**
@@ -145,8 +209,11 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 	 */
 	private void callProcessing(ASTNode node)
 			throws IntermediateCodeGeneratorException {
-		logger.debug("Processing next node: " + node.getNodeType().toString()
-				+ " with " + (node.getNumberOfNodes() - 1) + " subnodes");
+		String oldIndent = loggerIndent;
+		loggerIndent += "  ";
+		logger.debug("Processing next node: " + oldIndent + node.getNodeType().toString()
+ + " with "
+				+ (node.getNumberOfNodes() - 1) + " subnodes " + System.identityHashCode(node));
 		switch (node.getNodeType()) {
 		case ArithmeticBinaryExpressionNode:
 			this.processArithmeticBinaryExpressionNode((ArithmeticBinaryExpressionNode) node);
@@ -206,6 +273,7 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 			throw new IntermediateCodeGeneratorException("Unknown node type: "
 					+ node.getNodeType().toString());
 		}
+		loggerIndent = oldIndent;
 	}
 
 	/**
@@ -817,7 +885,8 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 		boolean outerArray = false;
 		if (this.arrayLevel == null) {
 			ExpressionNode indexNode = node.getIndexNode();
-			this.callProcessing(indexNode);
+			this.callProcessing(indexNode); // FIXME doubled call of
+											// callprocessing for indexnode
 			IntermediateResult index = this.intermediateResults.pop();
 			this.arrayLevel = index.getValue();
 			outerArray = true;
@@ -844,7 +913,9 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 			if (outerArray) {
 				arrayType = nodeType;
 			}
-			this.callProcessing(node.getIndexNode());
+			this.callProcessing(node.getIndexNode()); // FIXME doubled call of
+														// callprocessing for
+														// indexnode
 			IntermediateResult indexvalue = this.intermediateResults.pop();
 			this.irCode.add(QuadrupleFactory.arrayGet(arrayType,
 					innerResult.getValue(), indexvalue.getValue(),

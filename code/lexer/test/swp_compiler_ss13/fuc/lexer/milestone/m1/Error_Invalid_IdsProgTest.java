@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -76,6 +77,7 @@ public class Error_Invalid_IdsProgTest {
 	}
 
 	@Test
+    @Ignore
 	public void testgetNextToken() {
 		Token token = null;
 		Token comparisonToken = null;

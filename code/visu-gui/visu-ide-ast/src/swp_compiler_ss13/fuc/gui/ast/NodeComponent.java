@@ -91,7 +91,7 @@ public class NodeComponent {
 			break;
 		case ArrayIdentifierNode:
 			ArrayIdentifierNode arrayNode = (ArrayIdentifierNode) node;
-			result.add(new JLabel("index: " + arrayNode.getIndex()));
+			//result.add(new JLabel("index: " + arrayNode.getIndex()));
 			break;
 		case BasicIdentifierNode:
 			BasicIdentifierNode basicNode = (BasicIdentifierNode) node;

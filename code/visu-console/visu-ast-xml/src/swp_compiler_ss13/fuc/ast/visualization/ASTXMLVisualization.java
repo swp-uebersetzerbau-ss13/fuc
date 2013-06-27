@@ -12,7 +12,6 @@ import swp_compiler_ss13.common.ast.nodes.binary.RelationExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.LiteralNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ArithmeticUnaryExpressionNode;
-import swp_compiler_ss13.common.ast.nodes.unary.ArrayIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
 import swp_compiler_ss13.common.ast.nodes.unary.LogicUnaryExpressionNode;
 import swp_compiler_ss13.common.visualization.ASTVisualization;
@@ -62,7 +61,9 @@ public class ASTXMLVisualization implements ASTVisualization {
 			attributes = " operator=\"" + ((ArithmeticUnaryExpressionNode) node).getOperator().toString() + "\"";
 			break;
 		case ArrayIdentifierNode:
-			attributes = " index=\"" + ((ArrayIdentifierNode) node).getIndex().toString() + "\"";
+			// FIXME fix this!
+			// attributes = " index=\"" + ((ArrayIdentifierNode)
+			// node).getIndex().toString() + "\"";
 			break;
 		case AssignmentNode:
 			// nothing to do here

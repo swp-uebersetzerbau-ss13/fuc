@@ -49,4 +49,9 @@ public class IntermediateResult {
 	public Type getType() {
 		return this.type;
 	}
+
+	@Override
+	public String toString() {
+		return "IRES(" + this.type.toString() + ", " + this.value + ")";
+	}
 }
