@@ -77,5 +77,4 @@ public abstract class UnaryExpressionNodeImpl extends ASTNodeImpl implements Una
 		}
 		return this.operator;
 	}
-
 }

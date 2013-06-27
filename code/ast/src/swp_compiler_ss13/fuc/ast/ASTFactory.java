@@ -328,22 +328,24 @@ public class ASTFactory {
 		rightExpression.setParentNode(binaryExpression);
 		return binaryExpression;
 	}
-	
+
 	/**
-	 * Creates a new {@link PrintNode} with the given {@link IdentifierNode} as right value.
+	 * Creates a new {@link PrintNode} with the given {@link IdentifierNode} as
+	 * right value.
 	 * 
-	 * @param id May be <code>null</code>
+	 * @param id
+	 *            May be <code>null</code>
 	 * @return
 	 */
 	public PrintNode newPrint(IdentifierNode id) {
-	   PrintNode print = new PrintNodeImpl();
-	   if (id == null) {
-	      print.setRightValue(null);
-	   } else {
-	      id.setParentNode(print);
-         print.setRightValue(id);
-	   }
-	   return print;
+		PrintNode print = new PrintNodeImpl();
+		if (id == null) {
+			print.setRightValue(null);
+		} else {
+			id.setParentNode(print);
+			print.setRightValue(id);
+		}
+		return print;
 	}
 
 	/**
@@ -443,9 +445,9 @@ public class ASTFactory {
 	 *            the IdentifierNode in the array
 	 * @return the created ArrayIdentifierNode
 	 */
-	public ArrayIdentifierNode newArrayIdentifier(Integer index, IdentifierNode identifier) {
+	public ArrayIdentifierNode newArrayIdentifier(ExpressionNode indexNode, IdentifierNode identifier) {
 		ArrayIdentifierNode arrayIdentifier = new ArrayIdentifierNodeImpl();
-		arrayIdentifier.setIndex(index);
+		arrayIdentifier.setIndexNode(indexNode);
 		arrayIdentifier.setIdentifierNode(identifier);
 		identifier.setParentNode(arrayIdentifier);
 		return arrayIdentifier;

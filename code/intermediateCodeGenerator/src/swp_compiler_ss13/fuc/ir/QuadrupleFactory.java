@@ -179,61 +179,61 @@ public class QuadrupleFactory {
 	 *            The value to assign to
 	 * @param to
 	 *            The variable to hold the assigned value
-	 * @param fromIndex
+	 * @param fromArrayIndex
 	 *            The index of the array to assign from. null for no array
-	 * @param toIndex
+	 * @param toArrayIndex
 	 *            The index of the array to assign to. null for no array
 	 * @return The tac quadruple
 	 * @throws IntermediateCodeGeneratorException
 	 *             something went wrong.
 	 */
 	public static List<Quadruple> assign(Type typeOfid, String from, String to,
-			Integer fromIndex, Integer toIndex)
+			String fromArrayIndex, String toArrayIndex)
 			throws IntermediateCodeGeneratorException {
 
 		List<Quadruple> quadruples = new LinkedList<>();
-		if (toIndex != null && fromIndex != null) {
+		if (toArrayIndex != null && fromArrayIndex != null) {
 			throw new IntermediateCodeGeneratorException(
 					"Unsupport assignment type");
-		} else if (toIndex != null) {
+		} else if (toArrayIndex != null) {
 			switch (typeOfid.getKind()) {
 			case DOUBLE:
 				quadruples.add(new QuadrupleImpl(Operator.ARRAY_SET_DOUBLE, to,
-						"#" + toIndex, from));
+						toArrayIndex, from));
 				break;
 			case LONG:
 				quadruples.add(new QuadrupleImpl(Operator.ARRAY_SET_LONG, to,
-						"#" + toIndex, from));
+						toArrayIndex, from));
 				break;
 			case BOOLEAN:
 				quadruples.add(new QuadrupleImpl(Operator.ARRAY_SET_BOOLEAN,
-						to, "#" + toIndex, from));
+						to, toArrayIndex, from));
 				break;
 			case STRING:
 				quadruples.add(new QuadrupleImpl(Operator.ARRAY_SET_STRING, to,
-						"#" + toIndex, from));
+						toArrayIndex, from));
 				break;
 			default:
 				throw new IntermediateCodeGeneratorException(
 						"Unsupport assignment type");
 			}
-		} else if (fromIndex != null) {
+		} else if (fromArrayIndex != null) {
 			switch (typeOfid.getKind()) {
 			case DOUBLE:
 				quadruples.add(new QuadrupleImpl(Operator.ARRAY_GET_DOUBLE,
-						from, "#" + fromIndex, to));
+						from, fromArrayIndex, to));
 				break;
 			case LONG:
 				quadruples.add(new QuadrupleImpl(Operator.ARRAY_GET_LONG, from,
-						"#" + fromIndex, to));
+						fromArrayIndex, to));
 				break;
 			case BOOLEAN:
 				quadruples.add(new QuadrupleImpl(Operator.ARRAY_GET_BOOLEAN,
-						from, "#" + fromIndex, to));
+						from, fromArrayIndex, to));
 				break;
 			case STRING:
 				quadruples.add(new QuadrupleImpl(Operator.ARRAY_GET_STRING,
-						from, "#" + fromIndex, to));
+						from, fromArrayIndex, to));
 				break;
 			default:
 				throw new IntermediateCodeGeneratorException(
@@ -467,20 +467,11 @@ public class QuadrupleFactory {
 	public static Quadruple print(String value, Type type)
 			throws IntermediateCodeGeneratorException {
 		switch (type.getKind()) {
-		case BOOLEAN:
-			return new QuadrupleImpl(Operator.PRINT_BOOLEAN, value,
-					Quadruple.EmptyArgument, Quadruple.EmptyArgument);
-		case DOUBLE:
-			return new QuadrupleImpl(Operator.PRINT_DOUBLE, value,
-					Quadruple.EmptyArgument, Quadruple.EmptyArgument);
-		case LONG:
-			return new QuadrupleImpl(Operator.PRINT_LONG, value,
-					Quadruple.EmptyArgument, Quadruple.EmptyArgument);
 		case STRING:
 			return new QuadrupleImpl(Operator.PRINT_STRING, value,
 					Quadruple.EmptyArgument, Quadruple.EmptyArgument);
 		default:
-			String err = "Cannot print array or struct " + type;
+			String err = "Cannot print non string type " + type;
 			throw new IntermediateCodeGeneratorException(err);
 		}
 	}

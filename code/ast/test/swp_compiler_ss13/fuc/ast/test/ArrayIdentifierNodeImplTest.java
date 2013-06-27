@@ -15,8 +15,10 @@ import swp_compiler_ss13.common.ast.ASTNode;
 import swp_compiler_ss13.common.ast.ASTNode.ASTNodeType;
 import swp_compiler_ss13.common.ast.nodes.IdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ArrayIdentifierNode;
+import swp_compiler_ss13.common.types.primitive.LongType;
 import swp_compiler_ss13.fuc.ast.ArrayIdentifierNodeImpl;
 import swp_compiler_ss13.fuc.ast.BasicIdentifierNodeImpl;
+import swp_compiler_ss13.fuc.ast.LiteralNodeImpl;
 
 /**
  * Test the ArrayIdentifierNodeImpl
@@ -93,22 +95,20 @@ public class ArrayIdentifierNodeImplTest {
 	@Test
 	public void testSetIndex() {
 		try {
-			this.node.setIndex(null);
+			this.node.setIndexNode(null);
 			fail("Expected IllegalArgumentException for setIndex(null) not thrown.");
 		} catch (IllegalArgumentException e) {
 		}
 
-		try {
-			this.node.setIndex(-1);
-			fail("Expected IllegalArgumentException for setIndex(-1) not thrown.");
-		} catch (IllegalArgumentException e) {
-		}
+		LiteralNodeImpl index = new LiteralNodeImpl();
+		index.setLiteral("0");
+		index.setLiteralType(new LongType());
+		this.node.setIndexNode(index);
+		assertEquals(index, PA.getValue(this.node, "index"));
 
-		this.node.setIndex(0);
-		assertEquals(0, PA.getValue(this.node, "index"));
-
-		this.node.setIndex(111);
-		assertEquals(111, PA.getValue(this.node, "index"));
+		index.setLiteral("111");
+		this.node.setIndexNode(index);
+		assertEquals(index, PA.getValue(this.node, "index"));
 	}
 
 	/**
@@ -116,13 +116,17 @@ public class ArrayIdentifierNodeImplTest {
 	 */
 	@Test
 	public void testGetIndex() {
-		assertEquals(null, this.node.getIndex());
+		assertEquals(null, this.node.getIndexNode());
 
-		PA.setValue(this.node, "index", 0);
-		assertEquals(0, (int) this.node.getIndex());
+		LiteralNodeImpl index = new LiteralNodeImpl();
+		index.setLiteral("0");
+		index.setLiteralType(new LongType());
+		PA.setValue(this.node, "index", index);
+		assertEquals(index, this.node.getIndexNode());
 
-		PA.setValue(this.node, "index", 50);
-		assertEquals(50, (int) this.node.getIndex());
+		index.setLiteral("50");
+		PA.setValue(this.node, "index", index);
+		assertEquals(index, this.node.getIndexNode());
 	}
 
 	/**

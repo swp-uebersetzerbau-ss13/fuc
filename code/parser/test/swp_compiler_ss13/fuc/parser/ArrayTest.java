@@ -32,7 +32,11 @@ public class ArrayTest {
 		factory.addDeclaration("b", new ArrayType(new BooleanType(), 5));
 		factory.addDeclaration("a", new BooleanType());
 
-		factory.addAssignment(factory.newBasicIdentifier("a"), factory.newArrayIdentifier(2, factory.newBasicIdentifier("b")));
+		factory.addAssignment(
+				factory.newBasicIdentifier("a"),
+				factory.newArrayIdentifier(
+						factory.newLiteral("2", new LongType()),
+						factory.newBasicIdentifier("b")));
 		
 		factory.addReturn(null);
 		
@@ -53,11 +57,14 @@ public class ArrayTest {
 		factory.addDeclaration("a", new ArrayType(new LongType(), 3));
 
 		factory.addAssignment(
-				factory.newArrayIdentifier(0, factory.newBasicIdentifier("a")),
+				factory.newArrayIdentifier(
+						factory.newLiteral("0", new LongType()),
+						factory.newBasicIdentifier("a")),
 				factory.newLiteral("42", new LongType()));
 		
 		factory.addReturn(
-				factory.newArrayIdentifier(0,
+				factory.newArrayIdentifier(
+						factory.newLiteral("0", new LongType()),
 						factory.newBasicIdentifier("a")));
 		
 		AST expected = factory.getAST();
@@ -78,11 +85,15 @@ public class ArrayTest {
 		factory.addDeclaration("a", new ArrayType(new LongType(), 3));
 
 		factory.addAssignment(
-				factory.newArrayIdentifier(0, factory.newBasicIdentifier("a")),
+				factory.newArrayIdentifier(
+						factory.newLiteral("0", new LongType()),
+						factory.newBasicIdentifier("a")),
 				factory.newLiteral("42", new LongType()));
 		factory.addAssignment(
 				factory.newBasicIdentifier("l"),
-				factory.newArrayIdentifier(0, factory.newBasicIdentifier("a")));
+				factory.newArrayIdentifier(
+						factory.newLiteral("0", new LongType()),
+						factory.newBasicIdentifier("a")));
 		
 		factory.addReturn(factory.newBasicIdentifier("l"));
 		

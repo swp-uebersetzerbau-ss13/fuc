@@ -4,6 +4,7 @@
 		<pathelement location="../${interfaces.dir}/${src.dir}" />
 		<pathelement location="../${ast.dir}/${src.dir}" />
 		<pathelement location="../${symbolTable.dir}/${src.dir}" />
+		<pathelement location="../${backend.dir}/${src.dir}" />
 	</path>
 
 	<path id="classpath">
@@ -12,6 +13,7 @@
 		<pathelement location="../${lib.dir}/log4j-1.2.17.jar" />
 		<pathelement location="../${ast.dir}/${bin.dir}" />
 		<pathelement location="../${symbolTable.dir}/${bin.dir}" />
+		<pathelement location="../${backend.dir}/${bin.dir}" />
 	</path>
 
 	<path id="sourcepath-test">
