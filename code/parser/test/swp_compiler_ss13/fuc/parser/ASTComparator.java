@@ -41,7 +41,6 @@ import swp_compiler_ss13.common.types.Type;
 import swp_compiler_ss13.common.types.derived.ArrayType;
 import swp_compiler_ss13.common.types.derived.Member;
 import swp_compiler_ss13.common.types.derived.StructType;
-import swp_compiler_ss13.fuc.parser.errorHandling.ParserASTXMLVisualization;
 
 public class ASTComparator {
 	
@@ -56,9 +55,9 @@ public class ASTComparator {
 	public static void compareAST(AST expected, AST actual) {
 		assertNotNull(actual);
 		
-		ParserASTXMLVisualization vis = new ParserASTXMLVisualization();
-		System.out.println(vis.visualizeAST(expected));
-		System.out.println(vis.visualizeAST(actual));
+//		ParserASTXMLVisualization vis = new ParserASTXMLVisualization();
+//		System.out.println(vis.visualizeAST(expected));
+//		System.out.println(vis.visualizeAST(actual));
 		
 		// Iterate both trees
 		Iterator<ASTNode> actualIt = actual.getDFSLTRIterator();
