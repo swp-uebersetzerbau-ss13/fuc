@@ -119,6 +119,7 @@
 			showoutput="true"
 			haltonerror="true"
 			haltonfailure="true" >
+			<jvmarg value="-Dfile.encoding=UTF-8"/>
 			<classpath>
 				<path refid="classpath-test" />
 			</classpath>
@@ -141,6 +142,7 @@
                 haltonerror="true"
                 haltonfailure="true"
                 >
+			<jvmarg value="-Dfile.encoding=UTF-8"/>
             <classpath>
                 <path refid="classpath-test" />
             </classpath>
@@ -164,6 +166,7 @@
                 fork="true"
                 haltonerror="false"
                 haltonfailure="false" >
+			<jvmarg value="-Dfile.encoding=UTF-8"/>
             <classpath>
                 <path refid="classpath-test" />
             </classpath>
