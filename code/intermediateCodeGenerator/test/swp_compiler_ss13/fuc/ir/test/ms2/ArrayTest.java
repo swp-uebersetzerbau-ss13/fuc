@@ -408,8 +408,8 @@ public class ArrayTest {
 		expected += "(ARRAY_SET_LONG|array|#5|" + tmp0 + ")" + "\n";
 		assertEquals(expected, this.textifyQuadruples(f.getAST()));
 	}
-
-	@Ignore
+	@Test
+	//@Ignore
 	public void itCanReturnArrayElementsWithComputedIndexes() throws IntermediateCodeGeneratorException {
 		ASTFactory f = new ASTFactory();
 
@@ -429,4 +429,30 @@ public class ArrayTest {
 		assertEquals(expected, this.textifyQuadruples(f.getAST()));
 	}
 
+	@Test
+	public void itCanReturnArrayElementsWithComputedIndexes2() throws IntermediateCodeGeneratorException {
+		ASTFactory f = new ASTFactory();
+
+		// long i;
+		f.addDeclaration("i", new LongType());
+		// long array[10];
+		f.addDeclaration("array", new ArrayType(new LongType(), 10));
+		// return array[i-1];
+		f.addAssignment(f.newArrayIdentifier(f.newBasicIdentifier("i"), f.newBasicIdentifier("numbers")),
+				f.newBinaryExpression(BinaryOperator.ADDITION,
+						f.newArrayIdentifier(f.newBinaryExpression(BinaryOperator.SUBSTRACTION,
+								f.newBasicIdentifier("i"), f.newLiteral("1", new LongType())), f
+								.newBasicIdentifier("numbers")),
+						f.newArrayIdentifier(f.newBinaryExpression(BinaryOperator.SUBSTRACTION,
+								f.newBasicIdentifier("i"), f.newLiteral("2", new LongType())), f
+								.newBasicIdentifier("numbers"))
+						)
+				);
+
+		long tmp_n = Long.parseLong(new SymbolTableImpl().getNextFreeTemporary().replaceFirst("\\D*", ""));
+		String tmp0 = "tmp" + ++tmp_n;
+		String expected = "";
+		expected += "(" + tmp0 + ")" + "\n";
+		assertEquals(expected, this.textifyQuadruples(f.getAST()));
+	}
 }

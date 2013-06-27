@@ -46,6 +46,16 @@ import swp_compiler_ss13.common.types.primitive.BooleanType;
 import swp_compiler_ss13.common.types.primitive.DoubleType;
 import swp_compiler_ss13.common.types.primitive.LongType;
 import swp_compiler_ss13.common.types.primitive.StringType;
+import swp_compiler_ss13.fuc.ir.program.Block;
+import swp_compiler_ss13.fuc.ir.program.Declaration;
+import swp_compiler_ss13.fuc.ir.program.statement.BranchStatement;
+import swp_compiler_ss13.fuc.ir.program.statement.LoopStatement;
+import swp_compiler_ss13.fuc.ir.program.statement.Output;
+import swp_compiler_ss13.fuc.ir.program.statement.expression.AssignmentExpression;
+import swp_compiler_ss13.fuc.ir.program.statement.expression.BinaryExpression;
+import swp_compiler_ss13.fuc.ir.program.statement.expression.IdentifierExpression;
+import swp_compiler_ss13.fuc.ir.program.statement.expression.LiteralExpression;
+import swp_compiler_ss13.fuc.ir.program.statement.expression.UnaryExpression;
 
 /**
  * Create the intermediate code representation for the given AST
@@ -149,20 +159,46 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 	private WatchedStack<IntermediateResult> intermediateResults;
 
 	/**
-	 * is used to store the level of the outermost array index
-	 */
-	String arrayLevel = null;
-
-	/**
-	 * when processing an arrayIdentifier it needs to be known if it is used in
-	 * an assignment or referenced
-	 */
-	Boolean arrayAssignment = false;
-
-	/**
 	 * Name of the label to break the current loop
 	 */
+	// FIXME: Needs to be a stack of labels
 	String loopBreakLabel;
+	
+	GeneratorState state;
+
+	private AssignmentExpression assignmentExpression;
+
+	private BinaryExpression binaryExpression;
+
+	private IdentifierExpression identifierExpression;
+
+	private LiteralExpression literalExpression;
+
+	private UnaryExpression unaryExpression;
+
+	private BranchStatement branchStatement;
+
+	private LoopStatement loopStatement;
+
+	private Output output;
+
+	private Block block;
+
+	private Declaration declaration;
+	
+	public IntermediateCodeGeneratorImpl() {
+		state = new GeneratorState();
+		this.assignmentExpression = new AssignmentExpression(state);
+		this.binaryExpression = new BinaryExpression(state);
+		this.identifierExpression = new IdentifierExpression(state);
+		this.literalExpression = new LiteralExpression(state);
+		this.unaryExpression = new UnaryExpression(state);
+		this.branchStatement = new BranchStatement(state);
+		this.loopStatement = new LoopStatement(state);
+		this.output = new Output(state);
+		this.block = new Block(state);
+		this.declaration = new Declaration(state);
+	}
 
 	/**
 	 * Reset the intermediate code generator. This is called first for every
@@ -177,6 +213,7 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 		this.usedNames = new LinkedList<>();
 		this.currentSymbolTable = new Stack<>();
 		this.intermediateResults = new WatchedStack<IntermediateResult>();
+		this.state.reset();
 	}
 
 	@Override
@@ -216,58 +253,58 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 				+ (node.getNumberOfNodes() - 1) + " subnodes " + System.identityHashCode(node));
 		switch (node.getNodeType()) {
 		case ArithmeticBinaryExpressionNode:
-			this.processArithmeticBinaryExpressionNode((ArithmeticBinaryExpressionNode) node);
+			binaryExpression.arithmetic((ArithmeticBinaryExpressionNode) node);
 			break;
 		case ArithmeticUnaryExpressionNode:
-			this.processArithmeticUnaryExpressionNode((ArithmeticUnaryExpressionNode) node);
+			unaryExpression.arithmetic((ArithmeticBinaryExpressionNode) node);
 			break;
 		case ArrayIdentifierNode:
-			this.processArrayIdentifierNode((ArrayIdentifierNode) node);
+			identifierExpression.array((ArrayIdentifierNode) node);
 			break;
 		case AssignmentNode:
-			this.processAssignmentNode((AssignmentNode) node);
+			assignmentExpression.assign((AssignmentNode) node);
 			break;
 		case BasicIdentifierNode:
-			this.processBasicIdentifierNode((BasicIdentifierNode) node);
+			identifierExpression.basic((BasicIdentifierNode) node);
 			break;
 		case BlockNode:
-			this.processBlockNode((BlockNode) node);
+			block.block((BlockNode) node);
 			break;
 		case BranchNode:
-			this.processBranchNode((BranchNode) node);
+			 branchStatement.branch((BranchNode) node);
 			break;
 		case BreakNode:
-			this.processBreakNode((BreakNode) node);
+			loopStatement.breakLoop((BreakNode) node);
 			break;
 		case DeclarationNode:
-			this.processDeclarationNode((DeclarationNode) node);
+			declaration.declare((DeclarationNode) node);
 			break;
 		case DoWhileNode:
-			this.processDoWhileNode((DoWhileNode) node);
+			loopStatement.doWhile((DoWhileNode) node);
 			break;
 		case LiteralNode:
-			this.processLiteralNode((LiteralNode) node);
+			literalExpression.literal((LiteralNode) node);
 			break;
 		case LogicBinaryExpressionNode:
-			this.processLogicBinaryExpressionNode((LogicBinaryExpressionNode) node);
+			binaryExpression.logic((LogicBinaryExpressionNode) node);
 			break;
 		case LogicUnaryExpressionNode:
-			this.processLogicUnaryExpressionNode((LogicUnaryExpressionNode) node);
+			unaryExpression.logic((LogicUnaryExpressionNode) node);
 			break;
 		case PrintNode:
-			this.processPrintNode((PrintNode) node);
+			output.print((PrintNode) node);
 			break;
 		case ReturnNode:
-			this.processReturnNode((ReturnNode) node);
+			output.exit((ReturnNode) node);
 			break;
 		case StructIdentifierNode:
-			this.processStructIdentifierNode((StructIdentifierNode) node);
+			identifierExpression.struct((StructIdentifierNode) node);
 			break;
 		case WhileNode:
-			this.processWhileNode((WhileNode) node);
+			loopStatement.whileDo((WhileNode) node);
 			break;
 		case RelationExpressionNode:
-			this.processRelationExpressionNode((RelationExpressionNode) node);
+			binaryExpression.relation((RelationExpressionNode) node);
 			break;
 		default:
 			throw new IntermediateCodeGeneratorException("Unknown node type: "
@@ -787,12 +824,7 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 			throws IntermediateCodeGeneratorException {
 		// the id to assign the value to
 		IdentifierNode id = node.getLeftValue();
-
-		this.arrayAssignment = true;
-		this.arrayLevel = null;
 		this.callProcessing(id);
-		String toArrayIndex = this.arrayLevel;
-		this.arrayLevel = null;
 
 		IntermediateResult toIntermediate = this.intermediateResults.pop();
 
@@ -800,14 +832,12 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 		// no need to resolve an array or struct etc.
 		StatementNode value = node.getRightValue();
 
-		// process the right hand expression
 		this.callProcessing(value);
-		String fromArrayIndex = this.arrayLevel;
-		this.arrayLevel = null;
-		this.arrayAssignment = false;
 
 		// the result of the right hand expression
 		IntermediateResult fromIntermediate = this.intermediateResults.pop();
+		Type fromType = fromIntermediate.getType();
+		String fromId = fromIntermediate.getValue();
 
 		// get the name of the id and resolve it from our saved structures
 		String toId = toIntermediate.getValue();
@@ -818,54 +848,15 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 		Type toType = toIntermediate.getType();
 
 		// check if the cast is needed
-		boolean castNeeded = CastingFactory.isCastNeeded(toType,
-				fromIntermediate.getType());
-
-		// get the name and id of the source
-		String fromId = fromIntermediate.getValue();
-		Type fromType = fromIntermediate.getType();
-
-		if (fromArrayIndex != null && toArrayIndex != null) {
-			// assign array to array
-			String temporary = this.createAndSaveTemporaryIdentifier(fromType);
-			this.irCode.addAll(QuadrupleFactory.assign(fromType, fromId, temporary,
-					fromArrayIndex, null));
-			if (castNeeded) {
-				String temporary2 = this.createAndSaveTemporaryIdentifier(toType);
-				this.irCode.add(CastingFactory.createCast(fromType, temporary,
-						toType, temporary2));
-				this.irCode.addAll(QuadrupleFactory.assign(toType, temporary2, toId,
-						null, toArrayIndex));
-				toId = temporary2;
-			} else {
-				this.irCode.addAll(QuadrupleFactory.assign(toType, temporary, toId,
-						null, toArrayIndex));
-				toId = temporary;
-			}
-		} else {
-			if (castNeeded) {
-				if (toArrayIndex == null) {
-					// assign array to variable
-					String temporary = this.createAndSaveTemporaryIdentifier(fromType);
-					this.irCode.addAll(QuadrupleFactory.assign(fromType, fromId,
-							temporary, fromArrayIndex, toArrayIndex));
-					this.irCode.add(CastingFactory.createCast(fromType, temporary,
-							toType, toId));
-					toId = temporary;
-				} else {
-					// assign variable to array
-					String temporary = this.createAndSaveTemporaryIdentifier(toType);
-					this.irCode.add(CastingFactory.createCast(fromType, fromId,
-							toType, temporary));
-					this.irCode.addAll(QuadrupleFactory.assign(toType, temporary,
-							toId, fromArrayIndex, toArrayIndex));
-					toId = temporary;
-				}
-			} else {
-				this.irCode.addAll(QuadrupleFactory.assign(toType, fromId, toId,
-						fromArrayIndex, toArrayIndex));
-			}
+		boolean castNeeded = CastingFactory.isCastNeeded(toType, fromIntermediate.getType());
+		
+		if (castNeeded) {
+			String tmp = createAndSaveTemporaryIdentifier(toType);
+			irCode.add(CastingFactory.createCast(fromType, fromId, toType, toId));
+			fromId = tmp;
 		}
+		
+		this.irCode.add(QuadrupleFactory.assign(toType, fromId, toId));
 		this.intermediateResults.push(new IntermediateResult(toId, toType));
 	}
 
@@ -879,50 +870,6 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 	 */
 	private void processArrayIdentifierNode(ArrayIdentifierNode node)
 			throws IntermediateCodeGeneratorException {
-
-		IdentifierNode innerNode = node.getIdentifierNode();
-
-		boolean outerArray = false;
-		if (this.arrayLevel == null) {
-			ExpressionNode indexNode = node.getIndexNode();
-			this.callProcessing(indexNode); // FIXME doubled call of
-											// callprocessing for indexnode
-			IntermediateResult index = this.intermediateResults.pop();
-			this.arrayLevel = index.getValue();
-			outerArray = true;
-		}
-
-		this.callProcessing(innerNode);
-
-		// array assignments are special so don't push the reference of the
-		// outermost array
-		if (!this.arrayAssignment || !outerArray) {
-			IntermediateResult innerResult = this.intermediateResults.pop();
-			Type nodeType = innerResult.getType();
-			String tmpIdentifier;
-
-			if (outerArray) {
-				tmpIdentifier = this.createAndSaveTemporaryIdentifier(nodeType);
-			} else {
-				tmpIdentifier = this.createAndSaveTemporaryIdentifierReference(nodeType);
-			}
-			this.currentSymbolTable.peek().lookupType(tmpIdentifier);
-
-			// FIXME just looks at the outermost type so this works
-			Type arrayType = new ArrayType(new StringType(0L), 0);
-			if (outerArray) {
-				arrayType = nodeType;
-			}
-			this.callProcessing(node.getIndexNode()); // FIXME doubled call of
-														// callprocessing for
-														// indexnode
-			IntermediateResult indexvalue = this.intermediateResults.pop();
-			this.irCode.add(QuadrupleFactory.arrayGet(arrayType,
-					innerResult.getValue(), indexvalue.getValue(),
-					tmpIdentifier));
-			this.intermediateResults.push(new IntermediateResult(tmpIdentifier,
-					innerResult.getType()));
-		}
 	}
 
 	/**
@@ -1062,7 +1009,7 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 			// an identifier with this name was not yet used.
 			// it does not need to be renamed to stick to SSA
 			this.usedNames.add(identifier);
-			this.irCode.addAll(QuadrupleFactory.declaration(identifier, type));
+			this.irCode.add(QuadrupleFactory.declaration(identifier, type));
 			return identifier;
 		} else {
 			// rename is required to keep single static assignment
@@ -1070,7 +1017,7 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 			this.currentSymbolTable.peek().putTemporary(newName, type);
 			this.usedNames.add(newName);
 			this.currentSymbolTable.peek().setIdentifierAlias(identifier, newName);
-			this.irCode.addAll(QuadrupleFactory.declaration(newName, type));
+			this.irCode.add(QuadrupleFactory.declaration(newName, type));
 			return newName;
 		}
 	}
@@ -1093,27 +1040,7 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 		String id = this.currentSymbolTable.peek().getNextFreeTemporary();
 		this.currentSymbolTable.peek().putTemporary(id, type);
 		this.usedNames.add(id);
-		this.irCode.addAll(QuadrupleFactory.declaration(id, type));
-		return id;
-	}
-
-	/**
-	 * Create a new temporary variable reference and save it to the internal
-	 * store of variables
-	 * 
-	 * @param type
-	 *            The type of the new variable reference
-	 * @return The name of the new variable
-	 * @throws IntermediateCodeGeneratorException
-	 *             An error occurred
-	 */
-	private String createAndSaveTemporaryIdentifierReference(Type type)
-			throws IntermediateCodeGeneratorException {
-		String id = this.currentSymbolTable.peek().getNextFreeTemporary();
-		this.currentSymbolTable.peek().putTemporary(id, type);
-		this.usedNames.add(id);
-		this.irCode.add(new QuadrupleImpl(Operator.DECLARE_REFERENCE,
-				Quadruple.EmptyArgument, Quadruple.EmptyArgument, id));
+		this.irCode.add(QuadrupleFactory.declaration(id, type));
 		return id;
 	}
 
