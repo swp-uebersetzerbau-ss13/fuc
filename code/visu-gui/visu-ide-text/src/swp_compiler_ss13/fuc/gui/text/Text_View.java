@@ -1,5 +1,6 @@
 package swp_compiler_ss13.fuc.gui.text;
 
+import java.awt.BorderLayout;
 import java.util.List;
 
 import javax.swing.JComponent;
@@ -40,7 +41,7 @@ public class Text_View implements View {
 	public Text_View(Controller controller, Position position) {
 		this.controller = controller;
 		this.position = position;
-		this.contentPanel = new JPanel();
+		this.contentPanel = new JPanel(new BorderLayout());
 		this.panel = new JScrollPane(this.contentPanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
 				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		area = new JTextPane();

@@ -35,6 +35,7 @@
 		<ant antfile="build.xml" dir="${visu.gui.ide.source.dir}" target="clean" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.gui.ide.text.dir}" target="clean" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.gui.ide.ast.dir}" target="clean" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.gui.ide.ast.sem.dir}" target="clean" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.gui.ide.text.token.dir}" target="clean" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.gui.ide.text.tac.dir}" target="clean" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.gui.ide.text.result.dir}" target="clean" inheritall="false" />
@@ -63,6 +64,7 @@
 		<ant antfile="build.xml" dir="${visu.gui.ide.source.dir}" target="build" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.gui.ide.text.dir}" target="build" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.gui.ide.ast.dir}" target="build" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.gui.ide.ast.sem.dir}" target="build" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.gui.ide.text.token.dir}" target="build" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.gui.ide.text.tac.dir}" target="build" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.gui.ide.text.result.dir}" target="build" inheritall="false" />
@@ -91,6 +93,7 @@
 		<ant antfile="build.xml" dir="${visu.gui.ide.source.dir}" target="doc" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.gui.ide.text.dir}" target="doc" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.gui.ide.ast.dir}" target="doc" inheritall="false" />
+		<ant antfile="build.xml" dir="${visu.gui.ide.ast.sem.dir}" target="doc" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.gui.ide.text.token.dir}" target="doc" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.gui.ide.text.tac.dir}" target="doc" inheritall="false" />
 		<ant antfile="build.xml" dir="${visu.gui.ide.text.result.dir}" target="doc" inheritall="false" />
@@ -260,6 +263,12 @@
 		<!-- create the visu-gui-ide-ast package -->
 		<echo message="swp_compiler_ss13.fuc.gui.ast.AST_Controller" file="${dist.dir}/temp/swp_compiler_ss13.fuc.gui.ide.mvc.Controller" />
 		<jar destfile="${dist.dir}/Fuc-Gui-Ide-Ast.jar" basedir="${visu.gui.ide.ast.dir}/${bin.dir}">
+			<zipfileset dir="${dist.dir}/temp" includes="swp_compiler_ss13.fuc.gui.ide.mvc.Controller" fullpath="META-INF/services/swp_compiler_ss13.fuc.gui.ide.mvc.Controller" />
+		</jar>
+		
+		<!-- create the visu-gui-ide-ast-semantic package -->
+		<echo message="swp_compiler_ss13.fuc.gui.ast.Semantic_Controller" file="${dist.dir}/temp/swp_compiler_ss13.fuc.gui.ide.mvc.Controller" />
+		<jar destfile="${dist.dir}/Fuc-Gui-Ide-Ast-Semantic.jar" basedir="${visu.gui.ide.ast.sem.dir}/${bin.dir}">
 			<zipfileset dir="${dist.dir}/temp" includes="swp_compiler_ss13.fuc.gui.ide.mvc.Controller" fullpath="META-INF/services/swp_compiler_ss13.fuc.gui.ide.mvc.Controller" />
 		</jar>
 

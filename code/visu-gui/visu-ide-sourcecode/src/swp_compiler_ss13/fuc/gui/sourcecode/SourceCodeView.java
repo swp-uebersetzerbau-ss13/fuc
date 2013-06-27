@@ -37,6 +37,7 @@ import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
+import javax.swing.text.PlainDocument;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 
@@ -96,6 +97,7 @@ public class SourceCodeView implements View {
 		sourceCodeField = new JTextPane();
 		sourceCodeField.setEditable(true);
 		sourceCodeField.setEditorKit(new UnderlineStyledEditorKit());
+		sourceCodeField.getDocument().putProperty(PlainDocument.tabSizeAttribute, 4);
 		lineNumberField = new JTextPane();
 		lineNumberField.setText("1");
 		lineNumberField.setEditable(false);
@@ -166,19 +168,19 @@ public class SourceCodeView implements View {
 		loadFile.setActionCommand(FileListener.LOAD_FILE);
 		loadFile.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.META_DOWN_MASK));
 		loadFile.addActionListener(listener);
-		menu.add(loadFile);
-		JMenuItem saveNewFile = new JMenuItem("Save File...");
+		JMenuItem saveNewFile = new JMenuItem("Save File As...");
 		saveNewFile.setActionCommand(FileListener.SAFE_NEW_FILE);
 		saveNewFile.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.META_DOWN_MASK
 				| InputEvent.SHIFT_DOWN_MASK));
 		saveNewFile.addActionListener(listener);
-		menu.add(saveNewFile);
 		JMenuItem saveOldFile = new JMenuItem("Save File");
 		saveOldFile.setActionCommand(FileListener.SAFE_OLD_FILE);
 		saveOldFile
 				.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.META_DOWN_MASK));
 		saveOldFile.addActionListener(listener);
+		menu.add(loadFile);
 		menu.add(saveOldFile);
+		menu.add(saveNewFile);
 		ide.addMenu(menu, Position.SOURCE_CODE, true);
 	}
 

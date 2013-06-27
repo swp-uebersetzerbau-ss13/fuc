@@ -20,10 +20,12 @@ public class AST_View implements View {
 
 	private final AST_Component component;
 	private final AST_Controller controller;
+	private final boolean isChecked;
 
-	public AST_View(AST_Controller controller, boolean isRoot) {
+	public AST_View(AST_Controller controller, boolean isRoot, AstGuiElementFactory nodeComponentFactory,boolean isChecked) {
 		this.controller = controller;
-		component = new AST_Component(controller, isRoot);
+		this.isChecked = isChecked;
+		component = new AST_Component(controller, isRoot,nodeComponentFactory);
 	}
 
 	public AST_View setNode(ASTNode node) {
@@ -49,7 +51,7 @@ public class AST_View implements View {
 
 	@Override
 	public String getName() {
-		return "AST";
+		return getPosition().name();
 	}
 
 	@Override
@@ -59,7 +61,7 @@ public class AST_View implements View {
 
 	@Override
 	public Position getPosition() {
-		return Position.AST;
+		return isChecked ? Position.CHECKED_AST : Position.AST;
 	}
 
 	@Override
