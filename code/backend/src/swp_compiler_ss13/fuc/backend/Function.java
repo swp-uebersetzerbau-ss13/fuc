@@ -58,7 +58,7 @@ public class Function
 		return this.code.toString();
 	}
 
-	private Map<String,Map.Entry<String,List<Long>>> references;
+	private Map<String,Map.Entry<String,List<String>>> references;
 
 	private Map<String,DerivedType> derivedTypes;
 
@@ -73,7 +73,7 @@ public class Function
 	{
 		stringLiterals = new ArrayList<Integer>();
 		variableUseCount = new HashMap<String,Integer>();
-		references = new HashMap<String,Map.Entry<String,List<Long>>>();
+		references = new HashMap<String,Map.Entry<String,List<String>>>();
 		derivedTypes = new HashMap<String,DerivedType>();
 		code = new StringBuffer();
 
@@ -359,17 +359,17 @@ public class Function
 
 	public void addReferenceDerivedGet(Type.Kind derivedType, String derived, String index, String dst) throws BackendException {
 		String src = derived;
-		List<Long> indices = new LinkedList<Long>();
+		List<String> indices = new LinkedList<String>();
 
 		while(references.containsKey(src)) {
-			Map.Entry<String,List<Long>> reference = references.get(src);
+			Map.Entry<String,List<String>> reference = references.get(src);
 			indices.addAll(reference.getValue());
 			src = reference.getKey();
 		}
 
 		switch(derivedType) {
 			case ARRAY:
-				indices.add(Long.valueOf(index.substring(1)));
+				indices.add(index);
 				break;
 			case STRUCT:
 				DerivedType type = derivedTypes.get(src);
@@ -382,7 +382,7 @@ public class Function
 					List<Member> members = ((LLVMBackendStructType) type).getMembers();
 					for(Member m: members) {
 						if(m.getName().equals(index)) {
-							indices.add(Long.valueOf(members.indexOf(m)));
+							indices.add(String.valueOf(members.indexOf(m)));
 							break;
 						}
 					}
@@ -393,7 +393,7 @@ public class Function
 				break;
 		}
 
-		references.put(dst,new AbstractMap.SimpleEntry<String,List<Long>>(src, indices));
+		references.put(dst,new AbstractMap.SimpleEntry<String,List<String>>(src, indices));
 	}
 
 	public void addPrimitiveDerivedSetOrGet(Type.Kind derivedTypeKind,
@@ -402,17 +402,17 @@ public class Function
 	                                        Kind primitiveType,
 	                                        String primitive,
 	                                        boolean set) throws BackendException {
-		List<Long> indices = new LinkedList<Long>();
+		List<String> indices = new LinkedList<String>();
 
 		while(references.containsKey(derived)) {
-			Map.Entry<String,List<Long>> reference = references.get(derived);
+			Map.Entry<String,List<String>> reference = references.get(derived);
 			indices.addAll(reference.getValue());
 			derived = reference.getKey();
 		}
 
 		switch(derivedTypeKind) {
 			case ARRAY:
-				indices.add(Long.valueOf(index.substring(1)));
+				indices.add(index);
 				break;
 			case STRUCT:
 				DerivedType type = derivedTypes.get(derived);
@@ -425,7 +425,7 @@ public class Function
 					List<Member> members = ((LLVMBackendStructType) type).getMembers();
 					for(Member m: members) {
 						if(m.getName().equals(index)) {
-							indices.add(Long.valueOf(members.indexOf(m)));
+							indices.add(String.valueOf(members.indexOf(m)));
 							break;
 						}
 					}
@@ -438,9 +438,12 @@ public class Function
 				throw new BackendException("Unexpected derived type: " + derivedTypeKind.toString());
 		}
 
-		String indexList = "";
-		for(Long i: indices) {
-			indexList += ", " + i.toString();
+		StringBuffer indexList = new StringBuffer();
+		for(String i: indices) {
+			indexList.append(", ");
+			indexList.append(Module.getIRType(Type.Kind.LONG));
+			indexList.append(" ");
+			indexList.append(cdl(i, Type.Kind.LONG));
 		}
 
 		String primitiveIRType = Module.getIRType(primitiveType);
@@ -465,10 +468,9 @@ public class Function
 			String derivedIdentifier = "%" + derived;
 
 			primitive = cdl(primitive, primitiveType);
-			gen(derivedUseIdentifier1 + " = load " + derivedIRType + "* " + derivedIdentifier);
-			gen(derivedUseIdentifier2 + " = insertvalue " + derivedIRType + " " + derivedUseIdentifier1 +
-			    ", " + primitiveIRType + " " + primitive + indexList);
-			gen("store " + derivedIRType + " " + derivedUseIdentifier2 + ", " + derivedIRType + "* " + derivedIdentifier);
+			gen(derivedUseIdentifier1 + " = getelementptr " + derivedIRType + "* " + derivedIdentifier + ", i64 0"
+				+ indexList);
+			gen("store " + primitiveIRType + " " + primitive + ", " + primitiveIRType + "* " + derivedUseIdentifier1);
 		}
 		else {
 			String primitiveUseIdentifier = getUseIdentifierForVariable(primitive);
@@ -476,8 +478,9 @@ public class Function
 			String derivedUseIdentifier = getUseIdentifierForVariable(derived);
 			String derivedIdentifier = "%" + derived;
 
-			gen(derivedUseIdentifier + " = load " + derivedIRType + "* " + derivedIdentifier);
-			gen(primitiveUseIdentifier + " = extractvalue " + derivedIRType + " " + derivedUseIdentifier + indexList);
+			gen(derivedUseIdentifier + " = getelementptr " + derivedIRType + "* " + derivedIdentifier + ", i64 0"
+				+ indexList);
+			gen(primitiveUseIdentifier + " = load " + primitiveIRType + "* " + derivedUseIdentifier);
 			gen("store " + primitiveIRType + " " + primitiveUseIdentifier + ", " + primitiveIRType + "* " + primitiveIdentifier);
 		}
 	}
