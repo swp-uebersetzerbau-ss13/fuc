@@ -42,6 +42,7 @@ public class LRParser {
 	// --- methods
 	// --------------------------------------------------------------
 	// --------------------------------------------------------------------------
+	@SuppressWarnings("incomplete-switch")
 	public AST parse(LexerWrapper lexer, ReportLog reportLog,
 			LRParsingTable table) throws ParserException{
 		Stack<LRParserState> parserStack = new Stack<>();
