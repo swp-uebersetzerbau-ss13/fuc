@@ -68,101 +68,7 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 	/**
 	 * The Log4J Logger
 	 */
-	private static Logger logger = Logger
-			.getLogger(IntermediateCodeGeneratorImpl.class);
-
-	private static String loggerIndent = "";
-
-	/**
-	 * Number of the next free label
-	 */
-	private static long labelNum = 0L;
-
-	/**
-	 * The generated intermediate code
-	 */
-	private WatchedList<Quadruple> irCode;
-
-	private class WatchedList<T> {
-
-		private Logger logger = Logger.getLogger(WatchedList.class);
-
-		private List<T> list;
-
-		public List<T> getInnerList() {
-			return list;
-		}
-
-		public WatchedList() {
-			this.list = new LinkedList<T>();
-		}
-
-		public WatchedList(List<T> list) {
-			this.list = list;
-		}
-
-		public void add(T e) {
-			logger.debug(loggerIndent + "          " + "add " + e);
-			list.add(e);
-		}
-
-		public void addAll(Collection<? extends T> es) {
-			for (T e : es) {
-				logger.debug(loggerIndent + "          " + "add " + e);
-			}
-			list.addAll(es);
-		}
-
-
-	}
-
-	private class WatchedStack<T> {
-
-		private Logger logger = Logger.getLogger(WatchedStack.class);
-
-		private Stack<T> stack;
-
-		public WatchedStack() {
-			this.stack = new Stack<T>();
-		}
-
-		public WatchedStack(Stack<T> stack) {
-			this.stack = stack;
-		}
-
-		public T pop() {
-			T e = stack.pop();
-			logger.debug(loggerIndent + "         " + "pop " + e);
-			return e;
-		}
-
-		public T push(T e) {
-			logger.debug(loggerIndent + "         " + "push " + e);
-			return stack.push(e);
-		}
-
-	}
-
-	/**
-	 * List of used names. This is needed for single static assignment.
-	 */
-	private List<String> usedNames;
-
-	/**
-	 * The stack of symbol tables
-	 */
-	private Stack<SymbolTable> currentSymbolTable;
-
-	/**
-	 * Store for intermediate results
-	 */
-	private WatchedStack<IntermediateResult> intermediateResults;
-
-	/**
-	 * Name of the label to break the current loop
-	 */
-	// FIXME: Needs to be a stack of labels
-	String loopBreakLabel;
+	private static Logger logger = Logger.getLogger(IntermediateCodeGeneratorImpl.class);
 	
 	GeneratorState state;
 
@@ -187,7 +93,7 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 	private Declaration declaration;
 	
 	public IntermediateCodeGeneratorImpl() {
-		state = new GeneratorState();
+		state = new GeneratorState(this);
 		this.assignmentExpression = new AssignmentExpression(state);
 		this.binaryExpression = new BinaryExpression(state);
 		this.identifierExpression = new IdentifierExpression(state);
@@ -208,11 +114,6 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 	private void reset() {
 
 		logger.trace("Resetting the intermediate code generator.");
-
-		this.irCode = new WatchedList<>(new LinkedList<Quadruple>());
-		this.usedNames = new LinkedList<>();
-		this.currentSymbolTable = new Stack<>();
-		this.intermediateResults = new WatchedStack<IntermediateResult>();
 		this.state.reset();
 	}
 
@@ -244,7 +145,7 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 	 * @throws IntermediateCodeGeneratorException
 	 *             An error occurred
 	 */
-	private void callProcessing(ASTNode node)
+	void callProcessing(ASTNode node)
 			throws IntermediateCodeGeneratorException {
 		String oldIndent = loggerIndent;
 		loggerIndent += "  ";
