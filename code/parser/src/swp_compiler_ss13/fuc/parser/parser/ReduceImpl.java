@@ -364,11 +364,11 @@ public class ReduceImpl {
 					
 					node.setCoverage(rightBrace);
 					
-					if(stmtTrue instanceof BlockNode){
-						BlockNode block = (BlockNode)stmtTrue;
-						node.setStatementNodeOnTrue(block);
-						node.setCoverage(block.coverage());
-					}else{
+//					if(stmtTrue instanceof BlockNode){
+//						BlockNode block = (BlockNode)stmtTrue;
+//						node.setStatementNodeOnTrue(block);
+//						node.setCoverage(block.coverage());
+//					}else{
 						if(stmtTrue instanceof StatementNode){
 							StatementNode block = (StatementNode)stmtTrue;
 							node.setStatementNodeOnTrue(block);
@@ -376,15 +376,15 @@ public class ReduceImpl {
 						}else{
 							writeReportError(reportLog, stmtTrue, "Statement or BlockNode");
 						}
-					}
+//					}
 					
 					node.setCoverage(elsee);
 							
-					if(stmtFalse instanceof BlockNode){
-						BlockNode block = (BlockNode)stmtFalse;
-						node.setStatementNodeOnFalse(block);
-						node.setCoverage(block.coverage());
-					}else{
+//					if(stmtFalse instanceof BlockNode){
+//						BlockNode block = (BlockNode)stmtFalse;
+//						node.setStatementNodeOnFalse(block);
+//						node.setCoverage(block.coverage());
+//					}else{
 						if(stmtFalse instanceof StatementNode){
 							StatementNode block = (StatementNode)stmtFalse;
 							node.setStatementNodeOnFalse(block);
@@ -392,7 +392,7 @@ public class ReduceImpl {
 						}else{
 							writeReportError(reportLog, stmtFalse, "Block or Statement");
 						}
-					}
+//					}
 					return node;
 				}
 
@@ -426,14 +426,20 @@ public class ReduceImpl {
 					
 					Object stmt = objs[4];
 					
-					if (stmt instanceof StatementNode){
-						StatementNode loopBody = (StatementNode) stmt;
-						//TODO: whileImpl.setLoopBody(block);
-						whileImpl.setLoopBody(loopBody);
-						whileImpl.setCoverage(loopBody.coverage());
-						loopBody.setParentNode(whileImpl);
-					} else {
-						writeReportError(reportLog, stmt, "Statement");
+					if(stmt instanceof StatementNode){
+						StatementNode block = (StatementNode) stmt;
+						whileImpl.setLoopBody(block);
+						whileImpl.setCoverage(block.coverage());
+						block.setParentNode(whileImpl);
+					}else{
+//						if(stmt instanceof BlockNode){
+//							BlockNode block = (BlockNode) stmt;
+//							whileImpl.setLoopBody(block);
+//							whileImpl.setCoverage(block.coverage());
+//							block.setParentNode(whileImpl);
+//						}
+
+						writeReportError(reportLog, stmt, "Statement or block of statements");
 					}
 					
 					return whileImpl;
@@ -441,7 +447,7 @@ public class ReduceImpl {
 
 			};
 			
-		case "stmt -> do stmt while ( assign )":
+		case "stmt -> do stmt while ( assign ) ;":
 			return new ReduceAction() {
 				@Override
 				public Object create(Object... objs) throws ParserException  {
@@ -455,38 +461,40 @@ public class ReduceImpl {
 					
 					if(stmt instanceof StatementNode){
 						StatementNode block = (StatementNode) stmt;
-						//TODO: whileImpl.setLoopBody(block);
+						whileImpl.setLoopBody(block);
 						whileImpl.setCoverage(block.coverage());
 						block.setParentNode(whileImpl);
 					}else{
-						if(stmt instanceof BlockNode){
-							BlockNode block = (BlockNode) stmt;
-							whileImpl.setLoopBody(block);
-							whileImpl.setCoverage(block.coverage());
-							block.setParentNode(whileImpl);
-						}
-						writeReportError(reportLog, stmt, "Statement");
+//						if(stmt instanceof BlockNode){
+//							BlockNode block = (BlockNode) stmt;
+//							whileImpl.setLoopBody(block);
+//							whileImpl.setCoverage(block.coverage());
+//							block.setParentNode(whileImpl);
+//						}
+						writeReportError(reportLog, stmt, "Statement or Block of Statements");
 					}
 					
-					Token whileToken = (Token)objs[3];
-					Token paraLeft = (Token)objs[4];
+					Token whileToken = (Token)objs[2];
+					Token paraLeft = (Token)objs[3];
 					
 					whileImpl.setCoverage(whileToken,paraLeft);
 
-					Object assign = objs[2];
+					Object cond = objs[4];
 					
-					if(assign instanceof ExpressionNode){
-						ExpressionNode expression = (ExpressionNode) assign;
+					if(cond instanceof ExpressionNode){
+						ExpressionNode expression = (ExpressionNode) cond;
 						whileImpl.setCondition(expression);
 						whileImpl.setCoverage(expression.coverage());
 						expression.setParentNode(whileImpl);
 					}else{
-						writeReportError(reportLog, assign, "Expression");
+						writeReportError(reportLog, cond, "Expression");
 					}
 					
-					Token paraRight = (Token)objs[3];
+					Token paraRight = (Token)objs[5];
 					
-					whileImpl.setCoverage(paraRight);
+					Token sem = (Token)objs[6];
+					
+					whileImpl.setCoverage(paraRight,sem);
 					
 					return whileImpl;
 				}

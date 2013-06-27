@@ -7,9 +7,12 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import swp_compiler_ss13.common.ast.AST;
+import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode.BinaryOperator;
 import swp_compiler_ss13.common.types.primitive.DoubleType;
+import swp_compiler_ss13.common.types.primitive.LongType;
 import swp_compiler_ss13.common.types.primitive.StringType;
 import swp_compiler_ss13.fuc.ast.ASTFactory;
+import swp_compiler_ss13.fuc.parser.errorHandling.ParserASTXMLVisualization;
 import swp_compiler_ss13.fuc.parser.parser.LRParser;
 
 public class M3NewtonTest {
@@ -91,23 +94,73 @@ public class M3NewtonTest {
  		//while loop 
  		//need to proof the correctness of the assignments
  		factory.addWhile(factory.newBasicIdentifier("error >= 0.0001") );
- 		factory.addBlock();
- 		factory.addAssignment(factory.newBasicIdentifier("guess"), factory.newLiteral("((radicand/guess) + guess) / 2.0;", new StringType(4L)));
- 		factory.addAssignment(factory.newBasicIdentifier("error"), factory.newLiteral("guess * guess - radicand; ", new StringType(4L)));
- 		factory.addBranch(factory.newBasicIdentifier("error < 0"));
- 		factory.addBlock();
- 		factory.addAssignment(factory.newBasicIdentifier("error"), factory.newLiteral("error * -1", new StringType(4L)));
- 		 
+ 		
+ 		factory.addWhile(
+        		factory.newBinaryExpression(
+        				BinaryOperator.GREATERTHANEQUAL,
+        				factory.newBasicIdentifier("error"),
+        				factory.newLiteral(" 0.0001", new LongType()))
+        				);
+        		factory.addAssignment(        				 
+          				factory.newBasicIdentifier("guess"),
+          				(          						
+          				factory.newBinaryExpression(
+								BinaryOperator.ADDITION,
+          				(factory.newBinaryExpression
+          						(
+								BinaryOperator.DIVISION,
+								factory.newBasicIdentifier("radicand"),
+								factory.newBasicIdentifier("guess"))
+								),
+								factory.newBasicIdentifier("guess"))							
+        				));
+ 				// another assignment
+        				factory.addAssignment(  
+        						factory.newBasicIdentifier("error"),
+        						(          						
+        		          				factory.newBinaryExpression(
+        										BinaryOperator.MULTIPLICATION,
+        										factory.newBasicIdentifier("guess"),
+        											(factory.newBinaryExpression
+        													(
+        															BinaryOperator.SUBSTRACTION,
+        															factory.newBasicIdentifier("gues"),
+        															factory.newBasicIdentifier("radicand"))
+        													)
+        		          							)							
+        		        		)
+        		        		);
+        					 
+        		// if statement
+        				factory.addBranch(
+        						factory.newBinaryExpression(
+        		        				BinaryOperator.LESSTHAN,
+        		        				factory.newBasicIdentifier("error"),
+        		        				factory.newLiteral("0", new LongType()))
+        						);
+        				
+        				factory.addAssignment(factory.newBasicIdentifier("error"), 
+        						factory.newBinaryExpression(
+        		        				BinaryOperator.MULTIPLICATION,
+        		        				factory.newBasicIdentifier("error"),
+        		        				factory.newLiteral("-1", new LongType())
+        						
+        						
+        						));
+        	 				 
+		factory.goToParent();
+ 		
  		//print
  		factory.addPrint(factory.newBasicIdentifier("res"));
  		factory.addPrint(factory.newBasicIdentifier("guess"));
  		factory.addReturn(null);
 		
 		 
-		
- 
-		
-		AST expected = factory.getAST();
+ 		ParserASTXMLVisualization vis = new ParserASTXMLVisualization();
+ 		vis.visualizeAST(ast);
+ 		
+ 		AST expected = factory.getAST();
+ 		vis.visualizeAST(expected);
 		ASTComparator.compareAST(expected, ast);
 	}
 }
