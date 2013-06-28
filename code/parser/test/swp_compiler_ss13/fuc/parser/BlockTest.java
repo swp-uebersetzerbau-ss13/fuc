@@ -2,6 +2,7 @@ package swp_compiler_ss13.fuc.parser;
 
 import static swp_compiler_ss13.fuc.parser.parser.LRParser.STRING_LENGTH;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import swp_compiler_ss13.common.ast.AST;
@@ -12,6 +13,7 @@ import swp_compiler_ss13.common.types.primitive.StringType;
 import swp_compiler_ss13.fuc.ast.ASTFactory;
 
 public class BlockTest {
+	
 	@Test
 	public void testIfElseBlocks() {
 		String input = "bool b;\n"
@@ -78,6 +80,7 @@ public class BlockTest {
 		ASTComparator.compareAST(expected, ast);
 	}
 	
+	@Ignore
 	@Test
 	public void testMultipleReturn() {
 		String input ="long i;\n" +

@@ -11,6 +11,7 @@ import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.retur
 import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.sem;
 
 import org.apache.log4j.BasicConfigurator;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import swp_compiler_ss13.common.ast.AST;
@@ -55,6 +56,7 @@ public class M2PrintTest {
 		checkAst(ast);
 	}
 
+	@Ignore
 	@Test
 	public void testPrintOrgLexer() throws Exception {
 		String input = "# return 0\n"
