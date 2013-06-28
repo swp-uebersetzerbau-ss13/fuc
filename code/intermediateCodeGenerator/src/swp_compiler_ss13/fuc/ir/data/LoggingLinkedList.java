@@ -4,8 +4,6 @@ import java.util.LinkedList;
 
 import org.apache.log4j.Logger;
 
-import swp_compiler_ss13.common.backend.Quadruple;
-
 /**
  * A normal linked list extended to log calls to the add-method with Log4J.
  * 
@@ -13,8 +11,10 @@ import swp_compiler_ss13.common.backend.Quadruple;
  * @author "Danny Maasch"
  * @author kaworu
  * @version 3
+ * @param <E>
+ *            The class of the list elements
  */
-public class LoggingQuadrupleLinkedList extends LinkedList<Quadruple> {
+public class LoggingLinkedList<E> extends LinkedList<E> {
 
 	/**
 	 * The serial version UID of this class.
@@ -24,18 +24,18 @@ public class LoggingQuadrupleLinkedList extends LinkedList<Quadruple> {
 	/**
 	 * The logger to log the information to.
 	 */
-	private static Logger logger = Logger.getLogger(LoggingQuadrupleLinkedList.class);
+	private static Logger logger = Logger.getLogger(LoggingLinkedList.class);
 
 	/**
 	 * Create a new instance of the LogigngList class.
 	 */
-	public LoggingQuadrupleLinkedList() {
+	public LoggingLinkedList() {
 		super();
 	}
 
 	@Override
-	public boolean add(Quadruple quadruple) {
-		logger.debug("Adding Quadruple: " + quadruple.toString());
-		return super.add(quadruple);
+	public boolean add(E item) {
+		LoggingLinkedList.logger.debug("Adding " + item.toString());
+		return super.add(item);
 	}
 }

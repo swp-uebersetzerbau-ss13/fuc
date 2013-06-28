@@ -20,11 +20,9 @@ import swp_compiler_ss13.fuc.ir.test.ms2.PrintTest;
  * @version 1
  */
 @RunWith(Suite.class)
-@SuiteClasses({ AddProgTest.class, SimpleAddTest.class, SimpleMulTest.class,
-		ParanthesesTest.class, CastingFactoryTest.class, ArrayTest.class,
-		AssignmentProgTest.class, CondTest.class, IdentifierShadowTest.class,
-		CastingTest.class, PrintTest.class, UnaryMinusTest.class,
-		DoubleOperatorTest.class, RelationTest.class, ExceptioTest.class,
-		BooleanTest.class })
+@SuiteClasses({ AddProgTest.class, SimpleAddTest.class, SimpleMulTest.class, ParanthesesTest.class,
+		ArrayTest.class, AssignmentProgTest.class, CondTest.class, IdentifierShadowTest.class,
+		CastingTest.class, PrintTest.class, UnaryMinusTest.class, DoubleOperatorTest.class,
+		RelationTest.class, ExceptioTest.class, BooleanTest.class })
 public class TestSuite {
 }
