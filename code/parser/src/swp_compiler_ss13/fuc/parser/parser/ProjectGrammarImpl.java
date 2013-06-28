@@ -50,7 +50,6 @@ import swp_compiler_ss13.fuc.ast.RelationExpressionNodeImpl;
 import swp_compiler_ss13.fuc.ast.ReturnNodeImpl;
 import swp_compiler_ss13.fuc.ast.StructIdentifierNodeImpl;
 import swp_compiler_ss13.fuc.ast.WhileNodeImpl;
-import swp_compiler_ss13.fuc.lexer.token.TokenImpl;
 import swp_compiler_ss13.fuc.parser.grammar.Production;
 import swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar;
 import swp_compiler_ss13.fuc.parser.grammar.Terminal;
@@ -1042,8 +1041,8 @@ public class ProjectGrammarImpl implements IGrammarImpl {
 			log.debug("Found possible next terminal: " + ProjectGrammar.Complete.sem);
 			
 			// Modify token stream
-			TokenEx newToken = new TokenEx(new TokenImpl(";", TokenType.SEMICOLON, lastToken.getLine(),
-					lastToken.getColumn() + 1), ProjectGrammar.Complete.sem);
+			TokenEx newToken = new TokenEx(";", TokenType.SEMICOLON, lastToken.getLine(),
+					lastToken.getColumn() + 1, ProjectGrammar.Complete.sem);
 			log.debug("Error recovery inserted " + newToken + " before " + curToken + ", lets see if this works...");
 			
 			reportLog.reportWarning(ReportType.UNDEFINED, Arrays.<Token>asList(curToken),

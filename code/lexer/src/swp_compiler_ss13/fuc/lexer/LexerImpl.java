@@ -249,8 +249,8 @@ public class LexerImpl implements Lexer {
 					int indexOfNextSeparator = matchNextSeparator.start();
 					int endOfNextSeparator = matchNextSeparator.end();
 
-					System.out.println("End: " + endOfNextSeparator
-							+ ", start: " + indexOfNextSeparator);
+//					System.out.println("End: " + endOfNextSeparator
+//							+ ", start: " + indexOfNextSeparator);
 
 					/*
 					 * check if the next separator character is to match as

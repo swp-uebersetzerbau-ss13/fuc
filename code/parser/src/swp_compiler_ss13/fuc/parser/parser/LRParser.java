@@ -16,7 +16,6 @@ import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.common.report.ReportLog;
 import swp_compiler_ss13.common.report.ReportType;
 import swp_compiler_ss13.fuc.ast.ASTImpl;
-import swp_compiler_ss13.fuc.lexer.token.TokenImpl;
 import swp_compiler_ss13.fuc.parser.grammar.Production;
 import swp_compiler_ss13.fuc.parser.grammar.Terminal;
 import swp_compiler_ss13.fuc.parser.grammar.TokenEx;
@@ -39,7 +38,7 @@ public class LRParser {
 	
 	/** Used to store Tokens that are (re-)inserted into the token stream */
 	private final LinkedList<TokenEx> errorTokenStream = new LinkedList<>();
-	private TokenEx lastToken = new TokenEx(new TokenImpl("", TokenType.NOT_A_TOKEN, 0, 0), null);
+	private TokenEx lastToken = new TokenEx("", TokenType.NOT_A_TOKEN, 0, 0, null);
 
 	// --------------------------------------------------------------------------
 	// --- constructors
