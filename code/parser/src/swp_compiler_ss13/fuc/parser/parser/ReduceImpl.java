@@ -855,8 +855,6 @@ public class ReduceImpl {
 					StructType type = new StructType("record", members);
 					struct.setType(type);
 					
-					struct.setCoverage(block.coverage());
-					
 					Token rcb = unpack(objs[3], Token.class);
 					
 					struct.setCoverage(rcb);
@@ -940,13 +938,22 @@ public class ReduceImpl {
 						((SymbolTableImpl)node.getSymbolTable()).setParent(newBlock.getSymbolTable());
 					}					
 				} else {
-					if (stmt instanceof BlockNode){
-						((SymbolTableImpl)((BlockNode)stmt).getSymbolTable()).setParent(newBlock.getSymbolTable());
-					} else if (stmt instanceof LoopNode) {
-						StatementNode childStmt = ((LoopNode)stmt).getLoopBody();
-						if (childStmt instanceof BlockNode) {
-							BlockNode block = (BlockNode) childStmt;
-							((SymbolTableImpl)block.getSymbolTable()).setParent(newBlock.getSymbolTable());
+					if (stmt instanceof LoopNode){
+						LoopNode loop = (LoopNode)stmt;
+						StatementNode loopBody = loop.getLoopBody();
+						if(loopBody instanceof BlockNode){
+							BlockNode node = (BlockNode) loopBody;
+							((SymbolTableImpl)node.getSymbolTable()).setParent(newBlock.getSymbolTable());
+						}
+					} else {
+						if (stmt instanceof BlockNode){
+							((SymbolTableImpl)((BlockNode)stmt).getSymbolTable()).setParent(newBlock.getSymbolTable());
+						} else if (stmt instanceof LoopNode) {
+							StatementNode childStmt = ((LoopNode)stmt).getLoopBody();
+							if (childStmt instanceof BlockNode) {
+								BlockNode block = (BlockNode) childStmt;
+								((SymbolTableImpl)block.getSymbolTable()).setParent(newBlock.getSymbolTable());
+							}
 						}
 					}
 				}
