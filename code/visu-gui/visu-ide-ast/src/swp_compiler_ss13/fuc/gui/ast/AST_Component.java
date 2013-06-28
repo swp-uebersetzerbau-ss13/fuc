@@ -1,6 +1,5 @@
 package swp_compiler_ss13.fuc.gui.ast;
 
-import java.awt.Container;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -38,9 +37,13 @@ public class AST_Component {
 
 	private final boolean isRoot;
 
-	public AST_Component(AST_Controller controller, boolean isRoot) {
+	private final AstGuiElementFactory nodeComponentFactory;
+
+	public AST_Component(AST_Controller controller, boolean isRoot,
+			AstGuiElementFactory nodeComponentFactory) {
 		this.controller = controller;
 		this.isRoot = isRoot;
+		this.nodeComponentFactory = nodeComponentFactory;
 		astChildren = new LinkedList<>();
 		wrapper = new JLayeredPane();
 		component = isRoot ? new JScrollPane(wrapper) : wrapper;
@@ -54,7 +57,7 @@ public class AST_Component {
 	public void setNode(ASTNode node) {
 		wrapper.removeAll();
 		if (node != null) {
-			nodeComponent = new NodeComponent(node);
+			nodeComponent = nodeComponentFactory.getNodeComponent(node);
 			JComponent label = nodeComponent.getComponent();
 			label.setToolTipText(node.getNodeType().name());
 			wrapper.add(label, AST_LayoutManager.BUTTON, BUTTON_LAYER);

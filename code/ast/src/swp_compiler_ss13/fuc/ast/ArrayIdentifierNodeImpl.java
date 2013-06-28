@@ -61,6 +61,7 @@ public class ArrayIdentifierNodeImpl extends ASTNodeImpl implements ArrayIdentif
 			logger.error("The given index can not be null");
 			throw new IllegalArgumentException("The given index can not be null");
 		}
+
 		this.index = index;
 	}
 
@@ -88,5 +89,6 @@ public class ArrayIdentifierNodeImpl extends ASTNodeImpl implements ArrayIdentif
 		}
 		return this.identifier;
 	}
+
 
 }

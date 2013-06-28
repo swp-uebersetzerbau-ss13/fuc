@@ -1,6 +1,7 @@
 package swp_compiler_ss13.fuc.ast;
 
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +22,7 @@ public abstract class ASTNodeImpl implements ASTNode {
 	 */
 	private ASTNode parent;
 
-	private Map<Object, Object> attributes;
+	private Map<Object, Object> attributes = new LinkedHashMap<>();
 
 	/**
 	 * coverage List
@@ -83,6 +84,7 @@ public abstract class ASTNodeImpl implements ASTNode {
 			this.coverage.add(0, token[i]);
 		}
 	}
+
 
 	/**
 	 * {@inheritDoc}

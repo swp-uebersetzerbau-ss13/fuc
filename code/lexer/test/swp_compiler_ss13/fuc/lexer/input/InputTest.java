@@ -38,13 +38,13 @@ public class InputTest {
 	 * Test for reading an {@link InputStream} and convert it into a
 	 * {@link ArrayList} of {@link String} for each line
 	 */
-	@SuppressWarnings("unchecked")
 	@Test
 	public void convertInputStreamInStringArrayForLinesTest() {
 		ArrayList<String> expectedInputStream = new ArrayList<>();
 		expectedInputStream.add(" test1 test2 ");
 		expectedInputStream.add("test3");
 
+		@SuppressWarnings("unchecked")
 		ArrayList<String> convertedInputStream = (ArrayList<String>) PA
 				.getValue(this.lexer, "convertedLines");
 
@@ -111,6 +111,7 @@ public class InputTest {
 	 * Test for read an empty input
 	 * 
 	 * @throws UnsupportedEncodingException
+	 *             : UTF-8 encoding not supported
 	 */
 	@Test
 	public void readEmptyInputTest() throws UnsupportedEncodingException {

@@ -56,7 +56,6 @@ public class TextGUITacVisualizationModel extends Text_Model {
 			case ASSIGN_STRING:
 				wrapper = DefaultColorWrapper.GREEN;
 				break;
-			case ARRAY_GET_ARRAY:
 			case ARRAY_GET_BOOLEAN:
 			case ARRAY_GET_DOUBLE:
 			case ARRAY_GET_LONG:
@@ -64,7 +63,6 @@ public class TextGUITacVisualizationModel extends Text_Model {
 			case ARRAY_GET_STRING:
 				wrapper = DefaultColorWrapper.ORANGE;
 				break;
-			case ARRAY_SET_ARRAY:
 			case ARRAY_SET_BOOLEAN:
 			case ARRAY_SET_DOUBLE:
 			case ARRAY_SET_LONG:
@@ -89,9 +87,6 @@ public class TextGUITacVisualizationModel extends Text_Model {
 			case LONG_TO_DOUBLE:
 				wrapper = DefaultColorWrapper.GRAY;
 				break;
-			case PRINT_BOOLEAN:
-			case PRINT_DOUBLE:
-			case PRINT_LONG:
 			case PRINT_STRING:
 			default:
 				wrapper = DefaultColorWrapper.BLACK;

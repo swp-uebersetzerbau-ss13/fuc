@@ -20,7 +20,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -99,7 +98,8 @@ public class PrintProgTest {
 			new TokenImpl(";", TokenType.SEMICOLON, 17, 16),
 			new TokenImpl("d", TokenType.ID, 18, 1),
 			new TokenImpl("=", TokenType.ASSIGNOP, 18, 3),
-			new TokenImpl("-23.23e-100", TokenType.REAL, 18, 5),
+			new TokenImpl("-", TokenType.MINUS, 18, 5),
+			new TokenImpl("23.23e-100", TokenType.REAL, 19, 5),
 			new TokenImpl(";", TokenType.SEMICOLON, 18, 16),
 			new TokenImpl("s", TokenType.ID, 19, 1),
 			new TokenImpl("=", TokenType.ASSIGNOP, 19, 3),

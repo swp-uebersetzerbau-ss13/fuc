@@ -35,9 +35,6 @@ public class Error_Multiple_Minus_E_NotationProgTest {
 	private LexerImpl lexer;
 	private ArrayList<Token> list;
 
-	/**
-	 * @throws java.lang.Exception
-	 */
 	@Before
 	public void setUp() throws Exception {
 		this.stream = new ByteArrayInputStream(prog.getBytes());

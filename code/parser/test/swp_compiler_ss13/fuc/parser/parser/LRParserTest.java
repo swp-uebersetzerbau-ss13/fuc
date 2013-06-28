@@ -8,11 +8,18 @@ import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.assig
 import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.returnn;
 import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.sem;
 
+import java.util.Arrays;
+
 import org.junit.Test;
 
 import swp_compiler_ss13.common.lexer.Lexer;
+import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
+import swp_compiler_ss13.common.report.ReportType;
+import swp_compiler_ss13.fuc.errorLog.LogEntry;
 import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
+import swp_compiler_ss13.fuc.errorLog.LogEntry.Type;
+import swp_compiler_ss13.fuc.lexer.token.TokenImpl;
 import swp_compiler_ss13.fuc.parser.GrammarTestHelper;
 import swp_compiler_ss13.fuc.parser.TestLexer;
 import swp_compiler_ss13.fuc.parser.grammar.Terminal;
@@ -33,5 +40,56 @@ public class LRParserTest {
 		} catch (ParserException err) {
 			// TODO PE: NO_RULE_FOR_THIS_TERMINAL
 		}
+	}
+	
+	@Test
+	public void testError() {
+		String input = "long l;\n"
+				+ "l = 1;\n"
+				+ "retunl;\n";
+		
+		ReportLogImpl reportLog = new ReportLogImpl();
+		try {
+			GrammarTestHelper.parseToAst(input, reportLog);
+			fail("Expected ParserException!");
+		} catch (ParserException err) {
+			LogEntry entry = new LogEntry(Type.ERROR, ReportType.UNDEFINED, Arrays.<Token>asList(new TokenImpl("retunl", TokenType.ID, 3, 1)), "");
+			GrammarTestHelper.compareReportLogEntries(Arrays.asList(entry), reportLog.getErrors());
+		}
+	}
+	
+	@Test
+	public void testErrorRecoveryMissingSemicolon() {
+		String input = "long l;\n"
+				+ "l = 1\n"
+				+ "return l;\n";
+		
+		ReportLogImpl reportLog = new ReportLogImpl();
+		GrammarTestHelper.parseToAst(input, reportLog);
+		
+		LogEntry entry = new LogEntry(Type.WARNNING, ReportType.UNDEFINED, Arrays.<Token>asList(new TokenImpl("return", TokenType.RETURN, 3, 1)), "");
+		GrammarTestHelper.compareReportLogEntries(Arrays.asList(entry), reportLog.getEntries());
+	}
+	
+	@Test
+	public void testErrorRecoveryMissingSemicolonFail() {
+		String input = "long l;\n"
+				+ "l = 1\n"
+				+ "retunl\n"
+				+ "return l;\n";
+		
+		ReportLogImpl reportLog = new ReportLogImpl();
+		try {
+			GrammarTestHelper.parseToAst(input, reportLog);
+			fail("Expected ParserException!");
+		} catch (ParserException err) {
+			
+		}
+		
+		Token retunl = new TokenImpl("retunl", TokenType.ID, 3, 1);
+		LogEntry entry0 = new LogEntry(Type.WARNNING, ReportType.UNDEFINED, Arrays.<Token>asList(retunl), "");
+		LogEntry entry1 = new LogEntry(Type.WARNNING, ReportType.UNDEFINED, Arrays.<Token>asList(new TokenImpl("return", TokenType.RETURN, 4, 1)), "");
+		LogEntry entry2 = new LogEntry(Type.ERROR, ReportType.UNDEFINED, Arrays.<Token>asList(retunl), "");
+		GrammarTestHelper.compareReportLogEntries(Arrays.asList(entry0, entry1, entry2), reportLog.getEntries());
 	}
 }

@@ -9,7 +9,9 @@ import swp_compiler_ss13.fuc.parser.util.It;
 
 /**
  * Consists of a {@link LRActionTable} and a {@link LRGotoTable}. First state is
- * the start state!!!
+ * the start state!!! Also holds the association (abstract)
+ * {@link LRParserState} -> (generator) {@link AState} for debugging and testing
+ * purposes ({@link #states}).
  */
 public class LRParsingTable {
 	// --------------------------------------------------------------------------

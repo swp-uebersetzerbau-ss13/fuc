@@ -1,6 +1,8 @@
 package swp_compiler_ss13.fuc.parser.generator;
 
-import java.util.HashMap;
+import static swp_compiler_ss13.fuc.parser.parser.tables.actions.ALRAction.ELRActionType.REDUCE;
+import static swp_compiler_ss13.fuc.parser.parser.tables.actions.ALRAction.ELRActionType.SHIFT;
+
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -21,7 +23,6 @@ import swp_compiler_ss13.fuc.parser.parser.tables.DoubleEntryException;
 import swp_compiler_ss13.fuc.parser.parser.tables.LRActionTable;
 import swp_compiler_ss13.fuc.parser.parser.tables.LRParsingTable;
 import swp_compiler_ss13.fuc.parser.parser.tables.actions.ALRAction;
-import static swp_compiler_ss13.fuc.parser.parser.tables.actions.ALRAction.ELRActionType.*;
 import swp_compiler_ss13.fuc.parser.parser.tables.actions.Accept;
 import swp_compiler_ss13.fuc.parser.parser.tables.actions.Reduce;
 import swp_compiler_ss13.fuc.parser.parser.tables.actions.Shift;
@@ -48,6 +49,11 @@ public abstract class ALRGenerator<I extends Item, S extends ALRState<I>> {
 	// --- constructors
 	// ---------------------------------------------------------
 	// --------------------------------------------------------------------------
+	/**
+	 * @see ALRGenerator
+	 * @param grammar
+	 * @throws GeneratorException
+	 */
 	public ALRGenerator(Grammar grammar) throws GeneratorException {
 		// Compute NULLABLE, FIRST and FOLLOW sets
 		grammar = grammar.extendByAuxStartProduction();
@@ -58,7 +64,7 @@ public abstract class ALRGenerator<I extends Item, S extends ALRState<I>> {
 		S startState = dfa.getStartState();
 
 		// Create a supportive mapping between generator state -> parser state
-		Map<S, LRParserState> statesMap = new HashMap<>();
+		Map<S, LRParserState> statesMap = new LinkedHashMap<>();
 		// Gets stored for debug/testing in the table!
 		LinkedHashMap<LRParserState, AState<?>> parserStatesMap = new LinkedHashMap<>();
 		LRParserState parserStartState = new LRParserState(0);
@@ -90,7 +96,8 @@ public abstract class ALRGenerator<I extends Item, S extends ALRState<I>> {
 				} else {
 					// SHIFT
 					LRParserState dstState = statesMap.get(edge.getDst());
-					table.getActionTable().set(new Shift(dstState), src, terminal);
+					table.getActionTable().set(new Shift(dstState), src,
+							terminal);
 				}
 			} else {
 				// NonTerminal
@@ -107,8 +114,7 @@ public abstract class ALRGenerator<I extends Item, S extends ALRState<I>> {
 			for (I item : state.getItems()) {
 				if (item.isComplete()) {
 					LRParserState fromState = statesMap.get(kernel);
-					createReduceAction(table.getActionTable(), item,
-								fromState);
+					createReduceAction(table.getActionTable(), item, fromState);
 				}
 			}
 		}
@@ -167,7 +173,14 @@ public abstract class ALRGenerator<I extends Item, S extends ALRState<I>> {
 	// --- methods
 	// --------------------------------------------------------------
 	// --------------------------------------------------------------------------
-	public Dfa<I, S> createDFA() {
+	/**
+	 * Based on the {@link Grammar} of this generator, this method creates
+	 * deterministic finite automaton that reflects the states and the possible
+	 * states this grammar represents.
+	 * 
+	 * @return
+	 */
+	Dfa<I, S> createDFA() {
 		// Init
 		S startState = createStartState();
 		Dfa<I, S> dfa = createLrDFA(startState);
