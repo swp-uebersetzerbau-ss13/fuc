@@ -35,6 +35,7 @@ import swp_compiler_ss13.common.types.primitive.StringType;
 import swp_compiler_ss13.fuc.ast.ArrayIdentifierNodeImpl;
 import swp_compiler_ss13.fuc.ast.RelationExpressionNodeImpl;
 import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
+import swp_compiler_ss13.fuc.parser.parser.ReduceAction.ReduceException;
 
 public class ReduceImplTest extends ReduceImplHelper {
 	
@@ -100,10 +101,10 @@ public class ReduceImplTest extends ReduceImplHelper {
 		checkCoverage(declaration.coverage());
 	}
 	
-	@Test (expected = ParserException.class)
+	@Test (expected = ReduceException.class)
 	public void testBasicTypeFailDouble(){
 		Object obj = getIdentifier("blub");
-		Object decl = getDecl(obj, "var");
+		getDecl(obj, "var");
 	}
 	
 	@Test
@@ -124,7 +125,7 @@ public class ReduceImplTest extends ReduceImplHelper {
 	@Test (expected = ParserException.class)
 	public void testWrongTypeReduce(){
 
-		Object obj = getBasicDecl("double", TokenType.PLUS);
+		getBasicDecl("double", TokenType.PLUS);
 	}
 
 	

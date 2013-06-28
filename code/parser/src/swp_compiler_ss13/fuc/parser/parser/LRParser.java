@@ -1,6 +1,7 @@
 package swp_compiler_ss13.fuc.parser.parser;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
@@ -8,6 +9,7 @@ import java.util.Stack;
 import org.apache.log4j.Logger;
 
 import swp_compiler_ss13.common.ast.AST;
+import swp_compiler_ss13.common.ast.ASTNode;
 import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
 import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
@@ -17,6 +19,7 @@ import swp_compiler_ss13.fuc.ast.ASTImpl;
 import swp_compiler_ss13.fuc.parser.grammar.Production;
 import swp_compiler_ss13.fuc.parser.grammar.Terminal;
 import swp_compiler_ss13.fuc.parser.grammar.TokenEx;
+import swp_compiler_ss13.fuc.parser.parser.ReduceAction.ReduceException;
 import swp_compiler_ss13.fuc.parser.parser.states.LRParserState;
 import swp_compiler_ss13.fuc.parser.parser.tables.LRParsingTable;
 import swp_compiler_ss13.fuc.parser.parser.tables.actions.ALRAction;
@@ -115,6 +118,7 @@ public class LRParser {
 				// get action for reduced production
 				Production prod = reduce.getProduction();
 				log.debug(reduce.toString());
+				
 				ReduceAction reduceAction = reduceImpl.getReduceAction(prod);
 
 				// If there is anything to do on the value stack
@@ -128,8 +132,18 @@ public class LRParser {
 						valueHandle.addFirst(valueStack.pop());
 					}
 					
-					// Execute reduceAction and push onto the stack
-					Object newValue = reduceAction.create(arr(valueHandle));
+					// (Safely) execute reduceAction and push onto the stack
+					Object newValue = null;
+					try {
+						newValue = reduceAction.create(arr(valueHandle));
+					} catch (ReduceException err) {
+						writeReportError(reportLog, reduce, err);
+						throw new ParserException("An error occured during " + reduce + ": ", err);
+					} catch (ParserException err) {
+						throw err;	// Re-Throw
+					} catch (Exception err) {
+						throw new ParserException("An error occured during " + reduce + ": ", err);
+					}
 										
 					if (newValue == null) {
 						log.error("Error occurred! newValue is null");
@@ -175,6 +189,32 @@ public class LRParser {
 			}
 			}
 		}
+	}
+	
+
+	
+	/**
+	 * Gets ReportLog, the Object, thats made some trouble and the message whats expected instead
+	 * 
+	 * @param reportLog
+	 * @param reduce
+	 * @param err
+	 */
+	private void writeReportError(ReportLog reportLog, Reduce reduce, ReduceException err) {
+		Object obj = err.getObj();
+		Class<?> clazz = err.getClazz();
+		String objStr = obj == null ? "<null>" : obj.getClass().getSimpleName();
+		
+		List<Token> tokens = null;
+		if (obj instanceof ASTNode){
+			ASTNode node = (ASTNode) obj;
+			tokens = node.coverage();
+		} else if (obj instanceof Token){
+			tokens = Arrays.asList((Token) obj);
+		}
+		
+		reportLog.reportError(ReportType.UNDEFINED, tokens, "Expected an instance of " +
+				clazz.getSimpleName() + " during " + reduce + ", but got " + objStr + " instead!");
 	}
 
 	private static Object[] arr(List<Object> objs) {

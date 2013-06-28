@@ -1,19 +1,25 @@
 package swp_compiler_ss13.fuc.parser;
 
+import static org.junit.Assert.fail;
 import static swp_compiler_ss13.fuc.parser.parser.LRParser.STRING_LENGTH;
+
+import java.util.Arrays;
 
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-
 import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.ast.nodes.ternary.BranchNode;
-import swp_compiler_ss13.common.report.ReportLog;
+import swp_compiler_ss13.common.lexer.Token;
+import swp_compiler_ss13.common.lexer.TokenType;
+import swp_compiler_ss13.common.report.ReportType;
 import swp_compiler_ss13.common.types.primitive.BooleanType;
 import swp_compiler_ss13.common.types.primitive.LongType;
 import swp_compiler_ss13.common.types.primitive.StringType;
 import swp_compiler_ss13.fuc.ast.ASTFactory;
+import swp_compiler_ss13.fuc.errorLog.LogEntry;
+import swp_compiler_ss13.fuc.errorLog.LogEntry.Type;
 import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
+import swp_compiler_ss13.fuc.lexer.token.TokenImpl;
 import swp_compiler_ss13.fuc.parser.parser.LRParser;
 import swp_compiler_ss13.fuc.parser.parser.ParserException;
 
@@ -78,12 +84,13 @@ public class StringIOTest {
 				+ "l = 1;\n"
 				+ "retunl;\n";
 		
-		ReportLog reportLog = new ReportLogImpl();
+		ReportLogImpl reportLog = new ReportLogImpl();
 		try {
 			GrammarTestHelper.parseToAst(input, reportLog);
 			fail("Expected ParserException!");
 		} catch (ParserException err) {
-			System.out.println(err.getMessage());
+			LogEntry entry = new LogEntry(Type.ERROR, ReportType.UNDEFINED, Arrays.<Token>asList(new TokenImpl("retunl", TokenType.ID, 3, 1)), "");
+			GrammarTestHelper.compareReportLogEntries(Arrays.asList(entry), reportLog.getErrors());
 		}
 	}
 }

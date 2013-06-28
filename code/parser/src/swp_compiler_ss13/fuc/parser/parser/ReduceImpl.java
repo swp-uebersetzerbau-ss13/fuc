@@ -1,12 +1,8 @@
 package swp_compiler_ss13.fuc.parser.parser;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
-
-import swp_compiler_ss13.common.ast.ASTNode;
 import swp_compiler_ss13.common.ast.nodes.ExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.IdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.StatementNode;
@@ -50,18 +46,16 @@ import swp_compiler_ss13.fuc.ast.ReturnNodeImpl;
 import swp_compiler_ss13.fuc.ast.StructIdentifierNodeImpl;
 import swp_compiler_ss13.fuc.ast.WhileNodeImpl;
 import swp_compiler_ss13.fuc.parser.grammar.Production;
+import swp_compiler_ss13.fuc.parser.parser.ReduceAction.ReduceException;
+import swp_compiler_ss13.fuc.parser.parser.tables.actions.Reduce;
 import swp_compiler_ss13.fuc.symbolTable.SymbolTableImpl;
 
 public class ReduceImpl {
-	
-	
 	// --------------------------------------------------------------------------
 	// --- variables and constants
 	// ----------------------------------------------
 	// --------------------------------------------------------------------------
 	private static final Object NO_VALUE = new String("NoValue");
-
-	private static final Logger log = Logger.getLogger(ReduceImpl.class);
 	
 	private ReportLog reportLog = null;
 
@@ -74,10 +68,8 @@ public class ReduceImpl {
 	}
 	
 	/**
-	 * Defines a ReduceAction for every rule in the Grammar
-	 * @param prod 
-	 * @param reportLog
-	 * @return
+	 * @param prod The {@link Production} which should be performed reduced
+	 * @return The {@link ReduceAction} for the given {@link Reduce}
 	 */
 	public ReduceAction getReduceAction(Production prod) {
 		switch (prod.getStringRep()) {
@@ -85,11 +77,11 @@ public class ReduceImpl {
 		case "program -> decls stmts":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) throws ParserException  {
+				public Object create(Object... objs) throws ReduceException  {
 					Object left = objs[0]; // Should be NO_VALUE or BlockNode
 					Object right = objs[1]; // Should be NO_VALUE or BlockNode
 
-					BlockNodeImpl block = joinBlocks(left, right, reportLog);
+					BlockNodeImpl block = joinBlocks(left, right);
 
 					return block;
 				}
@@ -98,16 +90,16 @@ public class ReduceImpl {
 		case "block -> { decls stmts }":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) throws ParserException  {
+				public Object create(Object... objs) throws ReduceException  {
 					Object left = objs[1]; // Should be NO_VALUE or BlockNode
 					Object right = objs[2]; // Should be NO_VALUE or BlockNode
 					
-					BlockNodeImpl block = joinBlocks(left, right, reportLog);
+					BlockNodeImpl block = joinBlocks(left, right);
 					
-					Token leftBranch = (Token)objs[0];
+					Token leftBranch = unpack(objs[0], Token.class);
 					block.setCoverageAtFront(leftBranch);
 									
-					Token rightBranch = (Token)objs[3];
+					Token rightBranch = unpack(objs[3], Token.class);
 					block.setCoverage(rightBranch);
 										
 					return block;
@@ -117,7 +109,7 @@ public class ReduceImpl {
 		case "decls -> decls decl":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) throws ParserException  {
+				public Object create(Object... objs) throws ReduceException  {
 					Object left = objs[0]; // Should be NO_VALUE, BlockNode or DeclarationNode
 					Object right = objs[1]; // Should be DeclarationNode or
 											// BlockNode
@@ -128,10 +120,9 @@ public class ReduceImpl {
 						if (left instanceof BlockNode) {
 							BlockNode leftBlock = (BlockNode) left;
 							declList.addAll(leftBlock.getDeclarationList());
-						} else if (!(left instanceof DeclarationNode)) {
-							log.error("Error in decls -> decls decl: Left must be a DeclarationNode!");
 						} else {
-							declList.add((DeclarationNode) left);
+							DeclarationNode declLeft = unpack(left, DeclarationNode.class);
+							declList.add(declLeft);
 						}
 					}
 
@@ -140,18 +131,15 @@ public class ReduceImpl {
 						BlockNode tmpBlock = (BlockNode) right;
 						declList.addAll(tmpBlock.getDeclarationList());
 					} else {
-						if (!(right instanceof DeclarationNode)) {
-							log.error("Error in decls -> decls decl: Right must be a DeclarationNode!");
-						} else {
-							declList.add((DeclarationNode) right);
-						}
+						DeclarationNode declRight = unpack(right, DeclarationNode.class);
+						declList.add(declRight);
 					}
 
 					// Create new BlockNode
 					BlockNodeImpl block = new BlockNodeImpl();
 					block.setSymbolTable(new SymbolTableImpl());
 					for (DeclarationNode decl : declList) {
-						insertDecl(block, decl, reportLog);
+						insertDecl(block, decl);
 						block.setCoverage(decl.coverage());
 					}
 					return block;
@@ -161,7 +149,7 @@ public class ReduceImpl {
 		case "decls -> ε":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) throws ParserException  {
+				public Object create(Object... objs) throws ReduceException  {
 					return NO_VALUE; // Symbolizes epsilon
 				}
 			};
@@ -169,7 +157,7 @@ public class ReduceImpl {
 		case "decl -> type id ;":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) throws ParserException  {
+				public Object create(Object... objs) throws ReduceException  {
 					DeclarationNode decl = unpack(objs[0], DeclarationNode.class);
 					Token idToken = unpack(objs[1], Token.class);
 					Token semicolon = unpack(objs[2], Token.class);
@@ -193,7 +181,7 @@ public class ReduceImpl {
 		case "stmts -> stmts stmt":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) throws ParserException  {
+				public Object create(Object... objs) throws ReduceException  {
 					Object left = objs[0]; // Should be NO_VALUE or BlockNode or other
 					// StatementNode
 					Object right = objs[1]; // Should be StatementNode or
@@ -214,10 +202,9 @@ public class ReduceImpl {
 								stmtList.addAll(block.getStatementList());
 							}
 
-						} else if (!(left instanceof StatementNode)) {
-							log.error("Error in decls -> decls decl: Left must be a DeclarationNode!");
 						} else {
-							stmtList.add((StatementNode) left);
+							StatementNode leftStmt = unpack(left, StatementNode.class);
+							stmtList.add(leftStmt);
 						}
 					}
 
@@ -230,15 +217,12 @@ public class ReduceImpl {
 								block.coverage().get(block.coverage().size()-1).getValue().equalsIgnoreCase("}")){
 							stmtList.add((StatementNode)block);
 							
-						}else{
+						} else {
 							stmtList.addAll(block.getStatementList());
 						}
 					} else {
-						if (!(right instanceof StatementNode)) {
-							log.error("Error in decls -> decls decl: Right must be a DeclarationNode!");
-						} else {
-							stmtList.add((StatementNode) right);
-						}
+						StatementNode rightStmt = unpack(right, StatementNode.class);
+						stmtList.add(rightStmt);
 					}
 
 					// Create new BlockNode
@@ -255,7 +239,7 @@ public class ReduceImpl {
 		case "stmts -> ε":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) throws ParserException  {
+				public Object create(Object... objs) throws ReduceException  {
 					return NO_VALUE; // Symbolizes epsilon
 				}
 			};
@@ -263,7 +247,7 @@ public class ReduceImpl {
 		case "stmt -> assign ;":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) throws ParserException  {
+				public Object create(Object... objs) throws ReduceException  {
 					AssignmentNodeImpl assign = unpack(objs[0], AssignmentNodeImpl.class);
 					Token semicolon = unpack(objs[1], Token.class);
 					assign.setCoverage(semicolon);
@@ -277,7 +261,7 @@ public class ReduceImpl {
 			return new ReduceAction() {
 
 				@Override
-				public Object create(Object... objs) throws ParserException {
+				public Object create(Object... objs) throws ReduceException {
 					Token ifToken = unpack(objs[0], Token.class);
 					Token leftBrace = unpack(objs[1], Token.class);
 					ExpressionNode condition = unpack(objs[2], ExpressionNode.class);
@@ -303,7 +287,7 @@ public class ReduceImpl {
 			return new ReduceAction() {
 
 				@Override
-				public Object create(Object... objs) throws ParserException {
+				public Object create(Object... objs) throws ReduceException {
 					Token ifToken = unpack(objs[0], Token.class);
 					Token leftBrace = unpack(objs[1], Token.class);
 					ExpressionNode condition = unpack(objs[2], ExpressionNode.class);
@@ -336,7 +320,7 @@ public class ReduceImpl {
 		case "stmt -> while ( assign ) stmt":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) throws ParserException  {
+				public Object create(Object... objs) throws ReduceException  {
 					WhileNodeImpl whileImpl = new WhileNodeImpl();
 					
 					Token whileToken = unpack(objs[0], Token.class);
@@ -368,7 +352,7 @@ public class ReduceImpl {
 		case "stmt -> do stmt while ( assign ) ;":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) throws ParserException  {
+				public Object create(Object... objs) throws ReduceException  {
 					DoWhileNodeImpl whileImpl = new DoWhileNodeImpl();
 					
 					Token doToken = unpack(objs[0], Token.class);
@@ -406,7 +390,7 @@ public class ReduceImpl {
 		case "stmt -> break ;":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) throws ParserException  {
+				public Object create(Object... objs) throws ReduceException  {
 					Token breakk = unpack(objs[0], Token.class);
 					Token sem = unpack(objs[1], Token.class);
 					
@@ -419,7 +403,7 @@ public class ReduceImpl {
 		case "stmt -> return ;":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) throws ParserException  {
+				public Object create(Object... objs) throws ReduceException  {
 					Token returnn = unpack(objs[0], Token.class);
 					Token sem = unpack(objs[1], Token.class);
 					
@@ -431,7 +415,7 @@ public class ReduceImpl {
 		case "stmt -> return loc ;":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) throws ParserException  {
+				public Object create(Object... objs) throws ReduceException  {
 					Token returnn = unpack(objs[0], Token.class);
 					IdentifierNode identifier = unpack(objs[1], IdentifierNode.class);
 					Token sem = unpack(objs[2], Token.class);
@@ -449,7 +433,7 @@ public class ReduceImpl {
 		case "stmt -> print loc ;":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) throws ParserException  {
+				public Object create(Object... objs) throws ReduceException  {
 					Token print = unpack(objs[0], Token.class);
 					IdentifierNode identifier = unpack(objs[1], IdentifierNode.class); // IdentifierNode expected
 					Token sem = unpack(objs[2], Token.class);
@@ -470,7 +454,7 @@ public class ReduceImpl {
 		case "loc -> loc [ assign ]":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) throws ParserException  {
+				public Object create(Object... objs) throws ReduceException  {
 					ArrayIdentifierNodeImpl arrayIdentifier = new ArrayIdentifierNodeImpl();
 					
 					IdentifierNode identifier = unpack(objs[0], IdentifierNode.class);
@@ -495,7 +479,7 @@ public class ReduceImpl {
 		case "loc -> id":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) throws ParserException  {
+				public Object create(Object... objs) throws ReduceException  {
 					Token token = unpack(objs[0], Token.class);
 					
 					BasicIdentifierNodeImpl identifierNode = new BasicIdentifierNodeImpl();
@@ -507,7 +491,7 @@ public class ReduceImpl {
 		case "loc -> loc.id":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) throws ParserException  {
+				public Object create(Object... objs) throws ReduceException  {
 
 					StructIdentifierNodeImpl identifierNode = new StructIdentifierNodeImpl();
 					
@@ -529,7 +513,7 @@ public class ReduceImpl {
 		case "assign -> loc = assign":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) throws ParserException  {
+				public Object create(Object... objs) throws ReduceException  {
 					AssignmentNodeImpl assignNode = new AssignmentNodeImpl();
 					
 					IdentifierNode identifier = unpack(objs[0], IdentifierNode.class);
@@ -552,7 +536,7 @@ public class ReduceImpl {
 		case "bool -> bool || join":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) throws ParserException  {
+				public Object create(Object... objs) throws ReduceException  {
 					return createBinaryExpr(reportLog, BinaryOperator.LOGICAL_OR, "||", objs);
 				}
 			};
@@ -561,7 +545,7 @@ public class ReduceImpl {
 		case "join -> join && equality":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) throws ParserException  {
+				public Object create(Object... objs) throws ReduceException  {
 					return createBinaryExpr(reportLog, BinaryOperator.LOGICAL_AND, "&&", objs);
 				}
 			};
@@ -571,14 +555,14 @@ public class ReduceImpl {
 		case "equality -> equality == rel":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) throws ParserException  {
+				public Object create(Object... objs) throws ReduceException  {
 					return createBinaryExpr(reportLog, BinaryOperator.EQUAL, "==", objs);
 				}
 			};
 		case "equality -> equality != rel":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) throws ParserException  {
+				public Object create(Object... objs) throws ReduceException  {
 					return createBinaryExpr(reportLog, BinaryOperator.INEQUAL, "!=", objs);
 				}
 			};
@@ -587,28 +571,28 @@ public class ReduceImpl {
 		case "rel -> expr < expr":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) throws ParserException  {
+				public Object create(Object... objs) throws ReduceException  {
 					return createBinaryExpr(reportLog, BinaryOperator.LESSTHAN, "<", objs);
 				}
 			};
 		case "rel -> expr > expr":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) throws ParserException  {
+				public Object create(Object... objs) throws ReduceException  {
 					return createBinaryExpr(reportLog, BinaryOperator.GREATERTHAN, "<", objs);
 				}
 			};
 		case "rel -> expr >= expr":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) throws ParserException  {
+				public Object create(Object... objs) throws ReduceException  {
 					return createBinaryExpr(reportLog, BinaryOperator.GREATERTHANEQUAL, ">=", objs);
 				}
 			};
 		case "rel -> expr <= expr":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) throws ParserException  {
+				public Object create(Object... objs) throws ReduceException  {
 					return createBinaryExpr(reportLog, BinaryOperator.LESSTHANEQUAL, "<=", objs);
 				}
 			};
@@ -617,14 +601,14 @@ public class ReduceImpl {
 		case "expr -> expr + term":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) throws ParserException  {
+				public Object create(Object... objs) throws ReduceException  {
 					return createBinaryExpr(reportLog, BinaryOperator.ADDITION, "+", objs);
 				}
 			};
 		case "expr -> expr - term":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) throws ParserException  {
+				public Object create(Object... objs) throws ReduceException  {
 					return createBinaryExpr(reportLog, BinaryOperator.SUBSTRACTION, "-", objs);
 				}
 			};
@@ -633,14 +617,14 @@ public class ReduceImpl {
 		case "term -> term * unary":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) throws ParserException  {
+				public Object create(Object... objs) throws ReduceException  {
 					return createBinaryExpr(reportLog, BinaryOperator.MULTIPLICATION, "*", objs);
 				}
 			};
 		case "term -> term / unary":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) throws ParserException  {
+				public Object create(Object... objs) throws ReduceException  {
 					return createBinaryExpr(reportLog, BinaryOperator.DIVISION, "/", objs);
 				}
 			};
@@ -649,7 +633,7 @@ public class ReduceImpl {
 		case "unary -> ! unary":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) throws ParserException  {
+				public Object create(Object... objs) throws ReduceException  {
 					LogicUnaryExpressionNodeImpl unary = new LogicUnaryExpressionNodeImpl();
 					
 					Token token = unpack(objs[0], Token.class);
@@ -667,7 +651,7 @@ public class ReduceImpl {
 		case "unary -> - unary":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) throws ParserException  {
+				public Object create(Object... objs) throws ReduceException  {
 					Token token = unpack(objs[0], Token.class);
 					ExpressionNode expr = unpack(objs[1], ExpressionNode.class);
 
@@ -685,7 +669,7 @@ public class ReduceImpl {
 		case "factor -> ( assign )":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) throws ParserException  {
+				public Object create(Object... objs) throws ReduceException  {
 					Token lb = unpack(objs[0], Token.class);
 					ASTNodeImpl astNode = unpack(objs[1], ASTNodeImpl.class);
 					Token rb = unpack(objs[2], Token.class);
@@ -702,7 +686,7 @@ public class ReduceImpl {
 		case "factor -> num":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) throws ParserException  {
+				public Object create(Object... objs) throws ReduceException  {
 					Token token = unpack(objs[0], Token.class);
 					
 					LiteralNodeImpl literal = new LiteralNodeImpl();
@@ -715,7 +699,7 @@ public class ReduceImpl {
 		case "factor -> real":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) throws ParserException  {
+				public Object create(Object... objs) throws ReduceException  {
 					Token token = unpack(objs[0], Token.class);
 					
 					LiteralNodeImpl literal = new LiteralNodeImpl();
@@ -728,7 +712,7 @@ public class ReduceImpl {
 		case "factor -> true":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) throws ParserException  {
+				public Object create(Object... objs) throws ReduceException  {
 					Token token = unpack(objs[0], Token.class);
 					
 					LiteralNodeImpl literal = new LiteralNodeImpl();
@@ -741,7 +725,7 @@ public class ReduceImpl {
 		case "factor -> false":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) throws ParserException  {
+				public Object create(Object... objs) throws ReduceException  {
 					Token token = unpack(objs[0], Token.class);
 					
 					LiteralNodeImpl literal = new LiteralNodeImpl();
@@ -754,7 +738,7 @@ public class ReduceImpl {
 		case "factor -> string":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) throws ParserException  {
+				public Object create(Object... objs) throws ReduceException  {
 					Token token = unpack(objs[0], Token.class);
 					
 					LiteralNodeImpl literal = new LiteralNodeImpl();
@@ -769,7 +753,7 @@ public class ReduceImpl {
 		case "type -> type [ num ]":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) throws ParserException  {
+				public Object create(Object... objs) throws ReduceException  {
 					//typeToken DeclarationNode is wasted after reduce, not needed any more
 					DeclarationNode typeToken = unpack(objs[0], DeclarationNode.class);
 					Token leftBrace = unpack(objs[1], Token.class);
@@ -791,7 +775,7 @@ public class ReduceImpl {
 		case "type -> basic":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) throws ParserException  {
+				public Object create(Object... objs) throws ReduceException  {
 					Token token = unpack(objs[0], Token.class);
 					DeclarationNodeImpl decl = new DeclarationNodeImpl();
 					
@@ -820,9 +804,7 @@ public class ReduceImpl {
 						return decl;
 					
 					default:
-						writeReportError(reportLog, token, "Basic Type");
-						return null;
-					
+						throw new ParserException("Received a Token of unexpected basic type: " + token.toString());
 					}
 				}
 			};
@@ -830,7 +812,7 @@ public class ReduceImpl {
 		case "type -> record { decls }":
 			return new ReduceAction() {
 				@Override
-				public Object create(Object... objs) throws ParserException  {
+				public Object create(Object... objs) throws ReduceException  {
 					
 					DeclarationNodeImpl struct = new DeclarationNodeImpl();
 					
@@ -868,23 +850,6 @@ public class ReduceImpl {
 		}
 		return null;
 	}
-	
-	
-	/**
-	 * Casts the given object in a safe way
-	 * 
-	 * @param obj
-	 * @param clazz
-	 * @return
-	 */
-	private <T> T unpack(Object obj, Class<T> clazz) {
-		try {
-			return clazz.cast(obj);
-		} catch (ClassCastException cce) {
-			writeReportError(reportLog, obj, clazz.getName());
-			return null;
-		}
-	}
 
 
 	/**
@@ -893,7 +858,7 @@ public class ReduceImpl {
 	 * @param block
 	 * @param decl
 	 */
-	private static void insertDecl(BlockNode block, DeclarationNode decl, final ReportLog reportLog) throws ParserException {
+	private void insertDecl(BlockNode block, DeclarationNode decl) throws ReduceException {
 		//Here is no coverage to set.
 		SymbolTable symbolTable = block.getSymbolTable();
 		if (symbolTable.isDeclaredInCurrentScope(decl.getIdentifier())) {
@@ -907,7 +872,7 @@ public class ReduceImpl {
 		
 	}
 
-	private static BlockNodeImpl joinBlocks(Object left, Object right, ReportLog reportLog) throws ParserException{
+	private BlockNodeImpl joinBlocks(Object left, Object right) throws ReduceException {
 		BlockNodeImpl newBlock = new BlockNodeImpl();
 		newBlock.setSymbolTable(new SymbolTableImpl());
 		
@@ -915,7 +880,7 @@ public class ReduceImpl {
 		if (!left.equals(NO_VALUE)) {
 			BlockNode declsBlock = (BlockNode) left;
 			for (DeclarationNode decl : declsBlock.getDeclarationList()) {
-				insertDecl(newBlock, decl, reportLog);
+				insertDecl(newBlock, decl);
 				decl.setParentNode(newBlock);
 				newBlock.setCoverage(decl.coverage());
 			}
@@ -968,37 +933,14 @@ public class ReduceImpl {
 	}
 	
 	/**
-	 * Gets ReportLog, the Object, thats made some trouble and the message whats expected instead.
-	 * Throws in all cases a PaserException.
-	 * 
-	 * @param reportLog
-	 * @param obj
-	 * @param msg
-	 * @throws ParserException
-	 */
-	private static void writeReportError(final ReportLog reportLog,
-			Object obj, String msg) throws ParserException{
-		if (obj instanceof ASTNode){
-			reportLog.reportError(ReportType.UNDEFINED, ((ASTNode)obj).coverage(), "There is no " + msg + " found!");
-			throw new ParserException(msg +" expected");
-		} else if (obj instanceof Token){
-			List<Token> list = new ArrayList<Token>();
-			list.add((Token)obj);
-			reportLog.reportError(ReportType.UNDEFINED, list, "There is no " + msg + " found!");
-			throw new ParserException(msg +" expected");
-		}
-		reportLog.reportError(ReportType.UNDEFINED, null, "Object is not defined in AST");
-		throw new ParserException("Object not defined in AST");
-	}
-	
-	/**
 	 * @param reportLog
 	 * @param objs
 	 * @return
+	 * @throws ReduceException 
 	 */
 	private Object createBinaryExpr(final ReportLog reportLog,  
 			final BinaryOperator op, String opStr,
-			Object... objs) {
+			Object... objs) throws ReduceException {
 		ExpressionNode leftExpr = unpack(objs[0], ExpressionNode.class);
 		Token opToken = unpack(objs[1], Token.class);
 		ExpressionNode rightExpr = unpack(objs[2], ExpressionNode.class);
@@ -1041,6 +983,24 @@ public class ReduceImpl {
 		rightExpr.setParentNode(binExpr);
 		
 		return binExpr;
+	}
+	
+	
+	/**
+	 * Casts the given object to an instance of the given class. If an error
+	 * occurs, an {@link ReduceException} is thrown.
+	 * 
+	 * @param obj
+	 * @param clazz
+	 * @return
+	 * @throws ReduceException 
+	 */
+	private <T> T unpack(Object obj, Class<T> clazz) throws ReduceException {
+		try {
+			return clazz.cast(obj);
+		} catch (ClassCastException cce) {
+			throw new ReduceException(obj, clazz, cce);
+		}
 	}
 
 	private static class ReduceStringType extends Type{
