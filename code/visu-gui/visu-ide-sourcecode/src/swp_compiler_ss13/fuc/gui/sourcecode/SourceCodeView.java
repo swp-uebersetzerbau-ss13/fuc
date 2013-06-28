@@ -321,17 +321,22 @@ public class SourceCodeView implements View {
 		public void insertString(FilterBypass fb, int offset, String str,
 				AttributeSet attr) throws BadLocationException {
 			// Create new text
-			StringBuilder b = new StringBuilder(ide.getSourceCode());
+			StringBuilder b = new StringBuilder(getSourceCode());
 			b.insert(offset, str);
 			
 			statusChanged(fb, b.toString());
+		}
+		
+		private String getSourceCode() {
+			String code = ide.getSourceCode();
+			return code == null ? "" : code;
 		}
 		
 		@Override
 		public void remove(FilterBypass fb, int offset, int length)
 				throws BadLocationException {
 			// Create new text
-			StringBuilder b = new StringBuilder(ide.getSourceCode());
+			StringBuilder b = new StringBuilder(getSourceCode());
 			b.delete(offset, offset + length);
 			
 			statusChanged(fb, b.toString());
@@ -341,7 +346,7 @@ public class SourceCodeView implements View {
 		public void replace(FilterBypass fb, int offset, int length,
 				String str, AttributeSet attrs) throws BadLocationException {
 			// Create new text
-			StringBuilder b = new StringBuilder(ide.getSourceCode());
+			StringBuilder b = new StringBuilder(getSourceCode());
 			b.replace(offset, offset + length, str);
 			
 			statusChanged(fb, b.toString());
