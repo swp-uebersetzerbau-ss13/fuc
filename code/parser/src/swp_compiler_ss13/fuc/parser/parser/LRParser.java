@@ -16,14 +16,15 @@ import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.common.report.ReportLog;
 import swp_compiler_ss13.common.report.ReportType;
 import swp_compiler_ss13.fuc.ast.ASTImpl;
+import swp_compiler_ss13.fuc.lexer.token.TokenImpl;
 import swp_compiler_ss13.fuc.parser.grammar.Production;
 import swp_compiler_ss13.fuc.parser.grammar.Terminal;
 import swp_compiler_ss13.fuc.parser.grammar.TokenEx;
+import swp_compiler_ss13.fuc.parser.parser.IGrammarImpl.RecoveryResult;
 import swp_compiler_ss13.fuc.parser.parser.ReduceAction.ReduceException;
 import swp_compiler_ss13.fuc.parser.parser.states.LRParserState;
 import swp_compiler_ss13.fuc.parser.parser.tables.LRParsingTable;
 import swp_compiler_ss13.fuc.parser.parser.tables.actions.ALRAction;
-import swp_compiler_ss13.fuc.parser.parser.tables.actions.Error;
 import swp_compiler_ss13.fuc.parser.parser.tables.actions.Reduce;
 import swp_compiler_ss13.fuc.parser.parser.tables.actions.Shift;
 
@@ -36,7 +37,9 @@ public class LRParser {
 
 	private final Logger log = Logger.getLogger(LRParser.class);
 	
-	private ReduceImpl reduceImpl;
+	/** Used to store Tokens that are (re-)inserted into the token stream */
+	private final LinkedList<TokenEx> errorTokenStream = new LinkedList<>();
+	private TokenEx lastToken = new TokenEx(new TokenImpl("", TokenType.NOT_A_TOKEN, 0, 0), null);
 
 	// --------------------------------------------------------------------------
 	// --- constructors
@@ -49,9 +52,8 @@ public class LRParser {
 	// --------------------------------------------------------------------------
 	@SuppressWarnings("incomplete-switch")
 	public AST parse(LexerWrapper lexer, ReportLog reportLog,
-			LRParsingTable table) throws ParserException{
-		reduceImpl = new ReduceImpl();
-		reduceImpl.setReportLog(reportLog);
+			LRParsingTable table, IGrammarImpl grammarImpl) throws ParserException{
+		grammarImpl.setReportLog(reportLog);
 		
 		Stack<LRParserState> parserStack = new Stack<>();
 
@@ -60,7 +62,7 @@ public class LRParser {
 
 		// Initialization
 		ALRAction action = null;
-		TokenEx token = lexer.getNextToken();
+		TokenEx token = getNextToken(lexer);
 		parserStack.add(table.getStartState());
 
 		WHILE: while (true) {
@@ -78,7 +80,8 @@ public class LRParser {
 
 			case COMMENT:
 				// Skip it silently
-				token = lexer.getNextToken();
+				lastToken = token;
+				token = getNextToken(lexer);
 				continue WHILE;
 			}
 
@@ -95,12 +98,15 @@ public class LRParser {
 			case SHIFT: {
 				// Shift state
 				Shift shift = (Shift) action;
-				log.debug(shift.toString());
+				
+				TokenEx newToken = getNextToken(lexer);
+				log.debug(shift.toString() + " : " + newToken);
+				
 				parserStack.push(shift.getNewState());
-
-				// Push old token on stack
 				valueStack.push(token);
-				token = lexer.getNextToken();
+				
+				lastToken = token;
+				token = newToken;
 			}
 			break;
 
@@ -119,7 +125,7 @@ public class LRParser {
 				Production prod = reduce.getProduction();
 				log.debug(reduce.toString());
 				
-				ReduceAction reduceAction = reduceImpl.getReduceAction(prod);
+				ReduceAction reduceAction = grammarImpl.getReduceAction(prod);
 
 				// If there is anything to do on the value stack
 				// (There might be no reduce-action for Productions like unary
@@ -137,14 +143,14 @@ public class LRParser {
 					try {
 						newValue = reduceAction.create(arr(valueHandle));
 					} catch (ReduceException err) {
-						writeReportError(reportLog, reduce, err);
-						throw new ParserException("An error occured during " + reduce + ": ", err);
+						String errMsg = writeReportError(reportLog, reduce, err);
+						throw new ParserException("An error occured during " + reduce + ": " + errMsg, err);
 					} catch (ParserException err) {
 						throw err;	// Re-Throw
 					} catch (Exception err) {
 						throw new ParserException("An error occured during " + reduce + ": ", err);
 					}
-										
+					
 					if (newValue == null) {
 						log.error("Error occurred! newValue is null");
 						throw new ParserException("Error occurred! newValue is null");
@@ -179,15 +185,36 @@ public class LRParser {
 			}
 
 			case ERROR: {
-				// TODO Inser error recovery here
-				Error error = (Error) action;
+				// Try to recover from misjump
+				List<Terminal> possibleTerminals = table.getActionTable().getPossibleTerminalsFor(state);
+				RecoveryResult result = grammarImpl.tryErrorRecovery(possibleTerminals, token, lastToken, valueStack);
+				if (result != null) {
+					// Apply the new state
+					token = result.getNewCurToken();
+					errorTokenStream.addAll(result.getNextTokens());
+					
+					// Okay, parser should be in a proper state again... give it a shot!
+					continue WHILE;
+				}
+				
+				// No chance. Print 
+//				Error error = (Error) action;
 				List<Token> list = new ArrayList<Token>();
 				list.add(token);
 				reportLog.reportError(ReportType.UNDEFINED,list,
-						"An error occurred: " + error.getMsg());
+						"An error occurred: Expected one of " + possibleTerminals.toString() + ", but got: '" + token.getTerminal() + "'");
 						throw new ParserException("Got Error State from Actiontable");
 			}
 			}
+		}
+	}
+	
+	
+	private TokenEx getNextToken(LexerWrapper lexer) {
+		if (!errorTokenStream.isEmpty()) {
+			return errorTokenStream.poll();
+		} else {
+			return lexer.getNextToken();
 		}
 	}
 	
@@ -199,8 +226,9 @@ public class LRParser {
 	 * @param reportLog
 	 * @param reduce
 	 * @param err
+	 * @return The error message
 	 */
-	private void writeReportError(ReportLog reportLog, Reduce reduce, ReduceException err) {
+	private String writeReportError(ReportLog reportLog, Reduce reduce, ReduceException err) {
 		Object obj = err.getObj();
 		Class<?> clazz = err.getClazz();
 		String objStr = obj == null ? "<null>" : obj.getClass().getSimpleName();
@@ -213,8 +241,10 @@ public class LRParser {
 			tokens = Arrays.asList((Token) obj);
 		}
 		
-		reportLog.reportError(ReportType.UNDEFINED, tokens, "Expected an instance of " +
-				clazz.getSimpleName() + " during " + reduce + ", but got " + objStr + " instead!");
+		String result = "Expected an instance of " +
+				clazz.getSimpleName() + " during " + reduce + ", but got " + objStr + " instead!";
+		reportLog.reportError(ReportType.UNDEFINED, tokens, result);
+		return result;
 	}
 
 	private static Object[] arr(List<Object> objs) {
