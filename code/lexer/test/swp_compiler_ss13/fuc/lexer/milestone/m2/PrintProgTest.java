@@ -20,9 +20,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.Ignore;
 
 /**
  * @author Tay, Ho Phuong
@@ -61,7 +59,6 @@ public class PrintProgTest {
 	private ArrayList<Token> list;
 
 	@Before
-	@Ignore
 	public void setUp() throws Exception {
 		this.stream = new ByteArrayInputStream(prog.getBytes());
 		this.lexer = new swp_compiler_ss13.fuc.lexer.LexerImpl();
@@ -101,7 +98,8 @@ public class PrintProgTest {
 			new TokenImpl(";", TokenType.SEMICOLON, 17, 16),
 			new TokenImpl("d", TokenType.ID, 18, 1),
 			new TokenImpl("=", TokenType.ASSIGNOP, 18, 3),
-			new TokenImpl("-23.23e-100", TokenType.REAL, 18, 5),
+			new TokenImpl("-", TokenType.MINUS, 18, 5),
+			new TokenImpl("23.23e-100", TokenType.REAL, 19, 5),
 			new TokenImpl(";", TokenType.SEMICOLON, 18, 16),
 			new TokenImpl("s", TokenType.ID, 19, 1),
 			new TokenImpl("=", TokenType.ASSIGNOP, 19, 3),
@@ -138,7 +136,6 @@ public class PrintProgTest {
 	}
 
 	@Test
-	@Ignore
 	public void testgetNextToken() {
 		Token token = null;
 		Token comparisonToken = null;

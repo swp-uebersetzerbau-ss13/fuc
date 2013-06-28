@@ -73,20 +73,23 @@ public class NumTokenImpl implements NumToken {
 	 * Method parses the {@link String} value of the token into a {@link Long}
 	 * value
 	 * 
-	 * @return converted {@link Long} of value read by lexer for this token
+	 * @return converted {@link Long} of value read by lexer for this token or
+	 *         NULL if a {@linkNumberFormatException} occurs
 	 */
 	@Override
 	public Long getLongValue() {
+		Long longValue;
 		try {
 			if (this.value.contains("e") || this.value.contains("E")) {
 				String[] longValueParts = this.value.split("(e|E)");
-				return Math.round(Double.parseDouble(longValueParts[0])
+				longValue = Math.round(Double.parseDouble(longValueParts[0])
 						* Math.pow(10, Double.parseDouble(longValueParts[1])));
 			} else {
-				return Long.parseLong(this.value);
+				longValue = Long.parseLong(this.value);
 			}
-		} catch (Exception e) {
-			return null;
+		} catch (NumberFormatException nfe) {
+			longValue = null;
 		}
+		return longValue;
 	}
 }
