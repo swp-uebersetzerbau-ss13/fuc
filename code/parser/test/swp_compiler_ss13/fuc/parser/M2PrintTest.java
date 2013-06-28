@@ -6,15 +6,16 @@ import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.id;
 import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.num;
 import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.t;
 import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.assignop;
+import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.minus;
 import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.print;
 import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.returnn;
 import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.sem;
 
 import org.apache.log4j.BasicConfigurator;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import swp_compiler_ss13.common.ast.AST;
+import swp_compiler_ss13.common.ast.nodes.unary.UnaryExpressionNode.UnaryOperator;
 import swp_compiler_ss13.common.lexer.Lexer;
 import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.common.types.primitive.BooleanType;
@@ -23,6 +24,7 @@ import swp_compiler_ss13.common.types.primitive.LongType;
 import swp_compiler_ss13.common.types.primitive.StringType;
 import swp_compiler_ss13.fuc.ast.ASTFactory;
 import swp_compiler_ss13.fuc.lexer.token.RealTokenImpl;
+import swp_compiler_ss13.fuc.parser.errorHandling.ParserASTXMLVisualization;
 import swp_compiler_ss13.fuc.parser.grammar.Terminal;
 import swp_compiler_ss13.fuc.parser.parser.LRParser;
 
@@ -43,7 +45,7 @@ public class M2PrintTest {
 		id("linebreak"), t(assignop),t("\"\\n\"", TokenType.STRING), t(sem),
 		id("b"), t(assignop), b(true), t(sem),
 		id("l"), t(assignop), num(18121313223L), t(sem),
-		id("d"), t(assignop), new RealTokenImpl("-23.23e-100", TokenType.REAL, -1, -1), t(sem),
+		id("d"), t(assignop), t(minus), new RealTokenImpl("23.23e-100", TokenType.REAL, -1, -1), t(sem),
 		id("s"), t(assignop), t("\"jagÄrEttString\\\"\\n\"", TokenType.STRING), t(sem),
 		t(print), id("b"), t(sem),t(print), id("linebreak"), t(sem),
 		t(print), id("l"), t(sem),t(print), id("linebreak"), t(sem),
@@ -56,7 +58,6 @@ public class M2PrintTest {
 		checkAst(ast);
 	}
 
-	@Ignore
 	@Test
 	public void testPrintOrgLexer() throws Exception {
 		String input = "# return 0\n"
@@ -105,7 +106,7 @@ public class M2PrintTest {
 		factory.addAssignment(factory.newBasicIdentifier("linebreak"), factory.newLiteral("\"\\n\"", new StringType(4L)));
 		factory.addAssignment(factory.newBasicIdentifier("b"), factory.newLiteral("true", new BooleanType()));
 		factory.addAssignment(factory.newBasicIdentifier("l"), factory.newLiteral("18121313223", new LongType()));
-		factory.addAssignment(factory.newBasicIdentifier("d"), factory.newLiteral("-23.23e-100", new DoubleType()));
+		factory.addAssignment(factory.newBasicIdentifier("d"), factory.newUnaryExpression(UnaryOperator.MINUS, factory.newLiteral("23.23e-100", new DoubleType())));
 		factory.addAssignment(factory.newBasicIdentifier("s"), factory.newLiteral("\"jagÄrEttString\\\"\\n\"", new StringType(20L)));
 		
 		factory.addPrint(factory.newBasicIdentifier("b")); factory.addPrint(factory.newBasicIdentifier("linebreak"));
@@ -116,6 +117,8 @@ public class M2PrintTest {
 		factory.addReturn(null);
 		
 		AST expected = factory.getAST();
+		ParserASTXMLVisualization vis = new ParserASTXMLVisualization();
+		vis.visualizeAST(expected);
 		ASTComparator.compareAST(expected, ast);
 	}
 }

@@ -2,11 +2,11 @@ package swp_compiler_ss13.fuc.parser;
 
 import static swp_compiler_ss13.fuc.parser.parser.LRParser.STRING_LENGTH;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode.BinaryOperator;
+import swp_compiler_ss13.common.ast.nodes.unary.UnaryExpressionNode.UnaryOperator;
 import swp_compiler_ss13.common.types.primitive.BooleanType;
 import swp_compiler_ss13.common.types.primitive.LongType;
 import swp_compiler_ss13.common.types.primitive.StringType;
@@ -80,7 +80,6 @@ public class BlockTest {
 		ASTComparator.compareAST(expected, ast);
 	}
 	
-	@Ignore
 	@Test
 	public void testMultipleReturn() {
 		String input ="long i;\n" +
@@ -103,7 +102,7 @@ public class BlockTest {
 		factory.addDeclaration("b", new BooleanType());
 		
 		factory.addAssignment(factory.newBasicIdentifier("i"), factory.newLiteral("0", new LongType()));
-		factory.addAssignment(factory.newBasicIdentifier("err"), factory.newLiteral("-1", new LongType()));
+		factory.addAssignment(factory.newBasicIdentifier("err"), factory.newUnaryExpression(UnaryOperator.MINUS, factory.newLiteral("1", new LongType())));
 		factory.addAssignment(factory.newBasicIdentifier("b"), factory.newLiteral("true", new BooleanType()));
 		
 		factory.addBranch(factory.newBasicIdentifier("b"));
