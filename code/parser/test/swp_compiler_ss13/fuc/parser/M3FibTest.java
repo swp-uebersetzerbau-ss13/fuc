@@ -11,7 +11,6 @@ import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode.BinaryOper
 import swp_compiler_ss13.common.types.derived.ArrayType;
 import swp_compiler_ss13.common.types.primitive.LongType;
 import swp_compiler_ss13.fuc.ast.ASTFactory;
-import swp_compiler_ss13.fuc.parser.errorHandling.ParserASTXMLVisualization;
 
 public class M3FibTest {
 	static {
@@ -111,7 +110,7 @@ public class M3FibTest {
         				factory.newBasicIdentifier("i"),
         				factory.newLiteral("21", new LongType())));
     	// begin While block
-//  		factory.addBlock();
+  		factory.addBlock();
   		
   		factory.addAssignment(
   				factory.newArrayIdentifier(
@@ -153,12 +152,8 @@ public class M3FibTest {
  				factory.newArrayIdentifier(
  						factory.newLiteral("15", new LongType()),
  						factory.newBasicIdentifier("numbers")));
-		
- 		ParserASTXMLVisualization vis = new ParserASTXMLVisualization();
- 		vis.visualizeAST(ast);
  		
  		AST expected = factory.getAST();
- 		vis.visualizeAST(expected);
 		ASTComparator.compareAST(expected, ast);
 	}
 }
