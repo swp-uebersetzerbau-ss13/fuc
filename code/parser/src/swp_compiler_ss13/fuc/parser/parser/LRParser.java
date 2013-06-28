@@ -32,6 +32,8 @@ public class LRParser {
 	public static final Long STRING_LENGTH = 255L;
 
 	private final Logger log = Logger.getLogger(LRParser.class);
+	
+	private ReduceImpl reduceImpl;
 
 	// --------------------------------------------------------------------------
 	// --- constructors
@@ -45,6 +47,9 @@ public class LRParser {
 	@SuppressWarnings("incomplete-switch")
 	public AST parse(LexerWrapper lexer, ReportLog reportLog,
 			LRParsingTable table) throws ParserException{
+		reduceImpl = new ReduceImpl();
+		reduceImpl.setReportLog(reportLog);
+		
 		Stack<LRParserState> parserStack = new Stack<>();
 
 		AST ast = new ASTImpl();
@@ -97,6 +102,9 @@ public class LRParser {
 			break;
 
 			case REDUCE: {
+				// Print current value stack
+				log.debug(printStack(valueStack));
+				
 				// pop reduced states from stack
 				Reduce reduce = (Reduce) action;
 				for (int i = 1; i <= reduce.getPopCount(); i++) {
@@ -106,12 +114,8 @@ public class LRParser {
 				// +++++++++++++++++++++++++++++++++++
 				// get action for reduced production
 				Production prod = reduce.getProduction();
-				log.debug(reduce.toString() + " " + prod.toString());
-				ReduceAction reduceAction = null;
-				
-
-				reduceAction = ReduceImpl.getReduceAction(prod, reportLog);
-				
+				log.debug(reduce.toString());
+				ReduceAction reduceAction = reduceImpl.getReduceAction(prod);
 
 				// If there is anything to do on the value stack
 				// (There might be no reduce-action for Productions like unary
@@ -144,12 +148,6 @@ public class LRParser {
 					throw new ParserException("Error state occurred");
 				}
 				parserStack.push(newState);
-				
-				String stackRep = "Stack:";
-				for (Object obj : valueStack) {
-					stackRep += " " + obj.toString();
-				}
-				log.debug(stackRep);
 			}
 			break;
 
@@ -183,5 +181,11 @@ public class LRParser {
 		return objs.toArray(new Object[objs.size()]);
 	}
 
-
+	private static String printStack(Stack<Object> stack) {
+		StringBuilder b = new StringBuilder("Stack:");
+		for (Object obj : stack) {
+			b.append(" ").append(obj.toString());
+		}
+		return b.toString();
+	}
 }

@@ -10,7 +10,6 @@ import swp_compiler_ss13.common.ast.ASTNode;
 import swp_compiler_ss13.common.ast.nodes.ExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.IdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.StatementNode;
-import swp_compiler_ss13.common.ast.nodes.binary.AssignmentNode;
 import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode.BinaryOperator;
 import swp_compiler_ss13.common.ast.nodes.binary.LoopNode;
 import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
@@ -19,7 +18,6 @@ import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
 import swp_compiler_ss13.common.ast.nodes.unary.UnaryExpressionNode.UnaryOperator;
 import swp_compiler_ss13.common.lexer.NumToken;
 import swp_compiler_ss13.common.lexer.Token;
-import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.common.parser.SymbolTable;
 import swp_compiler_ss13.common.report.ReportLog;
 import swp_compiler_ss13.common.report.ReportType;
@@ -64,11 +62,16 @@ public class ReduceImpl {
 	private static final Object NO_VALUE = new String("NoValue");
 
 	private static final Logger log = Logger.getLogger(ReduceImpl.class);
+	
+	private ReportLog reportLog = null;
 
 	// --------------------------------------------------------------------------
 	// --- constructors
 	// ---------------------------------------------------------
 	// --------------------------------------------------------------------------
+	public ReduceImpl() {
+		
+	}
 	
 	/**
 	 * Defines a ReduceAction for every rule in the Grammar
@@ -76,7 +79,7 @@ public class ReduceImpl {
 	 * @param reportLog
 	 * @return
 	 */
-	public static ReduceAction getReduceAction(Production prod, final ReportLog reportLog) {
+	public ReduceAction getReduceAction(Production prod) {
 		switch (prod.getStringRep()) {
 
 		case "program -> decls stmts":
@@ -167,34 +170,9 @@ public class ReduceImpl {
 			return new ReduceAction() {
 				@Override
 				public Object create(Object... objs) throws ParserException  {
-					
-					if(!(objs[0] instanceof DeclarationNode)){
-						if(objs[0] instanceof ASTNode){
-							reportLog.reportError(ReportType.UNDEFINED, ((ASTNode)objs[0]).coverage(), "there is no Declarationnode found!");
-							throw new ParserException("Declarationnode expected");
-						}
-						if(objs[0] instanceof Token){
-							List<Token> list = new ArrayList<Token>();
-							list.add((Token)objs[0]);
-							reportLog.reportError(ReportType.UNDEFINED, list, "there is no Declarationnode found!");
-							throw new ParserException("Declarationnode expected");
-
-						}
-					}
-					
-					DeclarationNode decl = (DeclarationNode) objs[0];
-					
-					if(!(objs[1] instanceof Token)){
-						writeReportError(reportLog, objs[1], "Identifier");
-					}
-					
-					Token idToken = (Token) objs[1];
-					
-					if(!(objs[2] instanceof Token || ((Token)objs[2]).getTokenType()!=TokenType.SEMICOLON)){
-						writeReportError(reportLog, objs[2], "Token ;");
-					}
-					
-					Token semicolon = (Token) objs[2];
+					DeclarationNode decl = unpack(objs[0], DeclarationNode.class);
+					Token idToken = unpack(objs[1], Token.class);
+					Token semicolon = unpack(objs[2], Token.class);
 					
 					if(decl.getType() instanceof ReduceStringType){
 						List<Token> coverage = decl.coverage();
@@ -286,9 +264,9 @@ public class ReduceImpl {
 			return new ReduceAction() {
 				@Override
 				public Object create(Object... objs) throws ParserException  {
-					AssignmentNode assign = (AssignmentNode) objs[0];
-					Token semicolon = (Token) objs[1];
-					((AssignmentNodeImpl)assign).setCoverage(semicolon);
+					AssignmentNodeImpl assign = unpack(objs[0], AssignmentNodeImpl.class);
+					Token semicolon = unpack(objs[1], Token.class);
+					assign.setCoverage(semicolon);
 					return  assign;
 				}
 			};
@@ -300,38 +278,22 @@ public class ReduceImpl {
 
 				@Override
 				public Object create(Object... objs) throws ParserException {
-					Token ifToken = (Token)objs[0];
-					Token leftBrace = (Token)objs[1];
-					Object assign = objs[2];
-					Token rightBrace = (Token)objs[3];
-					Object stmtTrue = objs[4];
-
+					Token ifToken = unpack(objs[0], Token.class);
+					Token leftBrace = unpack(objs[1], Token.class);
+					ExpressionNode condition = unpack(objs[2], ExpressionNode.class);
+					Token rightBrace = unpack(objs[3], Token.class);
+					StatementNode stmtTrue = unpack(objs[4], StatementNode.class);
 					
 					BranchNodeImpl node = new BranchNodeImpl();
 					node.setCoverage(ifToken, leftBrace);
 					
-					
-					if(assign instanceof ExpressionNode){
-						ExpressionNode condition = (ExpressionNode)assign;
-						node.setCondition(condition);
-						node.setCoverage(condition.coverage());
-					}else{
-						writeReportError(reportLog, assign, "Expression");
-					}
+					node.setCondition(condition);
+					node.setCoverage(condition.coverage());
 					
 					node.setCoverage(rightBrace);
 					
-					if(stmtTrue instanceof BlockNode){
-						node.setStatementNodeOnTrue((BlockNode)stmtTrue);
-					}else{
-						if(stmtTrue instanceof StatementNode){
-							StatementNode block = (StatementNode)stmtTrue;
-							node.setStatementNodeOnTrue(block);
-							node.setCoverage(block.coverage());
-						}else{
-							writeReportError(reportLog, stmtTrue, "Block or Statement");
-						}
-					}
+					node.setStatementNodeOnTrue(stmtTrue);
+					node.setCoverage(stmtTrue.coverage());
 					
 					return node;
 				}
@@ -342,57 +304,30 @@ public class ReduceImpl {
 
 				@Override
 				public Object create(Object... objs) throws ParserException {
-					Token ifToken = (Token)objs[0];
-					Token leftBrace = (Token)objs[1];
-					Object assign = objs[2];
-					Token rightBrace = (Token)objs[3];
-					Object stmtTrue = objs[4];
-					Token elsee = (Token)objs[5];
-					Object stmtFalse = objs[6];
+					Token ifToken = unpack(objs[0], Token.class);
+					Token leftBrace = unpack(objs[1], Token.class);
+					ExpressionNode condition = unpack(objs[2], ExpressionNode.class);
+					Token rightBrace = unpack(objs[3], Token.class);
+					StatementNode stmtTrue = unpack(objs[4], StatementNode.class);
+					Token elsee = unpack(objs[5], Token.class);
+					StatementNode stmtFalse = unpack(objs[6], StatementNode.class);
 
 					
 					BranchNodeImpl node = new BranchNodeImpl();
 					node.setCoverage(ifToken, leftBrace);
 					
-					if(assign instanceof ExpressionNode){
-						ExpressionNode condition = (ExpressionNode) assign;
-						node.setCondition(condition);
-						node.setCoverage(condition.coverage());
-					}else{
-						writeReportError(reportLog, assign, "Expression");
-					}
+					node.setCondition(condition);
+					node.setCoverage(condition.coverage());
 					
 					node.setCoverage(rightBrace);
 					
-//					if(stmtTrue instanceof BlockNode){
-//						BlockNode block = (BlockNode)stmtTrue;
-//						node.setStatementNodeOnTrue(block);
-//						node.setCoverage(block.coverage());
-//					}else{
-						if(stmtTrue instanceof StatementNode){
-							StatementNode block = (StatementNode)stmtTrue;
-							node.setStatementNodeOnTrue(block);
-							node.setCoverage(block.coverage());
-						}else{
-							writeReportError(reportLog, stmtTrue, "Statement or BlockNode");
-						}
-//					}
-					
-					node.setCoverage(elsee);
+					node.setStatementNodeOnTrue(stmtTrue);
+					node.setCoverage(stmtTrue.coverage());
 							
-//					if(stmtFalse instanceof BlockNode){
-//						BlockNode block = (BlockNode)stmtFalse;
-//						node.setStatementNodeOnFalse(block);
-//						node.setCoverage(block.coverage());
-//					}else{
-						if(stmtFalse instanceof StatementNode){
-							StatementNode block = (StatementNode)stmtFalse;
-							node.setStatementNodeOnFalse(block);
-							node.setCoverage(block.coverage());						
-						}else{
-							writeReportError(reportLog, stmtFalse, "Block or Statement");
-						}
-//					}
+					node.setCoverage(elsee);
+					
+					node.setStatementNodeOnFalse(stmtFalse);
+					node.setCoverage(stmtFalse.coverage());
 					return node;
 				}
 
@@ -404,43 +339,26 @@ public class ReduceImpl {
 				public Object create(Object... objs) throws ParserException  {
 					WhileNodeImpl whileImpl = new WhileNodeImpl();
 					
-					Token whileToken = (Token)objs[0];
-					Token paraLeft = (Token)objs[1];
+					Token whileToken = unpack(objs[0], Token.class);
+					Token paraLeft = unpack(objs[1], Token.class);
 					
-					whileImpl.setCoverage(whileToken,paraLeft);
+					whileImpl.setCoverage(whileToken, paraLeft);
 					
-					Object assign = objs[2];
+					ExpressionNode condition = unpack(objs[2], ExpressionNode.class);
 					
-					if(assign instanceof ExpressionNode){
-						ExpressionNode expression = (ExpressionNode) assign;
-						whileImpl.setCondition(expression);
-						whileImpl.setCoverage(expression.coverage());
-						expression.setParentNode(whileImpl);
-					}else{
-						writeReportError(reportLog, assign, "Expression");
-					}
+					whileImpl.setCondition(condition);
+					whileImpl.setCoverage(condition.coverage());
+					condition.setParentNode(whileImpl);
 					
-					Token paraRight = (Token)objs[3];
+					Token paraRight = unpack(objs[3], Token.class);
 					
 					whileImpl.setCoverage(paraRight);
 					
-					Object stmt = objs[4];
+					StatementNode stmt = unpack(objs[4], StatementNode.class);
 					
-					if(stmt instanceof StatementNode){
-						StatementNode block = (StatementNode) stmt;
-						whileImpl.setLoopBody(block);
-						whileImpl.setCoverage(block.coverage());
-						block.setParentNode(whileImpl);
-					}else{
-//						if(stmt instanceof BlockNode){
-//							BlockNode block = (BlockNode) stmt;
-//							whileImpl.setLoopBody(block);
-//							whileImpl.setCoverage(block.coverage());
-//							block.setParentNode(whileImpl);
-//						}
-
-						writeReportError(reportLog, stmt, "Statement or block of statements");
-					}
+					whileImpl.setLoopBody(stmt);
+					whileImpl.setCoverage(stmt.coverage());
+					stmt.setParentNode(whileImpl);
 					
 					return whileImpl;
 				}
@@ -453,46 +371,30 @@ public class ReduceImpl {
 				public Object create(Object... objs) throws ParserException  {
 					DoWhileNodeImpl whileImpl = new DoWhileNodeImpl();
 					
-					Token doToken = (Token)objs[0];
+					Token doToken = unpack(objs[0], Token.class);
 					
 					whileImpl.setCoverage(doToken);
 					
-					Object stmt = objs[1];
+					StatementNode stmt = unpack(objs[1], StatementNode.class);
 					
-					if(stmt instanceof StatementNode){
-						StatementNode block = (StatementNode) stmt;
-						whileImpl.setLoopBody(block);
-						whileImpl.setCoverage(block.coverage());
-						block.setParentNode(whileImpl);
-					}else{
-//						if(stmt instanceof BlockNode){
-//							BlockNode block = (BlockNode) stmt;
-//							whileImpl.setLoopBody(block);
-//							whileImpl.setCoverage(block.coverage());
-//							block.setParentNode(whileImpl);
-//						}
-						writeReportError(reportLog, stmt, "Statement or Block of Statements");
-					}
+					whileImpl.setLoopBody(stmt);
+					whileImpl.setCoverage(stmt.coverage());
+					stmt.setParentNode(whileImpl);
 					
-					Token whileToken = (Token)objs[2];
-					Token paraLeft = (Token)objs[3];
+					Token whileToken = unpack(objs[2], Token.class);
+					Token paraLeft = unpack(objs[3], Token.class);
 					
 					whileImpl.setCoverage(whileToken,paraLeft);
 
-					Object cond = objs[4];
+					ExpressionNode condition = unpack(objs[4], ExpressionNode.class);
 					
-					if(cond instanceof ExpressionNode){
-						ExpressionNode expression = (ExpressionNode) cond;
-						whileImpl.setCondition(expression);
-						whileImpl.setCoverage(expression.coverage());
-						expression.setParentNode(whileImpl);
-					}else{
-						writeReportError(reportLog, cond, "Expression");
-					}
+					whileImpl.setCondition(condition);
+					whileImpl.setCoverage(condition.coverage());
+					condition.setParentNode(whileImpl);
 					
-					Token paraRight = (Token)objs[5];
+					Token paraRight = unpack(objs[5], Token.class);
 					
-					Token sem = (Token)objs[6];
+					Token sem = unpack(objs[6], Token.class);
 					
 					whileImpl.setCoverage(paraRight,sem);
 					
@@ -505,8 +407,11 @@ public class ReduceImpl {
 			return new ReduceAction() {
 				@Override
 				public Object create(Object... objs) throws ParserException  {
+					Token breakk = unpack(objs[0], Token.class);
+					Token sem = unpack(objs[1], Token.class);
+					
 					BreakNodeImpl breakImpl = new BreakNodeImpl();
-					breakImpl.setCoverage((Token)objs[0],(Token)objs[1]);
+					breakImpl.setCoverage(breakk, sem);
 					return new BreakNodeImpl();
 				}
 
@@ -515,8 +420,11 @@ public class ReduceImpl {
 			return new ReduceAction() {
 				@Override
 				public Object create(Object... objs) throws ParserException  {
+					Token returnn = unpack(objs[0], Token.class);
+					Token sem = unpack(objs[1], Token.class);
+					
 					ReturnNodeImpl returnImpl = new ReturnNodeImpl();
-					returnImpl.setCoverage((Token)objs[0],(Token)objs[1]);
+					returnImpl.setCoverage(returnn, sem);
 					return returnImpl;
 				}
 			};
@@ -524,13 +432,16 @@ public class ReduceImpl {
 			return new ReduceAction() {
 				@Override
 				public Object create(Object... objs) throws ParserException  {
+					Token returnn = unpack(objs[0], Token.class);
+					IdentifierNode identifier = unpack(objs[1], IdentifierNode.class);
+					Token sem = unpack(objs[2], Token.class);
+					
 					ReturnNodeImpl returnNode = new ReturnNodeImpl();
-					IdentifierNode identifier = (IdentifierNode) objs[1];
 					returnNode.setRightValue(identifier);
 					identifier.setParentNode(returnNode);
-					returnNode.setCoverage((Token)objs[0]);
+					returnNode.setCoverage(returnn);
 					returnNode.setCoverage(identifier.coverage());
-					returnNode.setCoverage((Token)objs[2]);
+					returnNode.setCoverage(sem);
 					return returnNode;
 				}
 			};
@@ -539,22 +450,18 @@ public class ReduceImpl {
 			return new ReduceAction() {
 				@Override
 				public Object create(Object... objs) throws ParserException  {
-					Object id = objs[1]; // IdentifierNode expected
-					// semicolon gets dropped
+					Token print = unpack(objs[0], Token.class);
+					IdentifierNode identifier = unpack(objs[1], IdentifierNode.class); // IdentifierNode expected
+					Token sem = unpack(objs[2], Token.class);
 					
 					PrintNodeImpl printNode = new PrintNodeImpl();
 					
-					printNode.setCoverage((Token)objs[0]);
+					printNode.setCoverage(print);
 					
-					if(id instanceof IdentifierNode){
-						IdentifierNode idNode = (IdentifierNode) id;
-						printNode.setRightValue(idNode);
-						printNode.setCoverage(idNode.coverage());
-					}else{
-						writeReportError(reportLog, ((ASTNode)id).coverage(), "Identifier");
-					}
+					printNode.setRightValue(identifier);
+					printNode.setCoverage(identifier.coverage());
 					
-					printNode.setCoverage((Token)objs[2]);
+					printNode.setCoverage(sem);
 					
 					return printNode;
 				}
@@ -566,44 +473,20 @@ public class ReduceImpl {
 				public Object create(Object... objs) throws ParserException  {
 					ArrayIdentifierNodeImpl arrayIdentifier = new ArrayIdentifierNodeImpl();
 					
-					if(!(objs[0] instanceof IdentifierNode)){
-						writeReportError(reportLog, objs[0], "Identifier");
-					}
+					IdentifierNode identifier = unpack(objs[0], IdentifierNode.class);
 					
-					IdentifierNode node = (IdentifierNode)objs[0];
-					arrayIdentifier.setIdentifierNode(node);
-					arrayIdentifier.setCoverage(node.coverage());
-					node.setParentNode(arrayIdentifier);
+					arrayIdentifier.setIdentifierNode(identifier);
+					arrayIdentifier.setCoverage(identifier.coverage());
+					identifier.setParentNode(arrayIdentifier);
 					
-					if(!(objs[1] instanceof Token)){
-						writeReportError(reportLog, objs[1], "Token [");
-					}
-					
-					Token leftSquareBracket = (Token) objs[1];
+					Token leftSquareBracket = unpack(objs[1], Token.class);
 					arrayIdentifier.setCoverage(leftSquareBracket);
-
-					if(!(objs[2] instanceof ExpressionNode)){
-						writeReportError(reportLog, objs[2], "Expression");
-					}					
 					
-
-//					LiteralNode literal = (LiteralNode)objs[2];
-//					if(!(literal.getLiteralType() instanceof LongType)){
-//						writeReportError(reportLog, objs[2], "Number");
-//					}
-//					
-//					arrayIdentifier.setIndexNode(literal);
-//					arrayIdentifier.setCoverage(literal.coverage());
-
-					ExpressionNode assign = (ExpressionNode)objs[2];
+					ExpressionNode assign = unpack(objs[2], ExpressionNode.class);
 					arrayIdentifier.setIndexNode(assign);
 					arrayIdentifier.setCoverage(assign.coverage());
 					
-					if(!(objs[3] instanceof Token)){
-						writeReportError(reportLog, objs[1], "Token [");
-					}
-					
-					Token rightSquareBracket = (Token) objs[3];
+					Token rightSquareBracket = unpack(objs[3], Token.class);
 					arrayIdentifier.setCoverage(rightSquareBracket);
 					return arrayIdentifier;
 				}
@@ -613,13 +496,9 @@ public class ReduceImpl {
 			return new ReduceAction() {
 				@Override
 				public Object create(Object... objs) throws ParserException  {
+					Token token = unpack(objs[0], Token.class);
+					
 					BasicIdentifierNodeImpl identifierNode = new BasicIdentifierNodeImpl();
-					
-					if(!(objs[0] instanceof Token)){
-						writeReportError(reportLog, objs[0], "Token id");
-					}
-					
-					Token token = (Token) objs[0];
 					identifierNode.setIdentifier(token.getValue());
 					identifierNode.setCoverage(token);
 					return identifierNode;
@@ -632,27 +511,15 @@ public class ReduceImpl {
 
 					StructIdentifierNodeImpl identifierNode = new StructIdentifierNodeImpl();
 					
-					if(!(objs[0] instanceof IdentifierNode)){
-						writeReportError(reportLog, objs[0], "Identifier");
-					}
+					IdentifierNode identifier = unpack(objs[0], IdentifierNode.class);
+					identifierNode.setIdentifierNode(identifier);
+					identifierNode.setCoverage(identifier.coverage());
+					identifier.setParentNode(identifierNode);
 					
-					IdentifierNode node = (IdentifierNode)objs[0];
-					identifierNode.setIdentifierNode(node);
-					identifierNode.setCoverage(node.coverage());
-					node.setParentNode(identifierNode);
-					
-					if(!(objs[1] instanceof Token)){
-						writeReportError(reportLog, objs[1], "Token .");
-					}
-					
-					Token dot = (Token) objs[1];
+					Token dot = unpack(objs[1], Token.class);
 					identifierNode.setCoverage(dot);
-
-					if(!(objs[2] instanceof Token)){
-						writeReportError(reportLog, objs[2], "Token id");
-					}
 					
-					Token token = (Token) objs[2];
+					Token token = unpack(objs[2], Token.class);
 					identifierNode.setFieldName(token.getValue());
 					identifierNode.setCoverage(token);
 					
@@ -664,19 +531,19 @@ public class ReduceImpl {
 				@Override
 				public Object create(Object... objs) throws ParserException  {
 					AssignmentNodeImpl assignNode = new AssignmentNodeImpl();
-					IdentifierNode identifier = (IdentifierNode) objs[0];
-					Token equalSign = (Token) objs[1];
-					ExpressionNode node = (ExpressionNode) objs[2];
+					
+					IdentifierNode identifier = unpack(objs[0], IdentifierNode.class);
+					Token equalSign = unpack(objs[1], Token.class);
+					ExpressionNode node = unpack(objs[2], ExpressionNode.class);
+					
 					assignNode.setLeftValue(identifier);
 					assignNode.getLeftValue().setParentNode(assignNode);
 					assignNode.setRightValue(node); 
 					assignNode.getRightValue().setParentNode(assignNode);
 					
-					AssignmentNodeImpl assignImpl = ((AssignmentNodeImpl)assignNode);
-					
-					assignImpl.setCoverage(identifier.coverage());
-					assignImpl.setCoverage(equalSign);
-					assignImpl.setCoverage(node.coverage());
+					assignNode.setCoverage(identifier.coverage());
+					assignNode.setCoverage(equalSign);
+					assignNode.setCoverage(node.coverage());
 					return assignNode;
 				}
 			};
@@ -783,20 +650,10 @@ public class ReduceImpl {
 			return new ReduceAction() {
 				@Override
 				public Object create(Object... objs) throws ParserException  {
-					
 					LogicUnaryExpressionNodeImpl unary = new LogicUnaryExpressionNodeImpl();
 					
-					if(!(objs[0] instanceof Token)){
-						writeReportError(reportLog, objs[0], "Token !");
-					}
-					
-					Token token = (Token) objs[0];
-					
-					if(!(objs[1] instanceof ExpressionNode)){
-						writeReportError(reportLog, objs[1], "Expression");
-					}
-					
-					ExpressionNode expr = (ExpressionNode)objs[1];
+					Token token = unpack(objs[0], Token.class);
+					ExpressionNode expr = unpack(objs[1], ExpressionNode.class);
 
 					unary.setOperator(UnaryOperator.LOGICAL_NEGATE);
 					unary.setRightValue(expr);
@@ -811,18 +668,8 @@ public class ReduceImpl {
 			return new ReduceAction() {
 				@Override
 				public Object create(Object... objs) throws ParserException  {
-					
-					if(!(objs[0] instanceof Token)){
-						writeReportError(reportLog, objs[0], "Token -");
-					}
-					
-					Token token = (Token) objs[0];
-					
-					if(!(objs[1] instanceof ExpressionNode)){
-						writeReportError(reportLog, objs[1], "Expression");
-					}
-					
-					ExpressionNode expr = (ExpressionNode)objs[1];
+					Token token = unpack(objs[0], Token.class);
+					ExpressionNode expr = unpack(objs[1], ExpressionNode.class);
 
 					ArithmeticUnaryExpressionNodeImpl arithUnary = new ArithmeticUnaryExpressionNodeImpl();
 					arithUnary.setOperator(UnaryOperator.MINUS);
@@ -839,22 +686,12 @@ public class ReduceImpl {
 			return new ReduceAction() {
 				@Override
 				public Object create(Object... objs) throws ParserException  {
+					Token lb = unpack(objs[0], Token.class);
+					ASTNodeImpl astNode = unpack(objs[1], ASTNodeImpl.class);
+					Token rb = unpack(objs[2], Token.class);
 					
-					if(!(objs[0] instanceof Token)){
-						writeReportError(reportLog, objs[0], "Token (");
-					}
-					
-					if(!(objs[1] instanceof ExpressionNode)){
-						writeReportError(reportLog, objs[1], "Expression");
-					}
-					
-					if(!(objs[2] instanceof Token)){
-						writeReportError(reportLog, objs[2], "Token )");
-					}
-
-					ASTNodeImpl astNode = (ASTNodeImpl) objs[1];
-					astNode.setCoverageAtFront((Token)objs[0]);
-					astNode.setCoverage((Token)objs[2]);
+					astNode.setCoverageAtFront(lb);
+					astNode.setCoverage(rb);
 					
 					return  astNode;
 				}
@@ -866,8 +703,9 @@ public class ReduceImpl {
 			return new ReduceAction() {
 				@Override
 				public Object create(Object... objs) throws ParserException  {
+					Token token = unpack(objs[0], Token.class);
+					
 					LiteralNodeImpl literal = new LiteralNodeImpl();
-					Token token = (Token) objs[0];
 					literal.setLiteral(token.getValue());
 					literal.setLiteralType(new LongType());
 					literal.setCoverage(token);
@@ -878,8 +716,9 @@ public class ReduceImpl {
 			return new ReduceAction() {
 				@Override
 				public Object create(Object... objs) throws ParserException  {
+					Token token = unpack(objs[0], Token.class);
+					
 					LiteralNodeImpl literal = new LiteralNodeImpl();
-					Token token = (Token) objs[0];
 					literal.setLiteral(token.getValue());
 					literal.setLiteralType(new DoubleType());
 					literal.setCoverage(token);
@@ -890,8 +729,9 @@ public class ReduceImpl {
 			return new ReduceAction() {
 				@Override
 				public Object create(Object... objs) throws ParserException  {
+					Token token = unpack(objs[0], Token.class);
+					
 					LiteralNodeImpl literal = new LiteralNodeImpl();
-					Token token = (Token) objs[0];
 					literal.setLiteral(token.getValue());
 					literal.setLiteralType(new BooleanType());
 					literal.setCoverage(token);
@@ -902,8 +742,9 @@ public class ReduceImpl {
 			return new ReduceAction() {
 				@Override
 				public Object create(Object... objs) throws ParserException  {
+					Token token = unpack(objs[0], Token.class);
+					
 					LiteralNodeImpl literal = new LiteralNodeImpl();
-					Token token = (Token) objs[0];
 					literal.setLiteral(token.getValue());
 					literal.setLiteralType(new BooleanType());
 					literal.setCoverage(token);
@@ -914,8 +755,9 @@ public class ReduceImpl {
 			return new ReduceAction() {
 				@Override
 				public Object create(Object... objs) throws ParserException  {
+					Token token = unpack(objs[0], Token.class);
+					
 					LiteralNodeImpl literal = new LiteralNodeImpl();
-					Token token = (Token) objs[0];
 					literal.setLiteral(token.getValue());
 					literal.setLiteralType(new StringType((long) token
 							.getValue().length()));
@@ -929,14 +771,10 @@ public class ReduceImpl {
 				@Override
 				public Object create(Object... objs) throws ParserException  {
 					//typeToken DeclarationNode is wasted after reduce, not needed any more
-					DeclarationNode typeToken = (DeclarationNode) objs[0];
-					Token leftBrace = (Token) objs[1];
-					
-					if(!(objs[2] instanceof NumToken)){
-						writeReportError(reportLog,objs[2],"Number");
-					}
-					NumToken size = (NumToken) objs[2];
-					Token rightBrace = (Token) objs[3];
+					DeclarationNode typeToken = unpack(objs[0], DeclarationNode.class);
+					Token leftBrace = unpack(objs[1], Token.class);
+					NumToken size = unpack(objs[2], NumToken.class);
+					Token rightBrace = unpack(objs[3], Token.class);
 					
 					//create Array declaration
 					Type type = new ArrayType(typeToken.getType(), size.getLongValue().intValue());
@@ -954,12 +792,7 @@ public class ReduceImpl {
 			return new ReduceAction() {
 				@Override
 				public Object create(Object... objs) throws ParserException  {
-					
-					if(!(objs[0] instanceof Token)){
-						writeReportError(reportLog, objs[0], "Type");
-					}
-					
-					Token token = (Token)objs[0];
+					Token token = unpack(objs[0], Token.class);
 					DeclarationNodeImpl decl = new DeclarationNodeImpl();
 					
 					//look for BasicType and reduce
@@ -1001,23 +834,14 @@ public class ReduceImpl {
 					
 					DeclarationNodeImpl struct = new DeclarationNodeImpl();
 					
-					if(!(objs[0] instanceof Token)){
-						writeReportError(reportLog, objs[0], "Record");
-					}
+					Token record = unpack(objs[0], Token.class);
+					Token lcb = unpack(objs[1], Token.class);
 					
-					if(!(objs[1] instanceof Token)){
-						writeReportError(reportLog, objs[1], "{");
-					}
+					struct.setCoverage(record, lcb);
 					
-					struct.setCoverage((Token)objs[0], (Token)objs[1]);
+					BlockNode block = unpack(objs[2], BlockNode.class);
 					
-					if(!(objs[2] instanceof BlockNode)){
-						writeReportError(reportLog, objs[2], "Declarations" );
-					}
-					
-					
-					BlockNode blockNode = (BlockNode)objs[2];
-					List<DeclarationNode> decls = blockNode.getDeclarationList();
+					List<DeclarationNode> decls = block.getDeclarationList();
 					
 					int size = decls.size();
 					Member[] members = new Member[size];
@@ -1031,13 +855,11 @@ public class ReduceImpl {
 					StructType type = new StructType("record", members);
 					struct.setType(type);
 					
-					struct.setCoverage(blockNode.coverage());
+					struct.setCoverage(block.coverage());
 					
-					if(!(objs[3] instanceof Token)){
-						writeReportError(reportLog, objs[1], "}");
-					}
+					Token rcb = unpack(objs[3], Token.class);
 					
-					struct.setCoverage((Token)objs[3]);
+					struct.setCoverage(rcb);
 					
 					return struct;
 				}
@@ -1047,6 +869,23 @@ public class ReduceImpl {
 			return null; // Means "no ReduceAction to perform"
 		}
 		return null;
+	}
+	
+	
+	/**
+	 * Casts the given object in a safe way
+	 * 
+	 * @param obj
+	 * @param clazz
+	 * @return
+	 */
+	private <T> T unpack(Object obj, Class<T> clazz) {
+		try {
+			return clazz.cast(obj);
+		} catch (ClassCastException cce) {
+			writeReportError(reportLog, obj, clazz.getName());
+			return null;
+		}
 	}
 
 
@@ -1090,18 +929,18 @@ public class ReduceImpl {
 			for (StatementNode stmt : stmtsBlock.getStatementList()) {
 				
 				//look for Blocknodes, Loopnodes and Branchnodes and concat Symboltables
-				if(stmt instanceof BranchNode){
+				if (stmt instanceof BranchNode){
 					BranchNode branch = (BranchNode)stmt;
-					if(branch.getStatementNodeOnTrue() instanceof BlockNode){
+					if (branch.getStatementNodeOnTrue() instanceof BlockNode){
 						BlockNode node = (BlockNode) branch.getStatementNodeOnTrue();
 						((SymbolTableImpl)node.getSymbolTable()).setParent(newBlock.getSymbolTable());
 					}
-					if(branch.getStatementNodeOnFalse() instanceof BlockNode){
+					if (branch.getStatementNodeOnFalse() instanceof BlockNode){
 						BlockNode node = (BlockNode) branch.getStatementNodeOnFalse();
 						((SymbolTableImpl)node.getSymbolTable()).setParent(newBlock.getSymbolTable());
 					}					
-				}else{
-					if(stmt instanceof BlockNode){
+				} else {
+					if (stmt instanceof BlockNode){
 						((SymbolTableImpl)((BlockNode)stmt).getSymbolTable()).setParent(newBlock.getSymbolTable());
 					} else if (stmt instanceof LoopNode) {
 						StatementNode childStmt = ((LoopNode)stmt).getLoopBody();
@@ -1131,12 +970,11 @@ public class ReduceImpl {
 	 * @throws ParserException
 	 */
 	private static void writeReportError(final ReportLog reportLog,
-			Object obj,String msg) throws ParserException{
-		if(obj instanceof ASTNode){
+			Object obj, String msg) throws ParserException{
+		if (obj instanceof ASTNode){
 			reportLog.reportError(ReportType.UNDEFINED, ((ASTNode)obj).coverage(), "There is no " + msg + " found!");
 			throw new ParserException(msg +" expected");
-		}
-		if(obj instanceof Token){
+		} else if (obj instanceof Token){
 			List<Token> list = new ArrayList<Token>();
 			list.add((Token)obj);
 			reportLog.reportError(ReportType.UNDEFINED, list, "There is no " + msg + " found!");
@@ -1151,23 +989,12 @@ public class ReduceImpl {
 	 * @param objs
 	 * @return
 	 */
-	private static Object createBinaryExpr(final ReportLog reportLog,  
+	private Object createBinaryExpr(final ReportLog reportLog,  
 			final BinaryOperator op, String opStr,
 			Object... objs) {
-		if(!(objs[0] instanceof ExpressionNode)){
-			writeReportError(reportLog, objs[0], "Expression");
-		}
-		
-		if(!(objs[1] instanceof Token)){
-			writeReportError(reportLog, objs[1], "Token " + opStr);
-		}
-		if(!(objs[2] instanceof ExpressionNode)){
-			writeReportError(reportLog, objs[2], "Expression");
-		}
-		
-		ExpressionNode leftExpr = (ExpressionNode) objs[0];
-		Token opToken = (Token) objs[1];
-		ExpressionNode rightExpr = (ExpressionNode) objs[2];
+		ExpressionNode leftExpr = unpack(objs[0], ExpressionNode.class);
+		Token opToken = unpack(objs[1], Token.class);
+		ExpressionNode rightExpr = unpack(objs[2], ExpressionNode.class);
 		
 		BinaryExpressionNodeImpl binExpr = null;
 		switch (op) {
@@ -1227,5 +1054,9 @@ public class ReduceImpl {
 		public String toString() {
 			return getTypeName();
 		}
+	}
+	
+	public void setReportLog(ReportLog reportLog) {
+		this.reportLog = reportLog;
 	}
 }

@@ -40,12 +40,15 @@ import swp_compiler_ss13.fuc.parser.parser.ReduceImpl;
 public class ReduceImplTest {
 
 	
-	static ReportLog reportLog;
-	static List<Token> coverage = new LinkedList<Token>();
+	private static ReportLog reportLog;
+	private static List<Token> coverage = new LinkedList<Token>();
+	private static ReduceImpl reduceImpl;
 	
 	@BeforeClass
 	public static void setUp() throws Exception {
 		reportLog = new ParserReportLogImpl();
+		reduceImpl = new ReduceImpl();
+		reduceImpl.setReportLog(reportLog);
 	}
 
 	@After
@@ -930,7 +933,7 @@ public class ReduceImplTest {
 	private Object getStatement(Object statement){
 		Token sem = new TokenImpl(";", TokenType.SEMICOLON, -1, -1);
 		addAfter(sem, ((ASTNode)statement).coverage());
-		ReduceAction action = ReduceImpl.getReduceAction(ProjectGrammar.Complete.stmt1, reportLog);
+		ReduceAction action = reduceImpl.getReduceAction(ProjectGrammar.Complete.stmt1);
 		return action.create(statement,sem);
 	}
 	
@@ -977,7 +980,7 @@ Object type1 = getBasicDecl("long", TokenType.LONG_SYMBOL);
 	 * @return
 	 */
 	private Object getDeclarationBlock(Object declaration1, Object declaration2){
-		ReduceAction action = ReduceImpl.getReduceAction(ProjectGrammar.Complete.decls1, reportLog);
+		ReduceAction action = reduceImpl.getReduceAction(ProjectGrammar.Complete.decls1);
 		return action.create(declaration1,declaration2);
 	}
 	
@@ -988,7 +991,7 @@ Object type1 = getBasicDecl("long", TokenType.LONG_SYMBOL);
 	 * @return
 	 */
 	private Object getDeclBlockStateBlockUnion(Object decl,Object statement){
-		ReduceAction action = ReduceImpl.getReduceAction(ProjectGrammar.Complete.program1, reportLog);
+		ReduceAction action = reduceImpl.getReduceAction(ProjectGrammar.Complete.program1);
 		return action.create(decl,statement);
 	}
 	
@@ -1001,7 +1004,7 @@ Object type1 = getBasicDecl("long", TokenType.LONG_SYMBOL);
 	private Object getDeclBlockStateBlockInBrace(Object decl,Object stmt){
 		Token lb = new TokenImpl("{", TokenType.LEFT_BRACE, -1, -1);
 		addBefore(lb, ((ASTNode)decl).coverage());
-		ReduceAction action = ReduceImpl.getReduceAction(ProjectGrammar.Complete.block1, reportLog);
+		ReduceAction action = reduceImpl.getReduceAction(ProjectGrammar.Complete.block1);
 		Token rb = new TokenImpl("}", TokenType.RIGHT_BRACE, -1, -1);
 		addAfter(rb, ((ASTNode)stmt).coverage());
 		return action.create(lb,decl,stmt,rb);
@@ -1016,7 +1019,7 @@ Object type1 = getBasicDecl("long", TokenType.LONG_SYMBOL);
 	 * @return
 	 */
 	private Object getStatementBlock(Object statement1, Object statement2){
-		ReduceAction action = ReduceImpl.getReduceAction(ProjectGrammar.Complete.stmts1, reportLog);
+		ReduceAction action = reduceImpl.getReduceAction(ProjectGrammar.Complete.stmts1);
 		return action.create(statement1, statement2);
 	}
 	
@@ -1028,7 +1031,7 @@ Object type1 = getBasicDecl("long", TokenType.LONG_SYMBOL);
 	private Object getIdentifier(String name){
 		Token identifierToken = new TokenImpl(name,TokenType.ID,-1,-1);
 		coverage.add(identifierToken);
-		ReduceAction action = ReduceImpl.getReduceAction(ProjectGrammar.Complete.loc2, reportLog);
+		ReduceAction action = reduceImpl.getReduceAction(ProjectGrammar.Complete.loc2);
 		return action.create(identifierToken);
 	}
 	
@@ -1042,7 +1045,7 @@ Object type1 = getBasicDecl("long", TokenType.LONG_SYMBOL);
 	private Object getEqualsOp(Object identifier1, Object identifier2){
 		Token equalop = new TokenImpl("==", TokenType.EQUALS, 2, 3);
 		addAfter(equalop, ((ASTNode)identifier1).coverage());
-		ReduceAction action = ReduceImpl.getReduceAction(ProjectGrammar.Complete.equality1, reportLog);
+		ReduceAction action = reduceImpl.getReduceAction(ProjectGrammar.Complete.equality1);
 		return action.create(identifier1, equalop, identifier2);
 	}
 	
@@ -1055,7 +1058,7 @@ Object type1 = getBasicDecl("long", TokenType.LONG_SYMBOL);
 	private Object getGreaterOp(Object identifier1, Object identifier2){
 		Token equalop = new TokenImpl(">", TokenType.GREATER, 2, 3);
 		addAfter(equalop, ((ASTNode)identifier1).coverage());
-		ReduceAction action = ReduceImpl.getReduceAction(ProjectGrammar.Complete.rel4, reportLog);
+		ReduceAction action = reduceImpl.getReduceAction(ProjectGrammar.Complete.rel4);
 		return action.create(identifier1, equalop, identifier2);
 	}
 	
@@ -1068,7 +1071,7 @@ Object type1 = getBasicDecl("long", TokenType.LONG_SYMBOL);
 	private Object getLesserOp(Object identifier1, Object identifier2){
 		Token equalop = new TokenImpl("<", TokenType.LESS, 2, 3);
 		addAfter(equalop, ((ASTNode)identifier1).coverage());
-		ReduceAction action = ReduceImpl.getReduceAction(ProjectGrammar.Complete.rel1, reportLog);
+		ReduceAction action = reduceImpl.getReduceAction(ProjectGrammar.Complete.rel1);
 		return action.create(identifier1, equalop, identifier2);
 	}
 	
@@ -1081,7 +1084,7 @@ Object type1 = getBasicDecl("long", TokenType.LONG_SYMBOL);
 	private Object getGreaterEqualOp(Object identifier1, Object identifier2){
 		Token equalop = new TokenImpl(">=", TokenType.GREATER_EQUAL, 2, 3);
 		addAfter(equalop, ((ASTNode)identifier1).coverage());
-		ReduceAction action = ReduceImpl.getReduceAction(ProjectGrammar.Complete.rel3, reportLog);
+		ReduceAction action = reduceImpl.getReduceAction(ProjectGrammar.Complete.rel3);
 		return action.create(identifier1, equalop, identifier2);
 	}
 	
@@ -1094,7 +1097,7 @@ Object type1 = getBasicDecl("long", TokenType.LONG_SYMBOL);
 	private Object getLessEqualOp(Object identifier1, Object identifier2){
 		Token equalop = new TokenImpl("<=", TokenType.LESS_OR_EQUAL, 2, 3);
 		addAfter(equalop, ((ASTNode)identifier1).coverage());
-		ReduceAction action = ReduceImpl.getReduceAction(ProjectGrammar.Complete.rel2, reportLog);
+		ReduceAction action = reduceImpl.getReduceAction(ProjectGrammar.Complete.rel2);
 		return action.create(identifier1, equalop, identifier2);
 	}
 	
@@ -1106,7 +1109,7 @@ Object type1 = getBasicDecl("long", TokenType.LONG_SYMBOL);
 	private Object getNumLiteral(String value){
 		Token literalToken = new TokenImpl(value,TokenType.NUM,-1,-1);
 		coverage.add(literalToken);
-		ReduceAction action = ReduceImpl.getReduceAction(ProjectGrammar.Complete.factor3, reportLog);
+		ReduceAction action = reduceImpl.getReduceAction(ProjectGrammar.Complete.factor3);
 		
 		return action.create(literalToken);
 	}
@@ -1119,7 +1122,7 @@ Object type1 = getBasicDecl("long", TokenType.LONG_SYMBOL);
 	private Object getStringLiteral(String value){
 		Token literalToken = new TokenImpl(value,TokenType.STRING,-1,-1);
 		coverage.add(literalToken);
-		ReduceAction action = ReduceImpl.getReduceAction(ProjectGrammar.Complete.factor7, reportLog);
+		ReduceAction action = reduceImpl.getReduceAction(ProjectGrammar.Complete.factor7);
 		
 		return action.create(literalToken);
 	}
@@ -1132,7 +1135,7 @@ Object type1 = getBasicDecl("long", TokenType.LONG_SYMBOL);
 	private Object getRealLiteral(String value){
 		Token literalToken = new TokenImpl(value,TokenType.REAL,-1,-1);
 		coverage.add(literalToken);
-		ReduceAction action = ReduceImpl.getReduceAction(ProjectGrammar.Complete.factor4, reportLog);
+		ReduceAction action = reduceImpl.getReduceAction(ProjectGrammar.Complete.factor4);
 		
 		return action.create(literalToken);
 	}
@@ -1147,9 +1150,9 @@ Object type1 = getBasicDecl("long", TokenType.LONG_SYMBOL);
 		coverage.add(literalToken);
 		ReduceAction action = null;
 		if(ttype == TokenType.TRUE){
-			action = ReduceImpl.getReduceAction(ProjectGrammar.Complete.factor5, reportLog);
+			action = reduceImpl.getReduceAction(ProjectGrammar.Complete.factor5);
 		}else{
-			action = ReduceImpl.getReduceAction(ProjectGrammar.Complete.factor6, reportLog);
+			action = reduceImpl.getReduceAction(ProjectGrammar.Complete.factor6);
 		}
 		return action.create(literalToken);
 	}
@@ -1164,7 +1167,7 @@ Object type1 = getBasicDecl("long", TokenType.LONG_SYMBOL);
 	private Object getAssign(Object identifier, Object literal){
 		Token assign = new TokenImpl("=",TokenType.ASSIGNOP,1,7);
 		addAfter(assign, ((ASTNode)identifier).coverage());
-		ReduceAction action = ReduceImpl.getReduceAction(ProjectGrammar.Complete.assign1, reportLog);
+		ReduceAction action = reduceImpl.getReduceAction(ProjectGrammar.Complete.assign1);
 		
 		return action.create(identifier,assign,literal);
 	}
@@ -1174,7 +1177,7 @@ Object type1 = getBasicDecl("long", TokenType.LONG_SYMBOL);
 	 * @return
 	 */
 	private Object getArrayType(Object type, String length){
-		ReduceAction action2 = ReduceImpl.getReduceAction(ProjectGrammar.Complete.type1, reportLog);
+		ReduceAction action2 = reduceImpl.getReduceAction(ProjectGrammar.Complete.type1);
 		Token rb = new TokenImpl("]",TokenType.ID,1,8);
 		addAfter(rb, ((ASTNode)type).coverage());
 		Token num = new NumTokenImpl(length,TokenType.NUM,1,7);
@@ -1207,7 +1210,7 @@ Object type1 = getBasicDecl("long", TokenType.LONG_SYMBOL);
 		Token elseToken = new TokenImpl("else", TokenType.ELSE,5,1);
 		addAfter(elseToken, ((ASTNode)statement1).coverage());
 		
-		ReduceAction action6 = ReduceImpl.getReduceAction(ProjectGrammar.Complete.stmt3, reportLog);
+		ReduceAction action6 = reduceImpl.getReduceAction(ProjectGrammar.Complete.stmt3);
 		
 		return action6.create(ifToken, lb, cond, rb, statement1,elseToken,statement2);
 	}
@@ -1228,7 +1231,7 @@ Object type1 = getBasicDecl("long", TokenType.LONG_SYMBOL);
 		Token rb = new TokenImpl(")", TokenType.RIGHT_PARAN, 3, 10);
 		addBefore(rb, ((ASTNode)statement).coverage());
 		
-		ReduceAction action6 = ReduceImpl.getReduceAction(ProjectGrammar.Complete.stmt2, reportLog);
+		ReduceAction action6 = reduceImpl.getReduceAction(ProjectGrammar.Complete.stmt2);
 		
 		return action6.create(ifToken, lb, cond, rb, statement);
 	}
@@ -1238,7 +1241,7 @@ Object type1 = getBasicDecl("long", TokenType.LONG_SYMBOL);
 	 * @return
 	 */
 	private Object getDecl(Object type, String id){
-		ReduceAction action3 = ReduceImpl.getReduceAction(ProjectGrammar.Complete.decl1, reportLog);
+		ReduceAction action3 = reduceImpl.getReduceAction(ProjectGrammar.Complete.decl1);
 		Token semicolon = new TokenImpl(";",TokenType.SEMICOLON,1,11);
 		addAfter(semicolon, ((ASTNode)type).coverage());
 		
@@ -1254,7 +1257,7 @@ Object type1 = getBasicDecl("long", TokenType.LONG_SYMBOL);
 	 * @return
 	 */
 	private Object getBasicDecl(String type, TokenType ttype){
-		ReduceAction action1 = ReduceImpl.getReduceAction(ProjectGrammar.Complete.type2, reportLog);
+		ReduceAction action1 = reduceImpl.getReduceAction(ProjectGrammar.Complete.type2);
 		Token longToken = new TokenImpl(type, ttype, 1, 1);
 		coverage.add(longToken);
 		return action1.create(longToken);
@@ -1276,7 +1279,7 @@ Object type1 = getBasicDecl("long", TokenType.LONG_SYMBOL);
 		Token rb = new TokenImpl(")", TokenType.RIGHT_PARAN, 3, 10);
 		addAfter(rb, ((ASTNode)cond).coverage());
 		
-		ReduceAction action = ReduceImpl.getReduceAction(ProjectGrammar.Complete.stmt9, reportLog);
+		ReduceAction action = reduceImpl.getReduceAction(ProjectGrammar.Complete.stmt9);
 		
 		return action.create(doToken, statement, whileToken, lb, cond, rb, sem);
 	}
@@ -1297,7 +1300,7 @@ Object type1 = getBasicDecl("long", TokenType.LONG_SYMBOL);
 		Token rb = new TokenImpl(")", TokenType.RIGHT_PARAN, 3, 10);
 		addBefore(rb, ((ASTNode)statement).coverage());
 		
-		ReduceAction action = ReduceImpl.getReduceAction(ProjectGrammar.Complete.stmt4, reportLog);
+		ReduceAction action = reduceImpl.getReduceAction(ProjectGrammar.Complete.stmt4);
 		
 		return action.create(whileToken, lb, cond, rb, statement);
 	}
