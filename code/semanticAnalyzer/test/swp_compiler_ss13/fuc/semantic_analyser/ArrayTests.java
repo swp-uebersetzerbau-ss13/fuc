@@ -112,6 +112,7 @@ public class ArrayTests {
 		ast.setRootNode(blockNode);
 		analyser.analyse(ast);
 
+		System.out.println(log);
 		List<LogEntry> errors = log.getErrors();
 		assertEquals(errors.size(), 1);
 		assertEquals(errors.get(0).getReportType(), ReportType.TYPE_MISMATCH);
@@ -174,6 +175,7 @@ public class ArrayTests {
 		ast.setRootNode(blockNode);
 		analyser.analyse(ast);
 
+		System.out.println(log);
 		List<LogEntry> errors = log.getErrors();
 		assertEquals(errors.size(), 1);
 		assertEquals(errors.get(0).getReportType(), ReportType.TYPE_MISMATCH);
@@ -275,5 +277,122 @@ public class ArrayTests {
 		assertEquals(errors.size(), 1);
 		// TODO correct reportType
 		assertEquals(errors.get(0).getReportType(), ReportType.UNDEFINED);
+	}
+
+	/**
+	 * # no errors expected<br/>
+	 * long [1][1] a;<br/>
+	 * long l;<br/>
+	 * <br/>
+	 * l = a[0][0];<br/>
+	 * a[0][0] = l;
+	 */
+	@Test
+	public void testMultiDimensionalArray() {
+		ASTFactory astFactory = new ASTFactory();
+
+		astFactory.addDeclaration("a", new ArrayType(new ArrayType(
+				new LongType(), 1), 1));
+		astFactory.addDeclaration("l", new LongType());
+
+		astFactory.addAssignment(astFactory.newBasicIdentifier("l"), astFactory
+				.newArrayIdentifier(astFactory.newLiteral("0", new LongType()),
+						astFactory.newArrayIdentifier(
+								astFactory.newLiteral("0", new LongType()),
+								astFactory.newBasicIdentifier("a"))));
+		astFactory.addAssignment(astFactory.newArrayIdentifier(
+				astFactory.newLiteral("0", new LongType()),
+				astFactory.newArrayIdentifier(
+						astFactory.newLiteral("0", new LongType()),
+						astFactory.newBasicIdentifier("a"))), astFactory
+				.newBasicIdentifier("l"));
+
+		AST ast = astFactory.getAST();
+		analyser.analyse(ast);
+
+		System.out.println(log);
+		assertFalse(log.hasErrors());
+	}
+
+	/**
+	 * # error: assignment of bool-array to long-array<br/>
+	 * long [1] a;<br/>
+	 * bool [1] b;<br/>
+	 * <br/>
+	 * a = b;
+	 */
+	@Test
+	public void testArrayAssignmentError() {
+		ASTFactory astFactory = new ASTFactory();
+
+		astFactory.addDeclaration("a", new ArrayType(new LongType(), 1));
+		astFactory.addDeclaration("b", new ArrayType(new LongType(), 1));
+
+		astFactory.addAssignment(astFactory.newBasicIdentifier("a"),
+				astFactory.newBasicIdentifier("b"));
+
+		AST ast = astFactory.getAST();
+		analyser.analyse(ast);
+
+		System.out.println(log);
+		List<LogEntry> errors = log.getErrors();
+		assertEquals(errors.size(), 1);
+		assertEquals(errors.get(0).getReportType(), ReportType.TYPE_MISMATCH);
+	}
+	
+	/**
+	 * # error: assignment of 1-dimensional-array to 2-dimensional-array and vice versa<br/>
+	 * long [1][1] a;<br/>
+	 * long [1] b;<br/>
+	 * <br/>
+	 * a = b;<br/>
+	 * b = a;
+	 */
+	@Test
+	public void testMultiDimensionalArrayAssignmentError() {
+		ASTFactory astFactory = new ASTFactory();
+
+		astFactory.addDeclaration("a", new ArrayType(new ArrayType(new LongType(), 1),1));
+		astFactory.addDeclaration("b", new ArrayType(new LongType(), 1));
+
+		astFactory.addAssignment(astFactory.newBasicIdentifier("a"),
+				astFactory.newBasicIdentifier("b"));
+		astFactory.addAssignment(astFactory.newBasicIdentifier("b"),
+				astFactory.newBasicIdentifier("a"));
+
+		AST ast = astFactory.getAST();
+		analyser.analyse(ast);
+
+		System.out.println(log);
+		List<LogEntry> errors = log.getErrors();
+		assertEquals(errors.size(), 2);
+		assertEquals(errors.get(0).getReportType(), ReportType.TYPE_MISMATCH);
+		assertEquals(errors.get(1).getReportType(), ReportType.TYPE_MISMATCH);
+	}
+	
+	/**
+	 * # error: assignment of arrays of different lengths <br/>
+	 * long [1] a;<br/>
+	 * long [2] b;<br/>
+	 * <br/>
+	 * a = b;
+	 */
+	@Test
+	public void testDifferentLengthsAssignmentError() {
+		ASTFactory astFactory = new ASTFactory();
+
+		astFactory.addDeclaration("a", new ArrayType(new LongType(), 1));
+		astFactory.addDeclaration("b", new ArrayType(new LongType(), 2));
+
+		astFactory.addAssignment(astFactory.newBasicIdentifier("a"),
+				astFactory.newBasicIdentifier("b"));
+
+		AST ast = astFactory.getAST();
+		analyser.analyse(ast);
+
+		System.out.println(log);
+		List<LogEntry> errors = log.getErrors();
+		assertEquals(errors.size(), 1);
+		assertEquals(errors.get(0).getReportType(), ReportType.TYPE_MISMATCH);
 	}
 }
