@@ -12,6 +12,7 @@ import org.junit.Test;
 import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.ast.nodes.binary.AssignmentNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;
+import swp_compiler_ss13.common.ast.nodes.leaf.LiteralNode;
 import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ArrayIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
@@ -26,7 +27,11 @@ import swp_compiler_ss13.fuc.ast.AssignmentNodeImpl;
 import swp_compiler_ss13.fuc.ast.BasicIdentifierNodeImpl;
 import swp_compiler_ss13.fuc.ast.BlockNodeImpl;
 import swp_compiler_ss13.fuc.ast.DeclarationNodeImpl;
+<<<<<<< HEAD
 import swp_compiler_ss13.fuc.errorLog.LogEntry;
+=======
+import swp_compiler_ss13.fuc.ast.LiteralNodeImpl;
+>>>>>>> origin/master
 import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
 import swp_compiler_ss13.fuc.symbolTable.SymbolTableImpl;
 
@@ -196,8 +201,16 @@ public class ArrayTests {
 		identifier_a1.setIdentifier("a");
 		ArrayIdentifierNode arrayIdentifier_a1 = new ArrayIdentifierNodeImpl();
 		arrayIdentifier_a1.setIdentifierNode(identifier_a1);
+<<<<<<< HEAD
 		arrayIdentifier_a1.setIndex(0);
 		identifier_a1.setParentNode(arrayIdentifier_a1);
+=======
+		
+		LiteralNode value = new LiteralNodeImpl();
+		value.setLiteral("0");
+		value.setLiteralType(new LongType());
+		arrayIdentifier_a1.setIndexNode(value);
+>>>>>>> origin/master
 
 		AssignmentNode assignment_l = new AssignmentNodeImpl();
 		assignment_l.setLeftValue(identifier_l1);
@@ -212,8 +225,16 @@ public class ArrayTests {
 		identifier_a2.setIdentifier("a");
 		ArrayIdentifierNode arrayIdentifier_a2 = new ArrayIdentifierNodeImpl();
 		arrayIdentifier_a2.setIdentifierNode(identifier_a2);
+<<<<<<< HEAD
 		arrayIdentifier_a2.setIndex(0);
 		identifier_a2.setParentNode(arrayIdentifier_a2);
+=======
+		
+		LiteralNode value2 = new LiteralNodeImpl();
+		value2.setLiteral("0");
+		value2.setLiteralType(new LongType());
+		arrayIdentifier_a2.setIndexNode(value2);
+>>>>>>> origin/master
 
 		AssignmentNode assignment_a = new AssignmentNodeImpl();
 		assignment_a.setLeftValue(arrayIdentifier_a2);

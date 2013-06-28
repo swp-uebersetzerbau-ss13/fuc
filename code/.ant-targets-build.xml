@@ -1,0 +1,15 @@
+build
+build-tests
+clean
+dist
+dist-full
+doc
+help
+run
+run-gui
+run-gui-without-build
+run-tests
+run-tests-cross
+run-tests-runtime
+run-without-build
+update-log4j-props

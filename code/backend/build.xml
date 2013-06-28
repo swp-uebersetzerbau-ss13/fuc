@@ -29,6 +29,7 @@
 	<target name="build" depends="clean, interfaces" description="build the source files">
 		<mkdir dir="${bin.dir}" />
 		<javac
+			encoding="UTF-8"
 			debug="true"
 			debuglevel="lines,vars,source"
 			srcdir="${src.dir}"
@@ -68,6 +69,7 @@
 	<!-- === build tests === -->
 	<target name="build-tests" depends="build" description="build the junit tests">
 		<javac
+			encoding="UTF-8"
 			debug="true"
 			debuglevel="lines,vars,source"
 			srcdir="${test.dir}"
@@ -94,6 +96,7 @@
 				fork="yes"
 				haltonerror="true"
 				haltonfailure="true" >
+				<jvmarg value="-Dfile.encoding=UTF-8"/>
 				<classpath>
 					<path refid="classpath-test" />
 				</classpath>
@@ -146,6 +149,7 @@
                 fork="yes"
                 haltonerror="true"
                 haltonfailure="true">
+			<jvmarg value="-Dfile.encoding=UTF-8"/>
             <classpath>
                 <path refid="classpath-test"/>
             </classpath>

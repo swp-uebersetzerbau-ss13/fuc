@@ -148,7 +148,7 @@ public class ProjectGrammar {
 		public static final Production equality1 = new Production(28, equality,
 				equality, equalop, rel);
 		public static final Production equality2 = new Production(29, equality,
-				notequalop, rel);
+				equality, notequalop, rel);
 		public static final Production equality3 = new Production(30, equality,
 				rel);
 		public static final Production rel1 = new Production(31, rel, expr, lt,

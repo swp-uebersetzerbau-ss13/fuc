@@ -8,9 +8,9 @@ import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.fuc.parser.util.It;
 
 /**
- * Like all {@link Symbol}s {@link Terminal}s are identified by their String
- * id, except {@link SpecialTerminal}! They are identified by identity in memory
- * and thus must be referenced from this class, like {@link Terminal#Epsilon} or
+ * Like all {@link Symbol}s {@link Terminal}s are identified by their String id,
+ * except {@link SpecialTerminal}! They are identified by identity in memory and
+ * thus must be referenced from this class, like {@link Terminal#Epsilon} or
  * {@link Terminal#EOF}.
  * 
  * @author Gero
@@ -51,5 +51,19 @@ public class Terminal extends Symbol {
 
 	public It<TokenType> getTokenTypes() {
 		return new It<>(tokenTypes);
+	}
+
+	/**
+	 * @param targetType
+	 * @return Whether the given {@link TokenType} is associated with this
+	 *         {@link Terminal} by the {@link Grammar}
+	 */
+	public boolean isTerminalFor(TokenType targetType) {
+		for (TokenType tokenType : tokenTypes) {
+			if (targetType == tokenType) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

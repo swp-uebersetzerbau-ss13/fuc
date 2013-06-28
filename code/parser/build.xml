@@ -94,6 +94,7 @@
 
 	<!-- === run tests === -->
 	<target name="run-tests" depends="build-tests" description="run the junit tests">
+		
 		<junit
 			printsummary="on"
 			fork="yes"
@@ -101,6 +102,7 @@
 			showoutput="false"
 			haltonerror="true"
 			haltonfailure="true" >
+			<jvmarg value="-Dfile.encoding=UTF-8"/>
 			<classpath>
 				<path refid="classpath-test" />
 			</classpath>

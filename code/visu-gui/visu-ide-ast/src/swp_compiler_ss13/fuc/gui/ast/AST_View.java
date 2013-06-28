@@ -1,5 +1,9 @@
 package swp_compiler_ss13.fuc.gui.ast;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.JButton;
 import javax.swing.JComponent;
 
 import swp_compiler_ss13.common.ast.ASTNode;
@@ -16,10 +20,12 @@ public class AST_View implements View {
 
 	private final AST_Component component;
 	private final AST_Controller controller;
+	private final boolean isChecked;
 
-	public AST_View(AST_Controller controller, boolean isRoot) {
+	public AST_View(AST_Controller controller, boolean isRoot, AstGuiElementFactory nodeComponentFactory,boolean isChecked) {
 		this.controller = controller;
-		component = new AST_Component(controller, isRoot);
+		this.isChecked = isChecked;
+		component = new AST_Component(controller, isRoot,nodeComponentFactory);
 	}
 
 	public AST_View setNode(ASTNode node) {
@@ -38,10 +44,14 @@ public class AST_View implements View {
 	public void recalculateLayout() {
 		component.recalculateLayout();
 	}
+	
+	public void toggleNodeSize(){
+		component.toggleSize();
+	}
 
 	@Override
 	public String getName() {
-		return "AST";
+		return getPosition().name();
 	}
 
 	@Override
@@ -51,7 +61,7 @@ public class AST_View implements View {
 
 	@Override
 	public Position getPosition() {
-		return Position.AST;
+		return isChecked ? Position.CHECKED_AST : Position.AST;
 	}
 
 	@Override
@@ -60,5 +70,17 @@ public class AST_View implements View {
 	}
 
 	@Override
-	public void initComponents(IDE ide) {}
+	public void initComponents(IDE ide) {
+		if (component.isRoot()) {
+			JButton button = new JButton("toggle node size");
+			button.addActionListener(new ActionListener() {
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					controller.toggleNodeSize();
+				}
+			});
+			ide.addButton(button, getPosition(), false);
+		}
+	}
 }

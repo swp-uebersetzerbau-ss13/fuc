@@ -41,7 +41,7 @@ import swp_compiler_ss13.common.types.Type;
 import swp_compiler_ss13.common.types.derived.ArrayType;
 import swp_compiler_ss13.common.types.derived.Member;
 import swp_compiler_ss13.common.types.derived.StructType;
-import swp_compiler_ss13.fuc.parser.errorHandling.ParserASTXMLVisualization;
+import swp_compiler_ss13.fuc.ast.ASTImpl;
 
 public class ASTComparator {
 	
@@ -56,9 +56,9 @@ public class ASTComparator {
 	public static void compareAST(AST expected, AST actual) {
 		assertNotNull(actual);
 		
-		ParserASTXMLVisualization vis = new ParserASTXMLVisualization();
-		System.out.println(vis.visualizeAST(expected));
-		System.out.println(vis.visualizeAST(actual));
+//		ParserASTXMLVisualization vis = new ParserASTXMLVisualization();
+//		System.out.println(vis.visualizeAST(expected));
+//		System.out.println(vis.visualizeAST(actual));
 		
 		// Iterate both trees
 		Iterator<ASTNode> actualIt = actual.getDFSLTRIterator();
@@ -68,7 +68,15 @@ public class ASTComparator {
 			ASTNode actualNode = actualIt.next();
 			
 			log.debug("Expected: " + expectedNode.toString() + " | Actual: " + actualNode.toString());
-			compare(expectedNode, actualNode);
+			try {
+				compare(expectedNode, actualNode);
+			} catch (AssertionError err) {
+				StringBuilder b = new StringBuilder();
+				ASTImpl.toString(b, "expected: ", expectedNode);
+				ASTImpl.toString(b, "actual:   ", actualNode);
+				log.error(b.toString());
+				throw err;	// rethrow
+			}
 		}
 		
 		if (actualIt.hasNext() != expectedIt.hasNext()) {
@@ -320,7 +328,7 @@ public class ASTComparator {
 	
 	private static void compare(ArrayIdentifierNode expected, ArrayIdentifierNode actual) {
 		compare(expected.getIdentifierNode(), actual.getIdentifierNode());
-		assertEquals(expected.getIndex(), actual.getIndex());
+		compare(expected.getIndexNode(), actual.getIndexNode());
 	}
 	
 	private static void compare(BasicIdentifierNode expected, BasicIdentifierNode actual) {

@@ -59,7 +59,22 @@
         <ant antfile="build.xml" dir="../${backend.dir}" target="build" inheritall="false" />
     </target>
 
-	<!-- === clean === -->
+    <!-- === depends on dist === -->
+    <target name="dist" description="build the fuc jar files">
+        <ant antfile="build.xml" dir="../" target="dist" inheritall="false" />
+    </target>
+
+    <!-- === depends on javabite jars === -->
+    <target name="build-javabite-jars" description="builds the javabite jars and copies them to fuc/code/dist">
+        <ant antfile="build.xml" dir="../${javabite.dir}" target="buildCompiler" inheritall="false" />
+        <copy todir="../${dist.dir}">
+            <fileset dir="../${javabite.dir}/bin">
+                <include name="*.jar" />
+            </fileset>
+        </copy>
+    </target>
+
+    <!-- === clean === -->
 	<target name="clean" description="clean this project">
 		<delete dir="${bin.dir}" />
 	</target>
@@ -81,7 +96,7 @@
 	</target>
 
     <!-- === build cross tests === -->
-    <target name="build-tests-cross" depends="clean, interfaces" description="build the junit cross tests">
+    <target name="build-tests-cross" depends="clean, interfaces, dist, build-javabite-jars" description="build the junit cross tests">
         <mkdir dir="${bin.dir}" />
         <javac
                 encoding="UTF-8"
@@ -104,6 +119,7 @@
 			showoutput="true"
 			haltonerror="true"
 			haltonfailure="true" >
+			<jvmarg value="-Dfile.encoding=UTF-8"/>
 			<classpath>
 				<path refid="classpath-test" />
 			</classpath>
@@ -126,6 +142,7 @@
                 haltonerror="true"
                 haltonfailure="true"
                 >
+			<jvmarg value="-Dfile.encoding=UTF-8"/>
             <classpath>
                 <path refid="classpath-test" />
             </classpath>
@@ -149,6 +166,7 @@
                 fork="true"
                 haltonerror="false"
                 haltonfailure="false" >
+			<jvmarg value="-Dfile.encoding=UTF-8"/>
             <classpath>
                 <path refid="classpath-test" />
             </classpath>

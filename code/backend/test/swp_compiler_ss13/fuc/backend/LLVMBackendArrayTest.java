@@ -44,11 +44,7 @@ public class LLVMBackendArrayTest extends TestBase {
 		tac.add(new QuadrupleImpl(Operator.DECLARE_DOUBLE, EmptyArgument, EmptyArgument, "z"));
 		tac.add(new QuadrupleImpl(Operator.DECLARE_ARRAY, "#35", EmptyArgument, "y"));
 		tac.add(new QuadrupleImpl(Operator.DECLARE_LONG, EmptyArgument, EmptyArgument, null));
-		String mainFunctionCode = "" +
-				"  %x = alloca [25 x double]\n" +
-				"  %z = alloca double\n" +
-				"  %y = alloca [35 x i64]\n" +
-				"  ret i64 0\n";
+		String mainFunctionCode = "  %x = alloca [25 x double]\n  %z = alloca double\n  store double 0.0, double* %z\n  %y = alloca [35 x i64]\n  ret i64 0\n";
 		expectMain(mainFunctionCode, generateCodeAsString(tac));
 	}
 
@@ -68,12 +64,7 @@ public class LLVMBackendArrayTest extends TestBase {
 		tac.add(new QuadrupleImpl(Operator.DECLARE_ARRAY, "#20", EmptyArgument, "a"));
 		tac.add(new QuadrupleImpl(Operator.DECLARE_DOUBLE, EmptyArgument, EmptyArgument, null));
 		tac.add(new QuadrupleImpl(Operator.ARRAY_GET_DOUBLE, "a", "#12", "x"));
-		expectMain("  %x = alloca double"+"\n"+
-				   "  %a = alloca [20 x double]"+"\n"+
-				   "  %.tmp.0 = getelementptr [20 x double]* %a, i64 0, i64 12"+"\n"+
-				   "  %.tmp.1 = load double* %.tmp.0"+"\n"+
-		           "  store double %.tmp.1, double* %x"+"\n"+
-		           "  ret i64 0"+"\n",
+		expectMain("  %x = alloca double\n  store double 0.0, double* %x\n  %a = alloca [20 x double]\n  %a.0 = load [20 x double]* %a\n  %x.0 = extractvalue [20 x double] %a.0, 12\n  store double %x.0, double* %x\n  ret i64 0\n",
 				   generateCodeAsString(tac));
     }
 
@@ -82,13 +73,7 @@ public class LLVMBackendArrayTest extends TestBase {
 		tac.add(new QuadrupleImpl(Operator.DECLARE_ARRAY, "#20", EmptyArgument, "a"));
 		tac.add(new QuadrupleImpl(Operator.DECLARE_DOUBLE, EmptyArgument, EmptyArgument, null));
 		tac.add(new QuadrupleImpl(Operator.ARRAY_SET_DOUBLE, "a", "#12", "x"));
-		expectMain("  %x = alloca double"+"\n"+
-				   "  store double 66.5, double* %x"+"\n"+
-				   "  %a = alloca [20 x double]"+"\n"+
-				   "  %.tmp.0 = getelementptr [20 x double]* %a, i64 0, i64 12"+"\n"+
-		           "  %x.0 = load double* %x"+"\n"+
-		           "  store double %x.0, double* %.tmp.0"+"\n"+
-		           "  ret i64 0"+"\n",
+		expectMain("  %x = alloca double\n  store double 66.5, double* %x\n  %a = alloca [20 x double]\n  %x.0 = load double* %x\n  %a.0 = load [20 x double]* %a\n  %a.1 = insertvalue [20 x double] %a.0, double %x.0, 12\n  store [20 x double] %a.1, [20 x double]* %a\n  ret i64 0\n",
 				   generateCodeAsString(tac));
     }
 
@@ -96,10 +81,7 @@ public class LLVMBackendArrayTest extends TestBase {
 		tac.add(new QuadrupleImpl(Operator.DECLARE_ARRAY, "#20", EmptyArgument, "a"));
 		tac.add(new QuadrupleImpl(Operator.DECLARE_DOUBLE, EmptyArgument, EmptyArgument, null));
 		tac.add(new QuadrupleImpl(Operator.ARRAY_SET_DOUBLE, "a", "#12", "#88.6"));
-		expectMain("  %a = alloca [20 x double]"+"\n"+
-				   "  %.tmp.0 = getelementptr [20 x double]* %a, i64 0, i64 12"+"\n"+
-		           "  store double 88.6, double* %.tmp.0"+"\n"+
-		           "  ret i64 0"+"\n",
+		expectMain("  %a = alloca [20 x double]\n  %a.0 = load [20 x double]* %a\n  %a.1 = insertvalue [20 x double] %a.0, double 88.6, 12\n  store [20 x double] %a.1, [20 x double]* %a\n  ret i64 0\n",
 				   generateCodeAsString(tac));
     }
 
@@ -107,21 +89,11 @@ public class LLVMBackendArrayTest extends TestBase {
 		tac.add(new QuadrupleImpl(Operator.DECLARE_ARRAY, "#20", EmptyArgument, "a"));
 		tac.add(new QuadrupleImpl(Operator.DECLARE_LONG, EmptyArgument, EmptyArgument, null));
 		tac.add(new QuadrupleImpl(Operator.ARRAY_SET_LONG, "a", "#12", "#17"));
-		expectMain("  %a = alloca [20 x i64]"+"\n"+
-				   "  %.tmp.0 = getelementptr [20 x i64]* %a, i64 0, i64 12"+"\n"+
-		           "  store i64 17, i64* %.tmp.0"+"\n"+
-		           "  ret i64 0"+"\n",
+		expectMain("  %a = alloca [20 x i64]\n  %a.0 = load [20 x i64]* %a\n  %a.1 = insertvalue [20 x i64] %a.0, i64 17, 12\n  store [20 x i64] %a.1, [20 x i64]* %a\n  ret i64 0\n",
 				   generateCodeAsString(tac));
     }
 
 	@Test public void arrays__declare_reference() throws IOException, BackendException {
-		// reference declarations are completely superfluous, so we just ignore them
-		//  (in llvm, we store a pointer when we dereference a multidimensional array,
-		//   but since we have to pass the whole array type (and the sub-array type) when
-		//   we dereference it, they fact IF we get a reference and the TYPE of the reference
-		//   are 100% determined by the context. The reference declaration does not provide us
-		//   with the type anyways....
-		//  )
 		tac.add(new QuadrupleImpl(Operator.DECLARE_REFERENCE, EmptyArgument, EmptyArgument, "r"));
 		expectMain("  ret i64 0"+"\n",
 				   generateCodeAsString(tac));
@@ -135,15 +107,8 @@ public class LLVMBackendArrayTest extends TestBase {
 		tac.add(new QuadrupleImpl(Operator.ARRAY_GET_REFERENCE, "a", "#15", "r"));
 		tac.add(new QuadrupleImpl(Operator.DECLARE_DOUBLE, EmptyArgument, EmptyArgument, "v"));
 		tac.add(new QuadrupleImpl(Operator.ARRAY_GET_DOUBLE, "r", "#25", "v"));
-		expectMain(
-				   "  %a = alloca [20 x [30 x double]]"+"\n"+
-				   "  %r.0 = getelementptr [20 x [30 x double]]* %a, i64 0, i64 15"+"\n"+
-				   "  %v = alloca double"+"\n"+
-				   "  %.tmp.0 = getelementptr [30 x double]* %r.0, i64 0, i64 25"+"\n"+
-				   "  %.tmp.1 = load double* %.tmp.0"+"\n"+
-		           "  store double %.tmp.1, double* %v"+"\n"+
-		           "  ret i64 0"+"\n",
-				   generateCodeAsString(tac));
+		expectMain("  %a = alloca [20 x [30 x double]]\n  %v = alloca double\n  store double 0.0, double* %v\n  %a.0 = load [20 x [30 x double]]* %a\n  %v.0 = extractvalue [20 x [30 x double]] %a.0, 15, 25\n  store double %v.0, double* %v\n  ret i64 0\n",
+		           generateCodeAsString(tac));
     }
 
 	@Test public void arrays__use_reference_two_times() throws IOException, BackendException {
@@ -155,15 +120,7 @@ public class LLVMBackendArrayTest extends TestBase {
 		tac.add(new QuadrupleImpl(Operator.ARRAY_GET_REFERENCE, "a", "#16", "r"));
 		tac.add(new QuadrupleImpl(Operator.DECLARE_DOUBLE, EmptyArgument, EmptyArgument, "v"));
 		tac.add(new QuadrupleImpl(Operator.ARRAY_GET_DOUBLE, "r", "#25", "v"));
-		expectMain(
-				   "  %a = alloca [20 x [30 x double]]"+"\n"+
-				   "  %r.0 = getelementptr [20 x [30 x double]]* %a, i64 0, i64 15"+"\n"+
-				   "  %r.1 = getelementptr [20 x [30 x double]]* %a, i64 0, i64 16"+"\n"+
-				   "  %v = alloca double"+"\n"+
-				   "  %.tmp.0 = getelementptr [30 x double]* %r.1, i64 0, i64 25"+"\n"+
-				   "  %.tmp.1 = load double* %.tmp.0"+"\n"+
-		           "  store double %.tmp.1, double* %v"+"\n"+
-		           "  ret i64 0"+"\n",
+		expectMain("  %a = alloca [20 x [30 x double]]\n  %v = alloca double\n  store double 0.0, double* %v\n  %a.0 = load [20 x [30 x double]]* %a\n  %v.0 = extractvalue [20 x [30 x double]] %a.0, 16, 25\n  store double %v.0, double* %v\n  ret i64 0\n",
 				   generateCodeAsString(tac));
     }
 	@Test public void arrays__reference_self_resolve() throws IOException, BackendException {
@@ -176,15 +133,7 @@ public class LLVMBackendArrayTest extends TestBase {
 		tac.add(new QuadrupleImpl(Operator.ARRAY_GET_REFERENCE, "r", "#20", "r"));
 		tac.add(new QuadrupleImpl(Operator.DECLARE_LONG, EmptyArgument, EmptyArgument, "v"));
 		tac.add(new QuadrupleImpl(Operator.ARRAY_GET_DOUBLE, "r", "#25", "v"));
-		expectMain(
-				   "  %a = alloca [20 x [30 x [40 x i64]]]"+"\n"+
-				   "  %r.0 = getelementptr [20 x [30 x [40 x i64]]]* %a, i64 0, i64 15"+"\n"+
-				   "  %r.1 = getelementptr [30 x [40 x i64]]* %r.0, i64 0, i64 20"+"\n"+
-				   "  %v = alloca i64"+"\n"+
-				   "  %.tmp.0 = getelementptr [40 x i64]* %r.1, i64 0, i64 25"+"\n"+
-				   "  %.tmp.1 = load i64* %.tmp.0"+"\n"+
-		           "  store i64 %.tmp.1, i64* %v"+"\n"+
-		           "  ret i64 0"+"\n",
+		expectMain("  %a = alloca [20 x [30 x [40 x i64]]]\n  %v = alloca i64\n  store i64 0, i64* %v\n  %a.0 = load [20 x [30 x [40 x i64]]]* %a\n  %v.0 = extractvalue [20 x [30 x [40 x i64]]] %a.0, 15, 20, 25\n  store double %v.0, double* %v\n  ret i64 0\n",
 				   generateCodeAsString(tac));
     }
 	@Test public void arrays__reference_self_resolve_set_long() throws IOException, BackendException {
@@ -196,13 +145,7 @@ public class LLVMBackendArrayTest extends TestBase {
 		tac.add(new QuadrupleImpl(Operator.ARRAY_GET_REFERENCE, "a", "#15", "r"));
 		tac.add(new QuadrupleImpl(Operator.ARRAY_GET_REFERENCE, "r", "#20", "r"));
 		tac.add(new QuadrupleImpl(Operator.ARRAY_SET_DOUBLE, "r", "#25", "#999"));
-		expectMain(
-				   "  %a = alloca [20 x [30 x [40 x i64]]]"+"\n"+
-				   "  %r.0 = getelementptr [20 x [30 x [40 x i64]]]* %a, i64 0, i64 15"+"\n"+
-				   "  %r.1 = getelementptr [30 x [40 x i64]]* %r.0, i64 0, i64 20"+"\n"+
-				   "  %.tmp.0 = getelementptr [40 x i64]* %r.1, i64 0, i64 25"+"\n"+
-		           "  store i64 999, i64* %.tmp.0"+"\n"+
-		           "  ret i64 0"+"\n",
+		expectMain("  %a = alloca [20 x [30 x [40 x i64]]]\n  %a.0 = load [20 x [30 x [40 x i64]]]* %a\n  %a.1 = insertvalue [20 x [30 x [40 x i64]]] %a.0, double 999, 15, 20, 25\n  store [20 x [30 x [40 x i64]]] %a.1, [20 x [30 x [40 x i64]]]* %a\n  ret i64 0\n",
 				   generateCodeAsString(tac));
     }
 
@@ -213,20 +156,7 @@ public class LLVMBackendArrayTest extends TestBase {
 		tac.add(new QuadrupleImpl(Operator.ARRAY_SET_STRING, "a", "#2", "#\"Hello, World!\""));
 		tac.add(new QuadrupleImpl(Operator.ARRAY_GET_STRING, "a", "#2", "x"));
 		tac.add(new QuadrupleImpl(Operator.PRINT_STRING, "x", EmptyArgument, EmptyArgument));
-		expectMain(
-				   "  %a = alloca [4 x i8*]" + "\n" +
-				   "  %x = alloca i8*" + "\n" +
-				   "  %.tmp.0 = getelementptr [4 x i8*]* %a, i64 0, i64 2" + "\n" +
-				   "  %.string_0 = alloca [14 x i8]" + "\n" +
-				   "  store [14 x i8] [i8 72, i8 101, i8 108, i8 108, i8 111, i8 44, i8 32, i8 87, i8 111, i8 114, i8 108, i8 100, i8 33, i8 0], [14 x i8]* %.string_0" + "\n" +
-				   "  %.tmp.1 = getelementptr [14 x i8]* %.string_0, i64 0, i64 0" + "\n" +
-				   "  store i8* %.tmp.1, i8** %.tmp.0" + "\n" +
-				   "  %.tmp.2 = getelementptr [4 x i8*]* %a, i64 0, i64 2" + "\n" +
-				   "  %.tmp.3 = load i8** %.tmp.2" + "\n" +
-				   "  store i8* %.tmp.3, i8** %x" + "\n" +
-				   "  %x.0 = load i8** %x" + "\n" +
-				   "  call i32 (i8*, ...)* @printf(i8* %x.0)" + "\n" +
-				   "  ret i64 0" + "\n" ,
+		expectMain("  %a = alloca [4 x i8*]\n  %x = alloca i8*\n  %.string_0 = alloca [1 x i8]\n  store [1 x i8] [i8 0], [1 x i8]* %.string_0\n  %x.0 = getelementptr [1 x i8]* %.string_0, i64 0, i64 0\n  store i8* %x.0, i8** %x\n  %.string_1 = alloca [14 x i8]\n  store [14 x i8] [i8 72, i8 101, i8 108, i8 108, i8 111, i8 44, i8 32, i8 87, i8 111, i8 114, i8 108, i8 100, i8 33, i8 0], [14 x i8]* %.string_1\n  %.tmp.0 = getelementptr [14 x i8]* %.string_1, i64 0, i64 0\n  %a.0 = load [4 x i8*]* %a\n  %a.1 = insertvalue [4 x i8*] %a.0, i8* %.tmp.0, 2\n  store [4 x i8*] %a.1, [4 x i8*]* %a\n  %a.2 = load [4 x i8*]* %a\n  %x.1 = extractvalue [4 x i8*] %a.2, 2\n  store i8* %x.1, i8** %x\n  %x.2 = load i8** %x\n  call i32 (i8*, ...)* @printf(i8* %x.2)\n  ret i64 0\n",
 				   generateCodeAsString(tac));
-    }	
+    }
 }

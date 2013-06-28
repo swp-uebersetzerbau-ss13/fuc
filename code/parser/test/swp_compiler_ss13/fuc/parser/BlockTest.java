@@ -77,4 +77,37 @@ public class BlockTest {
 		AST expected = factory.getAST();
 		ASTComparator.compareAST(expected, ast);
 	}
+	
+	@Test
+	public void testMultipleReturn() {
+		String input ="long i;\n" +
+				"long err;\n" +
+				"bool b;\n" +
+				"i = 0;\n" +
+				"err = -1;\n" +
+				"b = true;\n" +
+				"\n" +
+				"if (b)\n" +
+				"return i;\n" +
+				"else\n" +
+				"return err;\n";
+		
+		AST actual = GrammarTestHelper.parseToAst(input);
+		
+		ASTFactory factory = new ASTFactory();
+		factory.addDeclaration("i", new LongType());
+		factory.addDeclaration("err", new LongType());
+		factory.addDeclaration("b", new BooleanType());
+		
+		factory.addAssignment(factory.newBasicIdentifier("i"), factory.newLiteral("0", new LongType()));
+		factory.addAssignment(factory.newBasicIdentifier("err"), factory.newLiteral("-1", new LongType()));
+		factory.addAssignment(factory.newBasicIdentifier("b"), factory.newLiteral("true", new BooleanType()));
+		
+		factory.addBranch(factory.newBasicIdentifier("b"));
+		factory.addReturn(factory.newBasicIdentifier("i"));
+		factory.addReturn(factory.newBasicIdentifier("err"));
+		
+		AST expected = factory.getAST();
+		ASTComparator.compareAST(expected, actual);
+	}
 }

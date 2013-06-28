@@ -9,8 +9,8 @@ import swp_compiler_ss13.fuc.backend.LLVMBackend;
 import swp_compiler_ss13.fuc.ir.IntermediateCodeGeneratorImpl;
 import swp_compiler_ss13.fuc.parser.ParserImpl;
 import swp_compiler_ss13.fuc.semantic_analyser.SemanticAnalyser;
-import swp_compiler_ss13.fuc.test.ExampleProgs;
-import swp_compiler_ss13.fuc.test.TestBase;
+import swp_compiler_ss13.common.test.ExampleProgs;
+import swp_compiler_ss13.common.test.TestBase;
 import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
 
 /**

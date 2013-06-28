@@ -24,6 +24,9 @@ public class GrammarSpec {
 	// --- constructors
 	// ---------------------------------------------------------
 	// --------------------------------------------------------------------------
+	/**
+	 * @see GrammarSpec
+	 */
 	public GrammarSpec() {
 		try {
 			List<Terminal> terminals = getAllMembers(Terminal.class);
@@ -41,6 +44,14 @@ public class GrammarSpec {
 	// --- methods
 	// --------------------------------------------------------------
 	// --------------------------------------------------------------------------
+	/**
+	 * Returns a list of all values of a this classes instances of a given type
+	 * 
+	 * @param clazz
+	 * @return
+	 * @throws IllegalArgumentException
+	 * @throws IllegalAccessException
+	 */
 	private <T> List<T> getAllMembers(Class<T> clazz)
 			throws IllegalArgumentException, IllegalAccessException {
 		List<T> result = new LinkedList<>();

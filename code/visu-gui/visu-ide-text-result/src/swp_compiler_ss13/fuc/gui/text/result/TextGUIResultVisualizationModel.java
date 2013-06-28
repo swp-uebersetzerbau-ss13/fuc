@@ -12,4 +12,9 @@ public class TextGUIResultVisualizationModel extends Text_Model {
 	public TextGUIResultVisualizationModel(Text_Controller controller) {
 		super(controller, ModelType.RESULT);
 	}
+	
+	@Override
+	protected String resultToString(String target) {
+		return target;
+	}
 }

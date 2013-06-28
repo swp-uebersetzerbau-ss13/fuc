@@ -11,6 +11,8 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Map;
 
+import java.io.*;
+
 import static org.junit.Assert.assertEquals;
 
 
@@ -67,6 +69,20 @@ public class TestBase {
 	void expectMain(String mainFunctionCode, String ir)
 	{
 		String expectedCode = header + mainFunctionCode + mainFooter;
-		assertEquals(expectedCode, ir);
+		/*try {*/
+			assertEquals(expectedCode, ir);
+		/*} catch(AssertionError e) {
+			try {
+				String time = String.valueOf(System.currentTimeMillis());
+				PrintWriter out = new PrintWriter(new FileOutputStream(time + "_expected"));
+				out.print(mainFunctionCode.replace("\n", "\\n"));
+				out.close();
+				out = new PrintWriter(new FileOutputStream(time + "_actual"));
+				out.print(ir.replace(header, "").replace(mainFooter, "").replace("\n", "\\n"));
+				out.close();
+			}
+			catch(IOException x) {}
+			throw e;
+		}*/
 	}
 }

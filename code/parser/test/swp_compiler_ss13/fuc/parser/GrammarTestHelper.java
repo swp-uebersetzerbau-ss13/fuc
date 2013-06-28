@@ -33,6 +33,7 @@ import swp_compiler_ss13.fuc.parser.parser.LRParser;
 import swp_compiler_ss13.fuc.parser.parser.LexerWrapper;
 import swp_compiler_ss13.fuc.parser.parser.ParserException;
 import swp_compiler_ss13.fuc.parser.parser.tables.LRParsingTable;
+import swp_compiler_ss13.fuc.parser.util.It;
 
 public class GrammarTestHelper {
 	// ------------------------------------------------------------------------
@@ -59,8 +60,14 @@ public class GrammarTestHelper {
 		if (terminal == Terminal.EOF) {
 			return new TokenImpl(terminal.getId(), TokenType.EOF, -1, -1);
 		}
-		return new TokenImpl(terminal.getId(), terminal.getTokenTypes().next(),
-				-1, -1);
+		
+		It<TokenType> typeIt = terminal.getTokenTypes();
+		TokenType tokenType = null;
+		if (typeIt.hasNext()) {
+			tokenType = typeIt.next();
+		}
+		
+		return new TokenImpl(terminal.getId(), tokenType, -1, -1);
 	}
 
 	public static Token t(String value, TokenType type) {

@@ -17,8 +17,10 @@ import swp_compiler_ss13.fuc.gui.text.Text_Model.ModelType;
  */
 public class Text_Controller implements Controller {
 
-	private final Text_View view;
+	private Text_View view;
 	private Text_Model model;
+
+	public Text_Controller() {}
 
 	public Text_Controller(Text_View view) {
 		this.view = view;
@@ -38,6 +40,16 @@ public class Text_Controller implements Controller {
 		this.model = model;
 	}
 
+	protected void initView(Text_View view) {
+		if (this.view != null) {
+			throw new IllegalStateException("view is already initialized");
+		}
+		if (view == null) {
+			throw new NullPointerException("view can't be null");
+		}
+		this.view = view;
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -51,7 +63,7 @@ public class Text_Controller implements Controller {
 	 */
 	@Override
 	public Model getModel() {
-		this.chackModel();
+		this.checkModelAndView();
 		return this.model;
 	}
 
@@ -60,7 +72,7 @@ public class Text_Controller implements Controller {
 	 */
 	@Override
 	public void notifyModelChanged() {
-		this.chackModel();
+		this.checkModelAndView();
 		final ModelType type;
 		switch (this.view.getPosition()) {
 		case TOKENS:
@@ -94,9 +106,12 @@ public class Text_Controller implements Controller {
 		this.view.initComponents(ide);
 	}
 
-	private void chackModel() {
+	private void checkModelAndView() {
 		if (this.model == null) {
 			throw new IllegalStateException("model isn't initialized");
+		}
+		if (this.view == null) {
+			throw new IllegalStateException("view isn't initialized");
 		}
 	}
 }

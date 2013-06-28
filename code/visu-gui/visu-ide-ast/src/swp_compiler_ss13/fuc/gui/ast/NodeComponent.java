@@ -23,7 +23,6 @@ import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode.BinaryOper
 import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.LiteralNode;
 import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
-import swp_compiler_ss13.common.ast.nodes.unary.ArrayIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
 import swp_compiler_ss13.common.ast.nodes.unary.StructIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.unary.UnaryExpressionNode;
@@ -38,24 +37,38 @@ public class NodeComponent {
 	private static final int LOGO_HEIGHT = 30;
 
 	private final JComponent component;
+	private final JComponent iconComponent;
+	private final JComponent nameComponent;
+	private final JComponent infoComponent;
+
+	private boolean large = true;
 
 	public NodeComponent(ASTNode node) {
 		if (node.getChildren().isEmpty()) {
-			component = new JPanel();
+			this.component = new JPanel();
 		} else {
-			component = new JButton();
+			this.component = new JButton();
 		}
-		getComponent().setLayout(new BorderLayout(3, 3));
+		this.getComponent().setLayout(new BorderLayout(3, 3));
 		if (IMAGE_TYPE_MAP.isEmpty()) {
-			IMAGE_TYPE_MAP.put(null, getIconFromString(dir + "default.png"));
-			IMAGE_OPERATOR_MAP.put(null, getIconFromString(dir + "default.png"));
+			IMAGE_TYPE_MAP.put(null, this.getIconFromString(dir + "default.png"));
+			IMAGE_OPERATOR_MAP.put(null, this.getIconFromString(dir + "default.png"));
 		}
-		getComponent().add(new JLabel(getIcon(node)), BorderLayout.WEST);
-		getComponent().add(new JLabel(node.getNodeType().name()), BorderLayout.NORTH);
-		getComponent().add(getInfoComponent(node), BorderLayout.CENTER);
+		this.iconComponent = new JLabel(this.getIcon(node));
+		this.getComponent().add(this.iconComponent, BorderLayout.WEST);
+		this.nameComponent = new JLabel(node.getNodeType().name());
+		this.getComponent().add(this.nameComponent, BorderLayout.NORTH);
+		this.infoComponent = this.getInfoComponent(node);
+		this.getComponent().add(this.infoComponent, BorderLayout.CENTER);
 	}
 
-	private JComponent getInfoComponent(ASTNode node) {
+	void toggleSize() {
+		this.large = !this.large;
+		this.nameComponent.setVisible(this.large);
+		this.infoComponent.setVisible(this.large);
+	}
+
+	protected JComponent getInfoComponent(ASTNode node) {
 		JPanel result = new JPanel();
 		result.setLayout(new BoxLayout(result, BoxLayout.Y_AXIS));
 		switch (node.getNodeType()) {
@@ -76,8 +89,8 @@ public class NodeComponent {
 			result.add(new JLabel("operator: " + unaryNode.getOperator()));
 			break;
 		case ArrayIdentifierNode:
-			ArrayIdentifierNode arrayNode = (ArrayIdentifierNode) node;
-			result.add(new JLabel("index: " + arrayNode.getIndex()));
+			//ArrayIdentifierNode arrayNode = (ArrayIdentifierNode) node;
+			//result.add(new JLabel("index: " + arrayNode.getIndex()));
 			break;
 		case BasicIdentifierNode:
 			BasicIdentifierNode basicNode = (BasicIdentifierNode) node;
@@ -113,6 +126,7 @@ public class NodeComponent {
 		if (imageIcon != null) {
 			return imageIcon;
 		}
+		String imageName = null;
 		switch (node.getNodeType()) {
 		case ArithmeticBinaryExpressionNode:
 		case LogicBinaryExpressionNode:
@@ -124,43 +138,96 @@ public class NodeComponent {
 			}
 			switch (operator) {
 			case ADDITION:
-				imageIcon = getIconFromString(dir + "add.png");
-				IMAGE_OPERATOR_MAP.put(operator, imageIcon);
-				return imageIcon;
+				imageName = "add";
+				break;
 			case SUBSTRACTION:
-				imageIcon = getIconFromString(dir + "minus.png");
-				IMAGE_OPERATOR_MAP.put(operator, imageIcon);
-				return imageIcon;
+				imageName = "minus";
+				break;
 			case MULTIPLICATION:
-				imageIcon = getIconFromString(dir + "mult.png");
-				IMAGE_OPERATOR_MAP.put(operator, imageIcon);
-				return imageIcon;
+				imageName = "mult";
+				break;
 			case DIVISION:
-				imageIcon = getIconFromString(dir + "div.png");
-				IMAGE_OPERATOR_MAP.put(operator, imageIcon);
-				return imageIcon;
+				imageName = "div";
+				break;
 			case EQUAL:
-				imageIcon = getIconFromString(dir + "equal.png");
-				IMAGE_OPERATOR_MAP.put(operator, imageIcon);
-				return imageIcon;
+				imageName = "equal";
+				break;
+			case GREATERTHAN:
+				imageName = "greater";
+				break;
+			case GREATERTHANEQUAL:
+				imageName = "greater_equal";
+				break;
+			case INEQUAL:
+				imageName = "inequal";
+				break;
+			case LESSTHAN:
+				imageName = "less";
+				break;
+			case LESSTHANEQUAL:
+				imageName = "less_equal";
+				break;
+			case LOGICAL_AND:
+				imageName = "ampersand";
+				break;
+			case LOGICAL_OR:
+				imageName = "or";
+				break;
 			default:
 				return IMAGE_OPERATOR_MAP.get(null);
 			}
+			imageIcon = this.getIconFromString(dir + imageName + ".png");
+			IMAGE_OPERATOR_MAP.put(operator, imageIcon);
+			return imageIcon;
 		case LogicUnaryExpressionNode:
-			imageIcon = getIconFromString(dir + "not.png");
-			IMAGE_TYPE_MAP.put(node.getNodeType(), imageIcon);
-			return imageIcon;
+			imageName = "not";
+			break;
+		case ArithmeticUnaryExpressionNode:
+			imageName = "minus";
+			break;
 		case BlockNode:
-			imageIcon = getIconFromString(dir + "braces.png");
-			IMAGE_TYPE_MAP.put(node.getNodeType(), imageIcon);
-			return imageIcon;
+			imageName = "braces";
+			break;
 		case AssignmentNode:
-			imageIcon = getIconFromString(dir + "equal.png");
-			IMAGE_TYPE_MAP.put(node.getNodeType(), imageIcon);
-			return imageIcon;
+			imageName = "assign";
+			break;
+		case ArrayIdentifierNode:
+			imageName = "array";
+			break;
+		case BasicIdentifierNode:
+			imageName = "basicIdentifier";
+			break;
+		case BranchNode:
+			imageName = "if_else";
+			break;
+		case DeclarationNode:
+			imageName = "decl";
+			break;
+		case DoWhileNode:
+		case WhileNode:
+			imageName = "loop";
+			break;
+		case StructIdentifierNode:
+			imageName = "struct";
+			break;
+		case PrintNode:
+			imageName = "print";
+			break;
+		case BreakNode:
+			imageName = "break";
+			break;
+		case ReturnNode:
+			imageName = "return";
+			break;
+		case LiteralNode:
+			imageName = "literal";
+			break;
 		default:
 			return IMAGE_TYPE_MAP.get(null);
 		}
+		imageIcon = this.getIconFromString(dir + imageName + ".png");
+		IMAGE_TYPE_MAP.put(node.getNodeType(), imageIcon);
+		return imageIcon;
 	}
 
 	private ImageIcon getIconFromString(String resource) {
@@ -174,7 +241,7 @@ public class NodeComponent {
 	}
 
 	public JComponent getComponent() {
-		return component;
+		return this.component;
 	}
 
 }

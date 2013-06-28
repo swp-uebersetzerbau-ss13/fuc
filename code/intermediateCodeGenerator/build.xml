@@ -29,6 +29,11 @@
 		<ant antfile="build.xml" dir="../${symbolTable.dir}" target="build" inheritall="false" />
 	</target>
 
+	<!-- === depends on the backend === -->
+	<target name="backend" description="Build the backend">
+		<ant antfile="build.xml" dir="../${backend.dir}" target="build" inheritall="false" />
+	</target>
+
 	<!-- === clean === -->
 	<target name="clean" description="clean this project">
 		<delete dir="${bin.dir}" />
@@ -36,9 +41,10 @@
 	</target>
 
 	<!-- === build === -->
-	<target name="build" depends="clean, interfaces, ast, symbolTable" description="build the source files">
+	<target name="build" depends="clean, interfaces, ast, symbolTable, backend" description="build the source files">
 		<mkdir dir="${bin.dir}" />
 		<javac 
+			encoding="UTF-8"
 			debug="true"
 			debuglevel="lines,vars,source"
 			srcdir="${src.dir}"
@@ -52,6 +58,7 @@
 	<target name="doc" description="create the javadoc">
 		<mkdir dir="${doc.dir}" />
 		<javadoc
+			encoding="UTF-8"
 	    	access="private"
 	    	author="true"
 	    	destdir="${doc.dir}"
@@ -73,6 +80,7 @@
 	<!-- === build tests === -->
 	<target name="build-tests" depends="build" description="build the junit tests">
 		<javac
+			encoding="UTF-8"
 			srcdir="${test.dir}"
 			destdir="${bin.dir}"
 			target="1.7"
@@ -89,6 +97,7 @@
 			showoutput="false"
 			haltonerror="true"
 			haltonfailure="true" >
+			<jvmarg value="-Dfile.encoding=UTF-8"/>
 			<classpath>
 				<path refid="classpath-test" />
 			</classpath>

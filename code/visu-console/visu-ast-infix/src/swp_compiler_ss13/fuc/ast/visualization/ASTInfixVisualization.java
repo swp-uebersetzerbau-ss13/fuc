@@ -10,7 +10,6 @@ import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode.BinaryOper
 import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.LiteralNode;
 import swp_compiler_ss13.common.ast.nodes.ternary.BranchNode;
-import swp_compiler_ss13.common.ast.nodes.unary.ArrayIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
 import swp_compiler_ss13.common.ast.nodes.unary.PrintNode;
 import swp_compiler_ss13.common.ast.nodes.unary.UnaryExpressionNode;
@@ -81,7 +80,8 @@ public class ASTInfixVisualization implements ASTVisualization {
 			break;
 		case ArrayIdentifierNode:
 			this.visualizeChildren(node, indent + "  ", out, env);
-			out.print("[" + ((ArrayIdentifierNode) node).getIndex() + "]");
+			// FIXME: out.print("[" + ((ArrayIdentifierNode) node).getIndex() +
+			// "]");
 			break;
 		case AssignmentNode:
 			if (env == Environment.ASSIGNMENT) {

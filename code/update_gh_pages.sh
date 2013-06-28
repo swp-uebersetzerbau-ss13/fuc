@@ -11,7 +11,7 @@ echo "Press Ctrl-C to abort or enter to continue"
 read
 
 PWDDIR=$(pwd)
-TMP=$(mktemp -d)
+TMP=$(mktemp -d /tmp/tmp.XXXXXXXXXX)
 
 # get all src dirs
 SRCDIRS=$(ls -R | grep src: | tr -d ":")
@@ -76,7 +76,7 @@ git checkout gh-pages
 git pull
 
 rm -rf doc
-cp -r ../doc ./doc 
+cp -r ../doc ./doc
 
 git add -A
 git commit -m "automatic update of generated source code page at $(date)"

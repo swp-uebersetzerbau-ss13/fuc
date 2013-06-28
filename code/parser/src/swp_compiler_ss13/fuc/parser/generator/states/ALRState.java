@@ -1,6 +1,7 @@
 package swp_compiler_ss13.fuc.parser.generator.states;
 
 import java.util.Collection;
+import java.util.Iterator;
 
 import swp_compiler_ss13.fuc.parser.generator.GrammarInfo;
 import swp_compiler_ss13.fuc.parser.grammar.Symbol;
@@ -15,6 +16,10 @@ import swp_compiler_ss13.fuc.parser.grammar.Symbol;
  */
 public abstract class ALRState<I> extends AState<I> {
 
+	/**
+	 * @see ALRState
+	 * @param items Added by the ordering of the collections {@link Iterator}!
+	 */
 	public ALRState(Collection<I> items) {
 		super(items);
 	}
