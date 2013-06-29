@@ -58,22 +58,24 @@ public class BlockTest {
 		factory.addAssignment(factory.newBasicIdentifier("result"), factory.newLiteral("0", new LongType()));
 		
 		factory.addBranch(factory.newBasicIdentifier("b"));
-		factory.addBlock();
+		factory.addBlock();	// stmt true
 		factory.addPrint(factory.newBasicIdentifier("msgA"));
 		factory.addAssignment(factory.newBasicIdentifier("result"), factory.newLiteral("1", new LongType()));
-		factory.goToParent();
-		factory.addBlock();
+		factory.goToParent();	// -> 1st if
+		factory.addBlock();	// stmt false
 		factory.addDeclaration("test1", new LongType());
 		factory.addAssignment(factory.newBasicIdentifier("test1"), factory.newLiteral("4", new LongType()));
 		factory.addBranch(factory.newBinaryExpression(BinaryOperator.GREATERTHANEQUAL, factory.newBasicIdentifier("test1"), factory.newLiteral("4", new LongType())));
-		factory.addBlock();
+		factory.addBlock();	// stmt true
 		factory.addPrint(factory.newBasicIdentifier("msgB"));
 		factory.addAssignment(factory.newBasicIdentifier("result"), factory.newLiteral("2", new LongType()));
-		factory.goToParent();
-		factory.addBlock();
+		factory.goToParent(); // 2nd if
+		factory.addBlock();	// stmt false
 		factory.addAssignment(factory.newBasicIdentifier("result"), factory.newLiteral("3", new LongType()));
-		factory.goToParent();
-		factory.goToParent();
+		factory.goToParent();	// -> 2nd if
+		factory.goToParent();	// -> 1st if stmt false
+		factory.goToParent();	// -> 1st if
+		factory.goToParent();	// -> root block
 		factory.addReturn(factory.newBasicIdentifier("result"));
 		
 		AST expected = factory.getAST();
