@@ -101,7 +101,7 @@ public class CastingTest {
 				"(ASSIGN_DOUBLE|tmp6|!|c)\n" +
 				"(DECLARE_LONG|!|!|tmp7)\n" +
 				"(DOUBLE_TO_LONG|c|!|tmp7)\n" +
-				"(RETURN|tmp7|!|!)";
+				"(RETURN|tmp7|!|!)\n";
 
 		Assert.assertEquals(expected, actual);
 	}
