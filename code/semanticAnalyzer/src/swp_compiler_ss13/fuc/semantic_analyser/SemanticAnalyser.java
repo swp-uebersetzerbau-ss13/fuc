@@ -44,8 +44,6 @@ import swp_compiler_ss13.common.types.derived.ArrayType;
 import swp_compiler_ss13.common.types.derived.DerivedType;
 import swp_compiler_ss13.common.types.derived.Member;
 import swp_compiler_ss13.common.types.derived.StructType;
-import swp_compiler_ss13.common.types.primitive.DoubleType;
-import swp_compiler_ss13.common.types.primitive.LongType;
 
 public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalysis.SemanticAnalyser {
 
