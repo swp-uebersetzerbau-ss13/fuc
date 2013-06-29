@@ -11,6 +11,7 @@ import org.junit.Test;
 
 import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.ast.nodes.binary.AssignmentNode;
+import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode.BinaryOperator;
 import swp_compiler_ss13.common.ast.nodes.binary.RelationExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;
@@ -21,6 +22,7 @@ import swp_compiler_ss13.common.report.ReportType;
 import swp_compiler_ss13.common.types.primitive.BooleanType;
 import swp_compiler_ss13.common.types.primitive.DoubleType;
 import swp_compiler_ss13.common.types.primitive.LongType;
+import swp_compiler_ss13.fuc.ast.ASTFactory;
 import swp_compiler_ss13.fuc.ast.ASTImpl;
 import swp_compiler_ss13.fuc.ast.AssignmentNodeImpl;
 import swp_compiler_ss13.fuc.ast.BasicIdentifierNodeImpl;
@@ -186,5 +188,33 @@ public class RelationExpressionTests {
 		analyser.analyse(ast);
 
 		assertFalse(log.hasErrors());
+	}
+
+	/**
+	 * <pre>
+	 * # error: usage of bool for incompatible relation<br/>
+	 * bool b1;
+	 * bool b2;
+	 * 
+	 * b1 = b1 < b2;
+	 * </pre>
+	 */
+	@Test
+	public void testInvalidBoolComparisonError() {
+		ASTFactory astFactory = new ASTFactory();
+		astFactory.addDeclaration("b1", new BooleanType());
+		astFactory.addDeclaration("b2", new BooleanType());
+
+		BinaryExpressionNode lt = astFactory.newBinaryExpression(
+				BinaryOperator.LESSTHAN, astFactory.newBasicIdentifier("b1"),
+				astFactory.newBasicIdentifier("b2"));
+		astFactory.addAssignment(astFactory.newBasicIdentifier("b1"), lt);
+
+		AST ast = astFactory.getAST();
+		analyser.analyse(ast);
+
+		List<LogEntry> errors = log.getErrors();
+		assertEquals(errors.size(), 1);
+		assertEquals(errors.get(0).getReportType(), ReportType.TYPE_MISMATCH);
 	}
 }
