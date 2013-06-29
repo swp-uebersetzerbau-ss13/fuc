@@ -35,6 +35,7 @@ import swp_compiler_ss13.common.ast.nodes.unary.PrintNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ReturnNode;
 import swp_compiler_ss13.common.ast.nodes.unary.StructIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.unary.UnaryExpressionNode;
+import static swp_compiler_ss13.common.ast.nodes.unary.UnaryExpressionNode.UnaryOperator.MINUS;
 import swp_compiler_ss13.common.report.ReportLog;
 import swp_compiler_ss13.common.parser.SymbolTable;
 import swp_compiler_ss13.common.report.ReportType;
@@ -73,6 +74,7 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 	private ReportLog errorLog;
 	private Map<ASTNode, Map<Attribute, String>> attributes;
 	private Map<ASTNode, Type> typeDeclarations;
+	private Map<ASTNode, Object> staticValues;
 	/**
 	 * Contains all initialized identifiers. As soon it has assigned it will be
 	 * added.
@@ -83,12 +85,14 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 		attributes = new HashMap<>();
 		initializedIdentifiers = new HashMap<>();
 		typeDeclarations = new HashMap<>();
+		staticValues = new HashMap<>();
 	}
 
 	public SemanticAnalyser(ReportLog log) {
 		attributes = new HashMap<>();
 		initializedIdentifiers = new HashMap<>();
 		typeDeclarations = new HashMap<>();
+		staticValues = new HashMap<>();
 		errorLog = log;
 	}
 
@@ -126,6 +130,189 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 		return ast;
 	}
 
+	protected boolean hasStaticValue(ASTNode node) {
+		return staticValues.containsKey(node);
+	}
+
+	protected Object getStaticValue(ASTNode node) {
+		if (staticValues.containsKey(node)) {
+			return staticValues.get(node);
+		} else {
+			return null;
+		}
+	}
+
+	protected void evaluateStaticExpresionValue(ExpressionNode node) {
+		Object result = null;
+
+		if (node instanceof LiteralNode) {
+			LiteralNode expr = (LiteralNode) node;
+			switch (expr.getLiteralType().getKind()) {
+				case LONG:
+					result = Long.valueOf(expr.getLiteral());
+					break;
+				case DOUBLE:
+					result = Double.valueOf(expr.getLiteral());
+					break;
+				case BOOLEAN:
+					result = Boolean.valueOf(expr.getLiteral());
+					break;
+				case STRING:
+					result = expr.getLiteral();
+					break;
+			}
+		} else if (node instanceof AssignmentNode) {
+			AssignmentNode expr = (AssignmentNode) node;
+			result = getStaticValue(expr.getRightValue());
+		} else if (node instanceof UnaryExpressionNode) {
+			UnaryExpressionNode expr = (UnaryExpressionNode) node;
+			ExpressionNode rightexpr = expr.getRightValue();
+			Object rightvalue = getStaticValue(rightexpr);
+
+			if (rightvalue == null) {
+				return;
+			}
+
+			if (rightvalue instanceof Number) {
+				boolean useDouble = getType(rightexpr) == Type.Kind.DOUBLE;
+				Number right = (Number) rightvalue;
+
+				switch (expr.getOperator()) {
+					case MINUS:
+						if (useDouble) {
+							result = -right.doubleValue();
+						} else {
+							result = -right.longValue();
+						}
+						break;
+				}
+			} else if (rightvalue instanceof Boolean) {
+				Boolean right = (Boolean) rightvalue;
+
+				switch (expr.getOperator()) {
+					case LOGICAL_NEGATE:
+						result = !right;
+						break;
+				}
+			}
+		} else if (node instanceof BinaryExpressionNode) {
+			BinaryExpressionNode expr = (BinaryExpressionNode) node;
+			ExpressionNode leftexpr = expr.getLeftValue();
+			ExpressionNode rightexpr = expr.getRightValue();
+			Object leftvalue = getStaticValue(leftexpr);
+			Object rightvalue = getStaticValue(rightexpr);
+
+			if (leftvalue == null || rightvalue == null) {
+				return;
+			}
+
+			if (leftvalue instanceof Number && rightvalue instanceof Number) {
+				Number left = (Number) leftvalue;
+				Number right = (Number) rightvalue;
+				boolean useDouble = false;
+
+				if (getType(leftexpr) == Type.Kind.DOUBLE || getType(rightexpr) == Type.Kind.DOUBLE) {
+					useDouble = true;
+				}
+
+				switch (expr.getOperator()) {
+					case ADDITION:
+						if (useDouble) {
+							result = left.doubleValue() + right.doubleValue();
+						} else {
+							result = left.longValue() + right.longValue();
+						}
+						break;
+					case SUBSTRACTION:
+						if (useDouble) {
+							result = left.doubleValue() - right.doubleValue();
+						} else {
+							result = left.longValue() - right.longValue();
+						}
+						break;
+					case MULTIPLICATION:
+						if (useDouble) {
+							result = left.doubleValue() * right.doubleValue();
+						} else {
+							result = left.longValue() * right.longValue();
+						}
+						break;
+					case DIVISION:
+						if (useDouble) {
+							result = left.doubleValue() / right.doubleValue();
+						} else {
+							result = left.longValue() / right.longValue();
+						}
+						break;
+					case LESSTHAN:
+						if (useDouble) {
+							result = left.doubleValue() < right.doubleValue();
+						} else {
+							result = left.longValue() < right.longValue();
+						}
+						break;
+					case LESSTHANEQUAL:
+						if (useDouble) {
+							result = left.doubleValue() <= right.doubleValue();
+						} else {
+							result = left.longValue() <= right.longValue();
+						}
+						break;
+					case GREATERTHAN:
+						if (useDouble) {
+							result = left.doubleValue() > right.doubleValue();
+						} else {
+							result = left.longValue() > right.longValue();
+						}
+						break;
+					case GREATERTHANEQUAL:
+						if (useDouble) {
+							result = left.doubleValue() >= right.doubleValue();
+						} else {
+							result = left.longValue() >= right.longValue();
+						}
+						break;
+					case EQUAL:
+						if (useDouble) {
+							result = left.doubleValue() == right.doubleValue();
+						} else {
+							result = left.longValue() == right.longValue();
+						}
+						break;
+					case INEQUAL:
+						if (useDouble) {
+							result = left.doubleValue() != right.doubleValue();
+						} else {
+							result = left.longValue() != right.longValue();
+						}
+						break;
+				}
+			} else if (leftvalue instanceof Boolean && rightvalue instanceof Boolean) {
+				Boolean left = (Boolean) leftvalue;
+				Boolean right = (Boolean) rightvalue;
+
+				switch (expr.getOperator()) {
+					case EQUAL:
+						result = left == right;
+						break;
+					case INEQUAL:
+						result = left != right;
+						break;
+					case LOGICAL_AND:
+						result = left && right;
+						break;
+					case LOGICAL_OR:
+						result = left || right;
+						break;
+				}
+			}
+		}
+
+		if (result != null) {
+			staticValues.put(node, result);
+		}
+	}
+
 	protected void inheritAttribute(ASTNode parent, ASTNode child, Attribute attr) {
 		String value = getAttribute(parent, attr);
 
@@ -134,31 +321,23 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 		}
 	}
 
-	protected Integer getIntegerValue(ASTNode node) {
-		if (node instanceof LiteralNode) {
-			LiteralNode l = (LiteralNode) node;
+	protected Long getLongValue(ASTNode node) {
+		Object v = getStaticValue(node);
 
-			if (l.getLiteralType() instanceof LongType) {
-				return Integer.valueOf(l.getLiteral());
-			} else {
-				return null;
-			}
+		if (v instanceof Long) {
+			return (Long) v;
+		} else {
+			return null;
 		}
-
-		return null;
 	}
-	
-	protected boolean isValueNumericallyZero(ASTNode node) {
-		if (node instanceof LiteralNode) {
-			LiteralNode l = (LiteralNode) node;
 
-			if (l.getLiteralType() instanceof LongType) {
-				return Long.valueOf(l.getLiteral()) == 0;
-			} else if (l.getLiteralType() instanceof DoubleType) {
-				return Double.valueOf(l.getLiteral()) == 0;
-			} else {
-				return false;
-			}
+	protected boolean isValueNumericallyZero(ASTNode node) {
+		Object v = getStaticValue(node);
+
+		if (v instanceof Long) {
+			return (Long) v == 0;
+		} else if (v instanceof Double) {
+			return (Double) v == 0;
 		}
 
 		return false;
@@ -225,6 +404,10 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 				break;
 			default:
 				throw new IllegalArgumentException("unknown ASTNodeType");
+		}
+
+		if (node instanceof ExpressionNode) {
+			evaluateStaticExpresionValue((ExpressionNode) node);
 		}
 	}
 
@@ -526,7 +709,7 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 				+ " found " + getType(node.getRightValue()));
 		} else if (getTypeDeclaration(lvalue) instanceof DerivedType) {
 			errorLog.reportError(ReportType.TYPE_MISMATCH, lvalue.coverage(), "Only primitve types can be assigned.");
-		}else {
+		} else {
 			markIdentifierAsInitialized(table, getAttribute(node.getLeftValue(), Attribute.IDENTIFIER));
 			setAttribute(node, Attribute.TYPE, getAttribute(node.getLeftValue(), Attribute.TYPE));
 
@@ -590,23 +773,26 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 		traverse(index, table);
 		traverse(identifier, table);
 
-		assert getTypeDeclaration(identifier) instanceof ArrayType;
-		ArrayType identifierType = (ArrayType) getTypeDeclaration(identifier);
-		Type t = identifierType.getInnerType();
-		setNodeType(node, t);
+		if (getTypeDeclaration(identifier) instanceof ArrayType) {
+			ArrayType identifierType = (ArrayType) getTypeDeclaration(identifier);
+			Type t = identifierType.getInnerType();
+			setNodeType(node, t);
 
-		if (getType(index) == Type.Kind.LONG) {
-			Integer indexValue = getIntegerValue(index);
+			if (getType(index) == Type.Kind.LONG) {
+				Long indexValue = getLongValue(index);
 
-			if (indexValue != null) {
-				if (indexValue < 0) {
-					errorLog.reportError(ReportType.TYPE_MISMATCH, index.coverage(), "Array index can not be negative.");
-				} else if (indexValue >= identifierType.getLength()) {
-					errorLog.reportError(ReportType.TYPE_MISMATCH, index.coverage(), "Array index is out of bound.");
+				if (indexValue != null) {
+					if (indexValue < 0) {
+						errorLog.reportError(ReportType.TYPE_MISMATCH, index.coverage(), "Array index can not be negative.");
+					} else if (indexValue >= identifierType.getLength()) {
+						errorLog.reportError(ReportType.TYPE_MISMATCH, index.coverage(), "Array index (" + indexValue + ") is out of bound.");
+					}
 				}
+			} else {
+				errorLog.reportError(ReportType.TYPE_MISMATCH, index.coverage(), "Array index must be of type long.");
 			}
 		} else {
-			errorLog.reportError(ReportType.TYPE_MISMATCH, index.coverage(), "Array index must be of type long.");
+			errorLog.reportError(ReportType.TYPE_MISMATCH, node.coverage(), "Array access to non array type.");
 		}
 	}
 
