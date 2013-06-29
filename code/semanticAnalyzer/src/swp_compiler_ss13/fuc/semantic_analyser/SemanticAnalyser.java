@@ -40,8 +40,10 @@ import swp_compiler_ss13.common.parser.SymbolTable;
 import swp_compiler_ss13.common.report.ReportType;
 import swp_compiler_ss13.common.types.Type;
 import swp_compiler_ss13.common.types.derived.ArrayType;
+import swp_compiler_ss13.common.types.derived.DerivedType;
 import swp_compiler_ss13.common.types.derived.Member;
 import swp_compiler_ss13.common.types.derived.StructType;
+import swp_compiler_ss13.common.types.primitive.LongType;
 
 public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalysis.SemanticAnalyser {
 
@@ -53,28 +55,23 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 		 * num, basic, array,...
 		 */
 		TYPE,
-		
 		/**
 		 * name of identifier
 		 *
 		 * @see IdentifierNode
 		 */
 		IDENTIFIER,
-		
 		CAN_BREAK,
 		TYPE_CHECK,
 		CODE_STATE
 	}
-
 	private static final String NO_ATTRIBUTE_VALUE = "undefined";
 	private static final String CAN_BREAK = "true";
 	private static final String TYPE_MISMATCH = "type mismatch";
 	private static final String DEAD_CODE = "dead";
 	private ReportLog errorLog;
-	
 	private Map<ASTNode, Map<Attribute, String>> attributes;
 	private Map<ASTNode, Type> typeDeclarations;
-	
 	/**
 	 * Contains all initialized identifiers. As soon it has assigned it will be
 	 * added.
@@ -127,18 +124,32 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 
 		return ast;
 	}
-	
+
 	protected void inheritAttribute(ASTNode parent, ASTNode child, Attribute attr) {
 		String value = getAttribute(parent, attr);
-		
+
 		if (!value.equals(NO_ATTRIBUTE_VALUE)) {
 			setAttribute(child, attr, value);
 		}
 	}
 
+	protected Integer getIntegerValue(ASTNode node) {
+		if (node instanceof LiteralNode) {
+			LiteralNode l = (LiteralNode) node;
+
+			if (l.getLiteralType() instanceof LongType) {
+				return Integer.valueOf(l.getLiteral());
+			} else {
+				return null;
+			}
+		}
+
+		return null;
+	}
+
 	protected void traverse(ASTNode node, SymbolTable table) {
 		logger.debug("traverse: " + node);
-		
+
 		inheritAttribute(node.getParentNode(), node, Attribute.CAN_BREAK);
 
 		switch (node.getNodeType()) {
@@ -213,11 +224,11 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 		TreeSet<Type.Kind> types = new TreeSet<>();
 		Type.Kind leftType = getType(left);
 		Type.Kind rightType = getType(right);
-		
+
 		if (leftType == null || rightType == null) {
 			return null;
 		}
-		
+
 		types.add(leftType);
 		types.add(rightType);
 
@@ -463,7 +474,7 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 	 * Block
 	 */
 	protected void handleNode(BlockNode node, SymbolTable table) {
-		
+
 
 		SymbolTable blockScope = node.getSymbolTable();
 
@@ -478,8 +489,11 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 	}
 
 	protected void handleNode(AssignmentNode node, SymbolTable table) {
-		traverse(node.getLeftValue(), table);
-		traverse(node.getRightValue(), table);
+		IdentifierNode lvalue = node.getLeftValue();
+		ExpressionNode rvalue = node.getRightValue();
+
+		traverse(rvalue, table);
+		traverse(lvalue, table);
 
 		if (hasAttribute(node.getLeftValue(), Attribute.TYPE_CHECK, TYPE_MISMATCH)
 			|| hasAttribute(node.getRightValue(), Attribute.TYPE_CHECK, TYPE_MISMATCH)) {
@@ -491,7 +505,9 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 			errorLog.reportError(ReportType.TYPE_MISMATCH, node.coverage(),
 				"Expected " + getType(node.getLeftValue())
 				+ " found " + getType(node.getRightValue()));
-		} else {
+		} else if (getTypeDeclaration(lvalue) instanceof DerivedType) {
+			errorLog.reportError(ReportType.TYPE_MISMATCH, lvalue.coverage(), "Only primitve types can be assigned.");
+		}else {
 			markIdentifierAsInitialized(table, getAttribute(node.getLeftValue(), Attribute.IDENTIFIER));
 			setAttribute(node, Attribute.TYPE, getAttribute(node.getLeftValue(), Attribute.TYPE));
 
@@ -519,16 +535,12 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 
 			return;
 		}
-		
+
 		boolean array = t.getKind() == Type.Kind.ARRAY;
-		
-		if (array) {
-			t = ((ArrayType)t).getInnerType();
-		}
-		
-		logger.debug("BasicIdentifierNode: identifier=" + identifier + ", initialized=" + initialzed + ", array=" + array + ", type=" + t);
-		
-		
+
+		logger.debug("BasicIdentifierNode: identifier=" + identifier + ", initialized=" + initialzed + ", type=" + t);
+
+
 
 		setAttribute(node, Attribute.IDENTIFIER, identifier);
 		setAttribute(node, Attribute.TYPE, t.getKind().name());
@@ -551,20 +563,42 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 				"Variable “" + identifier + "” may be used without initialization.");
 		}
 	}
-	
+
 	protected void handleNode(ArrayIdentifierNode node, SymbolTable table) {
-		traverse(node.getIdentifierNode(), table);
-		setAttribute(node, Attribute.TYPE, getAttribute(node.getIdentifierNode(), Attribute.TYPE));
+		ExpressionNode index = node.getIndexNode();
+		IdentifierNode identifier = node.getIdentifierNode();
+
+		traverse(index, table);
+		traverse(identifier, table);
+
+		assert getTypeDeclaration(identifier) instanceof ArrayType;
+		ArrayType identifierType = (ArrayType) getTypeDeclaration(identifier);
+		Type t = identifierType.getInnerType();
+		setNodeType(node, t);
+
+		if (getType(index) == Type.Kind.LONG) {
+			Integer indexValue = getIntegerValue(index);
+
+			if (indexValue != null) {
+				if (indexValue < 0) {
+					errorLog.reportError(ReportType.TYPE_MISMATCH, index.coverage(), "Array index can not be negative.");
+				} else if (indexValue >= identifierType.getLength()) {
+					errorLog.reportError(ReportType.TYPE_MISMATCH, index.coverage(), "Array index is out of bound.");
+				}
+			}
+		} else {
+			errorLog.reportError(ReportType.TYPE_MISMATCH, index.coverage(), "Array index must be of type long.");
+		}
 	}
-	
+
 	protected void handleNode(StructIdentifierNode node, SymbolTable table) {
 		IdentifierNode struct = node.getIdentifierNode();
 		traverse(struct, table);
 
 		Type t = getTypeDeclaration(struct);
-		
+
 		if (t instanceof StructType) {
-			StructType st = (StructType)t;
+			StructType st = (StructType) t;
 			Type ft = getStructMemberType(st, node.getFieldName());
 			setAttribute(node, Attribute.TYPE, ft.getKind().name());
 			setTypeDeclaration(node, ft);
@@ -587,7 +621,7 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 
 		setAttribute(node.getParentNode(), Attribute.CODE_STATE, DEAD_CODE);
 	}
-	
+
 	protected void handleNode(PrintNode node, SymbolTable table) {
 		IdentifierNode identifier = node.getRightValue();
 		traverse(identifier, table);
@@ -599,26 +633,31 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 
 		return identifiers != null && identifiers.contains(identifier);
 	}
-	
+
 	protected Type getStructMemberType(StructType s, String field) {
 		for (Member m : s.members()) {
 			if (m.getName().equals(field)) {
 				return m.getType();
 			}
 		}
-		
+
 		return null;
 	}
-	
+
+	protected void setNodeType(ASTNode node, Type t) {
+		setTypeDeclaration(node, t);
+		setAttribute(node, Attribute.TYPE, t.getKind().name());
+	}
+
 	protected void setTypeDeclaration(ASTNode node, Type t) {
 		typeDeclarations.put(node, t);
 	}
-	
+
 	protected Type getTypeDeclaration(ASTNode node) {
 		if (!typeDeclarations.containsKey(node)) {
 			throw new IllegalArgumentException("Node has no known type declaration.");
 		}
-		
+
 		return typeDeclarations.get(node);
 	}
 
