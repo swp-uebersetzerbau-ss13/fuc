@@ -14,6 +14,7 @@
 
 	<path id="sourcepath-test">
 		<path refid="sourcepath" />
+        <pathelement location="${src.dir}" />
 		<pathelement location="${test.dir}" />
         <pathelement location="../${lexer.dir}/${src.dir}" />
         <pathelement location="../${errorLog.dir}/${src.dir}" />

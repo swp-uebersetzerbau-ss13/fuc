@@ -1,15 +1,8 @@
-package swp_compiler_ss13.common.test;
-
-import java.io.*;
-import java.util.List;
-import java.util.Map;
+package swp_compiler_ss13.fuc.test;
 
 import junit.extensions.PA;
-
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-
-import org.junit.Assert;
 import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.backend.Backend;
 import swp_compiler_ss13.common.backend.BackendException;
@@ -18,10 +11,15 @@ import swp_compiler_ss13.common.ir.IntermediateCodeGenerator;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 import swp_compiler_ss13.common.lexer.Lexer;
 import swp_compiler_ss13.common.parser.Parser;
+import swp_compiler_ss13.common.report.ReportType;
 import swp_compiler_ss13.common.semanticAnalysis.SemanticAnalyser;
 import swp_compiler_ss13.fuc.backend.TACExecutor;
-import swp_compiler_ss13.fuc.errorLog.LogEntry;
-import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -79,7 +77,7 @@ public abstract class TestBase {
 		ReportLogImpl log = compileForError( (String) prog[0]);
 		String msg = null;
 		if (log.hasErrors())
-			msg = "ReportLog Error (first only): " + log.getErrors().get(0).getMessage();
+			msg = "ReportLog Error types: " + log.getErrors().toString();
 		assertFalse(msg, log.hasErrors());
 		InputStream res = compile((String) prog[0]);
 		assertTrue(res != null);
@@ -113,8 +111,8 @@ public abstract class TestBase {
 	}
 
 	protected void testProgForErrorMsg(Object[] prog) throws BackendException, IntermediateCodeGeneratorException, IOException, InterruptedException {
-		LogEntry logEntry = compileForError((String) prog[0]).getEntries().get(0);
-		assertEquals(prog[2], logEntry.toString());
+		List<ReportType> reportTypes = compileForError((String) prog[0]).getEntries();
+		assertArrayEquals((Object[]) prog[3], reportTypes.toArray());
 	}
 
 	protected ReportLogImpl compileForError(String prog) throws BackendException,
