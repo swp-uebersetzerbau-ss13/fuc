@@ -222,7 +222,6 @@ public class ArrayTests {
 	 * l = a[2];
 	 */
 	@Test
-	@Ignore
 	public void testOutOfBoundsError() {
 		// long [1] a;
 		DeclarationNode declaration_a = new DeclarationNodeImpl();
@@ -276,7 +275,7 @@ public class ArrayTests {
 		List<LogEntry> errors = log.getErrors();
 		assertEquals(errors.size(), 1);
 		// TODO correct reportType
-		assertEquals(errors.get(0).getReportType(), ReportType.UNDEFINED);
+		assertEquals(errors.get(0).getReportType(), ReportType.TYPE_MISMATCH);
 	}
 
 	/**
