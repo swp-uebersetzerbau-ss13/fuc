@@ -6,10 +6,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import swp_compiler_ss13.common.test.ExampleProgs;
-import swp_compiler_ss13.fuc.lexer.LexerImpl;
-import swp_compiler_ss13.fuc.parser.ParserImpl;
-import swp_compiler_ss13.fuc.test.*;
 import swp_compiler_ss13.fuc.test.Compiler;
+import swp_compiler_ss13.fuc.test.TestBase;
 
 /**
  * <p>
