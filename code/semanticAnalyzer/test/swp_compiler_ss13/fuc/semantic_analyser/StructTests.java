@@ -66,30 +66,30 @@ public class StructTests {
 		assertFalse(log.hasErrors());
 	}
 	
-	/**
-	 * # no errors expected<br/>
-	 * struct{bool b} s1;<br/>
-	 * struct{bool b} s2;<br/>
-	 * <br/>
-	 * s1 = s2;
-	 */
-	@Test
-	public void testStructTypeAssigment() {
-		Type structType1 = new StructType("struct1", new Member("b", new BooleanType()));
-		Type structType2 = new StructType("struct2", new Member("b", new BooleanType()));
-		ASTFactory astFactory = new ASTFactory();
-		astFactory.addDeclaration("s1", structType1);
-		astFactory.addDeclaration("s2", structType2);
-		IdentifierNode identifier_s1 = astFactory.newBasicIdentifier("s1");
-		IdentifierNode identifier_s2 = astFactory.newBasicIdentifier("s2");
-		astFactory.addAssignment(identifier_s1, identifier_s2);
-		
-		AST ast = astFactory.getAST();
-		analyser.analyse(ast);
-		
-		System.out.println(log);
-		assertFalse(log.hasErrors());
-	}
+//	/**
+//	 * # no errors expected<br/>
+//	 * struct{bool b} s1;<br/>
+//	 * struct{bool b} s2;<br/>
+//	 * <br/>
+//	 * s1 = s2;
+//	 */
+//	@Test
+//	public void testStructTypeAssigment() {
+//		Type structType1 = new StructType("struct1", new Member("b", new BooleanType()));
+//		Type structType2 = new StructType("struct2", new Member("b", new BooleanType()));
+//		ASTFactory astFactory = new ASTFactory();
+//		astFactory.addDeclaration("s1", structType1);
+//		astFactory.addDeclaration("s2", structType2);
+//		IdentifierNode identifier_s1 = astFactory.newBasicIdentifier("s1");
+//		IdentifierNode identifier_s2 = astFactory.newBasicIdentifier("s2");
+//		astFactory.addAssignment(identifier_s1, identifier_s2);
+//		
+//		AST ast = astFactory.getAST();
+//		analyser.analyse(ast);
+//		
+//		System.out.println(log);
+//		assertFalse(log.hasErrors());
+//	}
 	
 	/**
 	 * # error: invalid assignment<br/>
