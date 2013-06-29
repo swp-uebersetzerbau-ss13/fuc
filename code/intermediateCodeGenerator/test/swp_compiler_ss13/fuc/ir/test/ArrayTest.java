@@ -376,8 +376,8 @@ public class ArrayTest {
 				"Quadruple: (DECLARE_LONG | ! | ! | tmp0)\n" +
 				"Quadruple: (ADD_LONG | i | #4 | tmp0)\n" +
 				"Quadruple: (ARRAY_SET_STRING | target | tmp0 | source)\n" +
-				"Quadruple: (DECLARE_STRING | ! | ! | tmp1)\n" +
-				"Quadruple: (ARRAY_GET_STRING | target | i | tmp1)\n" +
+				"Quadruple: (DECLARE_REFERENCE | ! | ! | tmp1)\n" +
+				"Quadruple: (ARRAY_GET_REFERENCE | target | i | tmp1)\n" +
 				"Quadruple: (ARRAY_SET_STRING | target | tmp1 | source)\n";
 		assertEquals(expected, actual);
 	}
