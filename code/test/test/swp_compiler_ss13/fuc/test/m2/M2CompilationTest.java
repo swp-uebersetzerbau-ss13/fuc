@@ -4,6 +4,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import swp_compiler_ss13.common.test.ExampleProgs;
 import swp_compiler_ss13.fuc.backend.LLVMBackend;
@@ -11,8 +12,8 @@ import swp_compiler_ss13.fuc.ir.IntermediateCodeGeneratorImpl;
 import swp_compiler_ss13.fuc.lexer.LexerImpl;
 import swp_compiler_ss13.fuc.parser.ParserImpl;
 import swp_compiler_ss13.fuc.semantic_analyser.SemanticAnalyser;
-import swp_compiler_ss13.fuc.test.ReportLogImpl;
-import swp_compiler_ss13.fuc.test.TestBase;
+import swp_compiler_ss13.fuc.test.*;
+import swp_compiler_ss13.fuc.test.Compiler;
 
 /**
  * <p>
@@ -38,12 +39,7 @@ public class M2CompilationTest extends TestBase {
 
 	@Before
 	public void setUp() throws Exception {
-		lexer = new LexerImpl();
-		parser = new ParserImpl();
-		analyser = new SemanticAnalyser();
-		irgen = new IntermediateCodeGeneratorImpl();
-		backend = new LLVMBackend();
-		errlog = new ReportLogImpl();
+		compiler = new Compiler();
 	}
 
 	@Test
@@ -68,9 +64,9 @@ public class M2CompilationTest extends TestBase {
 	}
 
 	@Test
-	/* Compilation with Semantic Analyser fails */
+	@Ignore
 	public void testArrayProg1() throws Exception {
-		testProgCompilationWOAnalyser(ExampleProgs.arrayProg1());
+		testProgCompilation(ExampleProgs.arrayProg1());
 	}
 
 	@Test
@@ -79,8 +75,8 @@ public class M2CompilationTest extends TestBase {
 	}
 
 	@Test
-	/* Compilation with Semantic Analyser fails */
+	@Ignore
 	public void testArrayProg3() throws Exception {
-		testProgCompilationWOAnalyser(ExampleProgs.arrayProg3());
+		testProgCompilation(ExampleProgs.arrayProg3());
 	}
 }

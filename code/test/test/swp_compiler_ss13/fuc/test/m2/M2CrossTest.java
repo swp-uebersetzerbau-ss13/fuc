@@ -17,8 +17,8 @@ import swp_compiler_ss13.fuc.ir.IntermediateCodeGeneratorImpl;
 import swp_compiler_ss13.fuc.lexer.LexerImpl;
 import swp_compiler_ss13.fuc.parser.ParserImpl;
 import swp_compiler_ss13.fuc.semantic_analyser.SemanticAnalyser;
-import swp_compiler_ss13.fuc.test.ReportLogImpl;
-import swp_compiler_ss13.fuc.test.TestBase;
+import swp_compiler_ss13.fuc.test.*;
+import swp_compiler_ss13.fuc.test.Compiler;
 import swp_compiler_ss13.javabite.backend.BackendJb;
 import swp_compiler_ss13.javabite.codegen.IntermediateCodeGeneratorJb;
 import swp_compiler_ss13.javabite.lexer.LexerJb;
@@ -67,6 +67,12 @@ public class M2CrossTest extends TestBase {
 	private Class analyserToUse;
 	private Class irgenToUse;
 	private Class backToUse;
+
+	private static Lexer lexer;
+	private static Parser parser;
+	private static swp_compiler_ss13.common.semanticAnalysis.SemanticAnalyser analyser;
+	private static IntermediateCodeGenerator irgen;
+	private static Backend backend;
 
 
 	public M2CrossTest(String testname, Class lexerToUse, Class parserToUse, Class analyserToUse, Class irgenToUse, Class backToUse) {
@@ -119,13 +125,12 @@ public class M2CrossTest extends TestBase {
 		analyser = (swp_compiler_ss13.common.semanticAnalysis.SemanticAnalyser) getModule(swp_compiler_ss13.common.semanticAnalysis.SemanticAnalyser.class, analyserToUse);
 		irgen = (IntermediateCodeGenerator) getModule(IntermediateCodeGenerator.class, irgenToUse);
 		backend = (Backend) getModule(Backend.class, backToUse);
-		errlog = new ReportLogImpl();
 
 		Assume.assumeTrue("no lexer found, aborting", lexer != null);
 		Assume.assumeTrue("no parser found, aborting", parser != null);
 		Assume.assumeTrue("no semantic analyser found, aborting", analyser != null);
 		Assume.assumeTrue("no irgen found, aborting", irgen != null);
-		Assume.assumeTrue("no lexer found, aborting", backend != null);		
+		Assume.assumeTrue("no lexer found, aborting", backend != null);
 	}
 
 	/* M1 progs */
@@ -154,27 +159,27 @@ public class M2CrossTest extends TestBase {
 	
 	@Test
 	public void testDoubleDeclaration() throws Exception {
-		testProgHasError(ExampleProgs.doubleDeclaration());
+		testProgCompilation(ExampleProgs.doubleDeclaration());
 	}
 
 	@Test
 	public void testInvalidIds() throws Exception {
-		testProgHasError(ExampleProgs.invalidIds());
+		testProgCompilation(ExampleProgs.invalidIds());
 	}
 
 	@Test
 	public void testMultipleMinusENotation() throws Exception {
-		testProgHasError(ExampleProgs.multipleMinusENotation());
+		testProgCompilation(ExampleProgs.multipleMinusENotation());
 	}
 
 	@Test
 	public void testMultiplePlusesInExp() throws Exception {
-		testProgHasError(ExampleProgs.multiplePlusesInExp());
+		testProgCompilation(ExampleProgs.multiplePlusesInExp());
 	}
 
 	@Test
 	public void testUndefReturn() throws Exception {
-		testProgHasWarnings(ExampleProgs.undefReturnProg());
+		testProgCompilation(ExampleProgs.undefReturnProg());
 	}
 
 	/* M2 progs */
