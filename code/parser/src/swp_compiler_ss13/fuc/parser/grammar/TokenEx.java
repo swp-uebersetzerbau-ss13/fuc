@@ -40,6 +40,19 @@ public class TokenEx implements Token {
 		this.token = token;
 		this.terminal = terminal;
 	}
+	
+	/**
+	 * @see TokenEx
+	 * @param value
+	 * @param type
+	 * @param line
+	 * @param col
+	 * @param terminal The {@link Terminal} the token should by extended with
+	 */
+	public TokenEx(String value, TokenType type, int line, int col, Terminal terminal) {
+		this.token = new BaseToken(value, type, line, col);
+		this.terminal = terminal;
+	}
 
 	/**
 	 * Associates the given {@link Token} with a {@link Terminal} as specified
@@ -129,6 +142,41 @@ public class TokenEx implements Token {
 				+ (terminal != null ? terminal.toString() : "<null>")
 				+ "' |at: line " + token.getLine() + ", col "
 				+ token.getColumn() + "]";
+	}
+	
+	private static class BaseToken implements Token {
+		
+		private final String value;
+		private final TokenType type;
+		private final int line;
+		private final int column;
+		
+		private BaseToken(String value, TokenType type, int line, int column) {
+			this.value = value;
+			this.type = type;
+			this.line = line;
+			this.column = column;
+		}
+
+		@Override
+		public String getValue() {
+			return value;
+		}
+
+		@Override
+		public TokenType getTokenType() {
+			return type;
+		}
+
+		@Override
+		public Integer getLine() {
+			return line;
+		}
+
+		@Override
+		public Integer getColumn() {
+			return column;
+		}
 	}
 
 	/**

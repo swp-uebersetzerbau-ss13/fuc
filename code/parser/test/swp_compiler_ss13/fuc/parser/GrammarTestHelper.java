@@ -26,6 +26,7 @@ import swp_compiler_ss13.fuc.parser.generator.GeneratorException;
 import swp_compiler_ss13.fuc.parser.generator.LR1Generator;
 import swp_compiler_ss13.fuc.parser.generator.items.LR1Item;
 import swp_compiler_ss13.fuc.parser.generator.states.LR1State;
+import swp_compiler_ss13.fuc.parser.grammar.AGrammarSpec;
 import swp_compiler_ss13.fuc.parser.grammar.Grammar;
 import swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar;
 import swp_compiler_ss13.fuc.parser.grammar.Terminal;
@@ -183,7 +184,8 @@ public class GrammarTestHelper {
 	 */
 	public static AST parseToAst(Lexer lexer, ReportLog reportLog) {
 		// Generate parsing table
-		Grammar grammar = new ProjectGrammar.Complete().getGrammar();
+		AGrammarSpec completeSpec = new ProjectGrammar.Complete();
+		Grammar grammar = completeSpec.getGrammar();
 		ALRGenerator<LR1Item, LR1State> generator = null;
 		try {
 			generator = new LR1Generator(grammar);
@@ -195,6 +197,6 @@ public class GrammarTestHelper {
 		// Run LR-parser with table
 		LRParser lrParser = new LRParser();
 		LexerWrapper lexWrapper = new LexerWrapper(lexer, grammar);
-		return lrParser.parse(lexWrapper, reportLog, table);
+		return lrParser.parse(lexWrapper, reportLog, table, completeSpec.getGrammarImpl());
 	}
 }

@@ -42,7 +42,7 @@ public class ReduceImplTest extends ReduceImplHelper {
 	@Before
 	public void setUp() throws Exception {
 		ReportLogImpl reportLog = new ReportLogImpl();
-		ReduceImpl reduceImpl = new ReduceImpl();
+		ProjectGrammarImpl reduceImpl = new ProjectGrammarImpl();
 		reduceImpl.setReportLog(reportLog);
 		ReduceImplHelper.init(this, reportLog, reduceImpl);
 	}

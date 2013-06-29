@@ -135,6 +135,9 @@ public class ASTImpl implements AST {
 	}
 
 	public static void toString(StringBuilder b, String indentation, ASTNode node) {
+		if (node == null) {
+			return;
+		}
 		b.append(indentation);
 		switch (node.getNodeType()) {
 		case ArithmeticBinaryExpressionNode:

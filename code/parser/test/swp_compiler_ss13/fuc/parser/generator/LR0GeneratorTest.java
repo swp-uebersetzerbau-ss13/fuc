@@ -11,11 +11,12 @@ import junit.extensions.PA;
 import org.junit.Test;
 
 import swp_compiler_ss13.common.lexer.TokenType;
-import swp_compiler_ss13.fuc.parser.grammar.GrammarSpec;
+import swp_compiler_ss13.fuc.parser.grammar.AGrammarSpec;
 import swp_compiler_ss13.fuc.parser.grammar.NonTerminal;
 import swp_compiler_ss13.fuc.parser.grammar.Production;
 import swp_compiler_ss13.fuc.parser.grammar.Symbol;
 import swp_compiler_ss13.fuc.parser.grammar.Terminal;
+import swp_compiler_ss13.fuc.parser.parser.IGrammarImpl;
 import swp_compiler_ss13.fuc.parser.parser.states.LRParserState;
 import swp_compiler_ss13.fuc.parser.parser.tables.LRActionTable;
 import swp_compiler_ss13.fuc.parser.parser.tables.LRGotoTable;
@@ -26,7 +27,7 @@ import swp_compiler_ss13.fuc.parser.parser.tables.actions.Accept;
 import swp_compiler_ss13.fuc.parser.parser.tables.actions.Reduce;
 import swp_compiler_ss13.fuc.parser.parser.tables.actions.Shift;
 
-public class LR0GeneratorTest extends GrammarSpec {
+public class LR0GeneratorTest extends AGrammarSpec {
 	public static final Terminal plus = new Terminal("plus", TokenType.PLUS);
 	public static final Terminal mult = new Terminal("mult", TokenType.TIMES);
 	public static final Terminal lb = new Terminal("(", TokenType.LEFT_PARAN);
@@ -157,5 +158,10 @@ public class LR0GeneratorTest extends GrammarSpec {
 	private static void assertActionEntry(Map<LRTableKey, ALRAction> actionTable, int stateId, Symbol symbol, ALRAction expected) {
 		ALRAction actual = actionTable.get(new LRTableKey(new LRParserState(stateId), symbol));
 		assertEquals(expected, actual);
+	}
+	
+	@Override
+	public IGrammarImpl getGrammarImpl() {
+		return null;	// Not needed here
 	}
 }

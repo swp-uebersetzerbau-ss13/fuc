@@ -20,9 +20,9 @@ public class ReduceImplHelper {
 
 	protected ReportLogImpl reportLog;
 	protected List<Token> coverage = new LinkedList<Token>();
-	protected ReduceImpl reduceImpl;
+	protected ProjectGrammarImpl reduceImpl;
 	
-	protected static void init(ReduceImplHelper helper, ReportLogImpl reportLog, ReduceImpl reduceImpl) {
+	protected static void init(ReduceImplHelper helper, ReportLogImpl reportLog, ProjectGrammarImpl reduceImpl) {
 		helper.reportLog = reportLog;
 		helper.reduceImpl = reduceImpl;
 	}

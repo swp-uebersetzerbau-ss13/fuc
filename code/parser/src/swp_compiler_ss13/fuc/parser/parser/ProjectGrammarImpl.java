@@ -1,7 +1,11 @@
 package swp_compiler_ss13.fuc.parser.parser;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Stack;
+
+import org.apache.log4j.Logger;
 
 import swp_compiler_ss13.common.ast.nodes.ExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.IdentifierNode;
@@ -14,6 +18,7 @@ import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
 import swp_compiler_ss13.common.ast.nodes.unary.UnaryExpressionNode.UnaryOperator;
 import swp_compiler_ss13.common.lexer.NumToken;
 import swp_compiler_ss13.common.lexer.Token;
+import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.common.parser.SymbolTable;
 import swp_compiler_ss13.common.report.ReportLog;
 import swp_compiler_ss13.common.report.ReportType;
@@ -46,16 +51,20 @@ import swp_compiler_ss13.fuc.ast.ReturnNodeImpl;
 import swp_compiler_ss13.fuc.ast.StructIdentifierNodeImpl;
 import swp_compiler_ss13.fuc.ast.WhileNodeImpl;
 import swp_compiler_ss13.fuc.parser.grammar.Production;
+import swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar;
+import swp_compiler_ss13.fuc.parser.grammar.Terminal;
+import swp_compiler_ss13.fuc.parser.grammar.TokenEx;
 import swp_compiler_ss13.fuc.parser.parser.ReduceAction.ReduceException;
-import swp_compiler_ss13.fuc.parser.parser.tables.actions.Reduce;
 import swp_compiler_ss13.fuc.symbolTable.SymbolTableImpl;
 
-public class ReduceImpl {
+public class ProjectGrammarImpl implements IGrammarImpl {
 	// --------------------------------------------------------------------------
 	// --- variables and constants
 	// ----------------------------------------------
 	// --------------------------------------------------------------------------
 	private static final Object NO_VALUE = new String("NoValue");
+	
+	private final Logger log = Logger.getLogger(getClass());
 	
 	private ReportLog reportLog = null;
 
@@ -63,14 +72,11 @@ public class ReduceImpl {
 	// --- constructors
 	// ---------------------------------------------------------
 	// --------------------------------------------------------------------------
-	public ReduceImpl() {
+	public ProjectGrammarImpl() {
 		
 	}
 	
-	/**
-	 * @param prod The {@link Production} which should be performed reduced
-	 * @return The {@link ReduceAction} for the given {@link Reduce}
-	 */
+	@Override
 	public ReduceAction getReduceAction(Production prod) {
 		switch (prod.getStringRep()) {
 
@@ -1003,7 +1009,7 @@ public class ReduceImpl {
 		}
 	}
 
-	private static class ReduceStringType extends Type{
+	private static class ReduceStringType extends Type {
 		/**
 		 * its not possible to create a StringType without the length, so
 		 * we need a dummy class to do it right
@@ -1023,6 +1029,34 @@ public class ReduceImpl {
 		}
 	}
 	
+	// --------------------------------------------------------------------------
+	// --- error recovery
+	// ---------------------------------------------------------
+	// --------------------------------------------------------------------------
+	@Override
+	public RecoveryResult tryErrorRecovery(List<Terminal> possibleTerminals, TokenEx curToken,
+			TokenEx lastToken, Stack<Object> valueStack) {
+		if (possibleTerminals.contains(ProjectGrammar.Complete.sem)) {
+			log.debug("------ starting error recovery ------");
+			log.debug("Found possible next terminal: " + ProjectGrammar.Complete.sem);
+			
+			// Modify token stream
+			TokenEx newToken = new TokenEx(";", TokenType.SEMICOLON, lastToken.getLine(),
+					lastToken.getColumn() + 1, ProjectGrammar.Complete.sem);
+			log.debug("Error recovery inserted " + newToken + " before " + curToken + ", lets see if this works...");
+			
+			reportLog.reportWarning(ReportType.UNDEFINED, Arrays.<Token>asList(curToken),
+					"Error recovery inserted a missing ';' before " + curToken + "!");
+			
+			// Give it a shot!
+			log.debug("------ end error recovery ------");
+			return new RecoveryResult(newToken, curToken);	// Re-insert curToken into token stream
+		}
+		return null;
+	}
+	
+	
+	@Override
 	public void setReportLog(ReportLog reportLog) {
 		this.reportLog = reportLog;
 	}

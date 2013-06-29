@@ -4,6 +4,8 @@ import java.lang.reflect.Field;
 import java.util.LinkedList;
 import java.util.List;
 
+import swp_compiler_ss13.fuc.parser.parser.IGrammarImpl;
+
 /**
  * This is a helper class for defining {@link Grammar}s directly in Java.<br/>
  * Usage: simply derive from this class and instantiate {@link Terminal}s,
@@ -13,7 +15,7 @@ import java.util.List;
  * 
  * @author Gero
  */
-public class GrammarSpec {
+public abstract class AGrammarSpec {
 	// --------------------------------------------------------------------------
 	// --- variables and constants
 	// ----------------------------------------------
@@ -25,9 +27,9 @@ public class GrammarSpec {
 	// ---------------------------------------------------------
 	// --------------------------------------------------------------------------
 	/**
-	 * @see GrammarSpec
+	 * @see AGrammarSpec
 	 */
-	public GrammarSpec() {
+	public AGrammarSpec() {
 		try {
 			List<Terminal> terminals = getAllMembers(Terminal.class);
 			List<NonTerminal> nonTerminals = getAllMembers(NonTerminal.class);
@@ -71,6 +73,8 @@ public class GrammarSpec {
 		}
 		return result;
 	}
+	
+	public abstract IGrammarImpl getGrammarImpl();
 
 	// --------------------------------------------------------------------------
 	// --- getter/setter

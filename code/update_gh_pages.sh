@@ -22,7 +22,12 @@ echo "<path id=\"sourcepath\">" >> $TMP/build.xml
 
 for SRCDIR in $SRCDIRS
 do
-	echo "<pathelement location=\"$PWDDIR/$SRCDIR\" />" >> $TMP/build.xml
+	if [[ "$SRCDIR" == *javabite* ]]
+	then
+		echo "skipping javabite sources: $SRCDIR"
+	else
+		echo "<pathelement location=\"$PWDDIR/$SRCDIR\" />" >> $TMP/build.xml
+	fi
 done
 
 echo "</path>"  >> $TMP/build.xml
@@ -56,7 +61,8 @@ echo "
    	splitindex=\"true\"
    	use=\"true\"
    	version=\"true\"
-   	linksource=\"true\" />
+   	linksource=\"true\"
+	encoding=\"UTF-8\" />
 </target>" >> $TMP/build.xml
 echo "</project>" >> $TMP/build.xml
 

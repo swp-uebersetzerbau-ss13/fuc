@@ -3,6 +3,8 @@ package swp_compiler_ss13.fuc.ir;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode.BinaryOperator;
 import swp_compiler_ss13.common.ast.nodes.unary.UnaryExpressionNode.UnaryOperator;
 import swp_compiler_ss13.common.backend.Quadruple;
@@ -10,578 +12,526 @@ import swp_compiler_ss13.common.backend.Quadruple.Operator;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 import swp_compiler_ss13.common.types.Type;
 import swp_compiler_ss13.common.types.derived.ArrayType;
+import swp_compiler_ss13.common.types.derived.Member;
+import swp_compiler_ss13.common.types.derived.StructType;
+import swp_compiler_ss13.fuc.ir.data.QuadrupleImpl;
 
 /**
- * This factory generates quadruples for the given instructions
+ * This factory creates quadruples according to the Three Address Code (TAC)
+ * specifiaction given in the common Wiki.
  * 
- * @author "Frank Zechert,Danny Maasch"
- * @version 1
+ * @see "https://github.com/swp-uebersetzerbau-ss13/common/wiki/Three-Address-Code-Specification"
+ * @author "Frank Zechert"
+ * @author "Danny Maasch"
+ * @author kaworu
+ * @version 3
  */
 public class QuadrupleFactory {
 
 	/**
-	 * create a quadruple to represent the variable declaration
-	 * 
-	 * @param id
-	 *            The name of the declared variable
-	 * @param type
-	 *            The type of the declared variable
-	 * @return The quadruple representing the declaration
-	 * @throws IntermediateCodeGeneratorException
-	 *             Thrown if an unknown type is declared
+	 * The logger instance
 	 */
-	public static List<Quadruple> declaration(String id, Type type)
-			throws IntermediateCodeGeneratorException {
-		List<Quadruple> quadruples = new LinkedList<>();
-		switch (type.getKind()) {
-		case DOUBLE:
-			quadruples.add(new QuadrupleImpl(Operator.DECLARE_DOUBLE,
-					Quadruple.EmptyArgument, Quadruple.EmptyArgument, id));
-			break;
-		case LONG:
-			quadruples.add(new QuadrupleImpl(Operator.DECLARE_LONG,
-					Quadruple.EmptyArgument, Quadruple.EmptyArgument, id));
-			break;
-		case STRING:
-			quadruples.add(new QuadrupleImpl(Operator.DECLARE_STRING,
-					Quadruple.EmptyArgument, Quadruple.EmptyArgument, id));
-			break;
-		case BOOLEAN:
-			quadruples.add(new QuadrupleImpl(Operator.DECLARE_BOOLEAN,
-					Quadruple.EmptyArgument, Quadruple.EmptyArgument, id));
-			break;
-		case ARRAY:
-			ArrayType arrayType = (ArrayType) type;
-			quadruples.add(new QuadrupleImpl(Operator.DECLARE_ARRAY, "#"
-					+ arrayType.getLength().toString(),
-					Quadruple.EmptyArgument, id));
-			quadruples.addAll(declaration("!", arrayType.getInnerType()));
-			break;
-		default:
-			throw new IntermediateCodeGeneratorException("Unsupported type "
-					+ type.toString());
-		}
-		return quadruples;
-	}
+	private static Logger logger = Logger.getLogger(QuadrupleFactory.class);
 
 	/**
-	 * create a quadruple to represent array_get
+	 * Create one or more quadruples to represent the declaration.
 	 * 
+	 * @param name
+	 *            The name of the variable to be declared.
 	 * @param type
-	 *            the type of the variable to get
-	 * @param source
-	 *            the source to get
-	 * @param index
-	 *            the index to get
-	 * @param target
-	 *            the target where the reference is stored
-	 * @return the quadruple
+	 *            Type of the variable to be declared.
+	 * @return A List of Quadruples that represent the declaration
 	 * @throws IntermediateCodeGeneratorException
-	 *             something went wring
+	 *             Declaration of the given type is unsupported
 	 */
-	public static Quadruple arrayGet(Type type, String source, String index,
-			String target) throws IntermediateCodeGeneratorException {
+	public static List<Quadruple> declare(String name, Type type)
+			throws IntermediateCodeGeneratorException {
+		List<Quadruple> declaration = new LinkedList<>();
 		switch (type.getKind()) {
-		case BOOLEAN:
-			return new QuadrupleImpl(Operator.ARRAY_GET_BOOLEAN, source, index,
-					target);
-		case DOUBLE:
-			return new QuadrupleImpl(Operator.ARRAY_GET_DOUBLE, source, index,
-					target);
-		case LONG:
-			return new QuadrupleImpl(Operator.ARRAY_GET_LONG, source, index,
-					target);
-		case STRING:
-			return new QuadrupleImpl(Operator.ARRAY_GET_STRING, source, index,
-					target);
 		case ARRAY:
-			return new QuadrupleImpl(Operator.ARRAY_GET_REFERENCE, source,
-					index, target);
+			declaration.addAll(QuadrupleFactory.declareArray(name, (ArrayType) type));
+			break;
+		case BOOLEAN:
+			declaration.add(new QuadrupleImpl(Operator.DECLARE_BOOLEAN, name));
+			break;
+		case DOUBLE:
+			declaration.add(new QuadrupleImpl(Operator.DECLARE_DOUBLE, name));
+			break;
+		case LONG:
+			declaration.add(new QuadrupleImpl(Operator.DECLARE_LONG, name));
+			break;
+		case STRING:
+			declaration.add(new QuadrupleImpl(Operator.DECLARE_STRING, name));
+			break;
 		case STRUCT:
+			declaration.addAll(QuadrupleFactory.declareStruct(name, (StructType) type));
+			break;
 		default:
-			throw new IntermediateCodeGeneratorException(
-					new UnsupportedOperationException());
+			String error = String.format(
+					"Variable declaration for a variable of type %s is not supported!",
+					type.toString());
+			QuadrupleFactory.logger.fatal(error);
+			throw new IntermediateCodeGeneratorException(error);
 		}
+
+		return declaration;
 	}
 
 	/**
-	 * Create a new binaryOperator Quadruple for Arguments of Type long
+	 * Declare a struct
 	 * 
-	 * @param operator
-	 *            The binary operator
-	 * @param left
-	 *            argument 1
-	 * @param right
-	 *            argument 2
-	 * @param result
-	 *            result
-	 * @return the quadruple
+	 * @param name
+	 *            the name of the struct
+	 * @param type
+	 *            the type of the struct
+	 * @return Quadruples to declare the given struct
 	 * @throws IntermediateCodeGeneratorException
-	 *             unsupported operator
+	 *             Error in struct declaration
 	 */
-	public static Quadruple longArithmeticBinaryOperation(
-			BinaryOperator operator, String left, String right, String result)
-			throws IntermediateCodeGeneratorException {
-		switch (operator) {
-		case ADDITION:
-			return new QuadrupleImpl(Operator.ADD_LONG, left, right, result);
-		case DIVISION:
-			return new QuadrupleImpl(Operator.DIV_LONG, left, right, result);
-		case MULTIPLICATION:
-			return new QuadrupleImpl(Operator.MUL_LONG, left, right, result);
-		case SUBSTRACTION:
-			return new QuadrupleImpl(Operator.SUB_LONG, left, right, result);
-		default:
-			throw new IntermediateCodeGeneratorException(
-					"Unsupported binary operator " + operator.toString());
-		}
-	}
-
-	/**
-	 * Create a new binaryOperator Quadruple for Arguments of Type double
-	 * 
-	 * @param operator
-	 *            The binary operator
-	 * @param left
-	 *            argument 1
-	 * @param right
-	 *            argument 2
-	 * @param result
-	 *            result
-	 * @return the quadruple
-	 * @throws IntermediateCodeGeneratorException
-	 *             unsupported operator
-	 */
-	public static Quadruple doubleArithmeticBinaryOperation(
-			BinaryOperator operator, String left, String right, String result)
-			throws IntermediateCodeGeneratorException {
-		switch (operator) {
-		case ADDITION:
-			return new QuadrupleImpl(Operator.ADD_DOUBLE, left, right, result);
-		case DIVISION:
-			return new QuadrupleImpl(Operator.DIV_DOUBLE, left, right, result);
-		case MULTIPLICATION:
-			return new QuadrupleImpl(Operator.MUL_DOUBLE, left, right, result);
-		case SUBSTRACTION:
-			return new QuadrupleImpl(Operator.SUB_DOUBLE, left, right, result);
-		default:
-			throw new IntermediateCodeGeneratorException(
-					"Unsupported binary operator " + operator.toString());
-		}
-	}
-
-	/**
-	 * Create a new assignment in TAC
-	 * 
-	 * @param typeOfid
-	 *            The type of the variable to assign the value to
-	 * @param from
-	 *            The value to assign to
-	 * @param to
-	 *            The variable to hold the assigned value
-	 * @param fromArrayIndex
-	 *            The index of the array to assign from. null for no array
-	 * @param toArrayIndex
-	 *            The index of the array to assign to. null for no array
-	 * @return The tac quadruple
-	 * @throws IntermediateCodeGeneratorException
-	 *             something went wrong.
-	 */
-	public static List<Quadruple> assign(Type typeOfid, String from, String to,
-			String fromArrayIndex, String toArrayIndex)
+	private static List<Quadruple> declareStruct(String name, StructType type)
 			throws IntermediateCodeGeneratorException {
 
-		List<Quadruple> quadruples = new LinkedList<>();
-		if (toArrayIndex != null && fromArrayIndex != null) {
-			throw new IntermediateCodeGeneratorException(
-					"Unsupport assignment type");
-		} else if (toArrayIndex != null) {
-			switch (typeOfid.getKind()) {
-			case DOUBLE:
-				quadruples.add(new QuadrupleImpl(Operator.ARRAY_SET_DOUBLE, to,
-						toArrayIndex, from));
-				break;
-			case LONG:
-				quadruples.add(new QuadrupleImpl(Operator.ARRAY_SET_LONG, to,
-						toArrayIndex, from));
-				break;
-			case BOOLEAN:
-				quadruples.add(new QuadrupleImpl(Operator.ARRAY_SET_BOOLEAN,
-						to, toArrayIndex, from));
-				break;
-			case STRING:
-				quadruples.add(new QuadrupleImpl(Operator.ARRAY_SET_STRING, to,
-						toArrayIndex, from));
-				break;
-			default:
-				throw new IntermediateCodeGeneratorException(
-						"Unsupport assignment type");
-			}
-		} else if (fromArrayIndex != null) {
-			switch (typeOfid.getKind()) {
-			case DOUBLE:
-				quadruples.add(new QuadrupleImpl(Operator.ARRAY_GET_DOUBLE,
-						from, fromArrayIndex, to));
-				break;
-			case LONG:
-				quadruples.add(new QuadrupleImpl(Operator.ARRAY_GET_LONG, from,
-						fromArrayIndex, to));
-				break;
-			case BOOLEAN:
-				quadruples.add(new QuadrupleImpl(Operator.ARRAY_GET_BOOLEAN,
-						from, fromArrayIndex, to));
-				break;
-			case STRING:
-				quadruples.add(new QuadrupleImpl(Operator.ARRAY_GET_STRING,
-						from, fromArrayIndex, to));
-				break;
-			default:
-				throw new IntermediateCodeGeneratorException(
-						"Unsupport assignment type");
-			}
-		} else {
-			switch (typeOfid.getKind()) {
-			case DOUBLE:
-				quadruples.add(new QuadrupleImpl(Operator.ASSIGN_DOUBLE, from,
-						Quadruple.EmptyArgument, to));
-				break;
-			case LONG:
-				quadruples.add(new QuadrupleImpl(Operator.ASSIGN_LONG, from,
-						Quadruple.EmptyArgument, to));
-				break;
-			case STRING:
-				quadruples.add(new QuadrupleImpl(Operator.ASSIGN_STRING, from,
-						Quadruple.EmptyArgument, to));
-				break;
-			case BOOLEAN:
-				quadruples.add(new QuadrupleImpl(Operator.ASSIGN_BOOLEAN, from,
-						Quadruple.EmptyArgument, to));
-				break;
-			default:
-				throw new IntermediateCodeGeneratorException(
-						"Unsupport assignment type");
-			}
+		List<Quadruple> decl = new LinkedList<>();
+		Member[] members = type.members();
+		String memberCount = "#" + members.length;
+		decl.add(new QuadrupleImpl(Operator.DECLARE_STRUCT, memberCount, name));
+		for (Member member : members) {
+			decl.addAll(QuadrupleFactory.declare(member.getName(), member.getType()));
 		}
-		return quadruples;
+		return decl;
+
 	}
 
 	/**
-	 * Generate unary minus quadruples for long or double
+	 * Declare an array
 	 * 
-	 * @param typeOfId
-	 *            The type of the identifier (long or double)
-	 * @param from
-	 *            The variable to calculate minus from
-	 * @param to
-	 *            The result variable
-	 * @return The quadruple for unary minus
+	 * @param name
+	 *            the name of the array
+	 * @param type
+	 *            the type of the array
+	 * @return the Quadruples to declare the given array
 	 * @throws IntermediateCodeGeneratorException
-	 *             something went wrong
+	 *             Error in array declaration
 	 */
-	public static Quadruple unaryMinus(Type typeOfId, String from, String to)
+	private static List<Quadruple> declareArray(String name, ArrayType type)
 			throws IntermediateCodeGeneratorException {
-		switch (typeOfId.getKind()) {
-		case DOUBLE:
-			return new QuadrupleImpl(Operator.SUB_DOUBLE, "#0.0", from, to);
-		case LONG:
-			return new QuadrupleImpl(Operator.SUB_LONG, "#0", from, to);
-		default:
-			throw new IntermediateCodeGeneratorException(
-					"Unsupport assignment type");
-		}
+
+		List<Quadruple> decl = new LinkedList<>();
+		String length = "#" + type.getLength();
+		Quadruple level = new QuadrupleImpl(Operator.DECLARE_ARRAY, length, name);
+		decl.add(level);
+		decl.addAll(QuadrupleFactory.declare("!", type.getInnerType()));
+		return decl;
+
 	}
 
 	/**
-	 * create a new return Node Quadruple
+	 * Declare a reference
 	 * 
-	 * @param identifier
-	 *            The identifier to return
-	 * @return The quadruple representing the return node
+	 * @param name
+	 *            The name of the variable
+	 * @return The Quadruple declaring the reference
 	 */
-	public static Quadruple returnNode(String identifier) {
-		return new QuadrupleImpl(Quadruple.Operator.RETURN, identifier,
-				Quadruple.EmptyArgument, Quadruple.EmptyArgument);
+	public static Quadruple declareReference(String name) {
+		return new QuadrupleImpl(Operator.DECLARE_REFERENCE, name);
 	}
 
 	/**
-	 * Create a Quadruple for relation equals
+	 * Create a label
 	 * 
-	 * @param left
-	 *            left value
-	 * @param right
-	 *            right value
-	 * @param result
-	 *            the result
-	 * @param type
-	 *            type of values
-	 * @return The quadruple representing the equals relation
-	 * @throws IntermediateCodeGeneratorException
-	 *             illegal quadruple
+	 * @param label
+	 *            the name of the label
+	 * @return The label as Quadruple
 	 */
-	public static Quadruple relationEqual(String left, String right,
-			String result, Type type) throws IntermediateCodeGeneratorException {
-		switch (type.getKind()) {
-		case DOUBLE:
-			return new QuadrupleImpl(Operator.COMPARE_DOUBLE_E, left, right,
-					result);
-		case LONG:
-			return new QuadrupleImpl(Operator.COMPARE_LONG_E, left, right,
-					result);
-		default:
-			String err = "Illegal Relation Equals for Type " + type;
-			throw new IntermediateCodeGeneratorException(err);
-		}
-	}
-
-	/**
-	 * Create a Quadruple for relation greater
-	 * 
-	 * @param left
-	 *            left value
-	 * @param right
-	 *            right value
-	 * @param result
-	 *            the result
-	 * @param type
-	 *            type of values
-	 * @return The quadruple representing the greater relation
-	 * @throws IntermediateCodeGeneratorException
-	 *             illegal quadruple
-	 */
-	public static Quadruple relationGreater(String left, String right,
-			String result, Type type) throws IntermediateCodeGeneratorException {
-		switch (type.getKind()) {
-		case DOUBLE:
-			return new QuadrupleImpl(Operator.COMPARE_DOUBLE_G, left, right,
-					result);
-		case LONG:
-			return new QuadrupleImpl(Operator.COMPARE_LONG_G, left, right,
-					result);
-		default:
-			String err = "Illegal Relation Greater for Type " + type;
-			throw new IntermediateCodeGeneratorException(err);
-		}
-	}
-
-	/**
-	 * Create a Quadruple for relation greater equals
-	 * 
-	 * @param left
-	 *            left value
-	 * @param right
-	 *            right value
-	 * @param result
-	 *            the result
-	 * @param type
-	 *            type of values
-	 * @return The quadruple representing the greater equals relation
-	 * @throws IntermediateCodeGeneratorException
-	 *             illegal quadruple
-	 */
-	public static Quadruple relationGreaterEqual(String left, String right,
-			String result, Type type) throws IntermediateCodeGeneratorException {
-		switch (type.getKind()) {
-		case DOUBLE:
-			return new QuadrupleImpl(Operator.COMPARE_DOUBLE_GE, left, right,
-					result);
-		case LONG:
-			return new QuadrupleImpl(Operator.COMPARE_LONG_GE, left, right,
-					result);
-		default:
-			String err = "Illegal Relation GreaterEquals for Type " + type;
-			throw new IntermediateCodeGeneratorException(err);
-		}
-	}
-
-	/**
-	 * Create a Quadruple for relation less
-	 * 
-	 * @param left
-	 *            left value
-	 * @param right
-	 *            right value
-	 * @param result
-	 *            the result
-	 * @param type
-	 *            type of values
-	 * @return The quadruple representing the less relation
-	 * @throws IntermediateCodeGeneratorException
-	 *             illegal quadruple
-	 */
-	public static Quadruple relationLess(String left, String right,
-			String result, Type type) throws IntermediateCodeGeneratorException {
-		switch (type.getKind()) {
-		case DOUBLE:
-			return new QuadrupleImpl(Operator.COMPARE_DOUBLE_L, left, right,
-					result);
-		case LONG:
-			return new QuadrupleImpl(Operator.COMPARE_LONG_L, left, right,
-					result);
-		default:
-			String err = "Illegal Relation Less for Type " + type;
-			throw new IntermediateCodeGeneratorException(err);
-		}
-	}
-
-	/**
-	 * Create a Quadruple for relation less equals
-	 * 
-	 * @param left
-	 *            left value
-	 * @param right
-	 *            right value
-	 * @param result
-	 *            the result
-	 * @param type
-	 *            type of values
-	 * @return The quadruple representing the less equals relation
-	 * @throws IntermediateCodeGeneratorException
-	 *             illegal quadruple
-	 */
-	public static Quadruple relationLessEqual(String left, String right,
-			String result, Type type) throws IntermediateCodeGeneratorException {
-		switch (type.getKind()) {
-		case DOUBLE:
-			return new QuadrupleImpl(Operator.COMPARE_DOUBLE_LE, left, right,
-					result);
-		case LONG:
-			return new QuadrupleImpl(Operator.COMPARE_LONG_LE, left, right,
-					result);
-		default:
-			String err = "Illegal Relation Less Equals for Type " + type;
-			throw new IntermediateCodeGeneratorException(err);
-		}
-	}
-
-	/**
-	 * Create a Quadruple for the print statement
-	 * 
-	 * @param value
-	 *            The variable to print
-	 * @param type
-	 *            The type of the variable
-	 * @return The quadruple for the print statement
-	 * @throws IntermediateCodeGeneratorException
-	 *             illegal print
-	 */
-	public static Quadruple print(String value, Type type)
-			throws IntermediateCodeGeneratorException {
-		switch (type.getKind()) {
-		case STRING:
-			return new QuadrupleImpl(Operator.PRINT_STRING, value,
-					Quadruple.EmptyArgument, Quadruple.EmptyArgument);
-		default:
-			String err = "Cannot print non string type " + type;
-			throw new IntermediateCodeGeneratorException(err);
-		}
-	}
-
-	/**
-	 * Create a quadruple for unary NOT operation
-	 * 
-	 * @param value
-	 *            The value to negate
-	 * @param result
-	 *            The result variable
-	 * @return The quadruple
-	 */
-	public static Quadruple unaryNot(String value, String result) {
-		return new QuadrupleImpl(Operator.NOT_BOOLEAN, value,
-				Quadruple.EmptyArgument, result);
-	}
-
-	/**
-	 * Create a quadruple for boolean arithmetic
-	 * 
-	 * @param operator
-	 *            The boolean operator
-	 * @param left
-	 *            left value
-	 * @param right
-	 *            right value
-	 * @param result
-	 *            result value
-	 * @return The quadruple
-	 * @throws IntermediateCodeGeneratorException
-	 *             Illegal operator given
-	 */
-	public static Quadruple booleanArithmetic(BinaryOperator operator,
-			String left, String right, String result)
-			throws IntermediateCodeGeneratorException {
-		switch (operator) {
-		case LOGICAL_AND:
-			return new QuadrupleImpl(Operator.AND_BOOLEAN, left, right, result);
-		case LOGICAL_OR:
-			return new QuadrupleImpl(Operator.OR_BOOLEAN, left, right, result);
-		default:
-			String err = "unsupported logical operator " + operator;
-			throw new IntermediateCodeGeneratorException(err);
-		}
-	}
-
-	/**
-	 * Create a quadruple for boolean arithmetic with unary operator
-	 * 
-	 * @param operator
-	 *            the operator
-	 * @param from
-	 *            the source value
-	 * @param to
-	 *            the target value
-	 * @return the quadruple
-	 * @throws IntermediateCodeGeneratorException
-	 *             something went wrong
-	 */
-	public static Quadruple booleanArithmetic(UnaryOperator operator,
-			String from, String to) throws IntermediateCodeGeneratorException {
-		switch (operator) {
-		case LOGICAL_NEGATE:
-			return new QuadrupleImpl(Operator.NOT_BOOLEAN, from,
-					Quadruple.EmptyArgument, to);
-		default:
-			throw new IntermediateCodeGeneratorException(
-					"Unsupported binary operator " + operator.toString());
-		}
+	public static Quadruple label(String label) {
+		return new QuadrupleImpl(Operator.LABEL, label, Quadruple.EmptyArgument);
 	}
 
 	/**
 	 * Create a conditional jump
 	 * 
 	 * @param condition
-	 *            The condition to evaluate
-	 * @param trueLabel
-	 *            the label to jump to if the condition is true
-	 * @param falseLabel
-	 *            the label to jump to if the condition is false
-	 * @return the quadruple
+	 *            The condition
+	 * @param trueLbl
+	 *            The label to jump to if the condition is true
+	 * @param falseLbl
+	 *            The label to jump to if the condition is false
+	 * @return The quadruple representing the conditional jump
 	 */
-	public static Quadruple branch(String condition, String trueLabel,
-			String falseLabel) {
-		return new QuadrupleImpl(Operator.BRANCH, trueLabel, falseLabel,
-				condition);
+	public static Quadruple branch(String condition, String trueLbl, String falseLbl) {
+		return new QuadrupleImpl(Operator.BRANCH, trueLbl, falseLbl, condition);
 	}
 
 	/**
-	 * Add a new label into the TAC
-	 * 
-	 * @param label
-	 *            The label to add
-	 * @return The Quadruple
-	 */
-	public static Quadruple label(String label) {
-		return new QuadrupleImpl(Operator.LABEL, label,
-				Quadruple.EmptyArgument, Quadruple.EmptyArgument);
-	}
-
-	/**
-	 * Add an unconditional jump to the label
+	 * Create an unconditional jump
 	 * 
 	 * @param label
 	 *            The label to jump to
-	 * @return The Quadruple
+	 * @return The unconditional jump as Quadruple
 	 */
 	public static Quadruple jump(String label) {
-		return new QuadrupleImpl(Operator.BRANCH, label,
-				Quadruple.EmptyArgument, Quadruple.EmptyArgument);
+		return new QuadrupleImpl(Operator.BRANCH, label, Quadruple.EmptyArgument);
+	}
+
+	/**
+	 * Create a quadruple for an arithmetic binary operation
+	 * 
+	 * @param op
+	 *            The operator for the operation
+	 * @param type
+	 *            The type of the left and right values
+	 * @param left
+	 *            the left value
+	 * @param right
+	 *            the right value
+	 * @param result
+	 *            the target value
+	 * @return the quadruple for the given operation
+	 * @throws IntermediateCodeGeneratorException
+	 *             Unsupported operator or type
+	 */
+	public static Quadruple arithmeticBinary(BinaryOperator op, Type type, String left,
+			String right, String result) throws IntermediateCodeGeneratorException {
+		switch (type.getKind()) {
+		case DOUBLE:
+			switch (op) {
+			case ADDITION:
+				return new QuadrupleImpl(Operator.ADD_DOUBLE, left, right, result);
+			case DIVISION:
+				return new QuadrupleImpl(Operator.DIV_DOUBLE, left, right, result);
+			case MULTIPLICATION:
+				return new QuadrupleImpl(Operator.MUL_DOUBLE, left, right, result);
+			case SUBSTRACTION:
+				return new QuadrupleImpl(Operator.SUB_DOUBLE, left, right, result);
+			default:
+				break;
+			}
+			break;
+		case LONG:
+			switch (op) {
+			case ADDITION:
+				return new QuadrupleImpl(Operator.ADD_LONG, left, right, result);
+			case DIVISION:
+				return new QuadrupleImpl(Operator.DIV_LONG, left, right, result);
+			case MULTIPLICATION:
+				return new QuadrupleImpl(Operator.MUL_LONG, left, right, result);
+			case SUBSTRACTION:
+				return new QuadrupleImpl(Operator.SUB_LONG, left, right, result);
+			default:
+				break;
+			}
+			break;
+		default:
+			break;
+
+		}
+		throw new IntermediateCodeGeneratorException("The type " + type.toString()
+				+ " and Operator " + op.toString()
+				+ " is not supported for arithmetic binary expressions");
+	}
+
+	/**
+	 * Create a logical binary expression
+	 * 
+	 * @param operator
+	 *            The operator
+	 * @param value1
+	 *            left value
+	 * @param value2
+	 *            right value
+	 * @param result
+	 *            the result address
+	 * @return The Quadruple for the binary logical expression
+	 * @throws IntermediateCodeGeneratorException
+	 *             unsupoorted operator
+	 */
+	public static Quadruple logicBinary(BinaryOperator operator, String value1, String value2,
+			String result) throws IntermediateCodeGeneratorException {
+		switch (operator) {
+		case LOGICAL_AND:
+			return new QuadrupleImpl(Operator.AND_BOOLEAN, value1, value2, result);
+		case LOGICAL_OR:
+			return new QuadrupleImpl(Operator.OR_BOOLEAN, value1, value2, result);
+		default:
+			break;
+		}
+		throw new IntermediateCodeGeneratorException("The operator " + operator.toString()
+				+ " is not supported for logic binary expressions");
+	}
+
+	/**
+	 * Create a Quadruple for a relation expresion
+	 * 
+	 * @param operator
+	 *            The operator
+	 * @param v1
+	 *            the left value
+	 * @param v2
+	 *            the right value
+	 * @param res
+	 *            the result target
+	 * @param type
+	 *            the type
+	 * @return the Quadruple for the operation
+	 * @throws IntermediateCodeGeneratorException
+	 *             Unsupported type or operator
+	 */
+	public static Quadruple relation(BinaryOperator operator, String v1, String v2, String res,
+			Type type) throws IntermediateCodeGeneratorException {
+		switch (operator) {
+		case EQUAL:
+		case INEQUAL:
+			switch (type.getKind()) {
+			case DOUBLE:
+				return new QuadrupleImpl(Operator.COMPARE_DOUBLE_E, v1, v2, res);
+			case LONG:
+				return new QuadrupleImpl(Operator.COMPARE_LONG_E, v1, v2, res);
+			default:
+				break;
+			}
+			break;
+		case GREATERTHAN:
+			switch (type.getKind()) {
+			case DOUBLE:
+				return new QuadrupleImpl(Operator.COMPARE_DOUBLE_G, v1, v2, res);
+			case LONG:
+				return new QuadrupleImpl(Operator.COMPARE_LONG_G, v1, v2, res);
+			default:
+				break;
+			}
+			break;
+		case GREATERTHANEQUAL:
+			switch (type.getKind()) {
+			case DOUBLE:
+				return new QuadrupleImpl(Operator.COMPARE_DOUBLE_GE, v1, v2, res);
+			case LONG:
+				return new QuadrupleImpl(Operator.COMPARE_LONG_GE, v1, v2, res);
+			default:
+				break;
+			}
+			break;
+		case LESSTHAN:
+			switch (type.getKind()) {
+			case DOUBLE:
+				return new QuadrupleImpl(Operator.COMPARE_DOUBLE_L, v1, v2, res);
+			case LONG:
+				return new QuadrupleImpl(Operator.COMPARE_LONG_L, v1, v2, res);
+			default:
+				break;
+			}
+			break;
+		case LESSTHANEQUAL:
+			switch (type.getKind()) {
+			case DOUBLE:
+				return new QuadrupleImpl(Operator.COMPARE_DOUBLE_LE, v1, v2, res);
+			case LONG:
+				return new QuadrupleImpl(Operator.COMPARE_LONG_LE, v1, v2, res);
+			default:
+				break;
+			}
+			break;
+		default:
+			break;
+		}
+		throw new IntermediateCodeGeneratorException("The type " + type.toString()
+				+ " and operator " + operator.toString()
+				+ " is not supported for relation expressions");
+	}
+
+	/**
+	 * Create a unary logic operation
+	 * 
+	 * @param op
+	 *            the operator
+	 * @param from
+	 *            the value
+	 * @param to
+	 *            the target
+	 * @return the Quadruple for the operation
+	 * @throws IntermediateCodeGeneratorException
+	 *             unsupported operator
+	 */
+	public static Quadruple logicUnary(UnaryOperator op, String from, String to)
+			throws IntermediateCodeGeneratorException {
+		switch (op) {
+		case LOGICAL_NEGATE:
+			return new QuadrupleImpl(Operator.NOT_BOOLEAN, from, to);
+		default:
+			break;
+		}
+		throw new IntermediateCodeGeneratorException("The operator " + op.toString()
+				+ " is not supported for unary logic expressions");
+	}
+
+	/**
+	 * Create a unary arithmetic operation
+	 * 
+	 * @param op
+	 *            the operator
+	 * @param from
+	 *            the value
+	 * @param to
+	 *            the target
+	 * @param t
+	 *            The type
+	 * @return the Quadruple for the operation
+	 * @throws IntermediateCodeGeneratorException
+	 *             unsupported operator
+	 */
+	public static Quadruple arithmeticUnary(UnaryOperator op, String from, String to, Type t)
+			throws IntermediateCodeGeneratorException {
+		switch (op) {
+		case MINUS:
+			switch (t.getKind()) {
+			case DOUBLE:
+				return new QuadrupleImpl(Operator.SUB_DOUBLE, "#0.0", from, to);
+			case LONG:
+				return new QuadrupleImpl(Operator.SUB_LONG, "#0", from, to);
+			default:
+				break;
+
+			}
+		default:
+			break;
+		}
+		throw new IntermediateCodeGeneratorException("The operator " + op.toString()
+				+ " is not supported for unary arithmetic expressions");
+	}
+
+	/**
+	 * Create a print statement
+	 * 
+	 * @param variable
+	 *            The variable to print
+	 * @return The Quadruple to print the variable
+	 */
+	public static Quadruple print(String variable) {
+		return new QuadrupleImpl(Operator.PRINT_STRING, variable, Quadruple.EmptyArgument);
+	}
+
+	/**
+	 * Return an exit value
+	 * 
+	 * @param value
+	 *            the exit value
+	 * @return The quadruple for a return statement
+	 */
+	public static Quadruple exit(String value) {
+		return new QuadrupleImpl(Operator.RETURN, value, Quadruple.EmptyArgument);
+	}
+
+	/**
+	 * Create an assignment
+	 * 
+	 * @param type
+	 *            type of the left hand side variable
+	 * @param to
+	 *            the destination of the assignment
+	 * @param from
+	 *            the source of the assignment
+	 * @return the quadruple for the assignment
+	 * @throws IntermediateCodeGeneratorException
+	 *             unsupported type
+	 */
+	public static Quadruple assignment(Type type, String to, String from)
+			throws IntermediateCodeGeneratorException {
+		switch (type.getKind()) {
+		case BOOLEAN:
+			return new QuadrupleImpl(Operator.ASSIGN_BOOLEAN, from, to);
+		case DOUBLE:
+			return new QuadrupleImpl(Operator.ASSIGN_DOUBLE, from, to);
+		case LONG:
+			return new QuadrupleImpl(Operator.ASSIGN_LONG, from, to);
+		case STRING:
+			return new QuadrupleImpl(Operator.ASSIGN_STRING, from, to);
+		default:
+			break;
+		}
+		String err = "assignment for type " + type.toString() + " is not supported.";
+		QuadrupleFactory.logger.fatal(err);
+		throw new IntermediateCodeGeneratorException(err);
+	}
+
+	/**
+	 * Create a quadruple for the correct ARRAY_GET_{TYPE} Operator
+	 * 
+	 * @param type
+	 *            The type of the operation
+	 * @param from
+	 *            The array from where to get the value
+	 * @param index
+	 *            The index from where to get the value in the array
+	 * @param to
+	 *            The destination variable
+	 * @return The Quadruple for the defined operation
+	 * @throws IntermediateCodeGeneratorException
+	 *             Unsupported type was given
+	 */
+	public static Quadruple arrayGetType(Type type, String from, String index, String to)
+			throws IntermediateCodeGeneratorException {
+		switch (type.getKind()) {
+		case BOOLEAN:
+			return new QuadrupleImpl(Operator.ARRAY_GET_BOOLEAN, from, index, to);
+		case DOUBLE:
+			return new QuadrupleImpl(Operator.ARRAY_GET_DOUBLE, from, index, to);
+		case LONG:
+			return new QuadrupleImpl(Operator.ARRAY_GET_LONG, from, index, to);
+		case STRING:
+			return new QuadrupleImpl(Operator.ARRAY_GET_STRING, from, index, to);
+		default:
+			break;
+		}
+		String err = "array_get_{type} for type " + type.toString() + " is not supported.";
+		QuadrupleFactory.logger.fatal(err);
+		throw new IntermediateCodeGeneratorException(err);
+	}
+
+	/**
+	 * Create a quadruple for an array reference
+	 * 
+	 * @param from
+	 *            The array to create a reference into
+	 * @param index
+	 *            The index to create the reference for
+	 * @param to
+	 *            The destination variable to hold the reference
+	 * @return Return the Quadruple for the defined operation
+	 */
+	public static Quadruple arrayReference(String from, String index, String to) {
+		return new QuadrupleImpl(Operator.ARRAY_GET_REFERENCE, from, index, to);
+	}
+
+	/**
+	 * Create a quadruple for an array assignment
+	 * 
+	 * @param type
+	 *            The type of the element to assign to the array
+	 * @param target
+	 *            the array to assign the value to
+	 * @param index
+	 *            the index to assign the value to
+	 * @param source
+	 *            the value to assign
+	 * @return return the correct Quadruple for this operation
+	 * @throws IntermediateCodeGeneratorException
+	 *             type is not compatible
+	 */
+	public static Quadruple arraySetType(Type type, String target, String index, String source)
+			throws IntermediateCodeGeneratorException {
+		switch (type.getKind()) {
+		case BOOLEAN:
+			return new QuadrupleImpl(Operator.ARRAY_SET_BOOLEAN, target, index, source);
+		case DOUBLE:
+			return new QuadrupleImpl(Operator.ARRAY_SET_DOUBLE, target, index, source);
+		case LONG:
+			return new QuadrupleImpl(Operator.ARRAY_SET_LONG, target, index, source);
+		case STRING:
+			return new QuadrupleImpl(Operator.ARRAY_SET_STRING, target, index, source);
+		default:
+			break;
+		}
+		String err = "array_set_{type} for type " + type.toString() + " is not supported.";
+		QuadrupleFactory.logger.fatal(err);
+		throw new IntermediateCodeGeneratorException(err);
 	}
 }
