@@ -5,12 +5,11 @@ import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
+import swp_compiler_ss13.common.test.ExampleProgs;
 import swp_compiler_ss13.fuc.lexer.LexerImpl;
 import swp_compiler_ss13.fuc.parser.ParserImpl;
-import swp_compiler_ss13.common.test.ExampleProgs;
-import swp_compiler_ss13.common.test.TestBase;
-import org.junit.Ignore;
+import swp_compiler_ss13.fuc.test.ReportLogImpl;
+import swp_compiler_ss13.fuc.test.TestBase;
 
 /**
  * <p>
@@ -53,7 +52,6 @@ public class M1ErrorTest extends TestBase {
 		testProgForErrorMsg(ExampleProgs.multipleMinusENotation());
 	}
 
-  @Ignore
 	@Test
 	public void testMultiplePlusesInExp() throws Exception {
 		testProgForErrorMsg(ExampleProgs.multiplePlusesInExp());

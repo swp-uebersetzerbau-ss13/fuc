@@ -11,14 +11,14 @@ import swp_compiler_ss13.common.ir.IntermediateCodeGenerator;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 import swp_compiler_ss13.common.lexer.Lexer;
 import swp_compiler_ss13.common.parser.Parser;
+import swp_compiler_ss13.common.test.ExampleProgs;
 import swp_compiler_ss13.fuc.backend.LLVMBackend;
-import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
 import swp_compiler_ss13.fuc.ir.IntermediateCodeGeneratorImpl;
 import swp_compiler_ss13.fuc.lexer.LexerImpl;
 import swp_compiler_ss13.fuc.parser.ParserImpl;
 import swp_compiler_ss13.fuc.semantic_analyser.SemanticAnalyser;
-import swp_compiler_ss13.common.test.ExampleProgs;
-import swp_compiler_ss13.common.test.TestBase;
+import swp_compiler_ss13.fuc.test.ReportLogImpl;
+import swp_compiler_ss13.fuc.test.TestBase;
 import swp_compiler_ss13.javabite.backend.BackendJb;
 import swp_compiler_ss13.javabite.codegen.IntermediateCodeGeneratorJb;
 import swp_compiler_ss13.javabite.lexer.LexerJb;
@@ -26,7 +26,10 @@ import swp_compiler_ss13.javabite.parser.ParserJb;
 import swp_compiler_ss13.javabite.semantic.SemanticAnalyserJb;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.ServiceLoader;
 
 /**
  * <p>
