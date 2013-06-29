@@ -3,22 +3,15 @@ package swp_compiler_ss13.fuc.test;
 import junit.extensions.PA;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import swp_compiler_ss13.common.ast.AST;
-import swp_compiler_ss13.common.backend.Backend;
 import swp_compiler_ss13.common.backend.BackendException;
-import swp_compiler_ss13.common.backend.Quadruple;
-import swp_compiler_ss13.common.ir.IntermediateCodeGenerator;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
-import swp_compiler_ss13.common.lexer.Lexer;
-import swp_compiler_ss13.common.parser.Parser;
 import swp_compiler_ss13.common.report.ReportType;
-import swp_compiler_ss13.common.semanticAnalysis.SemanticAnalyser;
 import swp_compiler_ss13.fuc.backend.TACExecutor;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import static org.junit.Assert.*;
 

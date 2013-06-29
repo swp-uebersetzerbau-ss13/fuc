@@ -4,7 +4,6 @@ import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.report.ReportLog;
 import swp_compiler_ss13.common.report.ReportType;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
