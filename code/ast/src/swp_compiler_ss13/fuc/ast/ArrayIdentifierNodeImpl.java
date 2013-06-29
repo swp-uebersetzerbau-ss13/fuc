@@ -51,7 +51,9 @@ public class ArrayIdentifierNodeImpl extends ASTNodeImpl implements ArrayIdentif
 		List<ASTNode> children = new LinkedList<>();
 		if (this.identifier != null) {
 			children.add(this.identifier);
-			children.add(this.index);
+		}
+		if (this.index != null) {
+		   children.add(this.index);
 		}
 		return children;
 	}
