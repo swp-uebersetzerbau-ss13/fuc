@@ -88,7 +88,7 @@ public class IdentifierNodeProcessor extends NodeProcessor {
 				// we need to push the intermediate result back to the stack
 				// of intermediate results to make it available in
 				// assignmentNodeProcessor
-				this.logger
+				NodeProcessor.logger
 						.debug("Pushing back intermediate results, beacuse this array is on the target side of an assignment");
 				this.state.pushIntermediateResult(index);
 				this.state.pushIntermediateResult(base);

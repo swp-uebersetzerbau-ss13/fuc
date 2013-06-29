@@ -22,6 +22,6 @@ import swp_compiler_ss13.fuc.ir.test.ms2.PrintTest;
 @SuiteClasses({ AddProgTest.class, SimpleAddTest.class, SimpleMulTest.class, ParanthesesTest.class,
 		ArrayTest.class, AssignmentProgTest.class, CondTest.class, IdentifierShadowTest.class,
 		CastingTest.class, PrintTest.class, UnaryMinusTest.class, DoubleOperatorTest.class,
-		RelationTest.class, ExceptioTest.class, BooleanTest.class })
+		RelationTest.class, ExceptioTest.class, BooleanTest.class, ComplexAssignmentTest.class })
 public class TestSuite {
 }
