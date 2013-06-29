@@ -19,6 +19,7 @@ import swp_compiler_ss13.common.ast.nodes.unary.ReturnNode;
 import swp_compiler_ss13.common.parser.SymbolTable;
 import swp_compiler_ss13.common.report.ReportType;
 import swp_compiler_ss13.common.types.primitive.BooleanType;
+import swp_compiler_ss13.common.types.primitive.DoubleType;
 import swp_compiler_ss13.common.types.primitive.LongType;
 import swp_compiler_ss13.common.types.primitive.StringType;
 import swp_compiler_ss13.fuc.ast.ASTFactory;
@@ -216,8 +217,10 @@ public class OtherTests {
 	@Test
 	public void testUndeclaredVariableInIfBranch() {
 		ASTFactory factory = new ASTFactory();
-		BranchNode iff = factory.addBranch(factory.newLiteral("true", new BooleanType()));
-		iff.setStatementNodeOnTrue(factory.newPrint(factory.newBasicIdentifier("bla")));
+		BranchNode iff = factory.addBranch(factory.newLiteral("true",
+				new BooleanType()));
+		iff.setStatementNodeOnTrue(factory.newPrint(factory
+				.newBasicIdentifier("bla")));
 		factory.goToParent();
 		factory.addReturn(null);
 
@@ -228,19 +231,21 @@ public class OtherTests {
 		LogEntry entry = log.getErrors().get(0);
 
 		assertEquals(LogEntry.Type.ERROR, entry.getLogType());
-		assertEquals(ReportType.UNDECLARED_VARIABLE_USAGE, entry.getReportType());
+		assertEquals(ReportType.UNDECLARED_VARIABLE_USAGE,
+				entry.getReportType());
 	}
 
 	/**
 	 * <pre>
-	 * bla = "bla";
+	 * bla = &quot;bla&quot;;
 	 * return;
 	 * </pre>
 	 */
 	@Test
 	public void testUndeclaredVariableAssign() {
 		ASTFactory factory = new ASTFactory();
-		factory.addAssignment(factory.newBasicIdentifier("bla"), factory.newLiteral("\"bla\"", new StringType(7L)));
+		factory.addAssignment(factory.newBasicIdentifier("bla"),
+				factory.newLiteral("\"bla\"", new StringType(7L)));
 		factory.addReturn(null);
 
 		AST expected = factory.getAST();
@@ -250,6 +255,35 @@ public class OtherTests {
 		LogEntry entry = log.getErrors().get(0);
 
 		assertEquals(LogEntry.Type.ERROR, entry.getLogType());
-		assertEquals(ReportType.UNDECLARED_VARIABLE_USAGE, entry.getReportType());
+		assertEquals(ReportType.UNDECLARED_VARIABLE_USAGE,
+				entry.getReportType());
+	}
+
+	/**
+	 * <pre>
+	 * # error: type mismatch
+	 * bool b;
+	 * double d;
+	 * 
+	 * d = b;
+	 * </pre>
+	 */
+	@Test
+	public void testAlternativeConstructor() {
+		SemanticAnalyser analyser = new SemanticAnalyser(log);
+
+		ASTFactory astFactory = new ASTFactory();
+		astFactory.addDeclaration("b", new BooleanType());
+		astFactory.addDeclaration("d", new DoubleType());
+		astFactory.addAssignment(astFactory.newBasicIdentifier("d"),
+				astFactory.newBasicIdentifier("b"));
+
+		AST ast = astFactory.getAST();
+		analyser.analyse(ast);
+
+		System.out.println(log);
+		List<LogEntry> errors = log.getErrors();
+		assertEquals(errors.size(), 1);
+		assertEquals(errors.get(0).getReportType(), ReportType.TYPE_MISMATCH);
 	}
 }
