@@ -64,7 +64,6 @@ public class M2CompilationTest extends TestBase {
 	}
 
 	@Test
-	@Ignore
 	public void testArrayProg1() throws Exception {
 		testProgCompilation(ExampleProgs.arrayProg1());
 	}
@@ -75,7 +74,6 @@ public class M2CompilationTest extends TestBase {
 	}
 
 	@Test
-	@Ignore
 	public void testArrayProg3() throws Exception {
 		testProgCompilation(ExampleProgs.arrayProg3());
 	}
