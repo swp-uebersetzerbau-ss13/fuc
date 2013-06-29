@@ -4,6 +4,8 @@ import swp_compiler_ss13.common.ast.nodes.binary.AssignmentNode;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 import swp_compiler_ss13.common.types.Type;
 import swp_compiler_ss13.common.types.Type.Kind;
+import swp_compiler_ss13.common.types.derived.ArrayType;
+import swp_compiler_ss13.fuc.ir.ArrayHelper;
 import swp_compiler_ss13.fuc.ir.CastingFactory;
 import swp_compiler_ss13.fuc.ir.GeneratorExecutor;
 import swp_compiler_ss13.fuc.ir.GeneratorState;
@@ -45,7 +47,16 @@ public class AssignmentNodeProcessor extends NodeProcessor {
 			throws IntermediateCodeGeneratorException {
 		assignment.getLeftValue();
 
+		String targetIndex = null;
+
 		IntermediateResult left = this.executor.process(assignment.getLeftValue());
+
+		// if the left side of the assignment is an array, we need to know the
+		// index
+		if (left.getType() instanceof ArrayType) {
+			targetIndex = this.state.popIntermediateResult().getValue();
+		}
+
 		IntermediateResult right = this.executor.process(assignment.getRightValue());
 
 		String leftValue = left.getValue();
@@ -53,32 +64,56 @@ public class AssignmentNodeProcessor extends NodeProcessor {
 		String rightValue = right.getValue();
 		Type rightType = right.getType();
 
-		boolean castNeeded = CastingFactory.isCastNeeded(leftType, rightType);
-		if (castNeeded) {
-			// Casting is only supported for long and double
-			if (!CastingFactory.isNumeric(leftType) || !CastingFactory.isNumeric(rightType)) {
-				String err = "Assignment from type " + rightType + " to type " + leftType
-						+ " is unsupported.";
-				NodeProcessor.logger.fatal(err);
-				throw new IntermediateCodeGeneratorException(err);
-			}
+		Type typeForCastCheckLeft = leftType;
+		Type typeForCastCheckRight = rightType;
+		boolean castSupported = true;
 
-			String tmp = this.state.nextTemporaryIdentifier(leftType);
-			this.state.addIntermediateCode(QuadrupleFactory.declare(tmp, leftType));
-
-			if (leftType.getKind() == Kind.LONG) {
-				this.state.addIntermediateCode(CastingFactory.doubleToLong(rightValue, tmp));
-			}
-			else {
-				this.state.addIntermediateCode(CastingFactory.longToDouble(rightValue, tmp));
-			}
-
-			rightType = leftType;
-			rightValue = tmp;
+		if (leftType instanceof ArrayType) {
+			// there is still a chance to do some casting for this
+			Type baseType = ArrayHelper.getBaseType(leftType);
+			typeForCastCheckLeft = baseType;
 		}
 
-		this.state
-				.addIntermediateCode(QuadrupleFactory.assignment(leftType, leftValue, rightValue));
+		// casts aren't supported if there is too much array magic
+		if (castSupported) {
+			boolean castNeeded = CastingFactory.isCastNeeded(typeForCastCheckLeft, typeForCastCheckRight);
+			if (castNeeded) {
+				// Casting is only supported for long and double
+				if (!CastingFactory.isNumeric(typeForCastCheckLeft) || !CastingFactory.isNumeric(typeForCastCheckRight)) {
+					String err = "Assignment from type " + rightType + " to type " + leftType
+							+ " is unsupported.";
+					NodeProcessor.logger.fatal(err);
+					throw new IntermediateCodeGeneratorException(err);
+				}
+
+				String tmp = this.state.nextTemporaryIdentifier(typeForCastCheckLeft);
+				this.state.addIntermediateCode(QuadrupleFactory.declare(tmp, typeForCastCheckLeft));
+
+				if (typeForCastCheckLeft.getKind() == Kind.LONG) {
+					this.state.addIntermediateCode(CastingFactory.doubleToLong(rightValue, tmp));
+				}
+				else {
+					this.state.addIntermediateCode(CastingFactory.longToDouble(rightValue, tmp));
+				}
+
+				rightType = leftType;
+				rightValue = tmp;
+			}
+		}
+
+		if (leftType instanceof ArrayType) {
+			// assignment to an array needs special care
+			// we can not use the assignment operator (=) in this case
+			// but we need to use ARRAY_SET_{Type} Operator instead.
+			Type baseType = ArrayHelper.getBaseType(leftType);
+			this.state.addIntermediateCode(QuadrupleFactory.arraySetType(baseType, leftValue, targetIndex, rightValue));
+		}
+		else {
+			// this is a normal assignment
+			this.state.addIntermediateCode(QuadrupleFactory.assignment(leftType, leftValue, rightValue));
+		}
+		// this is needed for multiple assignments only
+		// multiple assignments are assignments of this form: a = b = c = d = 5
 		this.state.pushIntermediateResult(leftType, leftValue);
 	}
 }

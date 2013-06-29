@@ -18,6 +18,7 @@ import swp_compiler_ss13.common.ast.nodes.leaf.LiteralNode;
 import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
 import swp_compiler_ss13.common.ast.nodes.ternary.BranchNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ArithmeticUnaryExpressionNode;
+import swp_compiler_ss13.common.ast.nodes.unary.ArrayIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
 import swp_compiler_ss13.common.ast.nodes.unary.LogicUnaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.unary.PrintNode;
@@ -37,9 +38,10 @@ import swp_compiler_ss13.fuc.ir.components.statements.expressions.LiteralNodePro
 import swp_compiler_ss13.fuc.ir.components.statements.expressions.UnaryExpressionNodeProcessor;
 
 /**
- * Intermediate Code Generator. Generates Intermediate Code (TAC - Three Address Code) from a given
- * AST (Abstract Syntax Tree). The given AST is expected to be correct. If an incorrect AST is given
- * the behaviour of the IntermediateCodeGenerator is indeterminate and
+ * Intermediate Code Generator. Generates Intermediate Code (TAC - Three Address
+ * Code) from a given AST (Abstract Syntax Tree). The given AST is expected to
+ * be correct. If an incorrect AST is given the behaviour of the
+ * IntermediateCodeGenerator is indeterminate and
  * IntermediateCodeGeneratorExceptions may be thrown.
  * 
  * @author "Frank Zechert"
@@ -161,13 +163,15 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 	}
 
 	/**
-	 * Process the given node and create the corresponding TAC. Processed nodes will push
-	 * intermediate results onto the stack to be used by other nodes if needed.
+	 * Process the given node and create the corresponding TAC. Processed nodes
+	 * will push intermediate results onto the stack to be used by other nodes
+	 * if needed.
 	 * 
 	 * @param node
 	 *            The node to process.
 	 * @throws IntermediateCodeGeneratorException
-	 *             An error occurred while executing the IntermediateCodeGenerator.
+	 *             An error occurred while executing the
+	 *             IntermediateCodeGenerator.
 	 */
 	void process(ASTNode node) throws IntermediateCodeGeneratorException {
 		if (node == null) {
@@ -181,65 +185,66 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 		IntermediateCodeGeneratorImpl.logger.debug(msg);
 
 		switch (node.getNodeType()) {
-			case ArithmeticBinaryExpressionNode:
-				this.binaryExpressionNodeProcessor
-						.processArithmeticBinaryNode((ArithmeticBinaryExpressionNode) node);
-				break;
-			case ArithmeticUnaryExpressionNode:
-				this.unaryExpressionNodeProcessor
-						.processArithmeticUnaryNode((ArithmeticUnaryExpressionNode) node);
-				break;
-			case ArrayIdentifierNode:
-				break;
-			case AssignmentNode:
-				this.assignmentNodeProcessor.processAssignment((AssignmentNode) node);
-				break;
-			case BasicIdentifierNode:
-				this.identifierNodeProcessor.processBasicIdentifier((BasicIdentifierNode) node);
-				break;
-			case BlockNode:
-				this.blockNodeProcessor.processBlockNode((BlockNode) node);
-				break;
-			case BranchNode:
-				this.branchNodeProcessor.processBranchNode((BranchNode) node);
-				break;
-			case BreakNode:
-				this.loopNodeProcessor.processBreakNode((BreakNode) node);
-				break;
-			case DeclarationNode:
-				this.declarationNodeProcessor.processDeclarationNode((DeclarationNode) node);
-				break;
-			case DoWhileNode:
-				this.loopNodeProcessor.processDoWhileNode((DoWhileNode) node);
-				break;
-			case LiteralNode:
-				this.literalNodeProcessor.processLiteralNode((LiteralNode) node);
-				break;
-			case LogicBinaryExpressionNode:
-				this.binaryExpressionNodeProcessor
-						.processLogicBinaryNode((LogicBinaryExpressionNode) node);
-				break;
-			case LogicUnaryExpressionNode:
-				this.unaryExpressionNodeProcessor
-						.processLogicUnaryNode((LogicUnaryExpressionNode) node);
-				break;
-			case PrintNode:
-				this.outputNodeProcessor.processPrintNode((PrintNode) node);
-				break;
-			case RelationExpressionNode:
-				this.binaryExpressionNodeProcessor
-						.processRelationExpressionNode((RelationExpressionNode) node);
-				break;
-			case ReturnNode:
-				this.outputNodeProcessor.processReturnNode((ReturnNode) node);
-				break;
-			case StructIdentifierNode:
-				break;
-			case WhileNode:
-				this.loopNodeProcessor.processWhileNode((WhileNode) node);
-				break;
-			default:
-				break;
+		case ArithmeticBinaryExpressionNode:
+			this.binaryExpressionNodeProcessor
+					.processArithmeticBinaryNode((ArithmeticBinaryExpressionNode) node);
+			break;
+		case ArithmeticUnaryExpressionNode:
+			this.unaryExpressionNodeProcessor
+					.processArithmeticUnaryNode((ArithmeticUnaryExpressionNode) node);
+			break;
+		case ArrayIdentifierNode:
+			this.identifierNodeProcessor.processArrayIdentifier((ArrayIdentifierNode) node);
+			break;
+		case AssignmentNode:
+			this.assignmentNodeProcessor.processAssignment((AssignmentNode) node);
+			break;
+		case BasicIdentifierNode:
+			this.identifierNodeProcessor.processBasicIdentifier((BasicIdentifierNode) node);
+			break;
+		case BlockNode:
+			this.blockNodeProcessor.processBlockNode((BlockNode) node);
+			break;
+		case BranchNode:
+			this.branchNodeProcessor.processBranchNode((BranchNode) node);
+			break;
+		case BreakNode:
+			this.loopNodeProcessor.processBreakNode((BreakNode) node);
+			break;
+		case DeclarationNode:
+			this.declarationNodeProcessor.processDeclarationNode((DeclarationNode) node);
+			break;
+		case DoWhileNode:
+			this.loopNodeProcessor.processDoWhileNode((DoWhileNode) node);
+			break;
+		case LiteralNode:
+			this.literalNodeProcessor.processLiteralNode((LiteralNode) node);
+			break;
+		case LogicBinaryExpressionNode:
+			this.binaryExpressionNodeProcessor
+					.processLogicBinaryNode((LogicBinaryExpressionNode) node);
+			break;
+		case LogicUnaryExpressionNode:
+			this.unaryExpressionNodeProcessor
+					.processLogicUnaryNode((LogicUnaryExpressionNode) node);
+			break;
+		case PrintNode:
+			this.outputNodeProcessor.processPrintNode((PrintNode) node);
+			break;
+		case RelationExpressionNode:
+			this.binaryExpressionNodeProcessor
+					.processRelationExpressionNode((RelationExpressionNode) node);
+			break;
+		case ReturnNode:
+			this.outputNodeProcessor.processReturnNode((ReturnNode) node);
+			break;
+		case StructIdentifierNode:
+			break;
+		case WhileNode:
+			this.loopNodeProcessor.processWhileNode((WhileNode) node);
+			break;
+		default:
+			break;
 
 		}
 	}

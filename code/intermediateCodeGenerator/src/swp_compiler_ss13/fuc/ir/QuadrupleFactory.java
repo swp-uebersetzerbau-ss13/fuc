@@ -1,6 +1,5 @@
 package swp_compiler_ss13.fuc.ir;
 
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -18,8 +17,8 @@ import swp_compiler_ss13.common.types.derived.StructType;
 import swp_compiler_ss13.fuc.ir.data.QuadrupleImpl;
 
 /**
- * This factory creates quadruples according to the Three Address Code (TAC) specifiaction given in
- * the common Wiki.
+ * This factory creates quadruples according to the Three Address Code (TAC)
+ * specifiaction given in the common Wiki.
  * 
  * @see "https://github.com/swp-uebersetzerbau-ss13/common/wiki/Three-Address-Code-Specification"
  * @author "Frank Zechert"
@@ -49,30 +48,30 @@ public class QuadrupleFactory {
 			throws IntermediateCodeGeneratorException {
 		List<Quadruple> declaration = new LinkedList<>();
 		switch (type.getKind()) {
-			case ARRAY:
-				declaration.addAll(QuadrupleFactory.declareArray(name, (ArrayType) type));
-				break;
-			case BOOLEAN:
-				declaration.add(new QuadrupleImpl(Operator.DECLARE_BOOLEAN, name));
-				break;
-			case DOUBLE:
-				declaration.add(new QuadrupleImpl(Operator.DECLARE_DOUBLE, name));
-				break;
-			case LONG:
-				declaration.add(new QuadrupleImpl(Operator.DECLARE_LONG, name));
-				break;
-			case STRING:
-				declaration.add(new QuadrupleImpl(Operator.DECLARE_STRING, name));
-				break;
-			case STRUCT:
-				declaration.addAll(QuadrupleFactory.declareStruct(name, (StructType) type));
-				break;
-			default:
-				String error = String.format(
-						"Variable declaration for a variable of type %s is not supported!",
-						type.toString());
-				QuadrupleFactory.logger.fatal(error);
-				throw new IntermediateCodeGeneratorException(error);
+		case ARRAY:
+			declaration.addAll(QuadrupleFactory.declareArray(name, (ArrayType) type));
+			break;
+		case BOOLEAN:
+			declaration.add(new QuadrupleImpl(Operator.DECLARE_BOOLEAN, name));
+			break;
+		case DOUBLE:
+			declaration.add(new QuadrupleImpl(Operator.DECLARE_DOUBLE, name));
+			break;
+		case LONG:
+			declaration.add(new QuadrupleImpl(Operator.DECLARE_LONG, name));
+			break;
+		case STRING:
+			declaration.add(new QuadrupleImpl(Operator.DECLARE_STRING, name));
+			break;
+		case STRUCT:
+			declaration.addAll(QuadrupleFactory.declareStruct(name, (StructType) type));
+			break;
+		default:
+			String error = String.format(
+					"Variable declaration for a variable of type %s is not supported!",
+					type.toString());
+			QuadrupleFactory.logger.fatal(error);
+			throw new IntermediateCodeGeneratorException(error);
 		}
 
 		return declaration;
@@ -89,7 +88,7 @@ public class QuadrupleFactory {
 	 * @throws IntermediateCodeGeneratorException
 	 *             Error in struct declaration
 	 */
-	private static Collection<? extends Quadruple> declareStruct(String name, StructType type)
+	private static List<Quadruple> declareStruct(String name, StructType type)
 			throws IntermediateCodeGeneratorException {
 
 		List<Quadruple> decl = new LinkedList<>();
@@ -124,6 +123,17 @@ public class QuadrupleFactory {
 		decl.addAll(QuadrupleFactory.declare("!", type.getInnerType()));
 		return decl;
 
+	}
+
+	/**
+	 * Declare a reference
+	 * 
+	 * @param name
+	 *            The name of the variable
+	 * @return The Quadruple declaring the reference
+	 */
+	public static Quadruple declareReference(String name) {
+		return new QuadrupleImpl(Operator.DECLARE_REFERENCE, name);
 	}
 
 	/**
@@ -183,36 +193,36 @@ public class QuadrupleFactory {
 	public static Quadruple arithmeticBinary(BinaryOperator op, Type type, String left,
 			String right, String result) throws IntermediateCodeGeneratorException {
 		switch (type.getKind()) {
-			case DOUBLE:
-				switch (op) {
-					case ADDITION:
-						return new QuadrupleImpl(Operator.ADD_DOUBLE, left, right, result);
-					case DIVISION:
-						return new QuadrupleImpl(Operator.DIV_DOUBLE, left, right, result);
-					case MULTIPLICATION:
-						return new QuadrupleImpl(Operator.MUL_DOUBLE, left, right, result);
-					case SUBSTRACTION:
-						return new QuadrupleImpl(Operator.SUB_DOUBLE, left, right, result);
-					default:
-						break;
-				}
-				break;
-			case LONG:
-				switch (op) {
-					case ADDITION:
-						return new QuadrupleImpl(Operator.ADD_LONG, left, right, result);
-					case DIVISION:
-						return new QuadrupleImpl(Operator.DIV_LONG, left, right, result);
-					case MULTIPLICATION:
-						return new QuadrupleImpl(Operator.MUL_LONG, left, right, result);
-					case SUBSTRACTION:
-						return new QuadrupleImpl(Operator.SUB_LONG, left, right, result);
-					default:
-						break;
-				}
-				break;
+		case DOUBLE:
+			switch (op) {
+			case ADDITION:
+				return new QuadrupleImpl(Operator.ADD_DOUBLE, left, right, result);
+			case DIVISION:
+				return new QuadrupleImpl(Operator.DIV_DOUBLE, left, right, result);
+			case MULTIPLICATION:
+				return new QuadrupleImpl(Operator.MUL_DOUBLE, left, right, result);
+			case SUBSTRACTION:
+				return new QuadrupleImpl(Operator.SUB_DOUBLE, left, right, result);
 			default:
 				break;
+			}
+			break;
+		case LONG:
+			switch (op) {
+			case ADDITION:
+				return new QuadrupleImpl(Operator.ADD_LONG, left, right, result);
+			case DIVISION:
+				return new QuadrupleImpl(Operator.DIV_LONG, left, right, result);
+			case MULTIPLICATION:
+				return new QuadrupleImpl(Operator.MUL_LONG, left, right, result);
+			case SUBSTRACTION:
+				return new QuadrupleImpl(Operator.SUB_LONG, left, right, result);
+			default:
+				break;
+			}
+			break;
+		default:
+			break;
 
 		}
 		throw new IntermediateCodeGeneratorException("The type " + type.toString()
@@ -238,12 +248,12 @@ public class QuadrupleFactory {
 	public static Quadruple logicBinary(BinaryOperator operator, String value1, String value2,
 			String result) throws IntermediateCodeGeneratorException {
 		switch (operator) {
-			case LOGICAL_AND:
-				return new QuadrupleImpl(Operator.AND_BOOLEAN, value1, value2, result);
-			case LOGICAL_OR:
-				return new QuadrupleImpl(Operator.OR_BOOLEAN, value1, value2, result);
-			default:
-				break;
+		case LOGICAL_AND:
+			return new QuadrupleImpl(Operator.AND_BOOLEAN, value1, value2, result);
+		case LOGICAL_OR:
+			return new QuadrupleImpl(Operator.OR_BOOLEAN, value1, value2, result);
+		default:
+			break;
 		}
 		throw new IntermediateCodeGeneratorException("The operator " + operator.toString()
 				+ " is not supported for logic binary expressions");
@@ -269,59 +279,59 @@ public class QuadrupleFactory {
 	public static Quadruple relation(BinaryOperator operator, String v1, String v2, String res,
 			Type type) throws IntermediateCodeGeneratorException {
 		switch (operator) {
-			case EQUAL:
-			case INEQUAL:
-				switch (type.getKind()) {
-					case DOUBLE:
-						return new QuadrupleImpl(Operator.COMPARE_DOUBLE_E, v1, v2, res);
-					case LONG:
-						return new QuadrupleImpl(Operator.COMPARE_LONG_E, v1, v2, res);
-					default:
-						break;
-				}
-				break;
-			case GREATERTHAN:
-				switch (type.getKind()) {
-					case DOUBLE:
-						return new QuadrupleImpl(Operator.COMPARE_DOUBLE_G, v1, v2, res);
-					case LONG:
-						return new QuadrupleImpl(Operator.COMPARE_LONG_G, v1, v2, res);
-					default:
-						break;
-				}
-				break;
-			case GREATERTHANEQUAL:
-				switch (type.getKind()) {
-					case DOUBLE:
-						return new QuadrupleImpl(Operator.COMPARE_DOUBLE_GE, v1, v2, res);
-					case LONG:
-						return new QuadrupleImpl(Operator.COMPARE_LONG_GE, v1, v2, res);
-					default:
-						break;
-				}
-				break;
-			case LESSTHAN:
-				switch (type.getKind()) {
-					case DOUBLE:
-						return new QuadrupleImpl(Operator.COMPARE_DOUBLE_L, v1, v2, res);
-					case LONG:
-						return new QuadrupleImpl(Operator.COMPARE_LONG_L, v1, v2, res);
-					default:
-						break;
-				}
-				break;
-			case LESSTHANEQUAL:
-				switch (type.getKind()) {
-					case DOUBLE:
-						return new QuadrupleImpl(Operator.COMPARE_DOUBLE_LE, v1, v2, res);
-					case LONG:
-						return new QuadrupleImpl(Operator.COMPARE_LONG_LE, v1, v2, res);
-					default:
-						break;
-				}
-				break;
+		case EQUAL:
+		case INEQUAL:
+			switch (type.getKind()) {
+			case DOUBLE:
+				return new QuadrupleImpl(Operator.COMPARE_DOUBLE_E, v1, v2, res);
+			case LONG:
+				return new QuadrupleImpl(Operator.COMPARE_LONG_E, v1, v2, res);
 			default:
 				break;
+			}
+			break;
+		case GREATERTHAN:
+			switch (type.getKind()) {
+			case DOUBLE:
+				return new QuadrupleImpl(Operator.COMPARE_DOUBLE_G, v1, v2, res);
+			case LONG:
+				return new QuadrupleImpl(Operator.COMPARE_LONG_G, v1, v2, res);
+			default:
+				break;
+			}
+			break;
+		case GREATERTHANEQUAL:
+			switch (type.getKind()) {
+			case DOUBLE:
+				return new QuadrupleImpl(Operator.COMPARE_DOUBLE_GE, v1, v2, res);
+			case LONG:
+				return new QuadrupleImpl(Operator.COMPARE_LONG_GE, v1, v2, res);
+			default:
+				break;
+			}
+			break;
+		case LESSTHAN:
+			switch (type.getKind()) {
+			case DOUBLE:
+				return new QuadrupleImpl(Operator.COMPARE_DOUBLE_L, v1, v2, res);
+			case LONG:
+				return new QuadrupleImpl(Operator.COMPARE_LONG_L, v1, v2, res);
+			default:
+				break;
+			}
+			break;
+		case LESSTHANEQUAL:
+			switch (type.getKind()) {
+			case DOUBLE:
+				return new QuadrupleImpl(Operator.COMPARE_DOUBLE_LE, v1, v2, res);
+			case LONG:
+				return new QuadrupleImpl(Operator.COMPARE_LONG_LE, v1, v2, res);
+			default:
+				break;
+			}
+			break;
+		default:
+			break;
 		}
 		throw new IntermediateCodeGeneratorException("The type " + type.toString()
 				+ " and operator " + operator.toString()
@@ -344,10 +354,10 @@ public class QuadrupleFactory {
 	public static Quadruple logicUnary(UnaryOperator op, String from, String to)
 			throws IntermediateCodeGeneratorException {
 		switch (op) {
-			case LOGICAL_NEGATE:
-				return new QuadrupleImpl(Operator.NOT_BOOLEAN, from, to);
-			default:
-				break;
+		case LOGICAL_NEGATE:
+			return new QuadrupleImpl(Operator.NOT_BOOLEAN, from, to);
+		default:
+			break;
 		}
 		throw new IntermediateCodeGeneratorException("The operator " + op.toString()
 				+ " is not supported for unary logic expressions");
@@ -371,18 +381,18 @@ public class QuadrupleFactory {
 	public static Quadruple arithmeticUnary(UnaryOperator op, String from, String to, Type t)
 			throws IntermediateCodeGeneratorException {
 		switch (op) {
-			case MINUS:
-				switch (t.getKind()) {
-					case DOUBLE:
-						return new QuadrupleImpl(Operator.SUB_DOUBLE, "#0.0", from, to);
-					case LONG:
-						return new QuadrupleImpl(Operator.SUB_LONG, "#0", from, to);
-					default:
-						break;
-
-				}
+		case MINUS:
+			switch (t.getKind()) {
+			case DOUBLE:
+				return new QuadrupleImpl(Operator.SUB_DOUBLE, "#0.0", from, to);
+			case LONG:
+				return new QuadrupleImpl(Operator.SUB_LONG, "#0", from, to);
 			default:
 				break;
+
+			}
+		default:
+			break;
 		}
 		throw new IntermediateCodeGeneratorException("The operator " + op.toString()
 				+ " is not supported for unary arithmetic expressions");
@@ -426,18 +436,101 @@ public class QuadrupleFactory {
 	public static Quadruple assignment(Type type, String to, String from)
 			throws IntermediateCodeGeneratorException {
 		switch (type.getKind()) {
-			case BOOLEAN:
-				return new QuadrupleImpl(Operator.ASSIGN_BOOLEAN, from, to);
-			case DOUBLE:
-				return new QuadrupleImpl(Operator.ASSIGN_DOUBLE, from, to);
-			case LONG:
-				return new QuadrupleImpl(Operator.ASSIGN_LONG, from, to);
-			case STRING:
-				return new QuadrupleImpl(Operator.ASSIGN_STRING, from, to);
-			default:
-				break;
+		case BOOLEAN:
+			return new QuadrupleImpl(Operator.ASSIGN_BOOLEAN, from, to);
+		case DOUBLE:
+			return new QuadrupleImpl(Operator.ASSIGN_DOUBLE, from, to);
+		case LONG:
+			return new QuadrupleImpl(Operator.ASSIGN_LONG, from, to);
+		case STRING:
+			return new QuadrupleImpl(Operator.ASSIGN_STRING, from, to);
+		default:
+			break;
 		}
 		String err = "assignment for type " + type.toString() + " is not supported.";
+		QuadrupleFactory.logger.fatal(err);
+		throw new IntermediateCodeGeneratorException(err);
+	}
+
+	/**
+	 * Create a quadruple for the correct ARRAY_GET_{TYPE} Operator
+	 * 
+	 * @param type
+	 *            The type of the operation
+	 * @param from
+	 *            The array from where to get the value
+	 * @param index
+	 *            The index from where to get the value in the array
+	 * @param to
+	 *            The destination variable
+	 * @return The Quadruple for the defined operation
+	 * @throws IntermediateCodeGeneratorException
+	 *             Unsupported type was given
+	 */
+	public static Quadruple arrayGetType(Type type, String from, String index, String to)
+			throws IntermediateCodeGeneratorException {
+		switch (type.getKind()) {
+		case BOOLEAN:
+			return new QuadrupleImpl(Operator.ARRAY_GET_BOOLEAN, from, index, to);
+		case DOUBLE:
+			return new QuadrupleImpl(Operator.ARRAY_GET_DOUBLE, from, index, to);
+		case LONG:
+			return new QuadrupleImpl(Operator.ARRAY_GET_LONG, from, index, to);
+		case STRING:
+			return new QuadrupleImpl(Operator.ARRAY_GET_STRING, from, index, to);
+		default:
+			break;
+		}
+		String err = "array_get_{type} for type " + type.toString() + " is not supported.";
+		QuadrupleFactory.logger.fatal(err);
+		throw new IntermediateCodeGeneratorException(err);
+	}
+
+	/**
+	 * Create a quadruple for an array reference
+	 * 
+	 * @param from
+	 *            The array to create a reference into
+	 * @param index
+	 *            The index to create the reference for
+	 * @param to
+	 *            The destination variable to hold the reference
+	 * @return Return the Quadruple for the defined operation
+	 */
+	public static Quadruple arrayReference(String from, String index, String to) {
+		return new QuadrupleImpl(Operator.ARRAY_GET_REFERENCE, from, index, to);
+	}
+
+	/**
+	 * Create a quadruple for an array assignment
+	 * 
+	 * @param type
+	 *            The type of the element to assign to the array
+	 * @param target
+	 *            the array to assign the value to
+	 * @param index
+	 *            the index to assign the value to
+	 * @param source
+	 *            the value to assign
+	 * @return return the correct Quadruple for this operation
+	 * @throws IntermediateCodeGeneratorException
+	 *             type is not compatible
+	 */
+	public static Quadruple arraySetType(Type type, String target, String index, String source)
+			throws IntermediateCodeGeneratorException {
+		switch (type.getKind()) {
+		case BOOLEAN:
+			return new QuadrupleImpl(Operator.ARRAY_SET_BOOLEAN, target, index, source);
+		case DOUBLE:
+			return new QuadrupleImpl(Operator.ARRAY_SET_DOUBLE, target, index, source);
+		case LONG:
+			return new QuadrupleImpl(Operator.ARRAY_SET_LONG, target, index, source);
+		case STRING:
+			return new QuadrupleImpl(Operator.ARRAY_SET_STRING, target, index, source);
+		default:
+			break;
+		}
+		String err = "array_set_{type} for type " + type.toString() + " is not supported.";
 		QuadrupleFactory.logger.fatal(err);
 		throw new IntermediateCodeGeneratorException(err);
 	}

@@ -8,7 +8,6 @@ import swp_compiler_ss13.fuc.ir.test.ms1.AddProgTest;
 import swp_compiler_ss13.fuc.ir.test.ms1.ParanthesesTest;
 import swp_compiler_ss13.fuc.ir.test.ms1.SimpleAddTest;
 import swp_compiler_ss13.fuc.ir.test.ms1.SimpleMulTest;
-import swp_compiler_ss13.fuc.ir.test.ms2.ArrayTest;
 import swp_compiler_ss13.fuc.ir.test.ms2.AssignmentProgTest;
 import swp_compiler_ss13.fuc.ir.test.ms2.CondTest;
 import swp_compiler_ss13.fuc.ir.test.ms2.PrintTest;
