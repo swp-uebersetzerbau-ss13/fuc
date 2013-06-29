@@ -1,0 +1,206 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>package swp_compiler_ss13.fuc.ast.visualization;<a name="line.1"></a>
+<span class="sourceLineNo">002</span><a name="line.2"></a>
+<span class="sourceLineNo">003</span>import java.io.PrintStream;<a name="line.3"></a>
+<span class="sourceLineNo">004</span>import java.util.List;<a name="line.4"></a>
+<span class="sourceLineNo">005</span><a name="line.5"></a>
+<span class="sourceLineNo">006</span>import swp_compiler_ss13.common.ast.AST;<a name="line.6"></a>
+<span class="sourceLineNo">007</span>import swp_compiler_ss13.common.ast.ASTNode;<a name="line.7"></a>
+<span class="sourceLineNo">008</span>import swp_compiler_ss13.common.ast.ASTNode.ASTNodeType;<a name="line.8"></a>
+<span class="sourceLineNo">009</span>import swp_compiler_ss13.common.ast.nodes.binary.ArithmeticBinaryExpressionNode;<a name="line.9"></a>
+<span class="sourceLineNo">010</span>import swp_compiler_ss13.common.ast.nodes.binary.LogicBinaryExpressionNode;<a name="line.10"></a>
+<span class="sourceLineNo">011</span>import swp_compiler_ss13.common.ast.nodes.binary.RelationExpressionNode;<a name="line.11"></a>
+<span class="sourceLineNo">012</span>import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;<a name="line.12"></a>
+<span class="sourceLineNo">013</span>import swp_compiler_ss13.common.ast.nodes.leaf.LiteralNode;<a name="line.13"></a>
+<span class="sourceLineNo">014</span>import swp_compiler_ss13.common.ast.nodes.unary.ArithmeticUnaryExpressionNode;<a name="line.14"></a>
+<span class="sourceLineNo">015</span>import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;<a name="line.15"></a>
+<span class="sourceLineNo">016</span>import swp_compiler_ss13.common.ast.nodes.unary.LogicUnaryExpressionNode;<a name="line.16"></a>
+<span class="sourceLineNo">017</span>import swp_compiler_ss13.common.visualization.ASTVisualization;<a name="line.17"></a>
+<span class="sourceLineNo">018</span><a name="line.18"></a>
+<span class="sourceLineNo">019</span>/**<a name="line.19"></a>
+<span class="sourceLineNo">020</span> * @author Manuel<a name="line.20"></a>
+<span class="sourceLineNo">021</span> * <a name="line.21"></a>
+<span class="sourceLineNo">022</span> */<a name="line.22"></a>
+<span class="sourceLineNo">023</span>public class ASTXMLVisualization implements ASTVisualization {<a name="line.23"></a>
+<span class="sourceLineNo">024</span><a name="line.24"></a>
+<span class="sourceLineNo">025</span>        /**<a name="line.25"></a>
+<span class="sourceLineNo">026</span>         * {@inheritDoc}<a name="line.26"></a>
+<span class="sourceLineNo">027</span>         */<a name="line.27"></a>
+<span class="sourceLineNo">028</span>        @Override<a name="line.28"></a>
+<span class="sourceLineNo">029</span>        public void visualizeAST(AST ast) {<a name="line.29"></a>
+<span class="sourceLineNo">030</span>                PrintStream out = System.out;<a name="line.30"></a>
+<span class="sourceLineNo">031</span><a name="line.31"></a>
+<span class="sourceLineNo">032</span>                out.println("&lt;!-- Printing the AST as XML --&gt;");<a name="line.32"></a>
+<span class="sourceLineNo">033</span>                out.println("&lt;AST&gt;");<a name="line.33"></a>
+<span class="sourceLineNo">034</span>                this.visualize(ast.getRootNode(), "  ", out);<a name="line.34"></a>
+<span class="sourceLineNo">035</span>                out.println("&lt;/AST&gt;");<a name="line.35"></a>
+<span class="sourceLineNo">036</span>        }<a name="line.36"></a>
+<span class="sourceLineNo">037</span><a name="line.37"></a>
+<span class="sourceLineNo">038</span>        /**<a name="line.38"></a>
+<span class="sourceLineNo">039</span>         * Recursively prints all Nodes<a name="line.39"></a>
+<span class="sourceLineNo">040</span>         * <a name="line.40"></a>
+<span class="sourceLineNo">041</span>         * @param node<a name="line.41"></a>
+<span class="sourceLineNo">042</span>         *            The current node to be displayed<a name="line.42"></a>
+<span class="sourceLineNo">043</span>         * @param indent<a name="line.43"></a>
+<span class="sourceLineNo">044</span>         *            A String of spaces for the current indentation level<a name="line.44"></a>
+<span class="sourceLineNo">045</span>         * @param out<a name="line.45"></a>
+<span class="sourceLineNo">046</span>         *            the stream in which the XML gets written<a name="line.46"></a>
+<span class="sourceLineNo">047</span>         */<a name="line.47"></a>
+<span class="sourceLineNo">048</span>        protected void visualize(ASTNode node, String indent, PrintStream out) {<a name="line.48"></a>
+<span class="sourceLineNo">049</span>                String attributes = "";<a name="line.49"></a>
+<span class="sourceLineNo">050</span>                String value = "";<a name="line.50"></a>
+<span class="sourceLineNo">051</span><a name="line.51"></a>
+<span class="sourceLineNo">052</span>                ASTNodeType nodeType = node.getNodeType();<a name="line.52"></a>
+<span class="sourceLineNo">053</span>                String type = nodeType.toString().replaceFirst("Node$", "");<a name="line.53"></a>
+<span class="sourceLineNo">054</span>                List&lt;ASTNode&gt; children = node.getChildren();<a name="line.54"></a>
+<span class="sourceLineNo">055</span><a name="line.55"></a>
+<span class="sourceLineNo">056</span>                switch (nodeType) {<a name="line.56"></a>
+<span class="sourceLineNo">057</span>                case ArithmeticBinaryExpressionNode:<a name="line.57"></a>
+<span class="sourceLineNo">058</span>                        attributes = " operator=\"" + ((ArithmeticBinaryExpressionNode) node).getOperator().toString() + "\"";<a name="line.58"></a>
+<span class="sourceLineNo">059</span>                        break;<a name="line.59"></a>
+<span class="sourceLineNo">060</span>                case ArithmeticUnaryExpressionNode:<a name="line.60"></a>
+<span class="sourceLineNo">061</span>                        attributes = " operator=\"" + ((ArithmeticUnaryExpressionNode) node).getOperator().toString() + "\"";<a name="line.61"></a>
+<span class="sourceLineNo">062</span>                        break;<a name="line.62"></a>
+<span class="sourceLineNo">063</span>                case ArrayIdentifierNode:<a name="line.63"></a>
+<span class="sourceLineNo">064</span>                        // FIXME fix this!<a name="line.64"></a>
+<span class="sourceLineNo">065</span>                        // attributes = " index=\"" + ((ArrayIdentifierNode)<a name="line.65"></a>
+<span class="sourceLineNo">066</span>                        // node).getIndex().toString() + "\"";<a name="line.66"></a>
+<span class="sourceLineNo">067</span>                        break;<a name="line.67"></a>
+<span class="sourceLineNo">068</span>                case AssignmentNode:<a name="line.68"></a>
+<span class="sourceLineNo">069</span>                        // nothing to do here<a name="line.69"></a>
+<span class="sourceLineNo">070</span>                        break;<a name="line.70"></a>
+<span class="sourceLineNo">071</span>                case BasicIdentifierNode:<a name="line.71"></a>
+<span class="sourceLineNo">072</span>                        value = ((BasicIdentifierNode) node).getIdentifier();<a name="line.72"></a>
+<span class="sourceLineNo">073</span>                        break;<a name="line.73"></a>
+<span class="sourceLineNo">074</span>                case BlockNode:<a name="line.74"></a>
+<span class="sourceLineNo">075</span>                        // nothing to do here<a name="line.75"></a>
+<span class="sourceLineNo">076</span>                        break;<a name="line.76"></a>
+<span class="sourceLineNo">077</span>                case BranchNode:<a name="line.77"></a>
+<span class="sourceLineNo">078</span>                        // nothing to do here<a name="line.78"></a>
+<span class="sourceLineNo">079</span>                        break;<a name="line.79"></a>
+<span class="sourceLineNo">080</span>                case BreakNode:<a name="line.80"></a>
+<span class="sourceLineNo">081</span>                        // nothing to do here<a name="line.81"></a>
+<span class="sourceLineNo">082</span>                        break;<a name="line.82"></a>
+<span class="sourceLineNo">083</span>                case DeclarationNode:<a name="line.83"></a>
+<span class="sourceLineNo">084</span>                        attributes = " identifier=\"" + ((DeclarationNode) node).getIdentifier().toString() + "\"";<a name="line.84"></a>
+<span class="sourceLineNo">085</span>                        value = ((DeclarationNode) node).getType().toString().replaceFirst("Type($|\\[)", "$1");<a name="line.85"></a>
+<span class="sourceLineNo">086</span>                        break;<a name="line.86"></a>
+<span class="sourceLineNo">087</span>                case DoWhileNode:<a name="line.87"></a>
+<span class="sourceLineNo">088</span>                        // TODO<a name="line.88"></a>
+<span class="sourceLineNo">089</span>                        break;<a name="line.89"></a>
+<span class="sourceLineNo">090</span>                case LiteralNode:<a name="line.90"></a>
+<span class="sourceLineNo">091</span>                        value = ((LiteralNode) node).getLiteral();<a name="line.91"></a>
+<span class="sourceLineNo">092</span>                        break;<a name="line.92"></a>
+<span class="sourceLineNo">093</span>                case LogicBinaryExpressionNode:<a name="line.93"></a>
+<span class="sourceLineNo">094</span>                        attributes = " operator=\""<a name="line.94"></a>
+<span class="sourceLineNo">095</span>                                        + ((LogicBinaryExpressionNode) node).getOperator().toString().replaceFirst("LOGICAL_", "") + "\"";<a name="line.95"></a>
+<span class="sourceLineNo">096</span>                        break;<a name="line.96"></a>
+<span class="sourceLineNo">097</span>                case LogicUnaryExpressionNode:<a name="line.97"></a>
+<span class="sourceLineNo">098</span>                        attributes = " operator=\""<a name="line.98"></a>
+<span class="sourceLineNo">099</span>                                        + ((LogicUnaryExpressionNode) node).getOperator().toString().replaceFirst("LOGICAL_", "") + "\"";<a name="line.99"></a>
+<span class="sourceLineNo">100</span>                        break;<a name="line.100"></a>
+<span class="sourceLineNo">101</span>                case PrintNode:<a name="line.101"></a>
+<span class="sourceLineNo">102</span>                        // nothing to do here<a name="line.102"></a>
+<span class="sourceLineNo">103</span>                        break;<a name="line.103"></a>
+<span class="sourceLineNo">104</span>                case RelationExpressionNode:<a name="line.104"></a>
+<span class="sourceLineNo">105</span>                        attributes = " operator=\"" + ((RelationExpressionNode) node).getOperator().toString() + "\"";<a name="line.105"></a>
+<span class="sourceLineNo">106</span>                        break;<a name="line.106"></a>
+<span class="sourceLineNo">107</span>                case ReturnNode:<a name="line.107"></a>
+<span class="sourceLineNo">108</span>                        // nothing to do here<a name="line.108"></a>
+<span class="sourceLineNo">109</span>                        break;<a name="line.109"></a>
+<span class="sourceLineNo">110</span>                case StructIdentifierNode:<a name="line.110"></a>
+<span class="sourceLineNo">111</span>                        // TODO<a name="line.111"></a>
+<span class="sourceLineNo">112</span>                        break;<a name="line.112"></a>
+<span class="sourceLineNo">113</span>                case WhileNode:<a name="line.113"></a>
+<span class="sourceLineNo">114</span>                        // TODO<a name="line.114"></a>
+<span class="sourceLineNo">115</span>                        break;<a name="line.115"></a>
+<span class="sourceLineNo">116</span>                }<a name="line.116"></a>
+<span class="sourceLineNo">117</span><a name="line.117"></a>
+<span class="sourceLineNo">118</span>                out.print(indent + "&lt;" + type + attributes + "&gt;");<a name="line.118"></a>
+<span class="sourceLineNo">119</span><a name="line.119"></a>
+<span class="sourceLineNo">120</span>                if (children.isEmpty()) {<a name="line.120"></a>
+<span class="sourceLineNo">121</span>                        out.print(value);<a name="line.121"></a>
+<span class="sourceLineNo">122</span>                } else {<a name="line.122"></a>
+<span class="sourceLineNo">123</span>                        assert (value == "");<a name="line.123"></a>
+<span class="sourceLineNo">124</span><a name="line.124"></a>
+<span class="sourceLineNo">125</span>                        out.println();<a name="line.125"></a>
+<span class="sourceLineNo">126</span>                        for (ASTNode child : children) {<a name="line.126"></a>
+<span class="sourceLineNo">127</span>                                this.visualize(child, indent + "  ", out);<a name="line.127"></a>
+<span class="sourceLineNo">128</span>                        }<a name="line.128"></a>
+<span class="sourceLineNo">129</span>                        out.print(indent);<a name="line.129"></a>
+<span class="sourceLineNo">130</span>                }<a name="line.130"></a>
+<span class="sourceLineNo">131</span><a name="line.131"></a>
+<span class="sourceLineNo">132</span>                out.println("&lt;/" + type + "&gt;");<a name="line.132"></a>
+<span class="sourceLineNo">133</span>        }<a name="line.133"></a>
+<span class="sourceLineNo">134</span>}<a name="line.134"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

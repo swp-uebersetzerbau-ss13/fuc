@@ -1,0 +1,123 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>package swp_compiler_ss13.fuc.ir.components;<a name="line.1"></a>
+<span class="sourceLineNo">002</span><a name="line.2"></a>
+<span class="sourceLineNo">003</span>import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;<a name="line.3"></a>
+<span class="sourceLineNo">004</span>import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;<a name="line.4"></a>
+<span class="sourceLineNo">005</span>import swp_compiler_ss13.common.types.Type;<a name="line.5"></a>
+<span class="sourceLineNo">006</span>import swp_compiler_ss13.fuc.ir.GeneratorExecutor;<a name="line.6"></a>
+<span class="sourceLineNo">007</span>import swp_compiler_ss13.fuc.ir.GeneratorState;<a name="line.7"></a>
+<span class="sourceLineNo">008</span>import swp_compiler_ss13.fuc.ir.QuadrupleFactory;<a name="line.8"></a>
+<span class="sourceLineNo">009</span><a name="line.9"></a>
+<span class="sourceLineNo">010</span>/**<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * Processor for a declaration node<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * <a name="line.12"></a>
+<span class="sourceLineNo">013</span> * @author "Frank Zechert"<a name="line.13"></a>
+<span class="sourceLineNo">014</span> * @author "Danny Maasch"<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * @author kaworu<a name="line.15"></a>
+<span class="sourceLineNo">016</span> * @version 3<a name="line.16"></a>
+<span class="sourceLineNo">017</span> */<a name="line.17"></a>
+<span class="sourceLineNo">018</span>public class DeclarationNodeProcessor extends NodeProcessor {<a name="line.18"></a>
+<span class="sourceLineNo">019</span><a name="line.19"></a>
+<span class="sourceLineNo">020</span>        /**<a name="line.20"></a>
+<span class="sourceLineNo">021</span>         * Create a new instance of the declaration node processor.<a name="line.21"></a>
+<span class="sourceLineNo">022</span>         * <a name="line.22"></a>
+<span class="sourceLineNo">023</span>         * @param state<a name="line.23"></a>
+<span class="sourceLineNo">024</span>         *            the state of the intermediate code generator<a name="line.24"></a>
+<span class="sourceLineNo">025</span>         * @param executor<a name="line.25"></a>
+<span class="sourceLineNo">026</span>         *            the intermediate code generator executor<a name="line.26"></a>
+<span class="sourceLineNo">027</span>         */<a name="line.27"></a>
+<span class="sourceLineNo">028</span>        public DeclarationNodeProcessor(GeneratorState state, GeneratorExecutor executor) {<a name="line.28"></a>
+<span class="sourceLineNo">029</span>                super(state, executor);<a name="line.29"></a>
+<span class="sourceLineNo">030</span>        }<a name="line.30"></a>
+<span class="sourceLineNo">031</span><a name="line.31"></a>
+<span class="sourceLineNo">032</span>        /**<a name="line.32"></a>
+<span class="sourceLineNo">033</span>         * Process the declaration node.<a name="line.33"></a>
+<span class="sourceLineNo">034</span>         * <a name="line.34"></a>
+<span class="sourceLineNo">035</span>         * @param declaration<a name="line.35"></a>
+<span class="sourceLineNo">036</span>         *            the declaration node to process.<a name="line.36"></a>
+<span class="sourceLineNo">037</span>         * @throws IntermediateCodeGeneratorException<a name="line.37"></a>
+<span class="sourceLineNo">038</span>         *             An error occurred while processing the node.<a name="line.38"></a>
+<span class="sourceLineNo">039</span>         */<a name="line.39"></a>
+<span class="sourceLineNo">040</span>        public void processDeclarationNode(DeclarationNode declaration)<a name="line.40"></a>
+<span class="sourceLineNo">041</span>                        throws IntermediateCodeGeneratorException {<a name="line.41"></a>
+<span class="sourceLineNo">042</span>                String declaredName = declaration.getIdentifier();<a name="line.42"></a>
+<span class="sourceLineNo">043</span>                Type declaredType = declaration.getType();<a name="line.43"></a>
+<span class="sourceLineNo">044</span><a name="line.44"></a>
+<span class="sourceLineNo">045</span>                // Ensure ssa (single static assignment) by avoiding<a name="line.45"></a>
+<span class="sourceLineNo">046</span>                // all identifier names that have been used already<a name="line.46"></a>
+<span class="sourceLineNo">047</span>                String ssaName = this.state.saveIdentifier(declaredName, declaredType);<a name="line.47"></a>
+<span class="sourceLineNo">048</span><a name="line.48"></a>
+<span class="sourceLineNo">049</span>                this.state.addIntermediateCode(QuadrupleFactory.declare(ssaName, declaredType));<a name="line.49"></a>
+<span class="sourceLineNo">050</span>        }<a name="line.50"></a>
+<span class="sourceLineNo">051</span>}<a name="line.51"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

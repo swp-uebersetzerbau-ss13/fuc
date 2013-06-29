@@ -1,0 +1,319 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>package swp_compiler_ss13.fuc.gui.ast;<a name="line.1"></a>
+<span class="sourceLineNo">002</span><a name="line.2"></a>
+<span class="sourceLineNo">003</span>import java.awt.BorderLayout;<a name="line.3"></a>
+<span class="sourceLineNo">004</span>import java.awt.Image;<a name="line.4"></a>
+<span class="sourceLineNo">005</span>import java.awt.Toolkit;<a name="line.5"></a>
+<span class="sourceLineNo">006</span>import java.util.HashMap;<a name="line.6"></a>
+<span class="sourceLineNo">007</span>import java.util.Map;<a name="line.7"></a>
+<span class="sourceLineNo">008</span><a name="line.8"></a>
+<span class="sourceLineNo">009</span>import javax.swing.BoxLayout;<a name="line.9"></a>
+<span class="sourceLineNo">010</span>import javax.swing.Icon;<a name="line.10"></a>
+<span class="sourceLineNo">011</span>import javax.swing.ImageIcon;<a name="line.11"></a>
+<span class="sourceLineNo">012</span>import javax.swing.JButton;<a name="line.12"></a>
+<span class="sourceLineNo">013</span>import javax.swing.JComponent;<a name="line.13"></a>
+<span class="sourceLineNo">014</span>import javax.swing.JLabel;<a name="line.14"></a>
+<span class="sourceLineNo">015</span>import javax.swing.JPanel;<a name="line.15"></a>
+<span class="sourceLineNo">016</span><a name="line.16"></a>
+<span class="sourceLineNo">017</span>import org.apache.log4j.Logger;<a name="line.17"></a>
+<span class="sourceLineNo">018</span><a name="line.18"></a>
+<span class="sourceLineNo">019</span>import swp_compiler_ss13.common.ast.ASTNode;<a name="line.19"></a>
+<span class="sourceLineNo">020</span>import swp_compiler_ss13.common.ast.ASTNode.ASTNodeType;<a name="line.20"></a>
+<span class="sourceLineNo">021</span>import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode;<a name="line.21"></a>
+<span class="sourceLineNo">022</span>import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode.BinaryOperator;<a name="line.22"></a>
+<span class="sourceLineNo">023</span>import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;<a name="line.23"></a>
+<span class="sourceLineNo">024</span>import swp_compiler_ss13.common.ast.nodes.leaf.LiteralNode;<a name="line.24"></a>
+<span class="sourceLineNo">025</span>import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;<a name="line.25"></a>
+<span class="sourceLineNo">026</span>import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;<a name="line.26"></a>
+<span class="sourceLineNo">027</span>import swp_compiler_ss13.common.ast.nodes.unary.StructIdentifierNode;<a name="line.27"></a>
+<span class="sourceLineNo">028</span>import swp_compiler_ss13.common.ast.nodes.unary.UnaryExpressionNode;<a name="line.28"></a>
+<span class="sourceLineNo">029</span><a name="line.29"></a>
+<span class="sourceLineNo">030</span>public class NodeComponent {<a name="line.30"></a>
+<span class="sourceLineNo">031</span><a name="line.31"></a>
+<span class="sourceLineNo">032</span>        private static final Logger LOG = Logger.getLogger(NodeComponent.class);<a name="line.32"></a>
+<span class="sourceLineNo">033</span>        private static final Map&lt;ASTNodeType, ImageIcon&gt; IMAGE_TYPE_MAP = new HashMap&lt;&gt;();<a name="line.33"></a>
+<span class="sourceLineNo">034</span>        private static final Map&lt;BinaryOperator, ImageIcon&gt; IMAGE_OPERATOR_MAP = new HashMap&lt;&gt;();<a name="line.34"></a>
+<span class="sourceLineNo">035</span>        private static final String dir = "/swp_compiler_ss13/fuc/gui/ast/assets/";<a name="line.35"></a>
+<span class="sourceLineNo">036</span>        private static final int LOGO_WIDTH = 30;<a name="line.36"></a>
+<span class="sourceLineNo">037</span>        private static final int LOGO_HEIGHT = 30;<a name="line.37"></a>
+<span class="sourceLineNo">038</span><a name="line.38"></a>
+<span class="sourceLineNo">039</span>        private final JComponent component;<a name="line.39"></a>
+<span class="sourceLineNo">040</span>        private final JComponent iconComponent;<a name="line.40"></a>
+<span class="sourceLineNo">041</span>        private final JComponent nameComponent;<a name="line.41"></a>
+<span class="sourceLineNo">042</span>        private final JComponent infoComponent;<a name="line.42"></a>
+<span class="sourceLineNo">043</span><a name="line.43"></a>
+<span class="sourceLineNo">044</span>        private boolean large = true;<a name="line.44"></a>
+<span class="sourceLineNo">045</span><a name="line.45"></a>
+<span class="sourceLineNo">046</span>        public NodeComponent(ASTNode node) {<a name="line.46"></a>
+<span class="sourceLineNo">047</span>                if (node.getChildren().isEmpty()) {<a name="line.47"></a>
+<span class="sourceLineNo">048</span>                        this.component = new JPanel();<a name="line.48"></a>
+<span class="sourceLineNo">049</span>                } else {<a name="line.49"></a>
+<span class="sourceLineNo">050</span>                        this.component = new JButton();<a name="line.50"></a>
+<span class="sourceLineNo">051</span>                }<a name="line.51"></a>
+<span class="sourceLineNo">052</span>                this.getComponent().setLayout(new BorderLayout(3, 3));<a name="line.52"></a>
+<span class="sourceLineNo">053</span>                if (IMAGE_TYPE_MAP.isEmpty()) {<a name="line.53"></a>
+<span class="sourceLineNo">054</span>                        IMAGE_TYPE_MAP.put(null, this.getIconFromString(dir + "default.png"));<a name="line.54"></a>
+<span class="sourceLineNo">055</span>                        IMAGE_OPERATOR_MAP.put(null, this.getIconFromString(dir + "default.png"));<a name="line.55"></a>
+<span class="sourceLineNo">056</span>                }<a name="line.56"></a>
+<span class="sourceLineNo">057</span>                this.iconComponent = new JLabel(this.getIcon(node));<a name="line.57"></a>
+<span class="sourceLineNo">058</span>                this.getComponent().add(this.iconComponent, BorderLayout.WEST);<a name="line.58"></a>
+<span class="sourceLineNo">059</span>                this.nameComponent = new JLabel(node.getNodeType().name());<a name="line.59"></a>
+<span class="sourceLineNo">060</span>                this.getComponent().add(this.nameComponent, BorderLayout.NORTH);<a name="line.60"></a>
+<span class="sourceLineNo">061</span>                this.infoComponent = this.getInfoComponent(node);<a name="line.61"></a>
+<span class="sourceLineNo">062</span>                this.getComponent().add(this.infoComponent, BorderLayout.CENTER);<a name="line.62"></a>
+<span class="sourceLineNo">063</span>        }<a name="line.63"></a>
+<span class="sourceLineNo">064</span><a name="line.64"></a>
+<span class="sourceLineNo">065</span>        void toggleSize() {<a name="line.65"></a>
+<span class="sourceLineNo">066</span>                this.large = !this.large;<a name="line.66"></a>
+<span class="sourceLineNo">067</span>                this.nameComponent.setVisible(this.large);<a name="line.67"></a>
+<span class="sourceLineNo">068</span>                this.infoComponent.setVisible(this.large);<a name="line.68"></a>
+<span class="sourceLineNo">069</span>        }<a name="line.69"></a>
+<span class="sourceLineNo">070</span><a name="line.70"></a>
+<span class="sourceLineNo">071</span>        protected JComponent getInfoComponent(ASTNode node) {<a name="line.71"></a>
+<span class="sourceLineNo">072</span>                JPanel result = new JPanel();<a name="line.72"></a>
+<span class="sourceLineNo">073</span>                result.setLayout(new BoxLayout(result, BoxLayout.Y_AXIS));<a name="line.73"></a>
+<span class="sourceLineNo">074</span>                switch (node.getNodeType()) {<a name="line.74"></a>
+<span class="sourceLineNo">075</span>                case LiteralNode:<a name="line.75"></a>
+<span class="sourceLineNo">076</span>                        LiteralNode literalNode = (LiteralNode) node;<a name="line.76"></a>
+<span class="sourceLineNo">077</span>                        result.add(new JLabel("type: " + literalNode.getLiteralType()));<a name="line.77"></a>
+<span class="sourceLineNo">078</span>                        result.add(new JLabel("name: " + literalNode.getLiteral()));<a name="line.78"></a>
+<span class="sourceLineNo">079</span>                        break;<a name="line.79"></a>
+<span class="sourceLineNo">080</span>                case ArithmeticBinaryExpressionNode:<a name="line.80"></a>
+<span class="sourceLineNo">081</span>                case LogicBinaryExpressionNode:<a name="line.81"></a>
+<span class="sourceLineNo">082</span>                case RelationExpressionNode:<a name="line.82"></a>
+<span class="sourceLineNo">083</span>                        BinaryExpressionNode binaryNode = (BinaryExpressionNode) node;<a name="line.83"></a>
+<span class="sourceLineNo">084</span>                        result.add(new JLabel("operator: " + binaryNode.getOperator()));<a name="line.84"></a>
+<span class="sourceLineNo">085</span>                        break;<a name="line.85"></a>
+<span class="sourceLineNo">086</span>                case ArithmeticUnaryExpressionNode:<a name="line.86"></a>
+<span class="sourceLineNo">087</span>                case LogicUnaryExpressionNode:<a name="line.87"></a>
+<span class="sourceLineNo">088</span>                        UnaryExpressionNode unaryNode = (UnaryExpressionNode) node;<a name="line.88"></a>
+<span class="sourceLineNo">089</span>                        result.add(new JLabel("operator: " + unaryNode.getOperator()));<a name="line.89"></a>
+<span class="sourceLineNo">090</span>                        break;<a name="line.90"></a>
+<span class="sourceLineNo">091</span>                case ArrayIdentifierNode:<a name="line.91"></a>
+<span class="sourceLineNo">092</span>                        //ArrayIdentifierNode arrayNode = (ArrayIdentifierNode) node;<a name="line.92"></a>
+<span class="sourceLineNo">093</span>                        //result.add(new JLabel("index: " + arrayNode.getIndex()));<a name="line.93"></a>
+<span class="sourceLineNo">094</span>                        break;<a name="line.94"></a>
+<span class="sourceLineNo">095</span>                case BasicIdentifierNode:<a name="line.95"></a>
+<span class="sourceLineNo">096</span>                        BasicIdentifierNode basicNode = (BasicIdentifierNode) node;<a name="line.96"></a>
+<span class="sourceLineNo">097</span>                        result.add(new JLabel("variable: " + basicNode.getIdentifier()));<a name="line.97"></a>
+<span class="sourceLineNo">098</span>                        break;<a name="line.98"></a>
+<span class="sourceLineNo">099</span>                case BlockNode:<a name="line.99"></a>
+<span class="sourceLineNo">100</span>                        BlockNode blockNode = (BlockNode) node;<a name="line.100"></a>
+<span class="sourceLineNo">101</span>                        result.add(new JLabel("amount of declarations: " + blockNode.getNumberOfDeclarations()));<a name="line.101"></a>
+<span class="sourceLineNo">102</span>                        result.add(new JLabel("amount of statements: " + blockNode.getNumberOfStatements()));<a name="line.102"></a>
+<span class="sourceLineNo">103</span>                        break;<a name="line.103"></a>
+<span class="sourceLineNo">104</span>                case DeclarationNode:<a name="line.104"></a>
+<span class="sourceLineNo">105</span>                        DeclarationNode declNode = (DeclarationNode) node;<a name="line.105"></a>
+<span class="sourceLineNo">106</span>                        result.add(new JLabel("type: " + declNode.getType()));<a name="line.106"></a>
+<span class="sourceLineNo">107</span>                        result.add(new JLabel("name: " + declNode.getIdentifier()));<a name="line.107"></a>
+<span class="sourceLineNo">108</span>                        break;<a name="line.108"></a>
+<span class="sourceLineNo">109</span>                case StructIdentifierNode:<a name="line.109"></a>
+<span class="sourceLineNo">110</span>                        StructIdentifierNode structNode = (StructIdentifierNode) node;<a name="line.110"></a>
+<span class="sourceLineNo">111</span>                        result.add(new JLabel("field: " + structNode.getFieldName()));<a name="line.111"></a>
+<span class="sourceLineNo">112</span>                case AssignmentNode:<a name="line.112"></a>
+<span class="sourceLineNo">113</span>                case BranchNode:<a name="line.113"></a>
+<span class="sourceLineNo">114</span>                case BreakNode:<a name="line.114"></a>
+<span class="sourceLineNo">115</span>                case DoWhileNode:<a name="line.115"></a>
+<span class="sourceLineNo">116</span>                case PrintNode:<a name="line.116"></a>
+<span class="sourceLineNo">117</span>                case WhileNode:<a name="line.117"></a>
+<span class="sourceLineNo">118</span>                default:<a name="line.118"></a>
+<span class="sourceLineNo">119</span>                        break;<a name="line.119"></a>
+<span class="sourceLineNo">120</span>                }<a name="line.120"></a>
+<span class="sourceLineNo">121</span>                return result;<a name="line.121"></a>
+<span class="sourceLineNo">122</span>        }<a name="line.122"></a>
+<span class="sourceLineNo">123</span><a name="line.123"></a>
+<span class="sourceLineNo">124</span>        private Icon getIcon(ASTNode node) {<a name="line.124"></a>
+<span class="sourceLineNo">125</span>                ImageIcon imageIcon = IMAGE_TYPE_MAP.get(node.getNodeType());<a name="line.125"></a>
+<span class="sourceLineNo">126</span>                if (imageIcon != null) {<a name="line.126"></a>
+<span class="sourceLineNo">127</span>                        return imageIcon;<a name="line.127"></a>
+<span class="sourceLineNo">128</span>                }<a name="line.128"></a>
+<span class="sourceLineNo">129</span>                String imageName = null;<a name="line.129"></a>
+<span class="sourceLineNo">130</span>                switch (node.getNodeType()) {<a name="line.130"></a>
+<span class="sourceLineNo">131</span>                case ArithmeticBinaryExpressionNode:<a name="line.131"></a>
+<span class="sourceLineNo">132</span>                case LogicBinaryExpressionNode:<a name="line.132"></a>
+<span class="sourceLineNo">133</span>                case RelationExpressionNode:<a name="line.133"></a>
+<span class="sourceLineNo">134</span>                        BinaryOperator operator = ((BinaryExpressionNode) node).getOperator();<a name="line.134"></a>
+<span class="sourceLineNo">135</span>                        imageIcon = IMAGE_OPERATOR_MAP.get(operator);<a name="line.135"></a>
+<span class="sourceLineNo">136</span>                        if (imageIcon != null) {<a name="line.136"></a>
+<span class="sourceLineNo">137</span>                                return imageIcon;<a name="line.137"></a>
+<span class="sourceLineNo">138</span>                        }<a name="line.138"></a>
+<span class="sourceLineNo">139</span>                        switch (operator) {<a name="line.139"></a>
+<span class="sourceLineNo">140</span>                        case ADDITION:<a name="line.140"></a>
+<span class="sourceLineNo">141</span>                                imageName = "add";<a name="line.141"></a>
+<span class="sourceLineNo">142</span>                                break;<a name="line.142"></a>
+<span class="sourceLineNo">143</span>                        case SUBSTRACTION:<a name="line.143"></a>
+<span class="sourceLineNo">144</span>                                imageName = "minus";<a name="line.144"></a>
+<span class="sourceLineNo">145</span>                                break;<a name="line.145"></a>
+<span class="sourceLineNo">146</span>                        case MULTIPLICATION:<a name="line.146"></a>
+<span class="sourceLineNo">147</span>                                imageName = "mult";<a name="line.147"></a>
+<span class="sourceLineNo">148</span>                                break;<a name="line.148"></a>
+<span class="sourceLineNo">149</span>                        case DIVISION:<a name="line.149"></a>
+<span class="sourceLineNo">150</span>                                imageName = "div";<a name="line.150"></a>
+<span class="sourceLineNo">151</span>                                break;<a name="line.151"></a>
+<span class="sourceLineNo">152</span>                        case EQUAL:<a name="line.152"></a>
+<span class="sourceLineNo">153</span>                                imageName = "equal";<a name="line.153"></a>
+<span class="sourceLineNo">154</span>                                break;<a name="line.154"></a>
+<span class="sourceLineNo">155</span>                        case GREATERTHAN:<a name="line.155"></a>
+<span class="sourceLineNo">156</span>                                imageName = "greater";<a name="line.156"></a>
+<span class="sourceLineNo">157</span>                                break;<a name="line.157"></a>
+<span class="sourceLineNo">158</span>                        case GREATERTHANEQUAL:<a name="line.158"></a>
+<span class="sourceLineNo">159</span>                                imageName = "greater_equal";<a name="line.159"></a>
+<span class="sourceLineNo">160</span>                                break;<a name="line.160"></a>
+<span class="sourceLineNo">161</span>                        case INEQUAL:<a name="line.161"></a>
+<span class="sourceLineNo">162</span>                                imageName = "inequal";<a name="line.162"></a>
+<span class="sourceLineNo">163</span>                                break;<a name="line.163"></a>
+<span class="sourceLineNo">164</span>                        case LESSTHAN:<a name="line.164"></a>
+<span class="sourceLineNo">165</span>                                imageName = "less";<a name="line.165"></a>
+<span class="sourceLineNo">166</span>                                break;<a name="line.166"></a>
+<span class="sourceLineNo">167</span>                        case LESSTHANEQUAL:<a name="line.167"></a>
+<span class="sourceLineNo">168</span>                                imageName = "less_equal";<a name="line.168"></a>
+<span class="sourceLineNo">169</span>                                break;<a name="line.169"></a>
+<span class="sourceLineNo">170</span>                        case LOGICAL_AND:<a name="line.170"></a>
+<span class="sourceLineNo">171</span>                                imageName = "ampersand";<a name="line.171"></a>
+<span class="sourceLineNo">172</span>                                break;<a name="line.172"></a>
+<span class="sourceLineNo">173</span>                        case LOGICAL_OR:<a name="line.173"></a>
+<span class="sourceLineNo">174</span>                                imageName = "or";<a name="line.174"></a>
+<span class="sourceLineNo">175</span>                                break;<a name="line.175"></a>
+<span class="sourceLineNo">176</span>                        default:<a name="line.176"></a>
+<span class="sourceLineNo">177</span>                                return IMAGE_OPERATOR_MAP.get(null);<a name="line.177"></a>
+<span class="sourceLineNo">178</span>                        }<a name="line.178"></a>
+<span class="sourceLineNo">179</span>                        imageIcon = this.getIconFromString(dir + imageName + ".png");<a name="line.179"></a>
+<span class="sourceLineNo">180</span>                        IMAGE_OPERATOR_MAP.put(operator, imageIcon);<a name="line.180"></a>
+<span class="sourceLineNo">181</span>                        return imageIcon;<a name="line.181"></a>
+<span class="sourceLineNo">182</span>                case LogicUnaryExpressionNode:<a name="line.182"></a>
+<span class="sourceLineNo">183</span>                        imageName = "not";<a name="line.183"></a>
+<span class="sourceLineNo">184</span>                        break;<a name="line.184"></a>
+<span class="sourceLineNo">185</span>                case ArithmeticUnaryExpressionNode:<a name="line.185"></a>
+<span class="sourceLineNo">186</span>                        imageName = "minus";<a name="line.186"></a>
+<span class="sourceLineNo">187</span>                        break;<a name="line.187"></a>
+<span class="sourceLineNo">188</span>                case BlockNode:<a name="line.188"></a>
+<span class="sourceLineNo">189</span>                        imageName = "braces";<a name="line.189"></a>
+<span class="sourceLineNo">190</span>                        break;<a name="line.190"></a>
+<span class="sourceLineNo">191</span>                case AssignmentNode:<a name="line.191"></a>
+<span class="sourceLineNo">192</span>                        imageName = "assign";<a name="line.192"></a>
+<span class="sourceLineNo">193</span>                        break;<a name="line.193"></a>
+<span class="sourceLineNo">194</span>                case ArrayIdentifierNode:<a name="line.194"></a>
+<span class="sourceLineNo">195</span>                        imageName = "array";<a name="line.195"></a>
+<span class="sourceLineNo">196</span>                        break;<a name="line.196"></a>
+<span class="sourceLineNo">197</span>                case BasicIdentifierNode:<a name="line.197"></a>
+<span class="sourceLineNo">198</span>                        imageName = "basicIdentifier";<a name="line.198"></a>
+<span class="sourceLineNo">199</span>                        break;<a name="line.199"></a>
+<span class="sourceLineNo">200</span>                case BranchNode:<a name="line.200"></a>
+<span class="sourceLineNo">201</span>                        imageName = "if_else";<a name="line.201"></a>
+<span class="sourceLineNo">202</span>                        break;<a name="line.202"></a>
+<span class="sourceLineNo">203</span>                case DeclarationNode:<a name="line.203"></a>
+<span class="sourceLineNo">204</span>                        imageName = "decl";<a name="line.204"></a>
+<span class="sourceLineNo">205</span>                        break;<a name="line.205"></a>
+<span class="sourceLineNo">206</span>                case DoWhileNode:<a name="line.206"></a>
+<span class="sourceLineNo">207</span>                case WhileNode:<a name="line.207"></a>
+<span class="sourceLineNo">208</span>                        imageName = "loop";<a name="line.208"></a>
+<span class="sourceLineNo">209</span>                        break;<a name="line.209"></a>
+<span class="sourceLineNo">210</span>                case StructIdentifierNode:<a name="line.210"></a>
+<span class="sourceLineNo">211</span>                        imageName = "struct";<a name="line.211"></a>
+<span class="sourceLineNo">212</span>                        break;<a name="line.212"></a>
+<span class="sourceLineNo">213</span>                case PrintNode:<a name="line.213"></a>
+<span class="sourceLineNo">214</span>                        imageName = "print";<a name="line.214"></a>
+<span class="sourceLineNo">215</span>                        break;<a name="line.215"></a>
+<span class="sourceLineNo">216</span>                case BreakNode:<a name="line.216"></a>
+<span class="sourceLineNo">217</span>                        imageName = "break";<a name="line.217"></a>
+<span class="sourceLineNo">218</span>                        break;<a name="line.218"></a>
+<span class="sourceLineNo">219</span>                case ReturnNode:<a name="line.219"></a>
+<span class="sourceLineNo">220</span>                        imageName = "return";<a name="line.220"></a>
+<span class="sourceLineNo">221</span>                        break;<a name="line.221"></a>
+<span class="sourceLineNo">222</span>                case LiteralNode:<a name="line.222"></a>
+<span class="sourceLineNo">223</span>                        imageName = "literal";<a name="line.223"></a>
+<span class="sourceLineNo">224</span>                        break;<a name="line.224"></a>
+<span class="sourceLineNo">225</span>                default:<a name="line.225"></a>
+<span class="sourceLineNo">226</span>                        return IMAGE_TYPE_MAP.get(null);<a name="line.226"></a>
+<span class="sourceLineNo">227</span>                }<a name="line.227"></a>
+<span class="sourceLineNo">228</span>                imageIcon = this.getIconFromString(dir + imageName + ".png");<a name="line.228"></a>
+<span class="sourceLineNo">229</span>                IMAGE_TYPE_MAP.put(node.getNodeType(), imageIcon);<a name="line.229"></a>
+<span class="sourceLineNo">230</span>                return imageIcon;<a name="line.230"></a>
+<span class="sourceLineNo">231</span>        }<a name="line.231"></a>
+<span class="sourceLineNo">232</span><a name="line.232"></a>
+<span class="sourceLineNo">233</span>        private ImageIcon getIconFromString(String resource) {<a name="line.233"></a>
+<span class="sourceLineNo">234</span>                Image image = Toolkit.getDefaultToolkit().getImage(<a name="line.234"></a>
+<span class="sourceLineNo">235</span>                                NodeComponent.class.getResource(resource));<a name="line.235"></a>
+<span class="sourceLineNo">236</span>                if (image == null) {<a name="line.236"></a>
+<span class="sourceLineNo">237</span>                        LOG.warn("didn't found image: " + resource);<a name="line.237"></a>
+<span class="sourceLineNo">238</span>                        return null;<a name="line.238"></a>
+<span class="sourceLineNo">239</span>                }<a name="line.239"></a>
+<span class="sourceLineNo">240</span>                return new ImageIcon(image.getScaledInstance(LOGO_WIDTH, LOGO_HEIGHT, Image.SCALE_SMOOTH));<a name="line.240"></a>
+<span class="sourceLineNo">241</span>        }<a name="line.241"></a>
+<span class="sourceLineNo">242</span><a name="line.242"></a>
+<span class="sourceLineNo">243</span>        public JComponent getComponent() {<a name="line.243"></a>
+<span class="sourceLineNo">244</span>                return this.component;<a name="line.244"></a>
+<span class="sourceLineNo">245</span>        }<a name="line.245"></a>
+<span class="sourceLineNo">246</span><a name="line.246"></a>
+<span class="sourceLineNo">247</span>}<a name="line.247"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>
