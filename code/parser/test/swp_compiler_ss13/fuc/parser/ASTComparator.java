@@ -100,9 +100,12 @@ public class ASTComparator {
 				// Check...
 			}
 		}
-		
+
+		// Check type and parents
 		assertEquals(expected.getNodeType(), actual.getNodeType());
+		compareParentNodes(expected.getParentNode(), actual.getParentNode());
 		
+		// Check node itself
 		switch (expected.getNodeType()) {
 			case BasicIdentifierNode:
 				compare((BasicIdentifierNode) expected, (BasicIdentifierNode) actual);
@@ -160,6 +163,23 @@ public class ASTComparator {
 				break;
 			default:
 				throw new IllegalArgumentException("Unknown ASTNodeType!");
+		}
+	}
+	
+	private static void compareParentNodes(ASTNode expected, ASTNode actual) {
+		if (expected == null) {
+			if (actual == null) {
+				return;	// TODO Verify that these are root-nodes!
+			} else {
+				fail("Expected no parent node but found one!");
+			}
+		} else {
+			if (actual == null) {
+				fail("Expected a parent node but found none!");
+			} else {
+				return;	// TODO: Somehow we need a verification here... maybe some kind of
+				// ordering, like a node->iterator-id association? need STATE! =)
+			}
 		}
 	}
 	

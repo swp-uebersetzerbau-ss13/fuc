@@ -475,6 +475,7 @@ public class ProjectGrammarImpl implements IGrammarImpl {
 					ExpressionNode assign = unpack(objs[2], ExpressionNode.class);
 					arrayIdentifier.setIndexNode(assign);
 					arrayIdentifier.setCoverage(assign.coverage());
+					assign.setParentNode(arrayIdentifier);
 					
 					Token rightSquareBracket = unpack(objs[3], Token.class);
 					arrayIdentifier.setCoverage(rightSquareBracket);

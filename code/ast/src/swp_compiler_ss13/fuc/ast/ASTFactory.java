@@ -462,6 +462,7 @@ public class ASTFactory {
 
 		arrayIdentifier.setIndexNode(indexNode);
 		arrayIdentifier.setIdentifierNode(identifier);
+		indexNode.setParentNode(arrayIdentifier);
 		identifier.setParentNode(arrayIdentifier);
 		return arrayIdentifier;
 	}
