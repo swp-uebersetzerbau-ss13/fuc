@@ -5,12 +5,9 @@ import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
-import swp_compiler_ss13.fuc.lexer.LexerImpl;
-import swp_compiler_ss13.fuc.parser.ParserImpl;
 import swp_compiler_ss13.common.test.ExampleProgs;
-import swp_compiler_ss13.common.test.TestBase;
-import org.junit.Ignore;
+import swp_compiler_ss13.fuc.test.Compiler;
+import swp_compiler_ss13.fuc.test.TestBase;
 
 /**
  * <p>
@@ -31,37 +28,33 @@ public class M1ErrorTest extends TestBase {
 
 	@Before
 	public void setUp() throws Exception {
-		lexer = new LexerImpl();
-		parser = new ParserImpl();
-		analyser = new swp_compiler_ss13.fuc.semantic_analyser.SemanticAnalyser();
-		errlog = new ReportLogImpl();
+		compiler = new Compiler();
 	}
 
 
 	@Test
 	public void testDoubleDeclaration() throws Exception {
-		testProgForErrorMsg(ExampleProgs.doubleDeclaration());
+		testProgCompilation(ExampleProgs.doubleDeclaration());
 	}
 
 	@Test
 	public void testInvalidIds() throws Exception {
-		testProgForErrorMsg(ExampleProgs.invalidIds());
+		testProgCompilation(ExampleProgs.invalidIds());
 	}
 
 	@Test
 	public void testMultipleMinusENotation() throws Exception {
-		testProgForErrorMsg(ExampleProgs.multipleMinusENotation());
+		testProgCompilation(ExampleProgs.multipleMinusENotation());
 	}
 
-  @Ignore
 	@Test
 	public void testMultiplePlusesInExp() throws Exception {
-		testProgForErrorMsg(ExampleProgs.multiplePlusesInExp());
+		testProgCompilation(ExampleProgs.multiplePlusesInExp());
 	}
 
 	@Test
 	public void testUndefReturn() throws Exception {
-		testProgForErrorMsg(ExampleProgs.undefReturnProg());
+		testProgCompilation(ExampleProgs.undefReturnProg());
 	}
 
 }
