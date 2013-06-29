@@ -268,7 +268,6 @@ public class ArithmeticExpressionTests {
 	 * l = 2 / 0;
 	 */
 	@Test
-	@Ignore
 	public void testDivisionByZeroSimple() {
 		ASTFactory astFactory = new ASTFactory();
 		astFactory.addDeclaration("l", new LongType());
@@ -318,7 +317,6 @@ public class ArithmeticExpressionTests {
 	 * l = 2 / (1 - 1);
 	 */
 	@Test
-	@Ignore
 	public void testDivisionByZeroComplex() {
 		ASTFactory astFactory = new ASTFactory();
 		astFactory.addDeclaration("l", new LongType());
