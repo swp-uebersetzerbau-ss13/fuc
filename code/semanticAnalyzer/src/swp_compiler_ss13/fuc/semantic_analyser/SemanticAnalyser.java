@@ -127,9 +127,19 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 
 		return ast;
 	}
+	
+	protected void inheritAttribute(ASTNode parent, ASTNode child, Attribute attr) {
+		String value = getAttribute(parent, attr);
+		
+		if (!value.equals(NO_ATTRIBUTE_VALUE)) {
+			setAttribute(child, attr, value);
+		}
+	}
 
 	protected void traverse(ASTNode node, SymbolTable table) {
 		logger.debug("traverse: " + node);
+		
+		inheritAttribute(node.getParentNode(), node, Attribute.CAN_BREAK);
 
 		switch (node.getNodeType()) {
 			case BasicIdentifierNode:
@@ -453,9 +463,7 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 	 * Block
 	 */
 	protected void handleNode(BlockNode node, SymbolTable table) {
-		if (hasAttribute(node.getParentNode(), Attribute.CAN_BREAK, CAN_BREAK)) {
-			setAttribute(node, Attribute.CAN_BREAK, CAN_BREAK);
-		}
+		
 
 		SymbolTable blockScope = node.getSymbolTable();
 
@@ -465,7 +473,7 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 					"Unreachable statement, see previous “return” in block.");
 			}
 
-			this.traverse(child, blockScope);
+			traverse(child, blockScope);
 		}
 	}
 
