@@ -64,14 +64,16 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 		TYPE_CHECK,
 		CODE_STATE
 	}
+	
 	private static final String NO_ATTRIBUTE_VALUE = "undefined";
 	private static final String CAN_BREAK = "true";
 	private static final String TYPE_MISMATCH = "type mismatch";
 	private static final String DEAD_CODE = "dead";
+	private static final String STATIC_VALUE = "value";
+	private static final String TYPE_DECLARATION = "type declaration";
+	
 	private ReportLog errorLog;
 	private Map<ASTNode, Map<Attribute, String>> attributes;
-	private Map<ASTNode, Type> typeDeclarations;
-	private Map<ASTNode, Object> staticValues;
 	/**
 	 * Contains all initialized identifiers. As soon it has assigned it will be
 	 * added.
@@ -81,15 +83,11 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 	public SemanticAnalyser() {
 		attributes = new HashMap<>();
 		initializedIdentifiers = new HashMap<>();
-		typeDeclarations = new HashMap<>();
-		staticValues = new HashMap<>();
 	}
 
 	public SemanticAnalyser(ReportLog log) {
 		attributes = new HashMap<>();
 		initializedIdentifiers = new HashMap<>();
-		typeDeclarations = new HashMap<>();
-		staticValues = new HashMap<>();
 		errorLog = log;
 	}
 
@@ -127,16 +125,12 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 		return ast;
 	}
 
-	protected boolean hasStaticValue(ASTNode node) {
-		return staticValues.containsKey(node);
-	}
-
 	protected Object getStaticValue(ASTNode node) {
-		if (staticValues.containsKey(node)) {
-			return staticValues.get(node);
-		} else {
-			return null;
-		}
+		return node.getAttributeValue(STATIC_VALUE);
+	}
+	
+	protected void setStaticValue(ASTNode node, Object value) {
+		node.setAttributeValue(STATIC_VALUE, value);
 	}
 
 	protected void evaluateStaticExpresionValue(ExpressionNode node) {
@@ -306,7 +300,7 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 		}
 
 		if (result != null) {
-			staticValues.put(node, result);
+			setStaticValue(node, result);
 			logger.debug("static value for " + node + ": " + result.toString());
 		}
 	}
@@ -737,8 +731,7 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 			return;
 		}
 
-		boolean array = t.getKind() == Type.Kind.ARRAY;
-
+		boolean derived = t.getKind() == Type.Kind.ARRAY || t.getKind() == Type.Kind.STRUCT;
 		logger.debug("BasicIdentifierNode: identifier=" + identifier + ", initialized=" + initialzed + ", type=" + t);
 
 
@@ -755,7 +748,7 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 		if (node.getParentNode() instanceof AssignmentNode) {
 			AssignmentNode p = (AssignmentNode) node.getParentNode();
 			reportInitialization = p.getLeftValue() != node;
-		} else if (node.getParentNode().getNodeType() != ASTNode.ASTNodeType.AssignmentNode && !array) {
+		} else if (node.getParentNode().getNodeType() != ASTNode.ASTNodeType.AssignmentNode && !derived) {
 			reportInitialization = true;
 		}
 
@@ -808,10 +801,10 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 		if (t instanceof StructType) {
 			StructType st = (StructType) t;
 			Type ft = getStructMemberType(st, node.getFieldName());
-			setAttribute(node, Attribute.TYPE, ft.getKind().name());
-			setTypeDeclaration(node, ft);
+			setNodeType(node, ft);
 		} else {
-			throw new IllegalArgumentException("Type must be StructType.");
+			markTypeError(node);
+			errorLog.reportError(ReportType.TYPE_MISMATCH, node.coverage(), "Trying to access a field of a non struct type.");
 		}
 	}
 
@@ -870,15 +863,13 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 	}
 
 	protected void setTypeDeclaration(ASTNode node, Type t) {
-		typeDeclarations.put(node, t);
+		node.setAttributeValue(TYPE_DECLARATION, t);
 	}
 
 	protected Type getTypeDeclaration(ASTNode node) {
-		if (!typeDeclarations.containsKey(node)) {
-			throw new IllegalArgumentException("Node has no known type declaration.");
-		}
-
-		return typeDeclarations.get(node);
+		Object t = node.getAttributeValue(TYPE_DECLARATION);
+		assert t instanceof Type;
+		return (Type)t;
 	}
 
 	protected void markIdentifierAsInitialized(SymbolTable table, String identifier) {
