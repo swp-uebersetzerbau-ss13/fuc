@@ -43,6 +43,7 @@ import swp_compiler_ss13.common.types.derived.ArrayType;
 import swp_compiler_ss13.common.types.derived.DerivedType;
 import swp_compiler_ss13.common.types.derived.Member;
 import swp_compiler_ss13.common.types.derived.StructType;
+import swp_compiler_ss13.common.types.primitive.DoubleType;
 import swp_compiler_ss13.common.types.primitive.LongType;
 
 public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalysis.SemanticAnalyser {
@@ -145,6 +146,22 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 		}
 
 		return null;
+	}
+	
+	protected boolean isValueNumericallyZero(ASTNode node) {
+		if (node instanceof LiteralNode) {
+			LiteralNode l = (LiteralNode) node;
+
+			if (l.getLiteralType() instanceof LongType) {
+				return Long.valueOf(l.getLiteral()) == 0;
+			} else if (l.getLiteralType() instanceof DoubleType) {
+				return Double.valueOf(l.getLiteral()) == 0;
+			} else {
+				return false;
+			}
+		}
+
+		return false;
 	}
 
 	protected void traverse(ASTNode node, SymbolTable table) {
@@ -406,6 +423,10 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 				setAttribute(node, Attribute.TYPE_CHECK, TYPE_MISMATCH);
 				errorLog.reportError(ReportType.TYPE_MISMATCH, node.coverage(),
 					"Operator " + node.getOperator().name() + " is not defined for " + getType(node) + ".");
+			} else if (node.getOperator() == BinaryExpressionNode.BinaryOperator.DIVISION) {
+				if (isValueNumericallyZero(node.getRightValue())) {
+					errorLog.reportError(ReportType.DIVISION_BY_ZERO, node.getRightValue().coverage(), "Division by zero.");
+				}
 			}
 		}
 	}
@@ -474,8 +495,6 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 	 * Block
 	 */
 	protected void handleNode(BlockNode node, SymbolTable table) {
-
-
 		SymbolTable blockScope = node.getSymbolTable();
 
 		for (StatementNode child : node.getStatementList()) {
