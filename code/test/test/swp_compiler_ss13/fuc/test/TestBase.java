@@ -18,8 +18,7 @@ import swp_compiler_ss13.fuc.backend.TACExecutor;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -34,12 +33,7 @@ import static org.junit.Assert.*;
  */
 public abstract class TestBase {
 
-	protected static Lexer lexer;
-	protected static Parser parser;
-	protected static SemanticAnalyser analyser;
-	protected static IntermediateCodeGenerator irgen;
-	protected static Backend backend;
-	protected static ReportLogImpl errlog;
+	protected static Compiler compiler;
 	protected static Logger logger = Logger.getLogger(TestBase.class);
 
 
@@ -73,89 +67,34 @@ public abstract class TestBase {
 		return hasLLI;
 	}
 
-	protected void testProgCompilation(Object[] prog) throws BackendException, IntermediateCodeGeneratorException, IOException, InterruptedException {
-		ReportLogImpl log = compileForError( (String) prog[0]);
-		String msg = null;
-		if (log.hasErrors())
-			msg = "ReportLog Error types: " + log.getErrors().toString();
-		assertFalse(msg, log.hasErrors());
-		InputStream res = compile((String) prog[0]);
-		assertTrue(res != null);
-	}
+	protected InputStream testProgCompilation(Object[] prog) throws BackendException, IntermediateCodeGeneratorException,
+			IOException, InterruptedException {
+		InputStream compilationResult = compiler.compile((String) prog[0]);
+		ReportLogImpl log = compiler.getErrlog();
 
-	protected void testProgCompilationWOAnalyser(Object[] prog) throws BackendException, IntermediateCodeGeneratorException, IOException, InterruptedException {
-		InputStream res = compileWOAnalyser((String) prog[0]);
-		assertTrue(res != null);
+		String msg = "Expected ReportLog entries: " + new ArrayList<ReportType>(Arrays.asList((ReportType[]) prog[3]))
+				+ ". Actual: " + log.getEntries().toString();
+
+		/* test for expected report log entries (errors and warnings) if program does not compile */
+		if (log.hasErrors()){
+			assertArrayEquals(msg, (Object[]) prog[3], log.getEntries().toArray());
+			return null;
+		}
+
+		/* test for expected report log entries (i.e. warnings), if program compiles */
+		assertArrayEquals(msg, (Object[]) prog[3], log.getEntries().toArray());
+
+		/* assert that something was compiled*/
+		assertTrue(compilationResult != null);
+
+		return compilationResult;
 	}
 
 	protected void testProgRuntime(Object[] prog) throws BackendException, IntermediateCodeGeneratorException, IOException, InterruptedException {
-		TACExecutor.ExecutionResult res = execute(compile( (String) prog[0]) );
-		assertEquals(prog[1], res.exitCode);
-		assertEquals(prog[2], res.output);
-	}
-
-	protected void testProgRuntimeWOAnalyser(Object[] prog) throws BackendException, IntermediateCodeGeneratorException, IOException, InterruptedException {
-		TACExecutor.ExecutionResult res = execute(compileWOAnalyser( (String) prog[0]) );
-		assertEquals(prog[1], res.exitCode);
-		assertEquals(prog[2], res.output);
-	}
-
-	protected void testProgHasError(Object[] prog) throws BackendException, IntermediateCodeGeneratorException, IOException, InterruptedException {
-		ReportLogImpl log = compileForError((String) prog[0]);
-		assertTrue(log.hasErrors());
-	}
-
-	protected void testProgHasWarnings(Object[] prog) throws BackendException, IntermediateCodeGeneratorException, IOException, InterruptedException {
-		ReportLogImpl log = compileForError((String) prog[0]);
-		assertTrue(log.hasWarnings());
-	}
-
-	protected void testProgForErrorMsg(Object[] prog) throws BackendException, IntermediateCodeGeneratorException, IOException, InterruptedException {
-		List<ReportType> reportTypes = compileForError((String) prog[0]).getEntries();
-		assertArrayEquals((Object[]) prog[3], reportTypes.toArray());
-	}
-
-	protected ReportLogImpl compileForError(String prog) throws BackendException,
-			IntermediateCodeGeneratorException, IOException, InterruptedException {
-		lexer.setSourceStream(new ByteArrayInputStream(prog.getBytes("UTF-8")));
-		parser.setLexer(lexer);
-		parser.setReportLog(errlog);
-		AST ast = parser.getParsedAST();
-		if (errlog.hasErrors()){
-			return errlog;
-		}
-		analyser.setReportLog(errlog);
-		analyser.analyse(ast);
-		return errlog;
-	}
-
-	protected InputStream compile(String prog) throws BackendException,
-			IntermediateCodeGeneratorException, IOException, InterruptedException {
-		lexer.setSourceStream(new ByteArrayInputStream(prog.getBytes("UTF-8")));
-		parser.setLexer(lexer);
-		parser.setReportLog(errlog);
-		AST ast = parser.getParsedAST();
-		analyser.setReportLog(errlog);
-		AST ast2 = analyser.analyse(ast);
-		List<Quadruple> tac = irgen.generateIntermediateCode(ast2);
-		Map<String, InputStream> targets = backend.generateTargetCode("prog", tac);
-		return targets.get(targets.keySet().iterator().next());
-	}
-
-	protected InputStream compileWOAnalyser(String prog) throws BackendException,
-			IntermediateCodeGeneratorException, IOException, InterruptedException {
-		lexer.setSourceStream(new ByteArrayInputStream(prog.getBytes("UTF-8")));
-		parser.setLexer(lexer);
-		parser.setReportLog(errlog);
-		AST ast = parser.getParsedAST();
-		List<Quadruple> tac = irgen.generateIntermediateCode(ast);
-		Map<String, InputStream> targets = backend.generateTargetCode("", tac);
-		return targets.get(targets.keySet().iterator().next());
-	}
-
-	protected TACExecutor.ExecutionResult execute(InputStream prog) throws BackendException,
-			IntermediateCodeGeneratorException, IOException, InterruptedException {
-		return TACExecutor.runIR(prog);
+		InputStream compilationResult = testProgCompilation(prog);
+		TACExecutor.ExecutionResult executionResult = TACExecutor.runIR(compilationResult);
+		assertEquals(prog[1], executionResult.exitCode);
+		assertEquals(prog[2], executionResult.output);
 	}
 
 }
