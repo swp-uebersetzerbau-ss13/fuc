@@ -1,5 +1,7 @@
 package swp_compiler_ss13.fuc.ir.components.statements.expressions;
 
+import java.util.EmptyStackException;
+
 import swp_compiler_ss13.common.ast.nodes.binary.AssignmentNode;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 import swp_compiler_ss13.common.types.Type;
@@ -54,7 +56,13 @@ public class AssignmentNodeProcessor extends NodeProcessor {
 		// if the left side of the assignment is an array, we need to know the
 		// index
 		if (left.getType() instanceof ArrayType) {
-			targetIndex = this.state.popIntermediateResult().getValue();
+			try {
+				targetIndex = this.state.popIntermediateResult().getValue();
+			} catch (EmptyStackException e) {
+				String err = "Deep copy of complex structures is not supported";
+				logger.fatal(err);
+				throw new IntermediateCodeGeneratorException(err, e);
+			}
 		}
 
 		IntermediateResult right = this.executor.process(assignment.getRightValue());
