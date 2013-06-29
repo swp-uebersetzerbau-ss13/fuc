@@ -407,7 +407,7 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 				throw new IllegalArgumentException("unknown ASTNodeType");
 		}
 
-		if (node instanceof ExpressionNode) {
+		if (node instanceof ExpressionNode && !hasTypeError(node)) {
 			evaluateStaticExpresionValue((ExpressionNode) node);
 		}
 	}
@@ -610,6 +610,7 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 			} else if (node.getOperator() == BinaryExpressionNode.BinaryOperator.DIVISION) {
 				if (isValueNumericallyZero(node.getRightValue())) {
 					errorLog.reportError(ReportType.DIVISION_BY_ZERO, node.getRightValue().coverage(), "Division by zero.");
+					markTypeError(node);
 				}
 			}
 		}
