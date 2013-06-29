@@ -1,16 +1,18 @@
 package swp_compiler_ss13.fuc.parser.grammar;
 
 import swp_compiler_ss13.common.lexer.TokenType;
+import swp_compiler_ss13.fuc.parser.parser.IGrammarImpl;
+import swp_compiler_ss13.fuc.parser.parser.ProjectGrammarImpl;
 
 /**
  * This classes define our grammar as specified in the requirements for the
  * separate milestones
  * 
- * @see GrammarSpec
+ * @see AGrammarSpec
  * @author Gero
  */
 public class ProjectGrammar {
-	public static class Complete extends GrammarSpec {
+	public static class Complete extends AGrammarSpec {
 		public static final Terminal lcb = new Terminal("{",
 				TokenType.LEFT_BRACE);
 		public static final Terminal rcb = new Terminal("}",
@@ -188,5 +190,10 @@ public class ProjectGrammar {
 				falsee);
 		public static final Production factor7 = new Production(51, factor,
 				stringg);
+		
+		@Override
+		public IGrammarImpl getGrammarImpl() {
+			return new ProjectGrammarImpl();
+		}
 	}
 }

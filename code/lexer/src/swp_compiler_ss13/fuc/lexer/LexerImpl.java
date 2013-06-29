@@ -249,35 +249,15 @@ public class LexerImpl implements Lexer {
 					int indexOfNextSeparator = matchNextSeparator.start();
 					int endOfNextSeparator = matchNextSeparator.end();
 
-					System.out.println("End: " + endOfNextSeparator
-							+ ", start: " + indexOfNextSeparator);
-
 					/*
 					 * check if the next separator character is to match as
 					 * token or another token is in front of it
 					 */
 					if (indexOfNextSeparator == 0) {
 
-						/*
-						 * check if the separator is a minus, then it could be a
-						 * signed number
-						 */
-						if (String.valueOf(
-								this.actualLineValue
-										.charAt(indexOfNextSeparator)).equals(
-								"-")
-								&& this.actualLineValue.matches("\\-\\d+.*")) {
-
-							System.out.println("continue");
-							continue;
-
-						} else {
-
-							this.actualTokenValue = this.actualLineValue
-									.substring(0, endOfNextSeparator);
-							hasNextSeparator = true;
-
-						}
+						this.actualTokenValue = this.actualLineValue.substring(
+								0, endOfNextSeparator);
+						hasNextSeparator = true;
 
 					} else {
 
@@ -298,7 +278,7 @@ public class LexerImpl implements Lexer {
 										.charAt(indexOfNextSeparator)).equals(
 								"-")
 								&& this.actualLineValue
-										.matches("(-)?\\d+(\\.\\d+)?(e|E)?-.*")) {
+										.matches("\\d+(\\.\\d+)?(e|E)?-.*")) {
 
 							continue;
 
@@ -422,12 +402,12 @@ public class LexerImpl implements Lexer {
 	 */
 	private void matchToken() {
 
-		if (this.actualTokenValue.matches("(-)?[0-9]+((e|E)(-)?[0-9]+)?")) {
+		if (this.actualTokenValue.matches("[0-9]+((e|E)(-)?[0-9]+)?")) {
 
 			this.actualTokenType = TokenType.NUM;
 
 		} else if (this.actualTokenValue
-				.matches("(-)?[0-9]+\\.[0-9]+((e|E)(-)?[0-9]+)?")) {
+				.matches("[0-9]+\\.[0-9]+((e|E)(-)?[0-9]+)?")) {
 
 			this.actualTokenType = TokenType.REAL;
 

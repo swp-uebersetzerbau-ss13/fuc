@@ -1,7 +1,10 @@
 package swp_compiler_ss13.fuc.parser.parser.tables;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import swp_compiler_ss13.fuc.parser.grammar.Terminal;
 import swp_compiler_ss13.fuc.parser.parser.states.LRParserState;
@@ -96,5 +99,20 @@ public class LRActionTable {
 			Terminal curTerminal) {
 		LRTableKey key = new LRTableKey(curState, curTerminal);
 		table.put(key, action);
+	}
+	
+	/**
+	 * @param state
+	 * @return A list of all terminals which this table expects for the given state
+	 */
+	public List<Terminal> getPossibleTerminalsFor(LRParserState state) {
+		List<Terminal> possibleTerminals = new LinkedList<>();
+		for (Entry<LRTableKey, ALRAction> entry : table.entrySet()) {
+			LRTableKey key = entry.getKey();
+			if (key.getState().equals(state)) {
+				possibleTerminals.add((Terminal) key.getSymbol());
+			}
+		}
+		return possibleTerminals;
 	}
 }

@@ -1,6 +1,9 @@
 package swp_compiler_ss13.fuc.semantic_analyser;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+
+import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
@@ -15,14 +18,18 @@ import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ArrayIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
 import swp_compiler_ss13.common.parser.SymbolTable;
+import swp_compiler_ss13.common.report.ReportType;
 import swp_compiler_ss13.common.types.derived.ArrayType;
+import swp_compiler_ss13.common.types.primitive.BooleanType;
 import swp_compiler_ss13.common.types.primitive.LongType;
+import swp_compiler_ss13.fuc.ast.ASTFactory;
 import swp_compiler_ss13.fuc.ast.ASTImpl;
 import swp_compiler_ss13.fuc.ast.ArrayIdentifierNodeImpl;
 import swp_compiler_ss13.fuc.ast.AssignmentNodeImpl;
 import swp_compiler_ss13.fuc.ast.BasicIdentifierNodeImpl;
 import swp_compiler_ss13.fuc.ast.BlockNodeImpl;
 import swp_compiler_ss13.fuc.ast.DeclarationNodeImpl;
+import swp_compiler_ss13.fuc.errorLog.LogEntry;
 import swp_compiler_ss13.fuc.ast.LiteralNodeImpl;
 import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
 import swp_compiler_ss13.fuc.symbolTable.SymbolTableImpl;
@@ -49,6 +56,132 @@ public class ArrayTests {
 	}
 
 	/**
+	 * # error: assignment of bool-array-field to long<br/>
+	 * bool [1] a;<br/>
+	 * long l;<br/>
+	 * <br/>
+	 * l = a[0];
+	 */
+	@Test
+	public void testAssignmentFromArrayTypeError() {
+		// bool [1] a;
+		DeclarationNode declaration_a = new DeclarationNodeImpl();
+		declaration_a.setIdentifier("a");
+		declaration_a.setType(new ArrayType(new BooleanType(), 1));
+
+		// long l;
+		DeclarationNode declaration_l = new DeclarationNodeImpl();
+		declaration_l.setIdentifier("l");
+		declaration_l.setType(new LongType());
+
+		// l = a[0];
+		BasicIdentifierNode identifier_l = new BasicIdentifierNodeImpl();
+		identifier_l.setIdentifier("l");
+		BasicIdentifierNode identifier_a1 = new BasicIdentifierNodeImpl();
+		identifier_a1.setIdentifier("a");
+		ArrayIdentifierNode arrayIdentifier_a1 = new ArrayIdentifierNodeImpl();
+		arrayIdentifier_a1.setIdentifierNode(identifier_a1);
+		LiteralNode value1 = new LiteralNodeImpl();
+		value1.setLiteral("0");
+		value1.setLiteralType(new LongType());
+		arrayIdentifier_a1.setIndexNode(value1);
+		identifier_a1.setParentNode(arrayIdentifier_a1);
+
+		AssignmentNode assignment_l = new AssignmentNodeImpl();
+		assignment_l.setLeftValue(identifier_l);
+		assignment_l.setRightValue(arrayIdentifier_a1);
+		identifier_l.setParentNode(assignment_l);
+		arrayIdentifier_a1.setParentNode(assignment_l);
+
+		// main block
+		SymbolTable symbolTable = new SymbolTableImpl();
+		symbolTable.insert("a", new ArrayType(new BooleanType(), 1));
+		symbolTable.insert("l", new LongType());
+
+		BlockNode blockNode = new BlockNodeImpl();
+		blockNode.addDeclaration(declaration_a);
+		blockNode.addDeclaration(declaration_l);
+		blockNode.addStatement(assignment_l);
+		blockNode.setSymbolTable(symbolTable);
+		declaration_a.setParentNode(blockNode);
+		declaration_l.setParentNode(blockNode);
+		assignment_l.setParentNode(blockNode);
+
+		// analyse AST
+		AST ast = new ASTImpl();
+		ast.setRootNode(blockNode);
+		analyser.analyse(ast);
+
+		System.out.println(log);
+		List<LogEntry> errors = log.getErrors();
+		assertEquals(errors.size(), 1);
+		assertEquals(errors.get(0).getReportType(), ReportType.TYPE_MISMATCH);
+	}
+
+	/**
+	 * # error: assignment of long to bool-array-field<br/>
+	 * bool [1] a;<br/>
+	 * long l;<br/>
+	 * <br/>
+	 * a[0] = l;
+	 */
+	@Test
+	public void testAssignmentToArrayTypeError() {
+		// bool [1] a;
+		DeclarationNode declaration_a = new DeclarationNodeImpl();
+		declaration_a.setIdentifier("a");
+		declaration_a.setType(new ArrayType(new BooleanType(), 1));
+
+		// long l;
+		DeclarationNode declaration_l = new DeclarationNodeImpl();
+		declaration_l.setIdentifier("l");
+		declaration_l.setType(new LongType());
+
+		// a[0] = l;
+		BasicIdentifierNode identifier_l = new BasicIdentifierNodeImpl();
+		identifier_l.setIdentifier("l");
+		BasicIdentifierNode identifier_a = new BasicIdentifierNodeImpl();
+		identifier_a.setIdentifier("a");
+		ArrayIdentifierNode arrayIdentifier_a2 = new ArrayIdentifierNodeImpl();
+		arrayIdentifier_a2.setIdentifierNode(identifier_a);
+		LiteralNode value = new LiteralNodeImpl();
+		value.setLiteral("0");
+		value.setLiteralType(new LongType());
+		arrayIdentifier_a2.setIndexNode(value);
+		identifier_a.setParentNode(arrayIdentifier_a2);
+
+		AssignmentNode assignment_a = new AssignmentNodeImpl();
+		assignment_a.setLeftValue(arrayIdentifier_a2);
+		assignment_a.setRightValue(identifier_l);
+		identifier_l.setParentNode(assignment_a);
+		arrayIdentifier_a2.setParentNode(assignment_a);
+
+		// main block
+		SymbolTable symbolTable = new SymbolTableImpl();
+		symbolTable.insert("a", new ArrayType(new BooleanType(), 1));
+		symbolTable.insert("l", new LongType());
+
+		BlockNode blockNode = new BlockNodeImpl();
+		blockNode.addDeclaration(declaration_a);
+		blockNode.addDeclaration(declaration_l);
+		blockNode.addStatement(assignment_a);
+		blockNode.setSymbolTable(symbolTable);
+		declaration_a.setParentNode(blockNode);
+		declaration_l.setParentNode(blockNode);
+		assignment_a.setParentNode(blockNode);
+
+		// analyse AST
+		AST ast = new ASTImpl();
+		ast.setRootNode(blockNode);
+		analyser.analyse(ast);
+
+		System.out.println(log);
+		List<LogEntry> errors = log.getErrors();
+		assertEquals(errors.size(), 1);
+		assertEquals(errors.get(0).getReportType(), ReportType.TYPE_MISMATCH);
+	}
+
+	/**
 	 * # no errors expected<br/>
 	 * long [1] a;<br/>
 	 * long l;<br/>
@@ -57,8 +190,40 @@ public class ArrayTests {
 	 * a[0] = l;
 	 */
 	@Test
-	@Ignore
 	public void testArrayAssignments() {
+		ASTFactory astFactory = new ASTFactory();
+
+		astFactory.addDeclaration("a", new ArrayType(new LongType(), 1));
+		astFactory.addDeclaration("l", new LongType());
+
+		astFactory.addAssignment(
+				astFactory.newBasicIdentifier("l"),
+				astFactory.newArrayIdentifier(
+						astFactory.newLiteral("0", new LongType()),
+						astFactory.newBasicIdentifier("a")));
+		astFactory.addAssignment(
+				astFactory.newArrayIdentifier(
+						astFactory.newLiteral("0", new LongType()),
+						astFactory.newBasicIdentifier("a")),
+				astFactory.newBasicIdentifier("l"));
+
+		AST ast = astFactory.getAST();
+		analyser.analyse(ast);
+
+		System.out.println(log);
+		assertFalse(log.hasErrors());
+	}
+
+	/**
+	 * # error: array out-of-bounds access<br/>
+	 * long [1] a;<br/>
+	 * long l;<br/>
+	 * <br/>
+	 * l = a[2];
+	 */
+	@Test
+	@Ignore
+	public void testOutOfBoundsError() {
 		// long [1] a;
 		DeclarationNode declaration_a = new DeclarationNodeImpl();
 		declaration_a.setIdentifier("a");
@@ -69,43 +234,24 @@ public class ArrayTests {
 		declaration_l.setIdentifier("l");
 		declaration_l.setType(new LongType());
 
-		// l = a[0];
-		BasicIdentifierNode identifier_l1 = new BasicIdentifierNodeImpl();
-		identifier_l1.setIdentifier("l");
-		BasicIdentifierNode identifier_a1 = new BasicIdentifierNodeImpl();
-		identifier_a1.setIdentifier("b");
-		ArrayIdentifierNode arrayIdentifier_a1 = new ArrayIdentifierNodeImpl();
-		arrayIdentifier_a1.setIdentifierNode(identifier_a1);
-		
+		// l = a[2];
+		BasicIdentifierNode identifier_l = new BasicIdentifierNodeImpl();
+		identifier_l.setIdentifier("l");
+		BasicIdentifierNode identifier_a = new BasicIdentifierNodeImpl();
+		identifier_a.setIdentifier("a");
+		ArrayIdentifierNode arrayIdentifier_a = new ArrayIdentifierNodeImpl();
+		arrayIdentifier_a.setIdentifierNode(identifier_a);
 		LiteralNode value = new LiteralNodeImpl();
-		value.setLiteral("0");
+		value.setLiteral("2");
 		value.setLiteralType(new LongType());
-		arrayIdentifier_a1.setIndexNode(value);
+		arrayIdentifier_a.setIndexNode(value);
+		identifier_a.setParentNode(arrayIdentifier_a);
 
 		AssignmentNode assignment_l = new AssignmentNodeImpl();
-		assignment_l.setLeftValue(identifier_l1);
-		assignment_l.setRightValue(arrayIdentifier_a1);
-		identifier_l1.setParentNode(assignment_l);
-		arrayIdentifier_a1.setParentNode(assignment_l);
-
-		// a[0] = l;
-		BasicIdentifierNode identifier_l2 = new BasicIdentifierNodeImpl();
-		identifier_l2.setIdentifier("l");
-		BasicIdentifierNode identifier_a2 = new BasicIdentifierNodeImpl();
-		identifier_a2.setIdentifier("b");
-		ArrayIdentifierNode arrayIdentifier_a2 = new ArrayIdentifierNodeImpl();
-		arrayIdentifier_a2.setIdentifierNode(identifier_a2);
-		
-		LiteralNode value2 = new LiteralNodeImpl();
-		value2.setLiteral("0");
-		value2.setLiteralType(new LongType());
-		arrayIdentifier_a2.setIndexNode(value2);
-
-		AssignmentNode assignment_a = new AssignmentNodeImpl();
-		assignment_a.setLeftValue(arrayIdentifier_a2);
-		assignment_a.setRightValue(identifier_l2);
-		identifier_l2.setParentNode(assignment_a);
-		arrayIdentifier_a2.setParentNode(assignment_a);
+		assignment_l.setLeftValue(identifier_l);
+		assignment_l.setRightValue(arrayIdentifier_a);
+		identifier_l.setParentNode(assignment_l);
+		arrayIdentifier_a.setParentNode(assignment_l);
 
 		// main block
 		SymbolTable symbolTable = new SymbolTableImpl();
@@ -116,18 +262,137 @@ public class ArrayTests {
 		blockNode.addDeclaration(declaration_a);
 		blockNode.addDeclaration(declaration_l);
 		blockNode.addStatement(assignment_l);
-		blockNode.addStatement(assignment_a);
 		blockNode.setSymbolTable(symbolTable);
 		declaration_a.setParentNode(blockNode);
 		declaration_l.setParentNode(blockNode);
 		assignment_l.setParentNode(blockNode);
-		assignment_a.setParentNode(blockNode);
 
 		// analyse AST
 		AST ast = new ASTImpl();
 		ast.setRootNode(blockNode);
 		analyser.analyse(ast);
 
+		System.out.println(log);
+		List<LogEntry> errors = log.getErrors();
+		assertEquals(errors.size(), 1);
+		// TODO correct reportType
+		assertEquals(errors.get(0).getReportType(), ReportType.UNDEFINED);
+	}
+
+	/**
+	 * # no errors expected<br/>
+	 * long [1][1] a;<br/>
+	 * long l;<br/>
+	 * <br/>
+	 * l = a[0][0];<br/>
+	 * a[0][0] = l;
+	 */
+	@Test
+	public void testMultiDimensionalArray() {
+		ASTFactory astFactory = new ASTFactory();
+
+		astFactory.addDeclaration("a", new ArrayType(new ArrayType(
+				new LongType(), 1), 1));
+		astFactory.addDeclaration("l", new LongType());
+
+		astFactory.addAssignment(astFactory.newBasicIdentifier("l"), astFactory
+				.newArrayIdentifier(astFactory.newLiteral("0", new LongType()),
+						astFactory.newArrayIdentifier(
+								astFactory.newLiteral("0", new LongType()),
+								astFactory.newBasicIdentifier("a"))));
+		astFactory.addAssignment(astFactory.newArrayIdentifier(
+				astFactory.newLiteral("0", new LongType()),
+				astFactory.newArrayIdentifier(
+						astFactory.newLiteral("0", new LongType()),
+						astFactory.newBasicIdentifier("a"))), astFactory
+				.newBasicIdentifier("l"));
+
+		AST ast = astFactory.getAST();
+		analyser.analyse(ast);
+
+		System.out.println(log);
 		assertFalse(log.hasErrors());
+	}
+
+	/**
+	 * # error: assignment of bool-array to long-array<br/>
+	 * long [1] a;<br/>
+	 * bool [1] b;<br/>
+	 * <br/>
+	 * a = b;
+	 */
+	@Test
+	public void testArrayAssignmentError() {
+		ASTFactory astFactory = new ASTFactory();
+
+		astFactory.addDeclaration("a", new ArrayType(new LongType(), 1));
+		astFactory.addDeclaration("b", new ArrayType(new LongType(), 1));
+
+		astFactory.addAssignment(astFactory.newBasicIdentifier("a"),
+				astFactory.newBasicIdentifier("b"));
+
+		AST ast = astFactory.getAST();
+		analyser.analyse(ast);
+
+		System.out.println(log);
+		List<LogEntry> errors = log.getErrors();
+		assertEquals(errors.size(), 1);
+		assertEquals(errors.get(0).getReportType(), ReportType.TYPE_MISMATCH);
+	}
+	
+	/**
+	 * # error: assignment of 1-dimensional-array to 2-dimensional-array and vice versa<br/>
+	 * long [1][1] a;<br/>
+	 * long [1] b;<br/>
+	 * <br/>
+	 * a = b;<br/>
+	 * b = a;
+	 */
+	@Test
+	public void testMultiDimensionalArrayAssignmentError() {
+		ASTFactory astFactory = new ASTFactory();
+
+		astFactory.addDeclaration("a", new ArrayType(new ArrayType(new LongType(), 1),1));
+		astFactory.addDeclaration("b", new ArrayType(new LongType(), 1));
+
+		astFactory.addAssignment(astFactory.newBasicIdentifier("a"),
+				astFactory.newBasicIdentifier("b"));
+		astFactory.addAssignment(astFactory.newBasicIdentifier("b"),
+				astFactory.newBasicIdentifier("a"));
+
+		AST ast = astFactory.getAST();
+		analyser.analyse(ast);
+
+		System.out.println(log);
+		List<LogEntry> errors = log.getErrors();
+		assertEquals(errors.size(), 2);
+		assertEquals(errors.get(0).getReportType(), ReportType.TYPE_MISMATCH);
+		assertEquals(errors.get(1).getReportType(), ReportType.TYPE_MISMATCH);
+	}
+	
+	/**
+	 * # error: assignment of arrays of different lengths <br/>
+	 * long [1] a;<br/>
+	 * long [2] b;<br/>
+	 * <br/>
+	 * a = b;
+	 */
+	@Test
+	public void testDifferentLengthsAssignmentError() {
+		ASTFactory astFactory = new ASTFactory();
+
+		astFactory.addDeclaration("a", new ArrayType(new LongType(), 1));
+		astFactory.addDeclaration("b", new ArrayType(new LongType(), 2));
+
+		astFactory.addAssignment(astFactory.newBasicIdentifier("a"),
+				astFactory.newBasicIdentifier("b"));
+
+		AST ast = astFactory.getAST();
+		analyser.analyse(ast);
+
+		System.out.println(log);
+		List<LogEntry> errors = log.getErrors();
+		assertEquals(errors.size(), 1);
+		assertEquals(errors.get(0).getReportType(), ReportType.TYPE_MISMATCH);
 	}
 }

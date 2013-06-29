@@ -91,9 +91,7 @@ public class M3NewtonTest {
  		factory.addAssignment(factory.newBasicIdentifier("error"), factory.newLiteral("radicand", new DoubleType()));
  		factory.addAssignment(factory.newBasicIdentifier("res"), factory.newLiteral("i hate floating point numbers", new StringType(4L)));
  		 
- 		//while loop 
- 		//need to proof the correctness of the assignments
- 		factory.addWhile(factory.newBasicIdentifier("error >= 0.0001") );
+ 		//while loop
  		
  		factory.addWhile(
         		factory.newBinaryExpression(
