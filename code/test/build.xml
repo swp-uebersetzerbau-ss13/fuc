@@ -100,7 +100,6 @@
         <mkdir dir="../${dist.dir}" />
 		<javac
             encoding="UTF-8"
-            excludes="**/*CrossTest.java"
             debug="true"
             debuglevel="lines,vars,source"
 			srcdir="${test.dir}"
@@ -109,21 +108,6 @@
 			classpathref="classpath-test"
 			includeantruntime="false" />
 	</target>
-
-    <!-- === build cross tests === -->
-    <target name="build-tests-cross" depends="clean, interfaces, dist, build-javabite-jars" description="build the junit cross tests">
-        <mkdir dir="${bin.dir}" />
-        <javac
-                encoding="UTF-8"
-                includes="**/*CrossTest.java"
-                debug="true"
-                debuglevel="lines,vars,source"
-                srcdir="${test.dir}"
-                destdir="${bin.dir}"
-                target="1.7"
-                classpathref="classpath-test"
-                includeantruntime="false" />
-    </target>
 
 	<!-- === run tests === -->
 	<target name="run-tests" depends="build-tests" description="run the junit tests">
@@ -142,7 +126,6 @@
 				<fileset dir="${test.dir}">
 					<include name="**/*Test.java" />
                     <exclude name="**/*RuntimeTest.java" />
-                    <exclude name="**/*CrossTest.java" />
 				</fileset>
 			</batchtest>
             <formatter type="plain" usefile="no" />
@@ -165,42 +148,10 @@
                 <fileset dir="${test.dir}">
                     <include name="**/*Test.java" />
                     <include name="**/*RuntimeTest.java" />
-                    <exclude name="**/*CrossTest.java" />
                 </fileset>
             </batchtest>
             <formatter type="plain" usefile="no" />
         </junit>
-    </target>
-
-
-    <!-- === run cross tests === -->
-    <target name="run-tests-cross" depends="build-tests-cross" description="run the junit cross tests. Needs the javabite lexer jar in code/dist">
-        <mkdir dir="${test.results.dir}" />
-        <junit
-                printsummary="on"
-                fork="true"
-                haltonerror="false"
-                haltonfailure="false" >
-			<jvmarg value="-Dfile.encoding=UTF-8"/>
-            <classpath>
-                <path refid="classpath-test" />
-            </classpath>
-            <batchtest todir="${test.results.dir}">
-                <fileset dir="${test.dir}">
-                    <include name="**/M2CrossTest.java" />
-                </fileset>
-            </batchtest>
-            <formatter type="plain" usefile="no" />
-            <formatter type="xml" usefile="yes"/>
-        </junit>
-
-        <!-- Generate HTML report -->
-        <junitreport todir="${test.results.dir}">
-            <fileset dir="${test.results.dir}">
-                <include name="TEST-*.xml" />
-            </fileset>
-            <report format="noframes" todir="${test.reports.dir}" />
-        </junitreport>
     </target>
 
 </project>
