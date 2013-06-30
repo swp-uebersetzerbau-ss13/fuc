@@ -118,6 +118,7 @@ public class InputTest {
 		this.lexer.setSourceStream(new ByteArrayInputStream(" "
 				.getBytes("UTF-8")));
 		Token token = this.lexer.getNextToken();
+		assertEquals(null, token.getValue());
 		assertEquals(TokenType.EOF, token.getTokenType());
 		assertEquals(1, token.getLine().intValue());
 		assertEquals(1, token.getColumn().intValue());

@@ -24,7 +24,7 @@ import org.junit.Test;
 
 /**
  * @author Tay, Ho Phuong
- * 
+ * TODO: check lines and columns
  */
 public class PrintProgTest {
 	private String prog =
@@ -131,7 +131,7 @@ public class PrintProgTest {
 			new TokenImpl("return", TokenType.RETURN, 26, 1),
 			new TokenImpl(";", TokenType.SEMICOLON, 26, 7),
 			new TokenImpl("# equivalent to return EXIT_SUCCESS", TokenType.COMMENT, 26, 28),
-			new TokenImpl("$", TokenType.EOF, 27, 1)
+			new TokenImpl(null, TokenType.EOF, 26, 0)
 		));
 	}
 

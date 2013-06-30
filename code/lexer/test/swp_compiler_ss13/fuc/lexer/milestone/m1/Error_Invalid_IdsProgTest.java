@@ -41,9 +41,6 @@ public class Error_Invalid_IdsProgTest {
 	private LexerImpl lexer;
 	private ArrayList<Token> list;
 
-	/**
-	 * @throws java.lang.Exception
-	 */
 	@Before
 	public void setUp() throws Exception {
 	    this.stream = new ByteArrayInputStream(prog.getBytes());
@@ -72,7 +69,7 @@ public class Error_Invalid_IdsProgTest {
 			new TokenImpl("long", TokenType.LONG_SYMBOL, 8, 1),
 			new TokenImpl("fü_berlin", TokenType.NOT_A_TOKEN, 8, 6),
 			new TokenImpl(";", TokenType.SEMICOLON, 8, 15),
-			new TokenImpl("$", TokenType.EOF, 9, 1)
+			new TokenImpl(null, TokenType.EOF, 9, 1)
 		));
 	}
 
