@@ -59,27 +59,4 @@ public class M2RuntimeTest extends TestBase {
 		testProgRuntime(ExampleProgs.printProg());
 	}
 
-	/* regression test against return bug */
-	@Test
-	public void testReturnProg() throws Exception {
-		testProgRuntime(ExampleProgs.returnProg());
-	}
-
-	@Test
-	/* Compilation with Semantic Analyser fails */
-	public void testArrayProg1() throws Exception {
-		testProgRuntime(ExampleProgs.arrayProg1());
-	}
-
-	@Test
-	public void testArrayProg2() throws Exception {
-		testProgRuntime(ExampleProgs.arrayProg2());
-	}
-
-	@Test
-	/* Compilation with Semantic Analyser fails */
-	public void testArrayProg3() throws Exception {
-		testProgRuntime(ExampleProgs.arrayProg3());
-	}
-
 }

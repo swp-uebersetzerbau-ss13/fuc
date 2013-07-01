@@ -1,4 +1,4 @@
-package swp_compiler_ss13.fuc.test.m1;
+package swp_compiler_ss13.fuc.test.m3;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -16,7 +16,7 @@ import java.io.IOException;
 
 /**
  * <p>
- * Runtime tests for the M1 examples.
+ * Runtime tests for the M3 examples.
  * </p>
  * <p>
  * The runtime tests check for results (return values and output) of the
@@ -30,9 +30,9 @@ import java.io.IOException;
  *
  * @author Jens V. Fischer
  */
-public class M1RuntimeTest extends TestBase {
+public class M3RuntimeTest extends TestBase {
 
-	private static Logger logger = Logger.getLogger(M1RuntimeTest.class);
+	private static Logger logger = Logger.getLogger(M3RuntimeTest.class);
 
 
 	@BeforeClass
@@ -50,23 +50,18 @@ public class M1RuntimeTest extends TestBase {
 	}
 
 	@Test
-	public void testSimpleAddProg() throws IOException, InterruptedException, BackendException, IntermediateCodeGeneratorException {
-		testProgRuntime(ExampleProgs.simpleAddProg());
+	public void testFibProg() throws IOException, InterruptedException, BackendException, IntermediateCodeGeneratorException {
+		testProgRuntime(ExampleProgs.fibProg());
 	}
 
 	@Test
-	public void testAddProg() throws IOException, InterruptedException, BackendException, IntermediateCodeGeneratorException {
-		testProgRuntime(ExampleProgs.addProg());
+	public void testMatrixMultiplicationProg() throws IOException, InterruptedException, BackendException, IntermediateCodeGeneratorException {
+		testProgRuntime(ExampleProgs.matrixMultiplicationProg());
 	}
 
 	@Test
-	public void testSimpleMulProg() throws IOException, InterruptedException, BackendException, IntermediateCodeGeneratorException {
-		testProgRuntime(ExampleProgs.simpleMulProg());
-	}
-
-	@Test
-	public void testParenthesesProg() throws IOException, InterruptedException, BackendException, IntermediateCodeGeneratorException {
-		testProgRuntime(ExampleProgs.parenthesesProg());
+	public void testNewtonProg() throws IOException, InterruptedException, BackendException, IntermediateCodeGeneratorException {
+		testProgRuntime(ExampleProgs.newtonProg());
 	}
 
 }

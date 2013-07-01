@@ -1,4 +1,4 @@
-package swp_compiler_ss13.fuc.test.m1;
+package swp_compiler_ss13.fuc.test.additional;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -16,7 +16,7 @@ import java.io.IOException;
 
 /**
  * <p>
- * Runtime tests for the M1 examples.
+ * Runtime tests for the additional examples.
  * </p>
  * <p>
  * The runtime tests check for results (return values and output) of the
@@ -30,9 +30,9 @@ import java.io.IOException;
  *
  * @author Jens V. Fischer
  */
-public class M1RuntimeTest extends TestBase {
+public class AdditionalRuntimeTest extends TestBase {
 
-	private static Logger logger = Logger.getLogger(M1RuntimeTest.class);
+	private static Logger logger = Logger.getLogger(AdditionalRuntimeTest.class);
 
 
 	@BeforeClass
@@ -50,23 +50,36 @@ public class M1RuntimeTest extends TestBase {
 	}
 
 	@Test
-	public void testSimpleAddProg() throws IOException, InterruptedException, BackendException, IntermediateCodeGeneratorException {
-		testProgRuntime(ExampleProgs.simpleAddProg());
+	public void testEmptyProg() throws IOException, InterruptedException, BackendException, IntermediateCodeGeneratorException {
+		testProgRuntime(ExampleProgs.emptyProg());
+	}
+
+	/* regression test against return bug */
+	@Test
+	public void testReturnProg() throws Exception {
+		testProgRuntime(ExampleProgs.returnProg());
 	}
 
 	@Test
-	public void testAddProg() throws IOException, InterruptedException, BackendException, IntermediateCodeGeneratorException {
-		testProgRuntime(ExampleProgs.addProg());
+	/* Compilation with Semantic Analyser fails */
+	public void testArrayProg1() throws Exception {
+		testProgRuntime(ExampleProgs.arrayProg1());
 	}
 
 	@Test
-	public void testSimpleMulProg() throws IOException, InterruptedException, BackendException, IntermediateCodeGeneratorException {
-		testProgRuntime(ExampleProgs.simpleMulProg());
+	public void testArrayProg2() throws Exception {
+		testProgRuntime(ExampleProgs.arrayProg2());
 	}
 
 	@Test
-	public void testParenthesesProg() throws IOException, InterruptedException, BackendException, IntermediateCodeGeneratorException {
-		testProgRuntime(ExampleProgs.parenthesesProg());
+	/* Compilation with Semantic Analyser fails */
+	public void testArrayProg3() throws Exception {
+		testProgRuntime(ExampleProgs.arrayProg3());
+	}
+
+	@Test
+	public void testCalendarProg() throws Exception {
+		testProgRuntime(ExampleProgs.calendarProg());
 	}
 
 }
