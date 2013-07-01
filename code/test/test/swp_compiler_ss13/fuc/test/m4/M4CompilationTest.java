@@ -1,8 +1,7 @@
-package swp_compiler_ss13.fuc.test.additional;
+package swp_compiler_ss13.fuc.test.m4;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -16,32 +15,26 @@ import java.io.IOException;
 
 /**
  * <p>
- * Runtime tests for the additional examples.
+ * Compilations tests for the additional examples. Tests, if the examples compile, that
+ * doesn't necessarily imply correct results. See runtime tests for testing
+ * correct exitcodes or output.
  * </p>
  * <p>
- * The runtime tests check for results (return values and output) of the
- * execution of the translated examples. The tests require a LLVM installation
- * for executing the LLVM IR. All tests are ignored if no <code>lli</code> is
- * found.
+ * All example progs can be found in
+ * {@link swp_compiler_ss13.common.test.ExampleProgs}.
  * </p>
- * <p>
- * All example progs can be found in {@link ExampleProgs}.
- * </p>
- *
+ * 
  * @author Jens V. Fischer
  */
-public class AdditionalRuntimeTest extends TestBase {
+public class M4CompilationTest extends TestBase {
 
-	private static Logger logger = Logger.getLogger(AdditionalRuntimeTest.class);
+	private static Logger logger = Logger.getLogger(M4CompilationTest.class);
 
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 
-		Logger.getRootLogger().setLevel(Level.ERROR);
-
-		 /* only run tests if lli (dynamic compiler from LLVM) is found */
-		Assume.assumeTrue(checkForLLIInstallation());
+		Logger.getRootLogger().setLevel(Level.WARN);
 	}
 
 	@Before
@@ -51,35 +44,33 @@ public class AdditionalRuntimeTest extends TestBase {
 
 	@Test
 	public void testEmptyProg() throws IOException, InterruptedException, BackendException, IntermediateCodeGeneratorException {
-		testProgRuntime(ExampleProgs.emptyProg());
+		testProgCompilation(ExampleProgs.emptyProg());
 	}
 
 	/* regression test against return bug */
 	@Test
 	public void testReturnProg() throws Exception {
-		testProgRuntime(ExampleProgs.returnProg());
+		testProgCompilation(ExampleProgs.returnProg());
 	}
 
 	@Test
-	/* Compilation with Semantic Analyser fails */
 	public void testArrayProg1() throws Exception {
-		testProgRuntime(ExampleProgs.arrayProg1());
+		testProgCompilation(ExampleProgs.arrayProg1());
 	}
 
 	@Test
 	public void testArrayProg2() throws Exception {
-		testProgRuntime(ExampleProgs.arrayProg2());
+		testProgCompilation(ExampleProgs.arrayProg2());
 	}
 
 	@Test
-	/* Compilation with Semantic Analyser fails */
 	public void testArrayProg3() throws Exception {
-		testProgRuntime(ExampleProgs.arrayProg3());
+		testProgCompilation(ExampleProgs.arrayProg3());
 	}
 
 	@Test
 	public void testCalendarProg() throws Exception {
-		testProgRuntime(ExampleProgs.calendarProg());
+		testProgCompilation(ExampleProgs.calendarProg());
 	}
 
 }
