@@ -1,6 +1,7 @@
 package swp_compiler_ss13.fuc.semantic_analyser;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import java.util.List;
 
@@ -27,6 +28,7 @@ import swp_compiler_ss13.fuc.ast.ASTImpl;
 import swp_compiler_ss13.fuc.ast.AssignmentNodeImpl;
 import swp_compiler_ss13.fuc.ast.BasicIdentifierNodeImpl;
 import swp_compiler_ss13.fuc.ast.BlockNodeImpl;
+import swp_compiler_ss13.fuc.ast.BranchNodeImpl;
 import swp_compiler_ss13.fuc.ast.DeclarationNodeImpl;
 import swp_compiler_ss13.fuc.ast.LiteralNodeImpl;
 import swp_compiler_ss13.fuc.ast.ReturnNodeImpl;
@@ -285,5 +287,160 @@ public class OtherTests {
 		List<LogEntry> errors = log.getErrors();
 		assertEquals(errors.size(), 1);
 		assertEquals(errors.get(0).getReportType(), ReportType.TYPE_MISMATCH);
+	}
+
+	/**
+	 * <pre>
+	 * # error: statement after break within a loop
+	 * long l;
+	 * while (true){
+	 *     break;
+	 *     l = 0;
+	 * }
+	 * </pre>
+	 */
+	@Test
+	public void testStatementAfterBreakError() {
+		ASTFactory astFactory = new ASTFactory();
+		astFactory.addDeclaration("l", new LongType());
+		astFactory.addWhile(astFactory.newLiteral("true", new BooleanType()));
+		astFactory.addBlock();
+		astFactory.addBreak();
+		astFactory.addAssignment(astFactory.newBasicIdentifier("l"),
+				astFactory.newLiteral("0", new LongType()));
+
+		AST ast = astFactory.getAST();
+		analyser.analyse(ast);
+
+		System.out.println(log);
+		List<LogEntry> errors = log.getErrors();
+		assertEquals(errors.size(), 1);
+		assertEquals(errors.get(0).getReportType(), ReportType.UNDEFINED);
+	}
+
+	/**
+	 * <pre>
+	 * # no errors expected
+	 * long l;
+	 * do{
+	 *     l = 0;
+	 * }while (false);
+	 * </pre>
+	 */
+	@Test
+	public void testAfterDoWhileLoopInitialization() {
+		ASTFactory astFactory = new ASTFactory();
+		astFactory.addDeclaration("l", new LongType());
+		astFactory
+				.addDoWhile(astFactory.newLiteral("false", new BooleanType()));
+		astFactory.addAssignment(astFactory.newBasicIdentifier("l"),
+				astFactory.newLiteral("0", new LongType()));
+
+		AST ast = astFactory.getAST();
+		analyser.analyse(ast);
+
+		System.out.println(log);
+		assertFalse(log.hasWarnings());
+	}
+
+	/**
+	 * <pre>
+	 * # error: statement after return
+	 * long l;
+	 * do{
+	 *     return l;
+	 * }while (false);
+	 * l = 0;
+	 * </pre>
+	 */
+	@Test
+	public void testStatementAfterDoWhileLoopWithReturnError() {
+		ASTFactory astFactory = new ASTFactory();
+		astFactory.addDeclaration("l", new LongType());
+		astFactory
+				.addDoWhile(astFactory.newLiteral("false", new BooleanType()));
+		astFactory.addReturn(astFactory.newBasicIdentifier("l"));
+
+		astFactory.goToParent();
+		astFactory.addAssignment(astFactory.newBasicIdentifier("l"),
+				astFactory.newLiteral("0", new LongType()));
+
+		AST ast = astFactory.getAST();
+		analyser.analyse(ast);
+
+		System.out.println(log);
+		List<LogEntry> errors = log.getErrors();
+		assertEquals(errors.size(), 1);
+		assertEquals(errors.get(0).getReportType(), ReportType.UNDEFINED);
+	}
+
+	/**
+	 * <pre>
+	 * # error: statement after return
+	 * long l;
+	 * if (true)
+	 *     return;
+	 * else
+	 *     return;
+	 * l = 0;
+	 * </pre>
+	 */
+	@Test
+	public void testStatementAfterBranchesWithReturnsError() {
+		// long l;
+		DeclarationNode declaration_l = new DeclarationNodeImpl();
+		declaration_l.setIdentifier("l");
+		declaration_l.setType(new LongType());
+
+		// if (true)...;
+		BranchNode branch = new BranchNodeImpl();
+		LiteralNode literal_true = new LiteralNodeImpl();
+		literal_true.setLiteral("true");
+		literal_true.setLiteralType(new BooleanType());
+		branch.setCondition(literal_true);
+		literal_true.setParentNode(branch);
+		ReturnNode return_1 = new ReturnNodeImpl();
+		ReturnNode return_2 = new ReturnNodeImpl();
+		branch.setStatementNodeOnTrue(return_1);
+		return_1.setParentNode(branch);
+		branch.setStatementNodeOnFalse(return_2);
+		return_2.setParentNode(branch);
+
+		// l = 0;
+		BasicIdentifierNode identifier_l = new BasicIdentifierNodeImpl();
+		identifier_l.setIdentifier("l");
+		LiteralNode literal_0 = new LiteralNodeImpl();
+		literal_0.setLiteral("0");
+		literal_0.setLiteralType(new LongType());
+
+		AssignmentNode assignment_l = new AssignmentNodeImpl();
+		assignment_l.setLeftValue(identifier_l);
+		assignment_l.setRightValue(literal_0);
+		identifier_l.setParentNode(assignment_l);
+		literal_0.setParentNode(assignment_l);
+
+		// main block
+		SymbolTable symbolTable = new SymbolTableImpl();
+		symbolTable.insert("l", new LongType());
+
+		BlockNode blockNode = new BlockNodeImpl();
+		blockNode.addDeclaration(declaration_l);
+		blockNode.addStatement(branch);
+		blockNode.addStatement(assignment_l);
+		blockNode.setSymbolTable(symbolTable);
+		declaration_l.setParentNode(blockNode);
+		branch.setParentNode(blockNode);
+		assignment_l.setParentNode(blockNode);
+
+		// analyse AST
+		AST ast = new ASTImpl();
+		ast.setRootNode(blockNode);
+
+		analyser.analyse(ast);
+
+		System.out.println(log);
+		List<LogEntry> errors = log.getErrors();
+		assertEquals(errors.size(), 1);
+		assertEquals(errors.get(0).getReportType(), ReportType.UNDEFINED);
 	}
 }
