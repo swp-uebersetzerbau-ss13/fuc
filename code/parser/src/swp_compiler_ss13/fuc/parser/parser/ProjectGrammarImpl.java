@@ -496,7 +496,7 @@ public class ProjectGrammarImpl implements IGrammarImpl {
 					return identifierNode;
 				}
 			};
-		case "loc -> loc.id":
+		case "loc -> loc . id":
 			return new ReduceAction() {
 				@Override
 				public Object create(Object... objs) throws ReduceException  {
@@ -1073,6 +1073,17 @@ public class ProjectGrammarImpl implements IGrammarImpl {
 		return null;
 	}
 	
+	/**
+	 * Inserts a fresh token into the token stream just before the one that was
+	 * currently read
+	 * 
+	 * @param curToken The currently read {@link Token}
+	 * @param lastToken The {@link Token} that was read before
+	 * @param newTerminal The {@link Terminal} for the fresh {@link Token}
+	 * @param newTokenVal The value for the fresh {@link Token}
+	 * @param newTokenType The {@link TokenType} for the fresh {@link Token}
+	 * @return The necessary changes to the parsers state
+	 */
 	private RecoveryResult insertTerminal(TokenEx curToken, TokenEx lastToken,
 			Terminal newTerminal, String newTokenVal, TokenType newTokenType) {
 		log.debug("------ starting error recovery ------");
@@ -1091,10 +1102,22 @@ public class ProjectGrammarImpl implements IGrammarImpl {
 		return new RecoveryResult(newToken, curToken);	// Re-insert curToken into token stream
 	}
 	
+	/**
+	 * @param valueStack The parsers current value stack
+	 * @param types The type-sequence which the method should search for
+	 * @return Whether there are one or more occurrences of the given
+	 * 		types-sequence
+	 */
 	private static boolean containsTokensOfType(Stack<Object> valueStack, TokenType... types) {
 		return countTokensOfType(valueStack, types) > 0;
 	}
 	
+	/**
+	 * @param valueStack The parsers current value stack
+	 * @param types The type-sequence which the method should search for
+	 * @return How much occurrences of the given types-sequence there are on
+	 * 		the stack
+	 */
 	private static int countTokensOfType(Stack<Object> valueStack, TokenType... types) {
 		int occurrences = 0;
 		Iterator<Object> it = valueStack.iterator();
@@ -1106,6 +1129,12 @@ public class ProjectGrammarImpl implements IGrammarImpl {
 		return occurrences;
 	}
 	
+	/**
+	 * @param objs The value stacks iterator
+	 * @param types The type-sequence the method should loop for
+	 * @return Whether the given types-sequence could be matched against the
+	 * 		value stack
+	 */
 	private static boolean match(Iterator<Object> objs, Iterator<TokenType> types) {
 		while (types.hasNext() && objs.hasNext()) {
 			Object obj = objs.next();
