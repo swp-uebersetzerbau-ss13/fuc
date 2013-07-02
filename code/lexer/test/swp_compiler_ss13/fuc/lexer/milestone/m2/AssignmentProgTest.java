@@ -87,7 +87,7 @@ public class AssignmentProgTest {
 			new TokenImpl("return", TokenType.RETURN, 14, 1),
 			new TokenImpl("c", TokenType.ID, 14, 8),
 			new TokenImpl(";", TokenType.SEMICOLON, 14, 9),
-			new TokenImpl("$", TokenType.EOF, 15, 1)
+			new TokenImpl(null, TokenType.EOF, 14, 10)
 		));
 	}
 

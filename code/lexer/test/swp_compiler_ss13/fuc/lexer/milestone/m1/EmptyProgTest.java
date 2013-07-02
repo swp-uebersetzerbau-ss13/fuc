@@ -33,16 +33,13 @@ public class EmptyProgTest {
 	private LexerImpl lexer;
 	private ArrayList<Token> list;
 
-	/**
-	 * @throws java.lang.Exception
-	 */
 	@Before
 	public void setUp() throws Exception {
 		this.stream = new ByteArrayInputStream(prog.getBytes());
 		this.lexer = new swp_compiler_ss13.fuc.lexer.LexerImpl();
 		this.lexer.setSourceStream(this.stream);
 		this.list = new ArrayList<Token>(Arrays.asList(
-			new TokenImpl("$", TokenType.EOF, 1, 1)
+			new TokenImpl(null, TokenType.EOF, 1, 1)
 		));
 	}
 

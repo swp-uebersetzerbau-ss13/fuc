@@ -7,11 +7,14 @@ import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import swp_compiler_ss13.common.ast.AST;
+import swp_compiler_ss13.common.ast.nodes.IdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.binary.ArithmeticBinaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.binary.AssignmentNode;
+import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode.BinaryOperator;
 import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.LiteralNode;
@@ -24,6 +27,7 @@ import swp_compiler_ss13.common.report.ReportType;
 import swp_compiler_ss13.common.types.primitive.BooleanType;
 import swp_compiler_ss13.common.types.primitive.DoubleType;
 import swp_compiler_ss13.common.types.primitive.LongType;
+import swp_compiler_ss13.fuc.ast.ASTFactory;
 import swp_compiler_ss13.fuc.ast.ASTImpl;
 import swp_compiler_ss13.fuc.ast.ArithmeticBinaryExpressionNodeImpl;
 import swp_compiler_ss13.fuc.ast.ArithmeticUnaryExpressionNodeImpl;
@@ -255,5 +259,80 @@ public class ArithmeticExpressionTests {
 		analyser.analyse(ast);
 
 		assertFalse(log.hasErrors());
+	}
+	
+	/**
+	 * # error: division by zero<br/>
+	 * long l;<br/>
+	 * <br/>
+	 * l = 2 / 0;
+	 */
+	@Test
+	public void testDivisionByZeroSimple() {
+		ASTFactory astFactory = new ASTFactory();
+		astFactory.addDeclaration("l", new LongType());
+		IdentifierNode identifier_l = astFactory.newBasicIdentifier("l");
+		LiteralNode literal_2 = astFactory.newLiteral("2", new LongType());
+		LiteralNode literal_0 = astFactory.newLiteral("0", new LongType());
+		BinaryExpressionNode div = astFactory.newBinaryExpression(BinaryOperator.DIVISION, literal_2, literal_0);
+		astFactory.addAssignment(identifier_l, div);
+		
+		AST ast = astFactory.getAST();
+		analyser.analyse(ast);
+
+		List<LogEntry> errors = log.getErrors();
+		assertEquals(errors.size(), 1);
+		assertEquals(errors.get(0).getReportType(), ReportType.DIVISION_BY_ZERO);
+	}
+	
+	/**
+	 * # error: division by zero<br/>
+	 * long l;<br/>
+	 * <br/>
+	 * l = 2 / l;
+	 */
+	@Test
+	@Ignore
+	public void testDivisionByZeroImplicit() {
+		ASTFactory astFactory = new ASTFactory();
+		astFactory.addDeclaration("l", new LongType());
+		IdentifierNode identifier_l = astFactory.newBasicIdentifier("l");
+		IdentifierNode identifier_l2 = astFactory.newBasicIdentifier("l");
+		LiteralNode literal_0 = astFactory.newLiteral("0", new LongType());
+		BinaryExpressionNode div = astFactory.newBinaryExpression(BinaryOperator.DIVISION, identifier_l2, literal_0);
+		astFactory.addAssignment(identifier_l, div);
+		
+		AST ast = astFactory.getAST();
+		analyser.analyse(ast);
+
+		List<LogEntry> errors = log.getErrors();
+		assertEquals(errors.size(), 1);
+		assertEquals(errors.get(0).getReportType(), ReportType.DIVISION_BY_ZERO);
+	}
+	
+	/**
+	 * # error: division by zero<br/>
+	 * long l;<br/>
+	 * <br/>
+	 * l = 2 / (1 - 1);
+	 */
+	@Test
+	public void testDivisionByZeroComplex() {
+		ASTFactory astFactory = new ASTFactory();
+		astFactory.addDeclaration("l", new LongType());
+		IdentifierNode identifier_l = astFactory.newBasicIdentifier("l");
+		LiteralNode literal_2 = astFactory.newLiteral("2", new LongType());
+		LiteralNode literal_1_left = astFactory.newLiteral("1", new LongType());
+		LiteralNode literal_1_right = astFactory.newLiteral("1", new LongType());
+		BinaryExpressionNode sub = astFactory.newBinaryExpression(BinaryOperator.SUBSTRACTION, literal_1_left, literal_1_right);
+		BinaryExpressionNode div = astFactory.newBinaryExpression(BinaryOperator.DIVISION, literal_2, sub);
+		astFactory.addAssignment(identifier_l, div);
+		
+		AST ast = astFactory.getAST();
+		analyser.analyse(ast);
+
+		List<LogEntry> errors = log.getErrors();
+		assertEquals(errors.size(), 1);
+		assertEquals(errors.get(0).getReportType(), ReportType.DIVISION_BY_ZERO);
 	}
 }

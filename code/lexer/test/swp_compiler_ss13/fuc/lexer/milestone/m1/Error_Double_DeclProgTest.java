@@ -35,9 +35,6 @@ public class Error_Double_DeclProgTest {
 	private LexerImpl lexer;
 	private ArrayList<Token> list;
 
-	/**
-	 * @throws java.lang.Exception
-	 */
 	@Before
 	public void setUp() throws Exception {
 	    this.stream = new ByteArrayInputStream(prog.getBytes());
@@ -51,7 +48,7 @@ public class Error_Double_DeclProgTest {
 			new TokenImpl("long", TokenType.LONG_SYMBOL, 1, 1),
 			new TokenImpl("i", TokenType.ID, 1, 1),
 			new TokenImpl(";", TokenType.SEMICOLON, 1, 1),
-			new TokenImpl("$", TokenType.EOF, 1, 1)
+			new TokenImpl(null, TokenType.EOF, 1, 1)
 		));
 	}
 

@@ -98,15 +98,15 @@ public class AdditionalSymbolTest {
 		assertEquals(1, token.getColumn().intValue());
 
 		token = this.lexer.getNextToken();
-		assertEquals("$", token.getValue());
+		assertEquals(null, token.getValue());
 		assertEquals(TokenType.EOF, token.getTokenType());
-		assertEquals(4, token.getLine().intValue());
-		assertEquals(1, token.getColumn().intValue());
+		assertEquals(3, token.getLine().intValue());
+		assertEquals(19, token.getColumn().intValue());
 
 		token = this.lexer.getNextToken();
-		assertEquals("$", token.getValue());
+		assertEquals(null, token.getValue());
 		assertEquals(TokenType.EOF, token.getTokenType());
-		assertEquals(4, token.getLine().intValue());
-		assertEquals(1, token.getColumn().intValue());
+		assertEquals(3, token.getLine().intValue());
+		assertEquals(19, token.getColumn().intValue());
 	}
 }

@@ -5,8 +5,11 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import junit.extensions.PA;
 
@@ -41,11 +44,26 @@ import swp_compiler_ss13.common.types.Type;
 import swp_compiler_ss13.common.types.derived.ArrayType;
 import swp_compiler_ss13.common.types.derived.Member;
 import swp_compiler_ss13.common.types.derived.StructType;
-import swp_compiler_ss13.fuc.parser.errorHandling.ParserASTXMLVisualization;
+import swp_compiler_ss13.fuc.ast.ASTImpl;
 
 public class ASTComparator {
 	
-	private static final Logger log = Logger.getLogger(ASTComparator.class);
+	private final Logger log = Logger.getLogger(ASTComparator.class);
+	
+	private final Map<ASTNode, Integer> expectedIds = new HashMap<>();
+	private final Map<ASTNode, Integer> actualIds = new HashMap<>();
+	
+	private final Set<SymbolTable> alreadyCheckTables = new HashSet<>();
+	
+	private final AST expectedAst;
+	private final AST actualAst;
+	
+	
+	private ASTComparator(AST expectedAst, AST actualAst) {
+		this.expectedAst = expectedAst;
+		this.actualAst = actualAst;
+	}
+
 	
 	/**
 	 * Compares the two given {@link AST}s and assert their equality
@@ -54,21 +72,35 @@ public class ASTComparator {
 	 * @param actual
 	 */
 	public static void compareAST(AST expected, AST actual) {
+		ASTComparator comparator = new ASTComparator(expected, actual);
+		comparator.doCompareAST(expected, actual);
+	}
+
+	private void doCompareAST(AST expected, AST actual) {
 		assertNotNull(actual);
-		
-		ParserASTXMLVisualization vis = new ParserASTXMLVisualization();
-		System.out.println(vis.visualizeAST(expected));
-		System.out.println(vis.visualizeAST(actual));
 		
 		// Iterate both trees
 		Iterator<ASTNode> actualIt = actual.getDFSLTRIterator();
 		Iterator<ASTNode> expectedIt = expected.getDFSLTRIterator();
+		int iterationId = 0;
 		while (expectedIt.hasNext() && actualIt.hasNext()) {
 			ASTNode expectedNode = expectedIt.next();
 			ASTNode actualNode = actualIt.next();
 			
-			log.debug("Expected: " + expectedNode.toString() + " | Actual: " + actualNode.toString());
-			compare(expectedNode, actualNode);
+			try {
+				compare(expectedNode, actualNode);
+				
+				// If they are equal: Associate them with their iteration-id
+				expectedIds.put(expectedNode, iterationId);
+				actualIds.put(actualNode, iterationId);
+				iterationId++;
+			} catch (AssertionError err) {
+				StringBuilder b = new StringBuilder();
+				ASTImpl.toString(b, "expected: ", expectedNode);
+				ASTImpl.toString(b, "actual:   ", actualNode);
+				log.error(b.toString());
+				throw err;	// rethrow
+			}
 		}
 		
 		if (actualIt.hasNext() != expectedIt.hasNext()) {
@@ -78,7 +110,7 @@ public class ASTComparator {
 		// Success!
 	}
 	
-	private static void compare(ASTNode expected, ASTNode actual) {
+	private void compare(ASTNode expected, ASTNode actual) {
 		if (expected == null) {
 			if (actual == null) {
 				return;	// True
@@ -92,9 +124,12 @@ public class ASTComparator {
 				// Check...
 			}
 		}
-		
+
+		// Check type and parents
 		assertEquals(expected.getNodeType(), actual.getNodeType());
+		compareParentNodes(expected, expected.getParentNode(), actual, actual.getParentNode());
 		
+		// Check node itself
 		switch (expected.getNodeType()) {
 			case BasicIdentifierNode:
 				compare((BasicIdentifierNode) expected, (BasicIdentifierNode) actual);
@@ -155,12 +190,39 @@ public class ASTComparator {
 		}
 	}
 	
-	private static void compare(DeclarationNode expected, DeclarationNode actual) {
+	private void compareParentNodes(ASTNode expected, ASTNode expParent, ASTNode actual, ASTNode actParent) {
+		if (expParent == null) {
+			if (actParent == null) {
+				// Verify that these are root-nodes!
+				if (expected.equals(expectedAst.getRootNode()) && actual.equals(actualAst.getRootNode())) {
+					return;	// Ok, they are.
+				} else {
+					fail("Nodes with <null> parents are not root nodes??");	// They are not??
+				}
+			} else {
+				fail("Expected no parent node but found one!");
+			}
+		} else {
+			if (actParent == null) {
+				fail("Expected a parent node but found none!");
+			} else {
+				// Really the "same" parent?
+				Integer expParentId = expectedIds.get(expParent);
+				Integer actParentId = actualIds.get(actParent);
+				if (expParentId == null || actParentId == null || !expParentId.equals(actParentId)) {
+					fail("Parent nodes are not the same!!!");
+				}
+				return;	// True!
+			}
+		}
+	}
+	
+	private void compare(DeclarationNode expected, DeclarationNode actual) {
 		assertEquals(expected.getIdentifier(), actual.getIdentifier());
 		compare(expected.getType(), actual.getType());
 	}
 	
-	private static void compare(Type expected, Type actual) {
+	private void compare(Type expected, Type actual) {
 		switch (expected.getKind()) {
 		case ARRAY:
 			compare((ArrayType) expected, (ArrayType) actual);
@@ -181,11 +243,11 @@ public class ASTComparator {
 		}
 	}
 	
-	private static void compareBasicType(Type expected, Type actual) {
+	private void compareBasicType(Type expected, Type actual) {
 		compareBasicType(expected, actual, true);
 	}
 	
-	private static void compareBasicType(Type expected, Type actual, boolean withWidth) {
+	private void compareBasicType(Type expected, Type actual, boolean withWidth) {
 		assertEquals(expected.getKind(), actual.getKind());
 		assertEquals(expected.getTypeName(), actual.getTypeName());
 		if (withWidth) {
@@ -193,7 +255,7 @@ public class ASTComparator {
 		}
 	}
 
-	private static void compare(StructType expected, StructType actual) {
+	private void compare(StructType expected, StructType actual) {
 		compareBasicType(expected, actual);
 		assertEquals(expected.members().length, actual.members().length);
 		
@@ -204,25 +266,24 @@ public class ASTComparator {
 		}
 	}
 	
-	private static void compare(Member expected, Member actual) {
+	private void compare(Member expected, Member actual) {
 		assertEquals(expected.getName(), actual.getName());
 		compare(expected.getType(), actual.getType());
 	}
 
-	private static void compare(ArrayType expected, ArrayType actual) {
+	private void compare(ArrayType expected, ArrayType actual) {
 		compareBasicType(expected, actual);
 		compare(expected.getInnerType(), actual.getInnerType());
 		assertEquals(expected.getLength(), actual.getLength());
 		assertEquals(expected.getTypeName(), actual.getTypeName());
 	}
 
-	private static void compare(BlockNode expected, BlockNode actual) {
+	private void compare(BlockNode expected, BlockNode actual) {
 		compare(expected.getSymbolTable(), actual.getSymbolTable());
-		// TODO Compare coverage...?
 	}
 
 	@SuppressWarnings("unchecked")
-	private static void compare(SymbolTable expected, SymbolTable actual) {
+	private void compare(SymbolTable expected, SymbolTable actual) {
 		if (expected == null) {
 			if (actual == null) {
 				return;	// True
@@ -235,6 +296,11 @@ public class ASTComparator {
 			} else {
 				// Check...
 			}
+		}
+		
+		// Already checked?
+		if (alreadyCheckTables.contains(actual)) {
+			return;	// Already did this..
 		}
 		
 		HashMap<String, Type> expectedSymbolMap = (HashMap<String, Type>) PA.getValue(expected, "symbolMap");
@@ -280,7 +346,6 @@ public class ASTComparator {
 		}
 		
 		// Check parent and root
-		// TODO Whole SymbolTable hierarchy gets checked everytime a BlockNode occurs...
 		compare(expected.getParentSymbolTable(), actual.getParentSymbolTable());
 		if (expected.getRootSymbolTable() == expected) {
 			if (actual.getRootSymbolTable() == actual) {
@@ -290,68 +355,72 @@ public class ASTComparator {
 			}
 		}
 		compare(expected.getRootSymbolTable(), actual.getRootSymbolTable());
+		
+		// We're done, register this as "already checked"!
+		alreadyCheckTables.add(actual);
 	}
 	
-	private static void compare(Liveliness expected, Liveliness actual) {
+	private void compare(Liveliness expected, Liveliness actual) {
 		assertEquals(expected.isAlive(), actual.isAlive());
 		assertEquals(expected.getNextUse(), actual.getNextUse());
 	}
 	
-	private static void compare(BranchNode expected, BranchNode actual) {
-		compare(expected.getCondition(), actual.getCondition());
-		compare(expected.getStatementNodeOnFalse(), actual.getStatementNodeOnFalse());
-		compare(expected.getStatementNodeOnTrue(), actual.getStatementNodeOnTrue());
+	private void compare(BranchNode expected, BranchNode actual) {
+		// Nothing to do here
+//		compare(expected.getCondition(), actual.getCondition());
+//		compare(expected.getStatementNodeOnFalse(), actual.getStatementNodeOnFalse());
+//		compare(expected.getStatementNodeOnTrue(), actual.getStatementNodeOnTrue());
 	}
 	
-	private static void compare(BreakNode expected, BreakNode actual) {
+	private void compare(BreakNode expected, BreakNode actual) {
 		// Intentionally left blank
 	}
 	
-	private static void compare(AssignmentNode expected, AssignmentNode actual) {
-		compare(expected.getLeftValue(), actual.getLeftValue());
-		compare(expected.getRightValue(), actual.getRightValue());
+	private void compare(AssignmentNode expected, AssignmentNode actual) {
+//		compare(expected.getLeftValue(), actual.getLeftValue());
+//		compare(expected.getRightValue(), actual.getRightValue());
 	}
 	
-	private static void compare(BinaryExpressionNode expected, BinaryExpressionNode actual) {
-		compare(expected.getLeftValue(), expected.getLeftValue());
-		compare(expected.getRightValue(), expected.getRightValue());
+	private void compare(BinaryExpressionNode expected, BinaryExpressionNode actual) {
+//		compare(expected.getLeftValue(), actual.getLeftValue());
+//		compare(expected.getRightValue(), actual.getRightValue());
 		assertEquals(expected.getOperator(), actual.getOperator());
 	}
 	
-	private static void compare(ArrayIdentifierNode expected, ArrayIdentifierNode actual) {
-		compare(expected.getIdentifierNode(), actual.getIdentifierNode());
-		compare(expected.getIndexNode(), actual.getIndexNode());
+	private void compare(ArrayIdentifierNode expected, ArrayIdentifierNode actual) {
+//		compare(expected.getIdentifierNode(), actual.getIdentifierNode());
+//		compare(expected.getIndexNode(), actual.getIndexNode());
 	}
 	
-	private static void compare(BasicIdentifierNode expected, BasicIdentifierNode actual) {
+	private void compare(BasicIdentifierNode expected, BasicIdentifierNode actual) {
 		assertEquals(expected.getIdentifier(), actual.getIdentifier());
 	}
 	
-	private static void compare(StructIdentifierNode expected, StructIdentifierNode actual) {
-		compare(expected.getIdentifierNode(), actual.getIdentifierNode());
+	private void compare(StructIdentifierNode expected, StructIdentifierNode actual) {
+//		compare(expected.getIdentifierNode(), actual.getIdentifierNode());
 		assertEquals(expected.getFieldName(), actual.getFieldName());
 	}
 	
-	private static void compare(LiteralNode expected, LiteralNode actual) {
+	private void compare(LiteralNode expected, LiteralNode actual) {
 		assertEquals(expected.getLiteral(), actual.getLiteral());
 		compare(expected.getLiteralType(), actual.getLiteralType());
 	}
 	
-	private static void compare(UnaryExpressionNode expected, UnaryExpressionNode actual) {
+	private void compare(UnaryExpressionNode expected, UnaryExpressionNode actual) {
 		assertEquals(expected.getOperator(), actual.getOperator());
-		compare(expected.getRightValue(), actual.getRightValue());
+//		compare(expected.getRightValue(), actual.getRightValue());
 	}
 	
-	private static void compare(LoopNode expected, LoopNode actual) {
-		compare(expected.getCondition(), actual.getCondition());
-		compare(expected.getLoopBody(), actual.getLoopBody());
+	private void compare(LoopNode expected, LoopNode actual) {
+//		compare(expected.getCondition(), actual.getCondition());
+//		compare(expected.getLoopBody(), actual.getLoopBody());
 	}
 	
-	private static void compare(PrintNode expected, PrintNode actual) {
-		compare(expected.getRightValue(), actual.getRightValue());
+	private void compare(PrintNode expected, PrintNode actual) {
+//		compare(expected.getRightValue(), actual.getRightValue());
 	}
 	
-	private static void compare(ReturnNode expected, ReturnNode actual) {
-		compare(expected.getRightValue(), actual.getRightValue());
+	private void compare(ReturnNode expected, ReturnNode actual) {
+//		compare(expected.getRightValue(), actual.getRightValue());
 	}
 }

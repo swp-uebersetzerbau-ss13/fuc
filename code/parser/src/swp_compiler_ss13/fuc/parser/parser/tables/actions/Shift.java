@@ -29,8 +29,34 @@ public class Shift extends ALRAction {
 	// return item;
 	// }
 
-	// @Override
-	// public String toString() {
-	// return "[shift " + item.toString() + "]";
-	// }
+	@Override
+	public String toString() {
+		return "[shift: to " + newState + "]";
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((newState == null) ? 0 : newState.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Shift other = (Shift) obj;
+		if (newState == null) {
+			if (other.newState != null)
+				return false;
+		} else if (!newState.equals(other.newState))
+			return false;
+		return true;
+	}
 }

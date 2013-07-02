@@ -9,6 +9,7 @@ import swp_compiler_ss13.fuc.parser.generator.GeneratorException;
 import swp_compiler_ss13.fuc.parser.generator.LR1Generator;
 import swp_compiler_ss13.fuc.parser.generator.items.LR1Item;
 import swp_compiler_ss13.fuc.parser.generator.states.LR1State;
+import swp_compiler_ss13.fuc.parser.grammar.AGrammarSpec;
 import swp_compiler_ss13.fuc.parser.grammar.Grammar;
 import swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar;
 import swp_compiler_ss13.fuc.parser.parser.LRParser;
@@ -44,7 +45,8 @@ public class ParserImpl implements Parser {
 		}
 		
 		// Generate parsing table
-		Grammar grammar = new ProjectGrammar.Complete().getGrammar();
+		AGrammarSpec completeSpec = new ProjectGrammar.Complete();
+		Grammar grammar = completeSpec.getGrammar();
 		ALRGenerator<LR1Item, LR1State> generator = null;
 		try {
 			generator = new LR1Generator(grammar);
@@ -59,7 +61,7 @@ public class ParserImpl implements Parser {
 		AST ast = null;
 		
 		try	{
-			ast = lrParser.parse(lexWrapper, this.reportLog, table);
+			ast = lrParser.parse(lexWrapper, this.reportLog, table, completeSpec.getGrammarImpl());
 		} catch (ParserException e) {
 			return null;
 		}

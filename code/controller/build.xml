@@ -84,6 +84,7 @@
 			showoutput="false"
 			haltonerror="true"
 			haltonfailure="true" >
+			<jvmarg value="-Dfile.encoding=UTF-8"/>
 			<classpath>
 				<path refid="classpath-test" />
 			</classpath>
