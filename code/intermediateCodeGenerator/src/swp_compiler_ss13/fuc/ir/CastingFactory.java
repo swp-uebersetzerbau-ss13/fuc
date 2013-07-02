@@ -55,13 +55,11 @@ public class CastingFactory {
 	 */
 	public static boolean isCastNeeded(Type type1, Type type2)
 			throws IntermediateCodeGeneratorException {
-		if (!CastingFactory.isPrimitive(type1) || !CastingFactory.isPrimitive(type2)) {
-			CastingFactory.logger.fatal("CastingFactory only works for simple types.");
-			throw new IntermediateCodeGeneratorException(
-					"CastingFactory only works for simple types.");
-		}
 
-		return type1.getKind() != type2.getKind();
+		if (isPrimitive(type1) && isPrimitive(type2)) {
+			return type1.getKind() != type2.getKind();
+		}
+		return !type1.toString().equals(type2.toString());
 	}
 
 	/**
@@ -142,14 +140,14 @@ public class CastingFactory {
 	public static Quadruple castToString(Type type, String value, String tmp)
 			throws IntermediateCodeGeneratorException {
 		switch (type.getKind()) {
-			case BOOLEAN:
-				return new QuadrupleImpl(Operator.BOOLEAN_TO_STRING, value, tmp);
-			case DOUBLE:
-				return new QuadrupleImpl(Operator.DOUBLE_TO_STRING, value, tmp);
-			case LONG:
-				return new QuadrupleImpl(Operator.LONG_TO_STRING, value, tmp);
-			default:
-				break;
+		case BOOLEAN:
+			return new QuadrupleImpl(Operator.BOOLEAN_TO_STRING, value, tmp);
+		case DOUBLE:
+			return new QuadrupleImpl(Operator.DOUBLE_TO_STRING, value, tmp);
+		case LONG:
+			return new QuadrupleImpl(Operator.LONG_TO_STRING, value, tmp);
+		default:
+			break;
 		}
 		String error = "can not cast from " + type.toString() + " to string";
 		CastingFactory.logger.fatal(error);
