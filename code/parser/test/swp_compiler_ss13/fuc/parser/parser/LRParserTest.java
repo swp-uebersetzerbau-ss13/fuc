@@ -82,7 +82,7 @@ public class LRParserTest {
 
 		Token l = new TokenImpl("l", TokenType.ID, 2, 1);
 		Token returnn = new TokenImpl("return", TokenType.RETURN, 3, 1);
-		Token eof = new TokenImpl("$", TokenType.EOF, 4, 1);
+		Token eof = new TokenImpl(null, TokenType.EOF, 3, 9);
 		LogEntry entry0 = new LogEntry(Type.WARNNING, ReportType.UNDEFINED, Arrays.<Token>asList(l), "");
 		LogEntry entry1 = new LogEntry(Type.WARNNING, ReportType.UNDEFINED, Arrays.<Token>asList(returnn), "");
 		LogEntry entry2 = new LogEntry(Type.WARNNING, ReportType.UNDEFINED, Arrays.<Token>asList(eof), "");
@@ -142,7 +142,7 @@ public class LRParserTest {
 		ReportLogImpl reportLog = new ReportLogImpl();
 		GrammarTestHelper.parseToAst(input, reportLog);
 		
-		LogEntry entry = new LogEntry(Type.WARNNING, ReportType.UNDEFINED, Arrays.<Token>asList(new TokenImpl("$", TokenType.EOF, 6, 1)), "");
+		LogEntry entry = new LogEntry(Type.WARNNING, ReportType.UNDEFINED, Arrays.<Token>asList(new TokenImpl(null, TokenType.EOF, 5, 10)), "");
 		GrammarTestHelper.compareReportLogEntries(Arrays.asList(entry), reportLog.getEntries());
 	}
 	
