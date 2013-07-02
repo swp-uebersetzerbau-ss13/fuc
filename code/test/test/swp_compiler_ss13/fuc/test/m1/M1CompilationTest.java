@@ -15,7 +15,7 @@ import java.io.IOException;
 
 /**
  * <p>
- * Compilations tests for the M2 examples. Tests, if the examples compile, that
+ * Compilations tests for the M1 examples. Tests, if the examples compile, that
  * doesn't necessarily imply correct results. See runtime tests for testing
  * correct exitcodes or output.
  * </p>
@@ -60,11 +60,6 @@ public class M1CompilationTest extends TestBase {
 	@Test
 	public void testParenthesesProg() throws IOException, InterruptedException, BackendException, IntermediateCodeGeneratorException {
 		testProgCompilation(ExampleProgs.parenthesesProg());
-	}
-
-	@Test
-	public void testEmptyProg() throws IOException, InterruptedException, BackendException, IntermediateCodeGeneratorException {
-		testProgCompilation(ExampleProgs.emptyProg());
 	}
 
 }

@@ -49,7 +49,7 @@ public class Error_Multiple_Minus_E_NotationProgTest {
 			new TokenImpl("=", TokenType.ASSIGNOP, 1, 1),
 			new TokenImpl("10e----1", TokenType.NOT_A_TOKEN, 1, 1),
 			new TokenImpl(";", TokenType.SEMICOLON, 1, 1),
-			new TokenImpl("$", TokenType.EOF, 1, 1)
+			new TokenImpl(null, TokenType.EOF, 1, 1)
 		));
 	}
 

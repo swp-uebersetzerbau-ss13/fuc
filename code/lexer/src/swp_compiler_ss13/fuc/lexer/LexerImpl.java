@@ -32,6 +32,8 @@ public class LexerImpl implements Lexer {
 	private Integer actualLine;
 	private Integer actualColumn;
 	private boolean isEOF;
+	private Integer lastLine;
+	private Integer lastColumn;
 	private final static Pattern NEXT_CHARACTER = Pattern.compile("[^\\s]+");
 	private final static Pattern NEXT_SEPARATOR = Pattern
 			.compile(
@@ -42,7 +44,9 @@ public class LexerImpl implements Lexer {
 	 * Default constructor initializes class variables
 	 */
 	public LexerImpl() {
+
 		this.init();
+
 	}
 
 	/**
@@ -69,7 +73,6 @@ public class LexerImpl implements Lexer {
 		 */
 		if (this.convertedLines.size() == 0) {
 
-			this.actualTokenValue = "$";
 			this.actualTokenType = TokenType.EOF;
 
 		} else {
@@ -78,18 +81,22 @@ public class LexerImpl implements Lexer {
 			 * get the value of the first line
 			 */
 			this.actualLineValue = this.convertedLines.get(this.actualLine - 1);
+			this.actualTokenValue = "";
 			this.isEOF = false;
+			this.lastLine = this.convertedLines.size();
+			this.lastColumn = this.convertedLines.get(this.lastLine - 1)
+					.length();
 
 		}
 
 	}
 
 	/**
-	 * Method to initialize variables when getting new input
+	 * Method to initialize class variables
 	 */
 	private void init() {
 
-		this.actualTokenValue = "";
+		this.actualTokenValue = null;
 		this.actualTokenType = TokenType.EOF;
 		this.actualLine = 1;
 		this.actualColumn = 1;
@@ -200,35 +207,21 @@ public class LexerImpl implements Lexer {
 						1);
 
 				/*
-				 * check if string is finished in this line
+				 * loop as long as the next not escaped apostrophe is found
 				 */
-				if (indexOfNextApostrophe == -1) {
+				while (!this.checkEscapeStatus(indexOfNextApostrophe)) {
 
-					/*
-					 * multi line strings are not yet supported
-					 */
-
-				} else {
-
-					/*
-					 * loop as long as the next not escaped apostrophe is found
-					 */
-					while (!this.checkEscapeStatus(indexOfNextApostrophe)) {
-
-						indexOfNextApostrophe = this.actualLineValue.indexOf(
-								"\"", indexOfNextApostrophe + 1);
-
-					}
-
-					/*
-					 * set the correct value for the string token and the token
-					 * type
-					 */
-					this.actualTokenValue = this.actualLineValue.substring(0,
+					indexOfNextApostrophe = this.actualLineValue.indexOf("\"",
 							indexOfNextApostrophe + 1);
-					this.actualTokenType = TokenType.STRING;
 
 				}
+
+				/*
+				 * set the correct value for the string token and the token type
+				 */
+				this.actualTokenValue = this.actualLineValue.substring(0,
+						indexOfNextApostrophe + 1);
+				this.actualTokenType = TokenType.STRING;
 
 			} else if (this.actualLineValue.startsWith("#")) {
 
@@ -239,6 +232,7 @@ public class LexerImpl implements Lexer {
 
 				Matcher matchNextSeparator = NEXT_SEPARATOR
 						.matcher(this.actualLineValue);
+
 				/*
 				 * check if a separator character is in line
 				 */
@@ -263,7 +257,7 @@ public class LexerImpl implements Lexer {
 
 						/*
 						 * check if separator is a dot or a minus, then it could
-						 * be in a number
+						 * be part of a number
 						 */
 						if (String.valueOf(
 								this.actualLineValue
@@ -278,7 +272,7 @@ public class LexerImpl implements Lexer {
 										.charAt(indexOfNextSeparator)).equals(
 								"-")
 								&& this.actualLineValue
-										.matches("\\d+(\\.\\d+)?(e|E)?-.*")) {
+										.matches("\\d+(\\.\\d+)?(e|E)-.*")) {
 
 							continue;
 
@@ -374,8 +368,10 @@ public class LexerImpl implements Lexer {
 		 */
 		if (this.convertedLines.size() < this.actualLine) {
 
-			this.actualTokenValue = "$";
+			this.actualTokenValue = null;
 			this.actualTokenType = TokenType.EOF;
+			this.actualLine = this.lastLine;
+			this.actualColumn = this.lastColumn + 1;
 			this.isEOF = true;
 
 		} else {

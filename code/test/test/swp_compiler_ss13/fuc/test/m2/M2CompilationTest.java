@@ -50,25 +50,5 @@ public class M2CompilationTest extends TestBase {
 	public void testPrintProg() throws Exception {
 		testProgCompilation(ExampleProgs.printProg());
 	}
-
-	/* regression test against return bug */
-	@Test
-	public void testReturnProg() throws Exception {
-		testProgCompilation(ExampleProgs.returnProg());
-	}
-
-	@Test
-	public void testArrayProg1() throws Exception {
-		testProgCompilation(ExampleProgs.arrayProg1());
-	}
-
-	@Test
-	public void testArrayProg2() throws Exception {
-		testProgCompilation(ExampleProgs.arrayProg2());
-	}
-
-	@Test
-	public void testArrayProg3() throws Exception {
-		testProgCompilation(ExampleProgs.arrayProg3());
-	}
+	
 }

@@ -69,9 +69,4 @@ public class M1RuntimeTest extends TestBase {
 		testProgRuntime(ExampleProgs.parenthesesProg());
 	}
 
-	@Test
-	public void testEmptyProg() throws IOException, InterruptedException, BackendException, IntermediateCodeGeneratorException {
-		testProgRuntime(ExampleProgs.emptyProg());
-	}
-
 }
