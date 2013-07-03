@@ -3,6 +3,7 @@ package swp_compiler_ss13.fuc.backend;
 
 import junit.extensions.PA;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Test;
 import swp_compiler_ss13.common.backend.Quadruple;
 
@@ -47,6 +48,8 @@ public class ExecutorTest extends TestBase {
 
 	@Test
 	public void testRunIR() throws Exception {
+
+		Assume.assumeTrue("Test Ignored: Missing LLVM Installation", checkForLLIInstallation());
 
 		LLVMBackend backend = new LLVMBackend();
 
@@ -109,6 +112,9 @@ public class ExecutorTest extends TestBase {
 
 	@Test
 	public void testRunTAC() throws Exception {
+
+		Assume.assumeTrue("Test Ignored: Missing LLVM Installation", checkForLLIInstallation());
+
 		ByteArrayOutputStream os = new ByteArrayOutputStream();
 		PrintWriter out = new PrintWriter(os);
 		out.println("DECLARE_BOOLEAN|!|!|res");
@@ -121,6 +127,20 @@ public class ExecutorTest extends TestBase {
 		Executor.ExecutionResult executionResult = Executor.runTAC(new ByteArrayInputStream(os.toByteArray()));
 
 		assertEquals("true\n", executionResult.output);
+	}
+
+	/*
+	 * Check if lli is correctly installed.
+	 */
+	private static boolean checkForLLIInstallation() {
+		boolean hasLLI;
+		try {
+			PA.invokeMethod(Executor.class, "tryToStartLLI()");
+			hasLLI = true;
+		} catch (Exception e) {
+			hasLLI = false;
+		}
+  		return hasLLI;
 	}
 
 }
