@@ -29,8 +29,8 @@ public interface IGrammarImpl {
 	 * @param curToken The Token that the parser received instead
 	 * @param lastToken The Token that the parser receiven before
 	 * @param valueStack The current value stack
-	 * @return Whether the attempt of recovery was successful or failed
-	 * 		immediately
+	 * @return A new instance of {@link RecoveryResult} which tells the
+	 * 		parser how to change its state
 	 */
 	public RecoveryResult tryErrorRecovery(List<Terminal> possibleTerminals,
 			TokenEx curToken, TokenEx lastToken,
