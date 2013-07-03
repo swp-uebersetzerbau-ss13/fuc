@@ -23,6 +23,7 @@ import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
 import swp_compiler_ss13.common.ast.nodes.unary.LogicUnaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.unary.PrintNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ReturnNode;
+import swp_compiler_ss13.common.ast.nodes.unary.StructIdentifierNode;
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.ir.IntermediateCodeGenerator;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
@@ -239,6 +240,7 @@ public class IntermediateCodeGeneratorImpl implements IntermediateCodeGenerator 
 			this.outputNodeProcessor.processReturnNode((ReturnNode) node);
 			break;
 		case StructIdentifierNode:
+			this.identifierNodeProcessor.processStructIdentifier((StructIdentifierNode) node);
 			break;
 		case WhileNode:
 			this.loopNodeProcessor.processWhileNode((WhileNode) node);

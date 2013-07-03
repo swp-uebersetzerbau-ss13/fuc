@@ -105,6 +105,7 @@
 						<include name="**/TestSuite.java" />
 					</fileset>
 				</batchtest>
+                <formatter type="plain" usefile="false" />
 				<formatter type="xml" />
 			</junit>
 		</jacoco:coverage>

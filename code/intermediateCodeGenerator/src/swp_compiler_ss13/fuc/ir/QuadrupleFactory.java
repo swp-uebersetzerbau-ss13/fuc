@@ -487,6 +487,40 @@ public class QuadrupleFactory {
 	}
 
 	/**
+	 * Create a quadruple for the correct STRUCT_GET_{TYPE} Operator
+	 * 
+	 * @param type
+	 *            The type of the operation
+	 * @param from
+	 *            The array from where to get the value
+	 * @param index
+	 *            The index from where to get the value in the array
+	 * @param to
+	 *            The destination variable
+	 * @return The Quadruple for the defined operation
+	 * @throws IntermediateCodeGeneratorException
+	 *             Unsupported type was given
+	 */
+	public static Quadruple structGetType(Type type, String from, String index, String to)
+			throws IntermediateCodeGeneratorException {
+		switch (type.getKind()) {
+		case BOOLEAN:
+			return new QuadrupleImpl(Operator.STRUCT_GET_BOOLEAN, from, index, to);
+		case DOUBLE:
+			return new QuadrupleImpl(Operator.STRUCT_GET_DOUBLE, from, index, to);
+		case LONG:
+			return new QuadrupleImpl(Operator.STRUCT_GET_LONG, from, index, to);
+		case STRING:
+			return new QuadrupleImpl(Operator.STRUCT_GET_STRING, from, index, to);
+		default:
+			break;
+		}
+		String err = "struct_get_{type} for type " + type.toString() + " is not supported.";
+		QuadrupleFactory.logger.fatal(err);
+		throw new IntermediateCodeGeneratorException(err);
+	}
+
+	/**
 	 * Create a quadruple for an array reference
 	 * 
 	 * @param from
@@ -499,6 +533,21 @@ public class QuadrupleFactory {
 	 */
 	public static Quadruple arrayReference(String from, String index, String to) {
 		return new QuadrupleImpl(Operator.ARRAY_GET_REFERENCE, from, index, to);
+	}
+
+	/**
+	 * Create a quadruple for a struct reference
+	 * 
+	 * @param from
+	 *            The struct to create a reference into
+	 * @param index
+	 *            The index to create the reference for
+	 * @param to
+	 *            The destination variable to hold the reference
+	 * @return Return the Quadruple for the defined operation
+	 */
+	public static Quadruple structReference(String from, String index, String to) {
+		return new QuadrupleImpl(Operator.STRUCT_GET_REFERENCE, from, index, to);
 	}
 
 	/**
@@ -531,6 +580,40 @@ public class QuadrupleFactory {
 			break;
 		}
 		String err = "array_set_{type} for type " + type.toString() + " is not supported.";
+		QuadrupleFactory.logger.fatal(err);
+		throw new IntermediateCodeGeneratorException(err);
+	}
+
+	/**
+	 * Create a quadruple for an struct assignment
+	 * 
+	 * @param type
+	 *            The type of the element to assign to the struct
+	 * @param target
+	 *            the struct to assign the value to
+	 * @param index
+	 *            the index to assign the value to
+	 * @param source
+	 *            the value to assign
+	 * @return return the correct Quadruple for this operation
+	 * @throws IntermediateCodeGeneratorException
+	 *             type is not compatible
+	 */
+	public static Quadruple structSetType(Type type, String target, String index, String source)
+			throws IntermediateCodeGeneratorException {
+		switch (type.getKind()) {
+		case BOOLEAN:
+			return new QuadrupleImpl(Operator.STRUCT_SET_BOOLEAN, target, index, source);
+		case DOUBLE:
+			return new QuadrupleImpl(Operator.STRUCT_SET_DOUBLE, target, index, source);
+		case LONG:
+			return new QuadrupleImpl(Operator.STRUCT_SET_LONG, target, index, source);
+		case STRING:
+			return new QuadrupleImpl(Operator.STRUCT_SET_STRING, target, index, source);
+		default:
+			break;
+		}
+		String err = "struct_set_{type} for type " + type.toString() + " is not supported.";
 		QuadrupleFactory.logger.fatal(err);
 		throw new IntermediateCodeGeneratorException(err);
 	}

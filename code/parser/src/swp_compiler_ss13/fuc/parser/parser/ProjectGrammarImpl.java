@@ -1,6 +1,7 @@
 package swp_compiler_ss13.fuc.parser.parser;
 
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
@@ -495,7 +496,7 @@ public class ProjectGrammarImpl implements IGrammarImpl {
 					return identifierNode;
 				}
 			};
-		case "loc -> loc.id":
+		case "loc -> loc . id":
 			return new ReduceAction() {
 				@Override
 				public Object create(Object... objs) throws ReduceException  {
@@ -1037,23 +1038,117 @@ public class ProjectGrammarImpl implements IGrammarImpl {
 	@Override
 	public RecoveryResult tryErrorRecovery(List<Terminal> possibleTerminals, TokenEx curToken,
 			TokenEx lastToken, Stack<Object> valueStack) {
-		if (possibleTerminals.contains(ProjectGrammar.Complete.sem)) {
-			log.debug("------ starting error recovery ------");
-			log.debug("Found possible next terminal: " + ProjectGrammar.Complete.sem);
+		if (possibleTerminals.size() == 1) {
+			// Easy! Only one option, do it.
+			Terminal terminal = possibleTerminals.get(0);
+			TokenType newTokenType = terminal.getTokenTypes().next();	// This works for this grammar..
+			return insertTerminal(curToken, lastToken, terminal, terminal.getId(), newTokenType);
+		} else if (curToken.getTokenType() == TokenType.LEFT_BRACE &&
+				possibleTerminals.contains(ProjectGrammar.Complete.rb) &&
+				containsTokensOfType(valueStack, TokenType.IF, TokenType.LEFT_PARAN)) {
 			
-			// Modify token stream
-			TokenEx newToken = new TokenEx(";", TokenType.SEMICOLON, lastToken.getLine(),
-					lastToken.getColumn() + 1, ProjectGrammar.Complete.sem);
-			log.debug("Error recovery inserted " + newToken + " before " + curToken + ", lets see if this works...");
-			
-			reportLog.reportWarning(ReportType.UNDEFINED, Arrays.<Token>asList(curToken),
-					"Error recovery inserted a missing ';' before " + curToken + "!");
-			
-			// Give it a shot!
-			log.debug("------ end error recovery ------");
-			return new RecoveryResult(newToken, curToken);	// Re-insert curToken into token stream
+			return insertTerminal(curToken, lastToken, ProjectGrammar.Complete.rb,
+					")", TokenType.RIGHT_PARAN);
+		} else if (possibleTerminals.contains(ProjectGrammar.Complete.sem) &&
+				(containsTokensOfType(valueStack, TokenType.ASSIGNOP) ||
+				containsTokensOfType(valueStack, TokenType.PRINT) ||
+				containsTokensOfType(valueStack, TokenType.RETURN) ||
+				containsTokensOfType(valueStack, TokenType.BOOL_SYMBOL) ||
+				containsTokensOfType(valueStack, TokenType.LONG_SYMBOL) ||
+				containsTokensOfType(valueStack, TokenType.DOUBLE_SYMBOL) ||
+				containsTokensOfType(valueStack, TokenType.STRING_SYMBOL))) {
+			// Next symbol might be a semicolon and we are either:
+			// - on the rhs of an assignment
+			// - on the rhs of a print or return statement
+			// - on a decl statement (unreduced type symbol)
+			return insertTerminal(curToken, lastToken, ProjectGrammar.Complete.sem,
+					";", TokenType.SEMICOLON);
+		} else if ((curToken.getTokenType() == TokenType.ELSE ||
+				curToken.getTokenType() == TokenType.EOF) &&
+				possibleTerminals.contains(ProjectGrammar.Complete.rcb)) {
+			// We seem to be missing an closing curly brace before the else (or EOF)!
+			return insertTerminal(curToken, lastToken, ProjectGrammar.Complete.rcb,
+					"}", TokenType.RIGHT_BRACE);
 		}
 		return null;
+	}
+	
+	/**
+	 * Inserts a fresh token into the token stream just before the one that was
+	 * currently read
+	 * 
+	 * @param curToken The currently read {@link Token}
+	 * @param lastToken The {@link Token} that was read before
+	 * @param newTerminal The {@link Terminal} for the fresh {@link Token}
+	 * @param newTokenVal The value for the fresh {@link Token}
+	 * @param newTokenType The {@link TokenType} for the fresh {@link Token}
+	 * @return The necessary changes to the parsers state
+	 */
+	private RecoveryResult insertTerminal(TokenEx curToken, TokenEx lastToken,
+			Terminal newTerminal, String newTokenVal, TokenType newTokenType) {
+		log.debug("------ starting error recovery ------");
+		log.debug("Found possible next terminal: " + newTerminal);
+		
+		// Modify token stream
+		TokenEx newToken = new TokenEx(newTokenVal, newTokenType, lastToken.getLine(),
+				lastToken.getColumn() + 1, newTerminal);
+		log.debug("Error recovery inserted " + newToken + " before " + curToken + ", lets see if this works...");
+		
+		reportLog.reportWarning(ReportType.UNDEFINED, Arrays.<Token>asList(curToken),
+				"Error recovery inserted a missing '" + newTokenVal + "' before " + curToken + "!");
+		
+		// Give it a shot!
+		log.debug("------ end error recovery ------");
+		return new RecoveryResult(newToken, curToken);	// Re-insert curToken into token stream
+	}
+	
+	/**
+	 * @param valueStack The parsers current value stack
+	 * @param types The type-sequence which the method should search for
+	 * @return Whether there are one or more occurrences of the given
+	 * 		types-sequence
+	 */
+	private static boolean containsTokensOfType(Stack<Object> valueStack, TokenType... types) {
+		return countTokensOfType(valueStack, types) > 0;
+	}
+	
+	/**
+	 * @param valueStack The parsers current value stack
+	 * @param types The type-sequence which the method should search for
+	 * @return How much occurrences of the given types-sequence there are on
+	 * 		the stack
+	 */
+	private static int countTokensOfType(Stack<Object> valueStack, TokenType... types) {
+		int occurrences = 0;
+		Iterator<Object> it = valueStack.iterator();
+		while (it.hasNext()) {
+			if (match(it, Arrays.asList(types).iterator())) {
+				occurrences++;
+			}
+		}
+		return occurrences;
+	}
+	
+	/**
+	 * @param objs The value stacks iterator
+	 * @param types The type-sequence the method should loop for
+	 * @return Whether the given types-sequence could be matched against the
+	 * 		value stack
+	 */
+	private static boolean match(Iterator<Object> objs, Iterator<TokenType> types) {
+		while (types.hasNext() && objs.hasNext()) {
+			Object obj = objs.next();
+			if (obj instanceof Token) {
+				Token t = (Token) obj;
+				TokenType type = types.next();
+				if (t.getTokenType() != type) {
+					return false;
+				}
+			} else {
+				return false;
+			}
+		}
+		return !types.hasNext();
 	}
 	
 	

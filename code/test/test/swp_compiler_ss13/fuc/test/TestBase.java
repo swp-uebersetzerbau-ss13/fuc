@@ -6,7 +6,7 @@ import org.apache.log4j.Logger;
 import swp_compiler_ss13.common.backend.BackendException;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 import swp_compiler_ss13.common.report.ReportType;
-import swp_compiler_ss13.fuc.backend.TACExecutor;
+import swp_compiler_ss13.fuc.backend.LLVMExecutor;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,7 +40,7 @@ public abstract class TestBase {
 		Logger.getRootLogger().setLevel(Level.FATAL);
 		boolean hasLLI;
 		try {
-			PA.invokeMethod(TACExecutor.class, "tryToStartLLI()");
+			PA.invokeMethod(LLVMExecutor.class, "tryToStartLLI()");
 			hasLLI = true;
 		} catch (Exception e) {
 			hasLLI = false;
@@ -70,12 +70,12 @@ public abstract class TestBase {
 
 		/* test for expected report log entries (errors and warnings) if program does not compile */
 		if (log.hasErrors()){
-			assertArrayEquals(msg, (Object[]) prog[3], log.getEntries().toArray());
+			assertArrayEquals("Compilation produces unexpected errors: " + msg, (Object[]) prog[3], log.getEntries().toArray());
 			return null;
 		}
 
 		/* test for expected report log entries (i.e. warnings), if program compiles */
-		assertArrayEquals(msg, (Object[]) prog[3], log.getEntries().toArray());
+		assertArrayEquals("Compilation produces unexpected warnings: " + msg, (Object[]) prog[3], log.getEntries().toArray());
 
 		/* assert that something was compiled*/
 		assertTrue(compilationResult != null);
@@ -85,7 +85,7 @@ public abstract class TestBase {
 
 	protected void testProgRuntime(Object[] prog) throws BackendException, IntermediateCodeGeneratorException, IOException, InterruptedException {
 		InputStream compilationResult = testProgCompilation(prog);
-		TACExecutor.ExecutionResult executionResult = TACExecutor.runIR(compilationResult);
+		LLVMExecutor.ExecutionResult executionResult = LLVMExecutor.runIR(compilationResult);
 		assertEquals(prog[1], executionResult.exitCode);
 		assertEquals(prog[2], executionResult.output);
 	}

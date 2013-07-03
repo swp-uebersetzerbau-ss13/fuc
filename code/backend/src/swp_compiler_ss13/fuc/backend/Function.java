@@ -25,16 +25,6 @@ import static swp_compiler_ss13.common.types.Type.Kind.BOOLEAN;
 public class Function
 {
 	/**
-	 * A list of all the string literals that
-	 * exist in this module where each element
-	 * describes a string literal's number with its
-	 * position in the list and that string literal's
-	 * length with the value of the element.
-	 *
-	 */
-	private ArrayList<Integer> stringLiterals;
-
-	/**
 	 * This maps a variable's name (not its
 	 * identifier, which is %{name}) to the
 	 * number of times it has been used in
@@ -55,27 +45,56 @@ public class Function
 	private StringBuffer code;
 
 	public String getCode() {
-		return this.code.toString();
+		return this.code.toString() + "}\n";
 	}
 
-	private Map<String,Map.Entry<String,List<Long>>> references;
+	private Map<String,Map.Entry<String,List<String>>> references;
 
 	private Map<String,DerivedType> derivedTypes;
+
+	private Type.Kind returnType;
+
+	private String name;
+
+	public String getName() {
+		return name;
+	}
+
+	public Type.Kind getReturnType() {
+		return returnType;
+	}
+
+	private List<Map.Entry<String,Type.Kind>> arguments;
+
+	public List<Map.Entry<String,Type.Kind>> getArguments() {
+		return arguments;
+	}
+
+	private Module parent;
+
+	public Module getParent() {
+		return parent;
+	}
 
 	/**
 	 * Creates a new <code>Module</code> instance.
 	 *
 	 * to write the LLVM IR
 	 */
-	public Function(String name,
+	public Function(Module parent,
+	                String name,
 	                Type.Kind returnType,
 	                List<Map.Entry<String,Type.Kind>> arguments)
 	{
-		stringLiterals = new ArrayList<Integer>();
 		variableUseCount = new HashMap<String,Integer>();
-		references = new HashMap<String,Map.Entry<String,List<Long>>>();
+		references = new HashMap<String,Map.Entry<String,List<String>>>();
 		derivedTypes = new HashMap<String,DerivedType>();
 		code = new StringBuffer();
+
+		this.returnType = returnType;
+		this.arguments = arguments;
+		this.name = name;
+		this.parent = parent;
 
 		/* Add fake temporary variable */
 		variableUseCount.put(".tmp", 0);
@@ -112,19 +131,6 @@ public class Function
 	}
 
 	/**
-	 * Get a string literal's type by its
-	 * id (i.e. [i8 * {length}], where the length
-	 * is the string literal's length).
-	 *
-	 * @param id an <code>int</code> value
-	 * @return a <code>String</code> value
-	 */
-	private String getStringLiteralType(int id)
-	{
-		return "[" + String.valueOf(stringLiterals.get(id)) + " x i8]";
-	}
-
-	/**
 	 * Gets a unique use identifier for
 	 * a variable; no two calls will return
 	 * the same use identifier.
@@ -145,53 +151,6 @@ public class Function
 	}
 
 	/**
-	 * Generates a new string literal from a <code>String</code>
-	 * value and returns its id (i.e. its position in the
-	 * list of string literals <code>stringLiterals</code>).
-	 *
-	 * @param literal the string to use
-	 * @return the new string literal's id
-	 */
-	private Integer addStringLiteral(String literal) throws BackendException
-	{
-		int length = 0;
-
-		try
-		{
-			literal = literal.substring(1, literal.length() - 1);
-			byte[] utf8 = literal.getBytes("UTF-8");
-			literal = Arrays.toString(utf8).replaceAll("(-?)([0-9]+)(,?)","i8 $1$2$3");
-
-			if(utf8.length > 0)
-			{
-				literal = literal.replace("]",", i8 0]");
-			}
-			else
-			{
-				literal = "[i8 0]";
-			}
-
-			length = utf8.length + 1;
-		}
-		catch(UnsupportedEncodingException e)
-		{
-			throw new BackendException("LLVM backend cannot handle strings without utf8 support");
-		}
-
-		int id = stringLiterals.size();
-		stringLiterals.add(length);
-
-		String type = getStringLiteralType(id);
-
-		String identifier = Module.getStringLiteralIdentifier(id);
-
-		gen(identifier + " = alloca " + type);
-		gen("store " + type + " " + literal + ", " + type + "* " + identifier);
-
-		return id;
-	}
-
-	/**
 	 * Sets a variable (which must be of the string primitive type)
 	 * to contain a pointer to a string literal.
 	 *
@@ -204,7 +163,7 @@ public class Function
 		String variableIdentifier = "%" + variable;
 		String variableUseIdentifier = getUseIdentifierForVariable(variable);
 		String literalIdentifier = Module.getStringLiteralIdentifier(literalID);
-		String literalType = getStringLiteralType(literalID);
+		String literalType = parent.getStringLiteralType(literalID);
 
 		gen(variableUseIdentifier + " = getelementptr " + literalType + "* " + literalIdentifier + ", i64 0, i64 0");
 		gen("store i8* " + variableUseIdentifier + ", i8** " + variableIdentifier);
@@ -241,9 +200,9 @@ public class Function
 			/* constant */
 			if(type==Kind.STRING)
 			{
-				int literalID = addStringLiteral(constantOrIdentifier.substring(1));
+				int literalID = parent.addStringLiteral(constantOrIdentifier.substring(1));
 				String literalIdentifier = Module.getStringLiteralIdentifier(literalID);
-				String literalType = getStringLiteralType(literalID);
+				String literalType = parent.getStringLiteralType(literalID);
 				String variableUseIdentifier = getUseIdentifierForVariable(".tmp");
 				gen(variableUseIdentifier + " = getelementptr " + literalType + "* " + literalIdentifier + ", i64 0, i64 0");
 
@@ -254,7 +213,7 @@ public class Function
 		else {
 			/* identifier */
 			String id = getUseIdentifierForVariable(constantOrIdentifier);
-			gen(id + " = load " + Module.getIRType(type,true) + " %"+constantOrIdentifier);
+			gen(id + " = load " + Module.getIRType(type) + "* %"+constantOrIdentifier);
 			return id;
 		}
 	}
@@ -340,7 +299,7 @@ public class Function
 		{
 			if(type == Kind.STRING)
 			{
-				int id = addStringLiteral(src);
+				int id = parent.addStringLiteral(src);
 				addLoadStringLiteral(dst, id);
 			}
 			else
@@ -359,17 +318,17 @@ public class Function
 
 	public void addReferenceDerivedGet(Type.Kind derivedType, String derived, String index, String dst) throws BackendException {
 		String src = derived;
-		List<Long> indices = new LinkedList<Long>();
+		List<String> indices = new LinkedList<String>();
 
 		while(references.containsKey(src)) {
-			Map.Entry<String,List<Long>> reference = references.get(src);
+			Map.Entry<String,List<String>> reference = references.get(src);
 			indices.addAll(reference.getValue());
 			src = reference.getKey();
 		}
 
 		switch(derivedType) {
 			case ARRAY:
-				indices.add(Long.valueOf(index.substring(1)));
+				indices.add(index);
 				break;
 			case STRUCT:
 				DerivedType type = derivedTypes.get(src);
@@ -382,7 +341,7 @@ public class Function
 					List<Member> members = ((LLVMBackendStructType) type).getMembers();
 					for(Member m: members) {
 						if(m.getName().equals(index)) {
-							indices.add(Long.valueOf(members.indexOf(m)));
+							indices.add(String.valueOf(members.indexOf(m)));
 							break;
 						}
 					}
@@ -393,7 +352,7 @@ public class Function
 				break;
 		}
 
-		references.put(dst,new AbstractMap.SimpleEntry<String,List<Long>>(src, indices));
+		references.put(dst,new AbstractMap.SimpleEntry<String,List<String>>(src, indices));
 	}
 
 	public void addPrimitiveDerivedSetOrGet(Type.Kind derivedTypeKind,
@@ -402,17 +361,17 @@ public class Function
 	                                        Kind primitiveType,
 	                                        String primitive,
 	                                        boolean set) throws BackendException {
-		List<Long> indices = new LinkedList<Long>();
+		List<String> indices = new LinkedList<String>();
 
 		while(references.containsKey(derived)) {
-			Map.Entry<String,List<Long>> reference = references.get(derived);
+			Map.Entry<String,List<String>> reference = references.get(derived);
 			indices.addAll(reference.getValue());
 			derived = reference.getKey();
 		}
 
 		switch(derivedTypeKind) {
 			case ARRAY:
-				indices.add(Long.valueOf(index.substring(1)));
+				indices.add(index);
 				break;
 			case STRUCT:
 				DerivedType type = derivedTypes.get(derived);
@@ -425,7 +384,7 @@ public class Function
 					List<Member> members = ((LLVMBackendStructType) type).getMembers();
 					for(Member m: members) {
 						if(m.getName().equals(index)) {
-							indices.add(Long.valueOf(members.indexOf(m)));
+							indices.add(String.valueOf(members.indexOf(m)));
 							break;
 						}
 					}
@@ -438,9 +397,12 @@ public class Function
 				throw new BackendException("Unexpected derived type: " + derivedTypeKind.toString());
 		}
 
-		String indexList = "";
-		for(Long i: indices) {
-			indexList += ", " + i.toString();
+		StringBuffer indexList = new StringBuffer();
+		for(String i: indices) {
+			indexList.append(", ");
+			indexList.append(Module.getIRType(Type.Kind.LONG));
+			indexList.append(" ");
+			indexList.append(cdl(i, Type.Kind.LONG));
 		}
 
 		String primitiveIRType = Module.getIRType(primitiveType);
@@ -465,10 +427,9 @@ public class Function
 			String derivedIdentifier = "%" + derived;
 
 			primitive = cdl(primitive, primitiveType);
-			gen(derivedUseIdentifier1 + " = load " + derivedIRType + "* " + derivedIdentifier);
-			gen(derivedUseIdentifier2 + " = insertvalue " + derivedIRType + " " + derivedUseIdentifier1 +
-			    ", " + primitiveIRType + " " + primitive + indexList);
-			gen("store " + derivedIRType + " " + derivedUseIdentifier2 + ", " + derivedIRType + "* " + derivedIdentifier);
+			gen(derivedUseIdentifier1 + " = getelementptr " + derivedIRType + "* " + derivedIdentifier + ", i64 0"
+				+ indexList);
+			gen("store " + primitiveIRType + " " + primitive + ", " + primitiveIRType + "* " + derivedUseIdentifier1);
 		}
 		else {
 			String primitiveUseIdentifier = getUseIdentifierForVariable(primitive);
@@ -476,8 +437,9 @@ public class Function
 			String derivedUseIdentifier = getUseIdentifierForVariable(derived);
 			String derivedIdentifier = "%" + derived;
 
-			gen(derivedUseIdentifier + " = load " + derivedIRType + "* " + derivedIdentifier);
-			gen(primitiveUseIdentifier + " = extractvalue " + derivedIRType + " " + derivedUseIdentifier + indexList);
+			gen(derivedUseIdentifier + " = getelementptr " + derivedIRType + "* " + derivedIdentifier + ", i64 0"
+				+ indexList);
+			gen(primitiveUseIdentifier + " = load " + primitiveIRType + "* " + derivedUseIdentifier);
 			gen("store " + primitiveIRType + " " + primitiveUseIdentifier + ", " + primitiveIRType + "* " + primitiveIdentifier);
 		}
 	}
@@ -731,9 +693,9 @@ public class Function
 		if(constantSrc)
 		{
 			temporaryIdentifier = getUseIdentifierForVariable(".tmp");
-			int id = addStringLiteral(value);
+			int id = parent.addStringLiteral(value);
 			String literalIdentifier = Module.getStringLiteralIdentifier(id);
-			String literalType = getStringLiteralType(id);
+			String literalType = parent.getStringLiteralType(id);
 
 			gen(temporaryIdentifier + " = getelementptr " + literalType + "* " + literalIdentifier + ", i64 0, i64 0");
 		}

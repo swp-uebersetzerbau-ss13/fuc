@@ -11,23 +11,24 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 /**
- * This class describes a just-in-time compiler
- * for three address code to LLVM IR code, that
- * can also execute the generated code via
- * LLVM's <code>lli</code> command and show the
- * result of that execution (exit code and execution output).
+ * LLVM IR Code Executor.
+ *
+ * This class can just-in-time compile text-style TAC and execute LLVM IR code.
+ *
+ * The execution of LLVM IR Code is done with LLVM's <code>lli</code> command,
+ * which needs to be installed.
+ *
  * The format for the text-style TAC is:
  * "Operator|Arg1|Arg2|Res" (without the quotes)
  *
  */
-public class TACExecutor
-{
+public class LLVMExecutor {
 
 	/**
 	 * The logger used to output information.
 	 *
 	 */
-	private static Logger logger = Logger.getLogger(TACExecutor.class);
+	private static Logger logger = Logger.getLogger(LLVMExecutor.class);
 
 	/**
 	 * Tries to start <code>lli</code> as a process.
@@ -59,11 +60,11 @@ public class TACExecutor
 	 *
 	 * @param irCode
 	 *            an <code>InputStream</code> of LLVM IR Code
-	 * @return the output and exit code of the execution of the LLVM IR code
+	 * @return the LLVM IR Code as String, the output and the exit code of the execution of the LLVM IR code
 	 * @exception java.io.IOException
-	 *                if an error occurs
+	 *                if an error occurs reading the InputStream or starting <code>lli</code>
 	 * @exception InterruptedException
-	 *                if an error occurs
+	 *                if an error occurs in the LLVM Backend
 	 * @throws swp_compiler_ss13.common.backend.BackendException
 	 *             if an error occurs
 	 */

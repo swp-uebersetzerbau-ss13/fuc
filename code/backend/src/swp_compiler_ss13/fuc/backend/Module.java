@@ -24,6 +24,139 @@ import static swp_compiler_ss13.common.types.Type.Kind.BOOLEAN;
  */
 public class Module
 {
+	private Map<String,Function> functions;
+
+	private StringBuffer dataSegment;
+
+	public Function addFunction(String name,
+	                            Type.Kind returnType,
+	                            List<Map.Entry<String,Type.Kind>> arguments) throws BackendException {
+		Function f;
+
+		if(functions.containsKey(name)) {
+			f = functions.get(name);
+
+			if(f.getArguments().equals(arguments) &&
+			   f.getReturnType().equals(returnType)) {
+				throw new BackendException(
+					"Function " + name + " with return type " +
+					returnType.toString() + " and argument types " +
+					Arrays.toString(arguments.toArray(new Type.Kind[arguments.size()])) +
+					" has already been added, cannot add it twice.");
+			}
+		}
+
+		f = new Function(this, name, returnType, arguments);
+		functions.put(name, f);
+		return f;
+	}
+
+	public String getCode() {
+		StringBuffer code = new StringBuffer();
+
+		if(!dataSegment.toString().equals("")) {
+			code.append(dataSegment.toString());
+			code.append("\n");
+		}
+
+		Function main = null;
+
+		for(Function f: functions.values()) {
+			if(f.getName().equals("main") &&
+			   f.getReturnType().equals(Type.Kind.LONG)) {
+				main = f;
+			}
+			else {
+				code.append(f.getCode());
+			}
+		}
+
+		if(main != null) {
+			code.append(main.getCode());
+		}
+
+		return code.toString();
+	}
+
+	public Module() {
+		functions = new HashMap<String,Function>();
+		dataSegment = new StringBuffer();
+		stringLiterals = new ArrayList<Integer>();
+	}
+
+	/**
+	 * A list of all the string literals that
+	 * exist in this module where each element
+	 * describes a string literal's number with its
+	 * position in the list and that string literal's
+	 * length with the value of the element.
+	 *
+	 */
+	private ArrayList<Integer> stringLiterals;
+
+	/**
+	 * Get a string literal's type by its
+	 * id (i.e. [i8 * {length}], where the length
+	 * is the string literal's length).
+	 *
+	 * @param id an <code>int</code> value
+	 * @return a <code>String</code> value
+	 */
+	public String getStringLiteralType(int id)
+	{
+		return "[" + String.valueOf(stringLiterals.get(id)) + " x i8]";
+	}
+
+	/**
+	 * Generates a new string literal from a <code>String</code>
+	 * value and returns its id (i.e. its position in the
+	 * list of string literals <code>stringLiterals</code>).
+	 *
+	 * @param literal the string to use
+	 * @return the new string literal's id
+	 */
+	public Integer addStringLiteral(String literal) throws BackendException
+	{
+		int length = 0;
+
+		try
+		{
+			literal = literal.substring(1, literal.length() - 1);
+			byte[] utf8 = literal.getBytes("UTF-8");
+			literal = Arrays.toString(utf8).replaceAll("(-?)([0-9]+)(,?)","i8 $1$2$3");
+
+			if(utf8.length > 0)
+			{
+				literal = literal.replace("]",", i8 0]");
+			}
+			else
+			{
+				literal = "[i8 0]";
+			}
+
+			length = utf8.length + 1;
+		}
+		catch(UnsupportedEncodingException e)
+		{
+			throw new BackendException("LLVM backend cannot handle strings without utf8 support");
+		}
+
+		int id = stringLiterals.size();
+		stringLiterals.add(length);
+
+		String type = getStringLiteralType(id);
+
+		String identifier = Module.getStringLiteralIdentifier(id);
+
+		dataSegment.append(identifier);
+		dataSegment.append(" = constant ");
+		dataSegment.append(type);
+		dataSegment.append(literal);
+		dataSegment.append("\n");
+
+		return id;
+	}
+
 	/**
 	 * Get a string literal's identifier by its
 	 * id (i.e. its position in the list of string literals).
@@ -33,7 +166,7 @@ public class Module
 	 */
 	public static String getStringLiteralIdentifier(int id)
 	{
-		return "%.string_" + String.valueOf(id);
+		return "@.string_" + String.valueOf(id);
 	}
 	/**
 	 * Get the LLVM IR type corresponding to
@@ -42,10 +175,7 @@ public class Module
 	 * @param type the type from the three address code
 	 * @return the corresponding LLVM IR type
 	 */
-	public static String getIRType(Kind type) {
-		return Module.getIRType(type,false);
-	}
-	public static String getIRType(Kind type, boolean as_ptr)
+	public static String getIRType(Kind type)
 	{
 		String irType = "";
 		switch(type)
@@ -70,7 +200,7 @@ public class Module
 				break;
 		}
 
-		return irType + (as_ptr ? "*" : "");
+		return irType;
 	}
 
 	/**
@@ -82,10 +212,7 @@ public class Module
 	 *          double x[5][10][7] --> [5,10,7]
 	 * @return the corresponding LLVM IR type for the array
 	 */
-	public static String getIRAType(Type type, List<Integer> dimensions) {
-		return Module.getIRAType(type,dimensions,false);
-	}
-	public static String getIRAType(Type type, List<Integer> dimensions, boolean as_ptr)
+	public static String getIRAType(Type type, List<Integer> dimensions)
 	{
 		String irType = "";
 		/* write dimensions */
@@ -102,7 +229,7 @@ public class Module
 		for (int d : dimensions)
 			irType += "]";
 		irType.trim();
-		return irType + (as_ptr ? "*" : "");
+		return irType;
 	}
 
 	public static String getIRSType(List<Member> members) {
