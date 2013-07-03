@@ -70,12 +70,12 @@ public abstract class TestBase {
 
 		/* test for expected report log entries (errors and warnings) if program does not compile */
 		if (log.hasErrors()){
-			assertArrayEquals(msg, (Object[]) prog[3], log.getEntries().toArray());
+			assertArrayEquals("Compilation produces unexpected errors: " + msg, (Object[]) prog[3], log.getEntries().toArray());
 			return null;
 		}
 
 		/* test for expected report log entries (i.e. warnings), if program compiles */
-		assertArrayEquals(msg, (Object[]) prog[3], log.getEntries().toArray());
+		assertArrayEquals("Compilation produces unexpected warnings: " + msg, (Object[]) prog[3], log.getEntries().toArray());
 
 		/* assert that something was compiled*/
 		assertTrue(compilationResult != null);
