@@ -14,7 +14,7 @@ import org.junit.runners.Suite;
 		ControlAndIOTest.class,
 		ModuleTest.class,
 		RuntimeTest.class,
-		ExecutorTest.class
+		LLVMExecutorTest.class
 })
 class SuiteClasses {
 }

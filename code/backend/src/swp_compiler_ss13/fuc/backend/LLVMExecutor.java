@@ -22,14 +22,13 @@ import org.apache.log4j.Logger;
  * "Operator|Arg1|Arg2|Res" (without the quotes)
  *
  */
-public class Executor
-{
+public class LLVMExecutor {
 
 	/**
 	 * The logger used to output information.
 	 *
 	 */
-	private static Logger logger = Logger.getLogger(Executor.class);
+	private static Logger logger = Logger.getLogger(LLVMExecutor.class);
 
 	/**
 	 * Tries to start <code>lli</code> as a process.

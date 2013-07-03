@@ -2,7 +2,6 @@ package swp_compiler_ss13.fuc.backend;
 
 
 import junit.extensions.PA;
-import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Test;
 import swp_compiler_ss13.common.backend.Quadruple;
@@ -17,7 +16,7 @@ import java.util.List;
 import static org.junit.Assert.*;
 
 
-public class ExecutorTest extends TestBase {
+public class LLVMExecutorTest extends TestBase {
 
 	@Test
 	public void testTryToStartLLI() throws Exception {
@@ -26,7 +25,7 @@ public class ExecutorTest extends TestBase {
 		String exceptionMsg = null;
 		Process p = null;
 		try {
-			p = (Process) PA.invokeMethod(Executor.class, "tryToStartLLI()");
+			p = (Process) PA.invokeMethod(LLVMExecutor.class, "tryToStartLLI()");
 			hasLLI = true;
 		}
 		catch (Exception e) {
@@ -63,7 +62,7 @@ public class ExecutorTest extends TestBase {
 		tac.add(new QuadrupleImpl(Quadruple.Operator.RETURN, "result", Quadruple.EmptyArgument, Quadruple.EmptyArgument));
 
 		InputStream targetCode = backend.generateTargetCode("targetCode", tac).get("targetCode.ll");
-		Executor.ExecutionResult result = Executor.runIR(targetCode);
+		LLVMExecutor.ExecutionResult result = LLVMExecutor.runIR(targetCode);
 		assertEquals(4, result.exitCode);
 		assertEquals("4\n", result.output);
 	}
@@ -75,7 +74,7 @@ public class ExecutorTest extends TestBase {
 		tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_LONG, "#2", Quadruple.EmptyArgument, "longVar1"));
 		tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_LONG, "#2", Quadruple.EmptyArgument, "longVar2"));
 
-		InputStream targetCodeIS = (InputStream) PA.invokeMethod(Executor.class, "compileTAC(java.util.List)", tac);
+		InputStream targetCodeIS = (InputStream) PA.invokeMethod(LLVMExecutor.class, "compileTAC(java.util.List)", tac);
 		String targetCode = new java.util.Scanner(targetCodeIS).useDelimiter("\\A").next();
 		String expectedTargetCode = "  %longVar1 = alloca i64\n" +
 				"  store i64 2, i64* %longVar1\n" +
@@ -95,7 +94,7 @@ public class ExecutorTest extends TestBase {
 		out.println("OR_BOOLEAN|#FALSE|#TRUE|b");
 		out.close();
 
-		List quadruples = (List) PA.invokeMethod(Executor.class, "readTAC(java.io.InputStream)",
+		List quadruples = (List) PA.invokeMethod(LLVMExecutor.class, "readTAC(java.io.InputStream)",
 				new ByteArrayInputStream(os.toByteArray()));
 
 		Quadruple[] expectedQuadruples = new Quadruple[3];
@@ -122,7 +121,7 @@ public class ExecutorTest extends TestBase {
 		out.println("PRINT_STRING|res_str|!|!");
 		out.close();
 
-		Executor.ExecutionResult executionResult = Executor.runTAC(new ByteArrayInputStream(os.toByteArray()));
+		LLVMExecutor.ExecutionResult executionResult = LLVMExecutor.runTAC(new ByteArrayInputStream(os.toByteArray()));
 
 		assertEquals("true\n", executionResult.output);
 	}
@@ -133,7 +132,7 @@ public class ExecutorTest extends TestBase {
 	private static boolean checkForLLIInstallation() {
 		boolean hasLLI;
 		try {
-			PA.invokeMethod(Executor.class, "tryToStartLLI()");
+			PA.invokeMethod(LLVMExecutor.class, "tryToStartLLI()");
 			hasLLI = true;
 		} catch (Exception e) {
 			hasLLI = false;
