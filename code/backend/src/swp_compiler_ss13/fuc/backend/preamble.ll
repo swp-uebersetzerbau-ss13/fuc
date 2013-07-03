@@ -134,7 +134,7 @@ define void @aoob1(i64 %i1, i64 %b1) {
   %i1.32 = trunc i64 %i1 to i32
   %b1.32 = trunc i64 %b1 to i32
   ; check if the index is in-bounds
-  %cmp = icmp ule i32 %i1.32, %b1.32
+  %cmp = icmp ult i32 %i1.32, %b1.32
   br i1 %cmp, label %InBounds, label %OutOfBounds
   OutOfBounds:
         ; Create exception type solely in register from "undef" type, insert nullptr as array reference
