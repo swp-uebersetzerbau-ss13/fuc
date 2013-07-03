@@ -241,14 +241,12 @@ public class LLVMBackend implements Backend
 		/* Run passes on the three address code to ensure it is correct. */
 		tac = basicBlocksTerminatedPass(tac);
 
-		/* Write preamble */
-		out.println(this.llvm_preamble);
-
 		Iterator<Quadruple> tacIterator = tac.iterator();
 
-		Function main = new Function(
-			"main",
-			Type.Kind.LONG,
+		Module m = new Module();
+
+		Function main = m.addFunction(
+			"main", Type.Kind.LONG,
 			new LinkedList<Map.Entry<String,Type.Kind>>());
 
 		/* Generate LLVM IR code corresponding
@@ -471,14 +469,15 @@ public class LLVMBackend implements Backend
 			}
 		}
 
-		/* Write the generated LLVM IR code */
-		out.print(main.getCode());
+		/* Print the preamble */
+		out.println(this.llvm_preamble);
 
-		/* Write handler for uncaught exceptions */
-		out.print(this.llvm_uncaught);
-
-		/* Write end for main function */
-		out.println("}");
+		/* Get the generated LLVM IR code and
+		 * append the uncaught handler to the main
+		 * function's code. */
+		StringBuffer code = new StringBuffer(m.getCode());
+		code.insert(code.length() - 2, this.llvm_uncaught);
+		out.write(code.toString());
 
 		/* Finish writing */
 		out.close();
