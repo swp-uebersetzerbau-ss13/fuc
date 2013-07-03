@@ -14,9 +14,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertNull;
+import static org.junit.Assert.*;
 
 
 public class ExecutorTest extends TestBase {
@@ -66,8 +64,8 @@ public class ExecutorTest extends TestBase {
 
 		InputStream targetCode = backend.generateTargetCode("targetCode", tac).get("targetCode.ll");
 		Executor.ExecutionResult result = Executor.runIR(targetCode);
-		Assert.assertEquals(4, result.exitCode);
-		Assert.assertEquals("4\n", result.output);
+		assertEquals(4, result.exitCode);
+		assertEquals("4\n", result.output);
 	}
 
 	@Test
@@ -85,7 +83,7 @@ public class ExecutorTest extends TestBase {
 				"  store i64 2, i64* %longVar2\n" +
 				"  ret i64 0\n";
 
-		expectMain(expectedTargetCode, targetCode);
+		expectMain("", expectedTargetCode, targetCode);
 	}
 
 	@Test
