@@ -272,7 +272,7 @@ public class LexerImpl implements Lexer {
 										.charAt(indexOfNextSeparator)).equals(
 								"-")
 								&& this.actualLineValue
-										.matches("\\d+(\\.\\d+)?(e|E)?-.*")) {
+										.matches("\\d+(\\.\\d+)?(e|E)-.*")) {
 
 							continue;
 

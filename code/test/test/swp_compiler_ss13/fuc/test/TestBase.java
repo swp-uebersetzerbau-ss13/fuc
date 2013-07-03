@@ -6,7 +6,7 @@ import org.apache.log4j.Logger;
 import swp_compiler_ss13.common.backend.BackendException;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 import swp_compiler_ss13.common.report.ReportType;
-import swp_compiler_ss13.fuc.backend.TACExecutor;
+import swp_compiler_ss13.fuc.backend.Executor;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,7 +40,7 @@ public abstract class TestBase {
 		Logger.getRootLogger().setLevel(Level.FATAL);
 		boolean hasLLI;
 		try {
-			PA.invokeMethod(TACExecutor.class, "tryToStartLLI()");
+			PA.invokeMethod(Executor.class, "tryToStartLLI()");
 			hasLLI = true;
 		} catch (Exception e) {
 			hasLLI = false;
@@ -85,7 +85,7 @@ public abstract class TestBase {
 
 	protected void testProgRuntime(Object[] prog) throws BackendException, IntermediateCodeGeneratorException, IOException, InterruptedException {
 		InputStream compilationResult = testProgCompilation(prog);
-		TACExecutor.ExecutionResult executionResult = TACExecutor.runIR(compilationResult);
+		Executor.ExecutionResult executionResult = Executor.runIR(compilationResult);
 		assertEquals(prog[1], executionResult.exitCode);
 		assertEquals(prog[2], executionResult.output);
 	}
