@@ -94,7 +94,7 @@ public class ExecutorTest extends TestBase {
 		out.println("OR_BOOLEAN|#FALSE|#TRUE|b");
 		out.close();
 
-		List<Quadruple> quadruples = (List<Quadruple>) PA.invokeMethod(Executor.class, "readTAC(java.io.InputStream)",
+		List quadruples = (List) PA.invokeMethod(Executor.class, "readTAC(java.io.InputStream)",
 				new ByteArrayInputStream(os.toByteArray()));
 
 		Quadruple[] expectedQuadruples = new Quadruple[3];
