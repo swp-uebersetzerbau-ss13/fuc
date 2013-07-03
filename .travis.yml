@@ -3,6 +3,13 @@ before_script:
   - echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
 before_install:
   - git submodule update --init --recursive
+install:
+  - sudo sudo sh -c "echo 'deb http://archive.ubuntu.com/ubuntu/ precise-proposed restricted main multiverse universe' >> /etc/apt/sources.list"
+  - sudo sudo sh -c "echo 'deb http://llvm.org/apt/precise/ llvm-toolchain-precise main' >> /etc/apt/sources.list"
+  - wget -O - http://llvm.org/apt/llvm-snapshot.gpg.key | sudo apt-key add -
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq llvm-3.3
+  - sudo ln -s /usr/bin/lli-3.3 /usr/bin/lli
 script: cd code && ant run-tests -keep-going
 notifications:
   email:
