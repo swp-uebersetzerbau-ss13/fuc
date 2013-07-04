@@ -133,7 +133,7 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 		node.setAttributeValue(STATIC_VALUE, value);
 	}
 
-	protected void evaluateStaticExpresionValue(ExpressionNode node) {
+	protected void evaluateStaticExpressionValue(ExpressionNode node) {
 		Object result = null;
 
 		if (node instanceof LiteralNode) {
@@ -399,7 +399,7 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 		}
 
 		if (node instanceof ExpressionNode && !hasTypeError(node)) {
-			evaluateStaticExpresionValue((ExpressionNode) node);
+			evaluateStaticExpressionValue((ExpressionNode) node);
 		}
 	}
 
@@ -627,7 +627,7 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 
 			BinaryExpressionNode.BinaryOperator op = node.getOperator();
 
-			if (!isNumeric(type) && (op != BinaryExpressionNode.BinaryOperator.EQUAL || op != BinaryExpressionNode.BinaryOperator.INEQUAL)) {
+			if (!isNumeric(type) && (op != BinaryExpressionNode.BinaryOperator.EQUAL && op != BinaryExpressionNode.BinaryOperator.INEQUAL)) {
 				markTypeError(node);
 				errorLog.reportError(ReportType.TYPE_MISMATCH, node.coverage(),
 					"Operator " + node.getOperator() + " expects numeric operands.");

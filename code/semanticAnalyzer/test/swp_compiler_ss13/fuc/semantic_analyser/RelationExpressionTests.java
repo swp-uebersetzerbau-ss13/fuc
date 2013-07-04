@@ -217,4 +217,134 @@ public class RelationExpressionTests {
 		assertEquals(errors.size(), 1);
 		assertEquals(errors.get(0).getReportType(), ReportType.TYPE_MISMATCH);
 	}
+	
+	/**
+	 * <pre>
+	 * # no errors expected
+	 * bool b;
+	 * 
+	 * b = 1 < 1;
+	 * b = 1 <= 1;
+	 * b = 1 > 1;
+	 * b = 1 >= 1;
+	 * b = 1 == 1;
+	 * b = 1 != 1;
+	 * </pre>
+	 */
+	@Test
+	public void testStaticRelationsLong() {
+		ASTFactory astFactory = new ASTFactory();
+		astFactory.addDeclaration("b", new BooleanType());
+
+		astFactory.addAssignment(astFactory.newBasicIdentifier("b"), astFactory
+				.newBinaryExpression(BinaryOperator.LESSTHAN,
+						astFactory.newLiteral("1", new LongType()),
+						astFactory.newLiteral("1", new LongType())));
+		astFactory.addAssignment(astFactory.newBasicIdentifier("b"), astFactory
+				.newBinaryExpression(BinaryOperator.LESSTHANEQUAL,
+						astFactory.newLiteral("1", new LongType()),
+						astFactory.newLiteral("1", new LongType())));
+		astFactory.addAssignment(astFactory.newBasicIdentifier("b"), astFactory
+				.newBinaryExpression(BinaryOperator.GREATERTHAN,
+						astFactory.newLiteral("1", new LongType()),
+						astFactory.newLiteral("1", new LongType())));
+		astFactory.addAssignment(astFactory.newBasicIdentifier("b"), astFactory
+				.newBinaryExpression(BinaryOperator.GREATERTHANEQUAL,
+						astFactory.newLiteral("1", new LongType()),
+						astFactory.newLiteral("1", new LongType())));
+		astFactory.addAssignment(astFactory.newBasicIdentifier("b"), astFactory
+				.newBinaryExpression(BinaryOperator.EQUAL,
+						astFactory.newLiteral("1", new LongType()),
+						astFactory.newLiteral("1", new LongType())));
+		astFactory.addAssignment(astFactory.newBasicIdentifier("b"), astFactory
+				.newBinaryExpression(BinaryOperator.INEQUAL,
+						astFactory.newLiteral("1", new LongType()),
+						astFactory.newLiteral("1", new LongType())));
+
+		AST ast = astFactory.getAST();
+		analyser.analyse(ast);
+
+		System.out.println(log);
+		assertFalse(log.hasErrors());
+	}
+	
+	/**
+	 * <pre>
+	 * # no errors expected
+	 * bool b;
+	 * 
+	 * b = 1.0 < 1.0;
+	 * b = 1.0 <= 1.0;
+	 * b = 1.0 > 1.0;
+	 * b = 1.0 >= 1.0;
+	 * b = 1.0 == 1.0;
+	 * b = 1.0 != 1.0;
+	 * </pre>
+	 */
+	@Test
+	public void testStaticRelationsDouble() {
+		ASTFactory astFactory = new ASTFactory();
+		astFactory.addDeclaration("b", new BooleanType());
+
+		astFactory.addAssignment(astFactory.newBasicIdentifier("b"), astFactory
+				.newBinaryExpression(BinaryOperator.LESSTHAN,
+						astFactory.newLiteral("1.0", new DoubleType()),
+						astFactory.newLiteral("1.0", new DoubleType())));
+		astFactory.addAssignment(astFactory.newBasicIdentifier("b"), astFactory
+				.newBinaryExpression(BinaryOperator.LESSTHANEQUAL,
+						astFactory.newLiteral("1.0", new DoubleType()),
+						astFactory.newLiteral("1.0", new DoubleType())));
+		astFactory.addAssignment(astFactory.newBasicIdentifier("b"), astFactory
+				.newBinaryExpression(BinaryOperator.GREATERTHAN,
+						astFactory.newLiteral("1.0", new DoubleType()),
+						astFactory.newLiteral("1.0", new DoubleType())));
+		astFactory.addAssignment(astFactory.newBasicIdentifier("b"), astFactory
+				.newBinaryExpression(BinaryOperator.GREATERTHANEQUAL,
+						astFactory.newLiteral("1.0", new DoubleType()),
+						astFactory.newLiteral("1.0", new DoubleType())));
+		astFactory.addAssignment(astFactory.newBasicIdentifier("b"), astFactory
+				.newBinaryExpression(BinaryOperator.EQUAL,
+						astFactory.newLiteral("1.0", new DoubleType()),
+						astFactory.newLiteral("1.0", new DoubleType())));
+		astFactory.addAssignment(astFactory.newBasicIdentifier("b"), astFactory
+				.newBinaryExpression(BinaryOperator.INEQUAL,
+						astFactory.newLiteral("1.0", new DoubleType()),
+						astFactory.newLiteral("1.0", new DoubleType())));
+
+		AST ast = astFactory.getAST();
+		analyser.analyse(ast);
+
+		System.out.println(log);
+		assertFalse(log.hasErrors());
+	}
+	
+	/**
+	 * <pre>
+	 * # no errors expected
+	 * bool b;
+	 * 
+	 * b = true == true;
+	 * b = true != true;
+	 * </pre>
+	 */
+	@Test
+	public void testStaticRelationBool() {
+		ASTFactory astFactory = new ASTFactory();
+		astFactory.addDeclaration("b", new BooleanType());
+
+		astFactory.addAssignment(astFactory.newBasicIdentifier("b"), astFactory
+				.newBinaryExpression(BinaryOperator.EQUAL,
+						astFactory.newLiteral("true", new BooleanType()),
+						astFactory.newLiteral("true", new BooleanType())));
+		astFactory.addAssignment(astFactory.newBasicIdentifier("b"), astFactory
+				.newBinaryExpression(BinaryOperator.INEQUAL,
+						astFactory.newLiteral("true", new BooleanType()),
+						astFactory.newLiteral("true", new BooleanType())));
+
+		AST ast = astFactory.getAST();
+		analyser.analyse(ast);
+
+		System.out.println(log);
+		assertFalse(log.hasErrors());
+	}
 }

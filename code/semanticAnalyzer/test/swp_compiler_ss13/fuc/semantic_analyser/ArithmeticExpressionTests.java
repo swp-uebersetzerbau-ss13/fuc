@@ -383,4 +383,32 @@ public class ArithmeticExpressionTests {
 		assertEquals(errors.size(), 1);
 		assertEquals(errors.get(0).getReportType(), ReportType.DIVISION_BY_ZERO);
 	}
+	
+	/**
+	 * <pre>
+	 * # no errors expected
+	 * double d;
+	 * 
+	 * d = - 1;
+	 * d = - 1.0;
+	 * </pre>
+	 */
+	@Test
+	public void testStaticUnaryMinus() {
+		ASTFactory astFactory = new ASTFactory();
+		astFactory.addDeclaration("d", new DoubleType());
+
+		astFactory.addAssignment(astFactory.newBasicIdentifier("d"), astFactory
+				.newUnaryExpression(UnaryOperator.MINUS,
+						astFactory.newLiteral("1", new LongType())));
+		astFactory.addAssignment(astFactory.newBasicIdentifier("d"), astFactory
+				.newUnaryExpression(UnaryOperator.MINUS,
+						astFactory.newLiteral("1.0", new DoubleType())));
+
+		AST ast = astFactory.getAST();
+		analyser.analyse(ast);
+
+		System.out.println(log);
+		assertFalse(log.hasErrors());
+	}
 }
