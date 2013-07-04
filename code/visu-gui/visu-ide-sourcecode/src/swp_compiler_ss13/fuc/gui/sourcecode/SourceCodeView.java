@@ -76,12 +76,11 @@ public class SourceCodeView implements View {
 	private final SimpleAttributeSet markWarningAttributes = new SimpleAttributeSet();
 	private static final Color WARNING_YELLOW = new Color(240, 240, 0);
 
-	private final List<TokenType> highlightedKeywords = Arrays.asList(
-			TokenType.BOOL_SYMBOL, TokenType.BREAK, TokenType.DO,
-			TokenType.DOUBLE_SYMBOL, TokenType.ELSE, TokenType.FALSE,
-			TokenType.IF, TokenType.LONG_SYMBOL, TokenType.PRINT,
-			TokenType.RECORD_SYMBOL, TokenType.RETURN, TokenType.STRING_SYMBOL,
-			TokenType.TRUE, TokenType.WHILE);
+	private final List<TokenType> highlightedKeywords = Arrays.asList(TokenType.BOOL_SYMBOL,
+			TokenType.BREAK, TokenType.DO, TokenType.DOUBLE_SYMBOL, TokenType.ELSE,
+			TokenType.FALSE, TokenType.IF, TokenType.LONG_SYMBOL, TokenType.PRINT,
+			TokenType.RECORD_SYMBOL, TokenType.RETURN, TokenType.STRING_SYMBOL, TokenType.TRUE,
+			TokenType.WHILE);
 	private final TokenType highlightedString = TokenType.STRING;
 	private final TokenType highlightedComment = TokenType.COMMENT;
 	private final TokenType highlightedError = TokenType.NOT_A_TOKEN;
@@ -94,8 +93,7 @@ public class SourceCodeView implements View {
 		sourceCodeField = new JTextPane();
 		sourceCodeField.setEditable(true);
 		sourceCodeField.setEditorKit(new UnderlineStyledEditorKit());
-		sourceCodeField.getDocument().putProperty(
-				PlainDocument.tabSizeAttribute, 4);
+		sourceCodeField.getDocument().putProperty(PlainDocument.tabSizeAttribute, 4);
 		lineNumberField = new JTextPane();
 		lineNumberField.setText("1");
 		lineNumberField.setEditable(false);
@@ -118,12 +116,9 @@ public class SourceCodeView implements View {
 		StyleConstants.setForeground(markErrorAttributes, Color.RED);
 		StyleConstants.setForeground(markWarningAttributes, WARNING_YELLOW);
 		errorAttributes.addAttribute(UnderlineStyledEditorKit.WAVY_LINE, true);
-		errorAttributes.addAttribute(UnderlineStyledEditorKit.UNDERLINE_COLOR,
-				Color.RED);
-		warningAttributes
-				.addAttribute(UnderlineStyledEditorKit.WAVY_LINE, true);
-		warningAttributes.addAttribute(
-				UnderlineStyledEditorKit.UNDERLINE_COLOR, WARNING_YELLOW);
+		errorAttributes.addAttribute(UnderlineStyledEditorKit.UNDERLINE_COLOR, Color.RED);
+		warningAttributes.addAttribute(UnderlineStyledEditorKit.WAVY_LINE, true);
+		warningAttributes.addAttribute(UnderlineStyledEditorKit.UNDERLINE_COLOR, WARNING_YELLOW);
 		attributes = new HashMap<>();
 		for (TokenType type : highlightedKeywords) {
 			attributes.put(type, keywordAttributes);
@@ -161,25 +156,23 @@ public class SourceCodeView implements View {
 
 	@Override
 	public void initComponents(IDE ide) {
-		AbstractDocument document = (AbstractDocument) sourceCodeField
-				.getDocument();
+		AbstractDocument document = (AbstractDocument) sourceCodeField.getDocument();
 		document.setDocumentFilter(new SourceCodeListener(ide));
 		FileListener listener = new FileListener(ide);
 		JMenu menu = new JMenu("File");
 		JMenuItem loadFile = new JMenuItem("Open File...");
 		loadFile.setActionCommand(FileListener.LOAD_FILE);
-		loadFile.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O,
-				InputEvent.META_DOWN_MASK));
+		loadFile.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.META_DOWN_MASK));
 		loadFile.addActionListener(listener);
 		JMenuItem saveNewFile = new JMenuItem("Save File As...");
 		saveNewFile.setActionCommand(FileListener.SAFE_NEW_FILE);
-		saveNewFile.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,
-				InputEvent.META_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK));
+		saveNewFile.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.META_DOWN_MASK
+				| InputEvent.SHIFT_DOWN_MASK));
 		saveNewFile.addActionListener(listener);
 		JMenuItem saveOldFile = new JMenuItem("Save File");
 		saveOldFile.setActionCommand(FileListener.SAFE_OLD_FILE);
-		saveOldFile.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,
-				InputEvent.META_DOWN_MASK));
+		saveOldFile
+				.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.META_DOWN_MASK));
 		saveOldFile.addActionListener(listener);
 		menu.add(loadFile);
 		menu.add(saveOldFile);
@@ -203,13 +196,13 @@ public class SourceCodeView implements View {
 			this.ide = ide;
 		}
 
-		private void statusChanged(FilterBypass fb, String text) throws BadLocationException {
+		private void statusChanged(FilterBypass fb, String text, int caretPosition)
+				throws BadLocationException {
 			LOG.trace("Received change");
-			
 			// Clear document and rewrite it with defaultAttributes
 			fb.remove(0, fb.getDocument().getLength());
 			fb.insertString(0, text, defaultAttributes);
-			
+
 			// Calc line indexes
 			String[] lines = text.split("\n");
 			int[] lineOffsets = new int[lines.length];
@@ -218,48 +211,30 @@ public class SourceCodeView implements View {
 				lineOffsets[i + 1] = lineOffsets[i] + 1 + lines[i].length();
 			}
 			setLineNumbers(lines.length);
-			
+
 			// Try to run the frontend
 			MyList errorLines = new MyList();
 			try {
 				List<Token> tokens = lexerCheck(fb, text, lineOffsets);
 				if (tokens != null) {
-					AST ast = ide.runParser(tokens, false);
-					if (ast != null) {
-						ast = ide.runSemanticAnalysis(ast, false);
-					}
-			
-					// Identify which lines contain errors
-					ReportLogImpl reportLog = ide.getReportLog();
-					
 					// Check for NOT_A_TOKEN errors
 					for (Token token : tokens) {
 						if (token.getTokenType() == TokenType.NOT_A_TOKEN) {
 							errorLines.add(token.getLine());
 						}
 					}
-					
-					// Check for lexer/parser errors
-					for (LogEntry entry : reportLog.getEntries()) {
-						boolean isError = entry.getLogType() == LogEntry.Type.ERROR;
-						int lastLine = -1;
-						for (Token token : entry.getTokens()) {
-							if (token.getTokenType().equals(TokenType.EOF)) {
-								continue;
-							}
-							
-							// Mark as error/warning line
-							int newLine = token.getLine();
-							if (lastLine != newLine) {
-								errorLines.add(newLine * (isError ? 1 : -1));
-								lastLine = newLine;
-							}
-							
-							// Replace token
-							SimpleAttributeSet attrs = isError ? errorAttributes : warningAttributes;
-							replaceHighlighted(fb, token, lineOffsets, attrs);
+
+					AST ast = ide.runParser(tokens, false);
+					if (ast != null) {
+						handleReportlog(fb, lineOffsets, errorLines);
+						ast = ide.runSemanticAnalysis(ast, false);
+						if (ast != null) {
+							handleReportlog(fb, lineOffsets, errorLines);
 						}
 					}
+
+					// Identify which lines contain errors
+					// handleReportlog(fb, lineOffsets, errorLines);
 				}
 			} catch (BadLocationException e) {
 				LOG.error("error on marking errors", e);
@@ -275,12 +250,40 @@ public class SourceCodeView implements View {
 			LOG.info("send sourcecode");
 			ide.setSourceCode(text);
 			setSourceCode = oldValue;
+			sourceCodeField.setCaretPosition(caretPosition);
 		}
 
-		private List<Token> lexerCheck(FilterBypass fb, String text,
-				int[] lineLength) throws BadLocationException {
+		private void handleReportlog(FilterBypass fb, int[] lineOffsets, MyList errorLines)
+				throws BadLocationException {
+			ReportLogImpl reportLog = ide.getReportLog();
+
+			// Check for lexer/parser errors
+			for (LogEntry entry : reportLog.getEntries()) {
+				boolean isError = entry.getLogType() == LogEntry.Type.ERROR;
+				int lastLine = -1;
+				for (Token token : entry.getTokens()) {
+					if (token.getTokenType().equals(TokenType.EOF)) {
+						continue;
+					}
+
+					// Mark as error/warning line
+					int newLine = token.getLine();
+					if (lastLine != newLine) {
+						errorLines.add(newLine * (isError ? 1 : -1));
+						lastLine = newLine;
+					}
+
+					// Replace token
+					SimpleAttributeSet attrs = isError ? errorAttributes : warningAttributes;
+					replaceHighlighted(fb, token, lineOffsets, attrs);
+				}
+			}
+		}
+
+		private List<Token> lexerCheck(FilterBypass fb, String text, int[] lineLength)
+				throws BadLocationException {
 			List<Token> tokens = ide.runLexer(text, true);
-			
+
 			// Print all tokens, each with its attributes depending on its type
 			for (Token token : tokens) {
 				SimpleAttributeSet attrs = attributes.get(token.getTokenType());
@@ -290,11 +293,10 @@ public class SourceCodeView implements View {
 			}
 			return tokens;
 		}
-		
-		private void replaceHighlighted(FilterBypass fb, Token token,
-				int[] lineLength, SimpleAttributeSet attrs) throws BadLocationException {
-			int tokenstart = lineLength[token.getLine() - 1]
-					+ token.getColumn() - 1;
+
+		private void replaceHighlighted(FilterBypass fb, Token token, int[] lineLength,
+				SimpleAttributeSet attrs) throws BadLocationException {
+			int tokenstart = lineLength[token.getLine() - 1] + token.getColumn() - 1;
 			fb.remove(tokenstart, token.getValue().length());
 			fb.insertString(tokenstart, token.getValue(), attrs);
 		}
@@ -309,47 +311,45 @@ public class SourceCodeView implements View {
 					document.insertString(textIndex++, "\n", defaultAttributes);
 				}
 				document.insertString(textIndex++, "I",
-						line == transferredLine ? markErrorAttributes
-								: markWarningAttributes);
+						line == transferredLine ? markErrorAttributes : markWarningAttributes);
 			}
 			if (textIndex == 0) {
 				document.insertString(0, " ", defaultAttributes);
 			}
 		}
-		
+
 		@Override
-		public void insertString(FilterBypass fb, int offset, String str,
-				AttributeSet attr) throws BadLocationException {
+		public void insertString(FilterBypass fb, int offset, String str, AttributeSet attr)
+				throws BadLocationException {
 			// Create new text
 			StringBuilder b = new StringBuilder(getSourceCode());
 			b.insert(offset, str);
-			
-			statusChanged(fb, b.toString());
+			statusChanged(fb, b.toString(), offset + str.length());
+
 		}
-		
+
 		private String getSourceCode() {
 			String code = ide.getSourceCode();
 			return code == null ? "" : code;
 		}
-		
+
 		@Override
-		public void remove(FilterBypass fb, int offset, int length)
-				throws BadLocationException {
+		public void remove(FilterBypass fb, int offset, int length) throws BadLocationException {
 			// Create new text
 			StringBuilder b = new StringBuilder(getSourceCode());
 			b.delete(offset, offset + length);
-			
-			statusChanged(fb, b.toString());
+
+			statusChanged(fb, b.toString(), offset);
 		}
-		
+
 		@Override
-		public void replace(FilterBypass fb, int offset, int length,
-				String str, AttributeSet attrs) throws BadLocationException {
+		public void replace(FilterBypass fb, int offset, int length, String str, AttributeSet attrs)
+				throws BadLocationException {
 			// Create new text
 			StringBuilder b = new StringBuilder(getSourceCode());
 			b.replace(offset, offset + length, str);
-			
-			statusChanged(fb, b.toString());
+
+			statusChanged(fb, b.toString(), offset + str.length());
 		}
 	}
 
@@ -366,8 +366,7 @@ public class SourceCodeView implements View {
 		public FileListener(IDE ide) {
 			this.ide = ide;
 			this.chooser = new JFileChooser();
-			this.chooser.setFileFilter(new FileNameExtensionFilter(
-					"choose a filename", "prog"));
+			this.chooser.setFileFilter(new FileNameExtensionFilter("choose a filename", "prog"));
 		}
 
 		@Override
@@ -384,16 +383,13 @@ public class SourceCodeView implements View {
 						if (load || safeNew || newFile == null) {
 							int showOpenDialog;
 							if (load) {
-								showOpenDialog = chooser
-										.showOpenDialog(component);
+								showOpenDialog = chooser.showOpenDialog(component);
 							} else {
-								showOpenDialog = chooser
-										.showSaveDialog(component);
+								showOpenDialog = chooser.showSaveDialog(component);
 							}
 							switch (showOpenDialog) {
 							case JFileChooser.APPROVE_OPTION:
-								newFile = new File(chooser.getSelectedFile()
-										.getPath()
+								newFile = new File(chooser.getSelectedFile().getPath()
 										.replaceFirst("(|\\.prog)\\Z", ".prog"));
 								if (!newFile.exists()) {
 									try {
@@ -407,39 +403,30 @@ public class SourceCodeView implements View {
 									StringBuilder sourceCode = new StringBuilder();
 									String line;
 									try {
-										reader = new BufferedReader(
-												new InputStreamReader(
-														new FileInputStream(
-																newFile)));
+										reader = new BufferedReader(new InputStreamReader(
+												new FileInputStream(newFile)));
 										while ((line = reader.readLine()) != null) {
 											sourceCode.append(line);
 											sourceCode.append('\n');
 										}
 										if (sourceCode.length() != 0) {
-											sourceCode.setLength(sourceCode
-													.length() - 1);
+											sourceCode.setLength(sourceCode.length() - 1);
 										}
 										boolean oldValue = setSourceCode;
 										setSourceCode = true;
-										ide.setSourceCode(sourceCode
-												.toString());
+										ide.setSourceCode(sourceCode.toString());
 										setSourceCode = oldValue;
 										file = newFile;
 									} catch (FileNotFoundException e1) {
-										LOG.error("choosen file doesn't exist",
-												e1);
+										LOG.error("choosen file doesn't exist", e1);
 									} catch (IOException e1) {
-										LOG.error(
-												"error while reading from file",
-												e1);
+										LOG.error("error while reading from file", e1);
 									} finally {
 										if (reader != null) {
 											try {
 												reader.close();
 											} catch (IOException e1) {
-												LOG.error(
-														"error while closing file",
-														e1);
+												LOG.error("error while closing file", e1);
 											}
 										}
 									}
@@ -479,8 +466,8 @@ public class SourceCodeView implements View {
 		public void add(int i) {
 			int index = list.size();
 			int element;
-			for (ListIterator<Integer> iterator = list
-					.listIterator(list.size()); iterator.hasPrevious();) {
+			for (ListIterator<Integer> iterator = list.listIterator(list.size()); iterator
+					.hasPrevious();) {
 				element = iterator.previous();
 				if (element == i || element == -i) {
 					index = iterator.nextIndex();
