@@ -70,6 +70,11 @@ public interface IDE {
 	 */
 	public void setSourceCode(String sourceCode);
 
+   /**
+    * @return Get the source code that is used for the compiler
+    */
+   public String getSourceCode();
+
 	/**
 	 * Run the compiler (all components) and update all gui components with new
 	 * data

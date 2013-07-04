@@ -185,4 +185,32 @@ public class StructTests {
 		assertEquals(errors.size(), 1);
 		assertEquals(errors.get(0).getReportType(), ReportType.TYPE_MISMATCH);
 	}
+	
+	/**
+	 * <pre>
+	 * # error: struct access of a non-struct type
+	 * long l;
+	 * bool b;
+	 * 
+	 * b = l.b;
+	 * </pre>
+	 */
+	@Test
+	public void testStructAccessOfNonStructTypeError() {
+		ASTFactory astFactory = new ASTFactory();
+		astFactory.addDeclaration("l", new LongType());
+		astFactory.addDeclaration("b", new BooleanType());
+		IdentifierNode identifier_b = astFactory.newBasicIdentifier("b");
+		IdentifierNode identifier_l = astFactory.newBasicIdentifier("l");
+		IdentifierNode identifier_l_b = astFactory.newStructIdentifier("b", identifier_l);
+		astFactory.addAssignment(identifier_b, identifier_l_b);
+		
+		AST ast = astFactory.getAST();
+		analyser.analyse(ast);
+		
+		System.out.println(log);
+		List<LogEntry> errors = log.getErrors();
+		assertEquals(errors.size(), 1);
+		assertEquals(errors.get(0).getReportType(), ReportType.TYPE_MISMATCH);
+	}
 }

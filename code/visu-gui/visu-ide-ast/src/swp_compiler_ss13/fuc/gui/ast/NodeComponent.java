@@ -60,6 +60,7 @@ public class NodeComponent {
 		this.getComponent().add(this.nameComponent, BorderLayout.NORTH);
 		this.infoComponent = this.getInfoComponent(node);
 		this.getComponent().add(this.infoComponent, BorderLayout.CENTER);
+		this.getComponent().setVisible(true);
 	}
 
 	void toggleSize() {

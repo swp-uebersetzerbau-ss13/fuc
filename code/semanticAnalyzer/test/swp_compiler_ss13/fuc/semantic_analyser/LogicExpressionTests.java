@@ -1,6 +1,7 @@
 package swp_compiler_ss13.fuc.semantic_analyser;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import java.util.List;
 
@@ -21,6 +22,7 @@ import swp_compiler_ss13.common.parser.SymbolTable;
 import swp_compiler_ss13.common.report.ReportType;
 import swp_compiler_ss13.common.types.primitive.BooleanType;
 import swp_compiler_ss13.common.types.primitive.LongType;
+import swp_compiler_ss13.fuc.ast.ASTFactory;
 import swp_compiler_ss13.fuc.ast.ASTImpl;
 import swp_compiler_ss13.fuc.ast.AssignmentNodeImpl;
 import swp_compiler_ss13.fuc.ast.BasicIdentifierNodeImpl;
@@ -177,5 +179,66 @@ public class LogicExpressionTests {
 		List<LogEntry> errors = log.getErrors();
 		assertEquals(errors.size(), 1);
 		assertEquals(errors.get(0).getReportType(), ReportType.TYPE_MISMATCH);
+	}
+	
+	/**
+	 * <pre>
+	 * # error: type mismatch
+	 * bool b;
+	 * 
+	 * b = 1 && 0;
+	 * </pre>
+	 */
+	@Test
+	public void testBinaryTypeError() {
+		ASTFactory astFactory = new ASTFactory();
+		astFactory.addDeclaration("b", new BooleanType());
+
+		astFactory.addAssignment(astFactory.newBasicIdentifier("b"), astFactory
+				.newBinaryExpression(BinaryOperator.LOGICAL_AND,
+						astFactory.newLiteral("1", new LongType()),
+						astFactory.newLiteral("0", new LongType())));
+
+		AST ast = astFactory.getAST();
+		analyser.analyse(ast);
+
+		System.out.println(log);
+		List<LogEntry> errors = log.getErrors();
+		assertEquals(errors.size(), 1);
+		assertEquals(errors.get(0).getReportType(), ReportType.TYPE_MISMATCH);
+	}
+	
+	/**
+	 * <pre>
+	 * # no errors expected
+	 * bool b;
+	 * 
+	 * b = false || false;
+	 * b = true && true;
+	 * b = !true;
+	 * </pre>
+	 */
+	@Test
+	public void testStaticLogicOperation() {
+		ASTFactory astFactory = new ASTFactory();
+		astFactory.addDeclaration("b", new BooleanType());
+
+		astFactory.addAssignment(astFactory.newBasicIdentifier("b"), astFactory
+				.newBinaryExpression(BinaryOperator.LOGICAL_OR,
+						astFactory.newLiteral("false", new BooleanType()),
+						astFactory.newLiteral("false", new BooleanType())));
+		astFactory.addAssignment(astFactory.newBasicIdentifier("b"), astFactory
+				.newBinaryExpression(BinaryOperator.LOGICAL_AND,
+						astFactory.newLiteral("true", new BooleanType()),
+						astFactory.newLiteral("true", new BooleanType())));
+		astFactory.addAssignment(astFactory.newBasicIdentifier("b"), astFactory
+				.newUnaryExpression(UnaryOperator.LOGICAL_NEGATE,
+						astFactory.newLiteral("true", new BooleanType())));
+
+		AST ast = astFactory.getAST();
+		analyser.analyse(ast);
+
+		System.out.println(log);
+		assertFalse(log.hasErrors());
 	}
 }
