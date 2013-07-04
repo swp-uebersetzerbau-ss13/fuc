@@ -384,7 +384,7 @@ public class Function
 					List<Member> members = ((LLVMBackendStructType) type).getMembers();
 					for(Member m: members) {
 						if(m.getName().equals(index)) {
-							indices.add("#" + String.valueOf(members.indexOf(m)));
+							indices.add("#" + String.valueOf(Integer.valueOf(members.indexOf(m))));
 							break;
 						}
 					}
@@ -400,7 +400,7 @@ public class Function
 		StringBuffer indexList = new StringBuffer();
 		for(String i: indices) {
 			indexList.append(", ");
-			indexList.append(Module.getIRType(Type.Kind.LONG));
+			indexList.append("i32" /* For some (undocumented) reason, LLVM won't accept i64 here for structs. Module.getIRType(Type.Kind.LONG) */);
 			indexList.append(" ");
 			indexList.append(cdl(i, Type.Kind.LONG));
 		}
