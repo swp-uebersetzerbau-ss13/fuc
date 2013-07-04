@@ -36,9 +36,6 @@ public class ParanthesesProgTest {
 	private LexerImpl lexer;
 	private ArrayList<Token> list;
 
-	/**
-	 * @throws java.lang.Exception
-	 */
 	@Before
 	public void setUp() throws Exception {
 		this.stream = new ByteArrayInputStream(prog.getBytes());
@@ -76,7 +73,7 @@ public class ParanthesesProgTest {
 			new TokenImpl("return", TokenType.RETURN, 1, 1),
 			new TokenImpl("l", TokenType.ID, 1, 1),
 			new TokenImpl(";", TokenType.SEMICOLON, 1, 1),
-			new TokenImpl("$", TokenType.EOF, 1, 1)
+			new TokenImpl(null, TokenType.EOF, 1, 1)
 		));
 	}
 

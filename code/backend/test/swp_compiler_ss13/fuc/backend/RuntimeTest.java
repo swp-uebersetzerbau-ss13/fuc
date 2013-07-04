@@ -2,7 +2,7 @@ package swp_compiler_ss13.fuc.backend;
 
 import static org.junit.Assert.assertEquals;
 import static swp_compiler_ss13.common.backend.Quadruple.EmptyArgument;
-import static swp_compiler_ss13.fuc.backend.TACExecutor.*;
+import static swp_compiler_ss13.fuc.backend.LLVMExecutor.*;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -26,7 +26,7 @@ public class RuntimeTest {
 
 	private static LLVMBackend backend;
 	private static ArrayList<Quadruple> tac;
-	private static PrintWriter out;
+		private static PrintWriter out;
 	private ByteArrayOutputStream os;
 	private static Logger logger;
 
@@ -83,7 +83,7 @@ public class RuntimeTest {
 		tac.add(new Q(Quadruple.Operator.PRINT_STRING, "s", Quadruple.EmptyArgument, Quadruple.EmptyArgument));
 		tac.add(new Q(Quadruple.Operator.RETURN, "result", Quadruple.EmptyArgument, Quadruple.EmptyArgument));
 
-		ExecutionResult result = TACExecutor.runIR(generateCode(tac));
+		ExecutionResult result = LLVMExecutor.runIR(generateCode(tac));
 
 		assertEquals(4, result.exitCode);
 		assertEquals("4\n", result.output);
@@ -101,7 +101,7 @@ public class RuntimeTest {
 		tac.add(new QuadrupleImpl(Quadruple.Operator.BOOLEAN_TO_STRING, "b3", Quadruple.EmptyArgument, "s"));
 		tac.add(new Q(Quadruple.Operator.PRINT_STRING, "s", Quadruple.EmptyArgument, Quadruple.EmptyArgument));
 
-		ExecutionResult res = TACExecutor.runIR(generateCode(tac));
+		ExecutionResult res = LLVMExecutor.runIR(generateCode(tac));
 		assertEquals("false\n", res.output);
 	}
 
@@ -111,7 +111,7 @@ public class RuntimeTest {
 		tac.add(new Q(Quadruple.Operator.DECLARE_LONG, "#0", Quadruple.EmptyArgument, "l"));
 		tac.add(new Q(Quadruple.Operator.DIV_LONG, "#23", "l", "result"));
 
-		ExecutionResult res = TACExecutor.runIR(generateCode(tac));
+		ExecutionResult res = LLVMExecutor.runIR(generateCode(tac));
 		assertEquals("Program terminated by uncaught exception of type 'DivisionByZeroException'\n", res.output);
 	}
 
@@ -120,7 +120,7 @@ public class RuntimeTest {
 		tac.add(new Q(Quadruple.Operator.PRINT_STRING, "#\"\n\"", Quadruple.EmptyArgument, Quadruple.EmptyArgument));
 		tac.add(new Q(Quadruple.Operator.PRINT_STRING, "#\"bla\"", Quadruple.EmptyArgument, Quadruple.EmptyArgument));
 
-		ExecutionResult res = TACExecutor.runIR(generateCode(tac));
+		ExecutionResult res = LLVMExecutor.runIR(generateCode(tac));
 		assertEquals("\nbla\n", res.output);
 
 	}
@@ -138,7 +138,7 @@ public class RuntimeTest {
 		tac.add(new QuadrupleImpl(Quadruple.Operator.BOOLEAN_TO_STRING, "res2", Quadruple.EmptyArgument, "s"));
 		tac.add(new QuadrupleImpl(Quadruple.Operator.PRINT_STRING, "s", Quadruple.EmptyArgument, Quadruple.EmptyArgument));
 
-		ExecutionResult res = TACExecutor.runIR(generateCode(tac));
+		ExecutionResult res = LLVMExecutor.runIR(generateCode(tac));
 		assertEquals("true\nfalse\n", res.output);
 	}
 
@@ -165,7 +165,7 @@ public class RuntimeTest {
 		tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_STRING, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "s"));
 		tac.add(new QuadrupleImpl(Quadruple.Operator.LONG_TO_STRING, "acc", Quadruple.EmptyArgument, "s"));
 		tac.add(new QuadrupleImpl(Quadruple.Operator.PRINT_STRING, "s", Quadruple.EmptyArgument, Quadruple.EmptyArgument));
-		ExecutionResult res = TACExecutor.runIR(generateCode(tac));
+		ExecutionResult res = LLVMExecutor.runIR(generateCode(tac));
 		assertEquals("15\n", res.output);
   }
 
@@ -184,7 +184,7 @@ public class RuntimeTest {
 		tac.add(new QuadrupleImpl(Quadruple.Operator.DOUBLE_TO_LONG, "v", Quadruple.EmptyArgument, "l"));
 		tac.add(new QuadrupleImpl(Quadruple.Operator.LONG_TO_STRING, "l", Quadruple.EmptyArgument, "s"));
 		tac.add(new QuadrupleImpl(Quadruple.Operator.PRINT_STRING, "s", Quadruple.EmptyArgument, Quadruple.EmptyArgument));
-		ExecutionResult res = TACExecutor.runIR(generateCode(tac));
+		ExecutionResult res = LLVMExecutor.runIR(generateCode(tac));
 		assertEquals("2\n", res.output);
     }
 	@Test public void arrays__reference_self_resolve() throws Exception {
@@ -197,7 +197,7 @@ public class RuntimeTest {
 		tac.add(new QuadrupleImpl(Operator.ARRAY_GET_REFERENCE, "r", "#20", "r"));
 		tac.add(new QuadrupleImpl(Operator.DECLARE_LONG, EmptyArgument, EmptyArgument, "v"));
 		tac.add(new QuadrupleImpl(Operator.ARRAY_GET_LONG, "r", "#25", "v"));
-		ExecutionResult res = TACExecutor.runIR(generateCode(tac));
+		ExecutionResult res = LLVMExecutor.runIR(generateCode(tac));
 		assertEquals("", res.output);
     }
 	@Test public void arrays__reference_self_resolve_set_long() throws Exception {
@@ -209,7 +209,7 @@ public class RuntimeTest {
 		tac.add(new QuadrupleImpl(Operator.ARRAY_GET_REFERENCE, "a", "#15", "r"));
 		tac.add(new QuadrupleImpl(Operator.ARRAY_GET_REFERENCE, "r", "#20", "r"));
 		tac.add(new QuadrupleImpl(Operator.ARRAY_SET_LONG, "r", "#25", "#999"));
-		ExecutionResult res = TACExecutor.runIR(generateCode(tac));
+		ExecutionResult res = LLVMExecutor.runIR(generateCode(tac));
 		assertEquals("", res.output);
     }
 
@@ -278,7 +278,7 @@ public class RuntimeTest {
 		Logger.getRootLogger().setLevel(Level.FATAL);
 		boolean hasLLI;
 		try {
-			PA.invokeMethod(TACExecutor.class, "tryToStartLLI()");
+			PA.invokeMethod(LLVMExecutor.class, "tryToStartLLI()");
 			hasLLI = true;
 		} catch (Exception e) {
 			hasLLI = false;
@@ -292,7 +292,7 @@ public class RuntimeTest {
 	private ExecutionResult runTAC() throws IOException, InterruptedException, BackendException {
 		out.close();
 		ByteArrayInputStream is = new ByteArrayInputStream(os.toByteArray());
-		return TACExecutor.runTAC(is);
+		return LLVMExecutor.runTAC(is);
 	}
 
 	private InputStream generateCode(ArrayList<Quadruple> tac) throws IOException, BackendException {

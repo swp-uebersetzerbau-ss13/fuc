@@ -14,6 +14,7 @@
 
 	<path id="sourcepath-test">
 		<path refid="sourcepath" />
+        <pathelement location="${src.dir}" />
 		<pathelement location="${test.dir}" />
         <pathelement location="../${lexer.dir}/${src.dir}" />
         <pathelement location="../${errorLog.dir}/${src.dir}" />
@@ -27,8 +28,5 @@
 		<pathelement location="../${lib.dir}/junit-4.11.jar" />
         <pathelement location="../${lib.dir}/log4jprops.jar" />
 		<pathelement location="../${lib.dir}/privilegedaccessor-1.2.1.jar" />
-        <fileset dir="../${dist.dir}">
-            <include name="**/*.jar"/>
-        </fileset>
 	</path>
 </project>

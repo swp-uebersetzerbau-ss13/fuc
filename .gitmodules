@@ -1,6 +1,3 @@
 [submodule "code/common"]
 	path = code/common
 	url = https://github.com/swp-uebersetzerbau-ss13/common.git
-[submodule "code/javabite"]
-	path = code/javabite
-	url = https://github.com/swp-uebersetzerbau-ss13/javabite.git

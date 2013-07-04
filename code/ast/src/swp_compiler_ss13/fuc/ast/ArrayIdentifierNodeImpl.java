@@ -52,6 +52,9 @@ public class ArrayIdentifierNodeImpl extends ASTNodeImpl implements ArrayIdentif
 		if (this.identifier != null) {
 			children.add(this.identifier);
 		}
+		if (this.index != null) {
+		   children.add(this.index);
+		}
 		return children;
 	}
 
@@ -61,6 +64,7 @@ public class ArrayIdentifierNodeImpl extends ASTNodeImpl implements ArrayIdentif
 			logger.error("The given index can not be null");
 			throw new IllegalArgumentException("The given index can not be null");
 		}
+
 		this.index = index;
 	}
 
@@ -88,5 +92,6 @@ public class ArrayIdentifierNodeImpl extends ASTNodeImpl implements ArrayIdentif
 		}
 		return this.identifier;
 	}
+
 
 }

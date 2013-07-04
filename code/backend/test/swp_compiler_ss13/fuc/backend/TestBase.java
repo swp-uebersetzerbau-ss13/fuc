@@ -66,19 +66,21 @@ public class TestBase {
 	}
 
 
-	void expectMain(String mainFunctionCode, String ir)
+	void expectMain(String dataSegment, String mainFunctionCode, String ir)
 	{
-		String expectedCode = header + mainFunctionCode + mainFooter;
-		/*try {*/
-			assertEquals(expectedCode, ir);
+		String expected = (!dataSegment.equals("") ? "\n" : "") + dataSegment +
+			"\ndefine i64 @main() {\n" + mainFunctionCode + "}\n";
+		String actual = ir.replace(backend.llvm_preamble, "").replace(backend.llvm_uncaught, "");
+		//try {
+			assertEquals(expected, actual);
 		/*} catch(AssertionError e) {
 			try {
 				String time = String.valueOf(System.currentTimeMillis());
 				PrintWriter out = new PrintWriter(new FileOutputStream(time + "_expected"));
-				out.print(mainFunctionCode.replace("\n", "\\n"));
+				out.print(expected.replace("\n", "\\n"));
 				out.close();
 				out = new PrintWriter(new FileOutputStream(time + "_actual"));
-				out.print(ir.replace(header, "").replace(mainFooter, "").replace("\n", "\\n"));
+				out.print(actual.replace("\n", "\\n"));
 				out.close();
 			}
 			catch(IOException x) {}

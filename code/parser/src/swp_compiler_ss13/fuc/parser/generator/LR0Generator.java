@@ -25,6 +25,11 @@ public class LR0Generator extends ALRGenerator<LR0Item, LR0State> {
 	// --- constructors
 	// ---------------------------------------------------------
 	// --------------------------------------------------------------------------
+	/**
+	 * @see LR0Generator
+	 * @param grammar
+	 * @throws GeneratorException
+	 */
 	public LR0Generator(Grammar grammar) throws GeneratorException {
 		super(grammar);
 	}
@@ -52,7 +57,6 @@ public class LR0Generator extends ALRGenerator<LR0Item, LR0State> {
 		ITerminalSet terminalSet = grammarInfo.getFollowSets().get(
 				item.getProduction().getLHS());
 		for (Terminal terminal : terminalSet.getTerminals()) {
-//			table.set(new Reduce(item.getProduction()), fromState, terminal);
 			setReduceAction(table, new Reduce(item.getProduction()), fromState, terminal);
 		}
 	}

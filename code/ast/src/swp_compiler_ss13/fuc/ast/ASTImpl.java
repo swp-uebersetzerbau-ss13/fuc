@@ -130,38 +130,41 @@ public class ASTImpl implements AST {
 	public String toString() {
 		StringBuilder b = new StringBuilder();
 		String indentation = "";
-		this.toString(b, indentation, this.rootNode);
+		toString(b, indentation, this.rootNode);
 		return b.toString();
 	}
 
-	public void toString(StringBuilder b, String indentation, ASTNode node) {
+	public static void toString(StringBuilder b, String indentation, ASTNode node) {
+		if (node == null) {
+			return;
+		}
 		b.append(indentation);
 		switch (node.getNodeType()) {
 		case ArithmeticBinaryExpressionNode:
 			b.append("ArithmeticBinaryExpression(");
-			this.toString(b, "", ((ArithmeticBinaryExpressionNode) node).getLeftValue());
+			toString(b, "", ((ArithmeticBinaryExpressionNode) node).getLeftValue());
 			b.append(" ").append(((ArithmeticBinaryExpressionNode) node).getOperator().toString()).append(" ");
-			this.toString(b, "", ((ArithmeticBinaryExpressionNode) node).getRightValue());
+			toString(b, "", ((ArithmeticBinaryExpressionNode) node).getRightValue());
 			b.append(")");
 			break;
 		case ArithmeticUnaryExpressionNode:
 			b.append("ArithmeticUnaryExpressionNode(");
 			b.append(" ").append(((ArithmeticUnaryExpressionNode) node).getOperator().toString()).append(" ");
-			this.toString(b, "", ((ArithmeticUnaryExpressionNode) node).getRightValue());
+			toString(b, "", ((ArithmeticUnaryExpressionNode) node).getRightValue());
 			b.append(")");
 			break;
 		case ArrayIdentifierNode:
 			b.append("ArrayIdentifierNode(");
-			this.toString(b, "", ((ArrayIdentifierNode) node).getIdentifierNode());
+			toString(b, "", ((ArrayIdentifierNode) node).getIdentifierNode());
 			b.append(" [");
-			this.toString(b, "", ((ArrayIdentifierNode) node).getIndexNode());
+			toString(b, "", ((ArrayIdentifierNode) node).getIndexNode());
 			b.append("])");
 			break;
 		case AssignmentNode:
 			b.append("AssignmentNode(");
-			this.toString(b, "", ((AssignmentNode) node).getLeftValue());
+			toString(b, "", ((AssignmentNode) node).getLeftValue());
 			b.append(" = ");
-			this.toString(b, "", ((AssignmentNode) node).getRightValue());
+			toString(b, "", ((AssignmentNode) node).getRightValue());
 			b.append(")\n");
 			break;
 		case BasicIdentifierNode:
@@ -173,22 +176,22 @@ public class ASTImpl implements AST {
 			b.append("{\n");
 			String newindentation = indentation + "\t";
 			for (DeclarationNode d : ((BlockNode) node).getDeclarationList()) {
-				this.toString(b, newindentation, d);
+				toString(b, newindentation, d);
 			}
 			for (StatementNode s : ((BlockNode) node).getStatementList()) {
-				this.toString(b, newindentation, s);
+				toString(b, newindentation, s);
 			}
 			b.append(indentation).append("}");
 			b.append("\n");
 			break;
 		case BranchNode:
 			b.append("BranchNode(if(");
-			this.toString(b, "", (((BranchNode) node).getCondition()));
+			toString(b, "", (((BranchNode) node).getCondition()));
 			b.append(")\n");
-			this.toString(b, indentation + "\t", (((BranchNode) node).getStatementNodeOnTrue()));
+			toString(b, indentation + "\t", (((BranchNode) node).getStatementNodeOnTrue()));
 			if (((BranchNode) node).getStatementNodeOnFalse() != null) {
 				b.append(indentation + "\nelse\n");
-				this.toString(b, indentation + "\t", (((BranchNode) node).getStatementNodeOnFalse()));
+				toString(b, indentation + "\t", (((BranchNode) node).getStatementNodeOnFalse()));
 			}
 			b.append(indentation).append(")\n");
 			break;
@@ -203,10 +206,10 @@ public class ASTImpl implements AST {
 			break;
 		case DoWhileNode:
 			b.append("DoWhileNode(do(\n");
-			this.toString(b, indentation + "\t", (((DoWhileNode) node).getLoopBody()));
+			toString(b, indentation + "\t", (((DoWhileNode) node).getLoopBody()));
 			b.append(indentation).append(")\n");
 			b.append(indentation).append("while(");
-			this.toString(b, "", (((DoWhileNode) node).getCondition()));
+			toString(b, "", (((DoWhileNode) node).getCondition()));
 			b.append(")\n");
 			break;
 		case LiteralNode:
@@ -218,45 +221,45 @@ public class ASTImpl implements AST {
 			break;
 		case LogicBinaryExpressionNode:
 			b.append("LogicBinaryExpressionNode(");
-			this.toString(b, "", ((LogicBinaryExpressionNode) node).getLeftValue());
+			toString(b, "", ((LogicBinaryExpressionNode) node).getLeftValue());
 			b.append(" ").append(((LogicBinaryExpressionNode) node).getOperator().toString()).append(" ");
-			this.toString(b, "", ((LogicBinaryExpressionNode) node).getRightValue());
+			toString(b, "", ((LogicBinaryExpressionNode) node).getRightValue());
 			b.append(")");
 			break;
 		case LogicUnaryExpressionNode:
 			b.append("LogicUnaryExpressionNode(");
 			b.append(" ").append(((LogicUnaryExpressionNode) node).getOperator().toString()).append(" ");
-			this.toString(b, "", ((LogicUnaryExpressionNode) node).getRightValue());
+			toString(b, "", ((LogicUnaryExpressionNode) node).getRightValue());
 			b.append(")");
 			break;
 		case PrintNode:
 			b.append("PrintNode(");
-			this.toString(b, "", ((PrintNode) node).getRightValue());
+			toString(b, "", ((PrintNode) node).getRightValue());
 			b.append(")\n");
 			break;
 		case RelationExpressionNode:
 			b.append("RelationExpressionNode(");
-			this.toString(b, "", ((RelationExpressionNode) node).getLeftValue());
+			toString(b, "", ((RelationExpressionNode) node).getLeftValue());
 			b.append(" ").append(((RelationExpressionNode) node).getOperator().toString()).append(" ");
-			this.toString(b, "", ((RelationExpressionNode) node).getRightValue());
+			toString(b, "", ((RelationExpressionNode) node).getRightValue());
 			b.append(")");
 			break;
 		case ReturnNode:
 			b.append("ReturnNode(");
-			this.toString(b, "", ((ReturnNode) node).getRightValue());
+			toString(b, "", ((ReturnNode) node).getRightValue());
 			b.append(")\n");
 			break;
 		case StructIdentifierNode:
 			b.append("StructIdentifierNode(");
-			this.toString(b, "", ((StructIdentifierNode) node).getIdentifierNode());
+			toString(b, "", ((StructIdentifierNode) node).getIdentifierNode());
 			b.append(".").append(((StructIdentifierNode) node).getFieldName()).append(")");
 			break;
 		case WhileNode:
 			b.append("WhileNode(\n");
 			b.append(indentation).append("\t").append("while(");
-			this.toString(b, "", (((WhileNode) node).getCondition()));
+			toString(b, "", (((WhileNode) node).getCondition()));
 			b.append(")\n");
-			this.toString(b, indentation + "\t", (((WhileNode) node).getLoopBody()));
+			toString(b, indentation + "\t", (((WhileNode) node).getLoopBody()));
 			b.append(indentation).append(")\n");
 			break;
 		default:

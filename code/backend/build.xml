@@ -96,6 +96,7 @@
 				fork="yes"
 				haltonerror="true"
 				haltonfailure="true" >
+				<jvmarg value="-Dfile.encoding=UTF-8"/>
 				<classpath>
 					<path refid="classpath-test" />
 				</classpath>
@@ -104,6 +105,7 @@
 						<include name="**/TestSuite.java" />
 					</fileset>
 				</batchtest>
+                <formatter type="plain" usefile="false" />
 				<formatter type="xml" />
 			</junit>
 		</jacoco:coverage>
@@ -148,6 +150,7 @@
                 fork="yes"
                 haltonerror="true"
                 haltonfailure="true">
+			<jvmarg value="-Dfile.encoding=UTF-8"/>
             <classpath>
                 <path refid="classpath-test"/>
             </classpath>

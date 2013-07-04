@@ -115,7 +115,7 @@ public class CondProgTest {
 			new TokenImpl("return", TokenType.RETURN, 24, 1),
 			new TokenImpl("l", TokenType.ID, 24, 8),
 			new TokenImpl(";", TokenType.SEMICOLON, 24, 9),
-			new TokenImpl("$", TokenType.EOF, 25, 1)
+			new TokenImpl(null, TokenType.EOF, 24, 10)
 		));
 	}
 

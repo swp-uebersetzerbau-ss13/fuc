@@ -57,46 +57,6 @@ public class NumTokenTest {
 		PA.setValue(this.lexer, "actualTokenValue", Constants.LONGSTRING5);
 		PA.invokeMethod(this.lexer, "matchToken()");
 		assertEquals(TokenType.NUM, PA.getValue(this.lexer, "actualTokenType"));
-
-		PA.setValue(this.lexer, "actualTokenValue", Constants.LONGSTRING6);
-		PA.invokeMethod(this.lexer, "matchToken()");
-		assertEquals(TokenType.NUM, PA.getValue(this.lexer, "actualTokenType"));
-
-		PA.setValue(this.lexer, "actualTokenValue", Constants.LONGSTRING7);
-		PA.invokeMethod(this.lexer, "matchToken()");
-		assertEquals(TokenType.NUM, PA.getValue(this.lexer, "actualTokenType"));
-
-		PA.setValue(this.lexer, "actualTokenValue", Constants.LONGSTRING8);
-		PA.invokeMethod(this.lexer, "matchToken()");
-		assertEquals(TokenType.NUM, PA.getValue(this.lexer, "actualTokenType"));
-
-		PA.setValue(this.lexer, "actualTokenValue", Constants.LONGSTRING9);
-		PA.invokeMethod(this.lexer, "matchToken()");
-		assertEquals(TokenType.NUM, PA.getValue(this.lexer, "actualTokenType"));
-	}
-
-	/**
-	 * Test for getting the correct kind of class for a num token
-	 * 
-	 * @throws UnsupportedEncodingException
-	 */
-	@Test
-	public void getCorrectClassForTokenTest()
-			throws UnsupportedEncodingException {
-		String numString = Constants.LONGSTRING1 + " " + Constants.LONGSTRING2
-				+ " " + Constants.LONGSTRING3 + " " + Constants.LONGSTRING4
-				+ " " + Constants.LONGSTRING5 + " " + Constants.LONGSTRING6
-				+ " " + Constants.LONGSTRING7 + " " + Constants.LONGSTRING8
-				+ " " + Constants.LONGSTRING9;
-		this.lexer.setSourceStream(new ByteArrayInputStream(numString
-				.getBytes("UTF-8")));
-
-		Token token;
-		for (int i = 1; i <= 9; i++) {
-			token = this.lexer.getNextToken();
-			assertEquals("Error for the " + i + ". token", NumTokenImpl.class,
-					token.getClass());
-		}
 	}
 
 	/**
@@ -153,34 +113,58 @@ public class NumTokenTest {
 		assertEquals(24, token.getColumn().intValue());
 		assertEquals(Constants.LONGSTRING5, token.getValue());
 
-		token = (NumToken) this.lexer.getNextToken();
-		assertEquals(Constants.LONGSTRING6, token.getValue());
-		assertEquals(TokenType.NUM, token.getTokenType());
-		assertEquals(1, token.getLine().intValue());
-		assertEquals(31, token.getColumn().intValue());
-		assertTrue(token.getLongValue() == Long.valueOf(Constants.LONGSTRING6)
-				.longValue());
+		Token normalToken = this.lexer.getNextToken();
+		assertEquals(Constants.MINUSSTRING, normalToken.getValue());
+		assertEquals(TokenType.MINUS, normalToken.getTokenType());
+		assertEquals(1, normalToken.getLine().intValue());
+		assertEquals(31, normalToken.getColumn().intValue());
 
 		token = (NumToken) this.lexer.getNextToken();
-		assertEquals(Constants.LONGSTRING7, token.getValue());
+		assertEquals(Constants.LONGSTRING6.substring(1), token.getValue());
 		assertEquals(TokenType.NUM, token.getTokenType());
 		assertEquals(1, token.getLine().intValue());
-		assertEquals(36, token.getColumn().intValue());
-		assertTrue(token.getLongValue() == Long.valueOf("-12300").longValue());
+		assertEquals(32, token.getColumn().intValue());
+		assertTrue(token.getLongValue() == Long.valueOf(
+				Constants.LONGSTRING6.substring(1)).longValue());
+
+		normalToken = this.lexer.getNextToken();
+		assertEquals(Constants.MINUSSTRING, normalToken.getValue());
+		assertEquals(TokenType.MINUS, normalToken.getTokenType());
+		assertEquals(1, normalToken.getLine().intValue());
+		assertEquals(36, normalToken.getColumn().intValue());
 
 		token = (NumToken) this.lexer.getNextToken();
-		assertEquals(Constants.LONGSTRING8, token.getValue());
+		assertEquals(Constants.LONGSTRING7.substring(1), token.getValue());
 		assertEquals(TokenType.NUM, token.getTokenType());
 		assertEquals(1, token.getLine().intValue());
-		assertEquals(43, token.getColumn().intValue());
-		assertTrue(token.getLongValue() == Long.valueOf("-12300").longValue());
+		assertEquals(37, token.getColumn().intValue());
+		assertTrue(token.getLongValue() == Long.valueOf("12300").longValue());
+
+		normalToken = this.lexer.getNextToken();
+		assertEquals(Constants.MINUSSTRING, normalToken.getValue());
+		assertEquals(TokenType.MINUS, normalToken.getTokenType());
+		assertEquals(1, normalToken.getLine().intValue());
+		assertEquals(43, normalToken.getColumn().intValue());
 
 		token = (NumToken) this.lexer.getNextToken();
-		assertEquals(Constants.LONGSTRING9, token.getValue());
+		assertEquals(Constants.LONGSTRING8.substring(1), token.getValue());
 		assertEquals(TokenType.NUM, token.getTokenType());
 		assertEquals(1, token.getLine().intValue());
-		assertEquals(50, token.getColumn().intValue());
-		assertEquals(Constants.LONGSTRING9, token.getValue());
+		assertEquals(44, token.getColumn().intValue());
+		assertTrue(token.getLongValue() == Long.valueOf("12300").longValue());
+
+		normalToken = this.lexer.getNextToken();
+		assertEquals(Constants.MINUSSTRING, normalToken.getValue());
+		assertEquals(TokenType.MINUS, normalToken.getTokenType());
+		assertEquals(1, normalToken.getLine().intValue());
+		assertEquals(50, normalToken.getColumn().intValue());
+
+		token = (NumToken) this.lexer.getNextToken();
+		assertEquals(Constants.LONGSTRING9.substring(1), token.getValue());
+		assertEquals(TokenType.NUM, token.getTokenType());
+		assertEquals(1, token.getLine().intValue());
+		assertEquals(51, token.getColumn().intValue());
+		assertEquals(Constants.LONGSTRING9.substring(1), token.getValue());
 	}
 
 	/**
