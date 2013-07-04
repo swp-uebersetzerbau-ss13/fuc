@@ -77,6 +77,11 @@ public class AdditionalRuntimeTest extends TestBase {
 	public void testArrayProg3() throws Exception {
 		testProgRuntime(ExampleProgs.arrayProg3());
 	}
+
+	@Test
+	public void testRecordProg() throws Exception {
+		testProgRuntime(ExampleProgs.recordProg());
+	}
 	@Ignore("Array of records not working")
 	@Test
 	public void testCalendarProg() throws Exception {

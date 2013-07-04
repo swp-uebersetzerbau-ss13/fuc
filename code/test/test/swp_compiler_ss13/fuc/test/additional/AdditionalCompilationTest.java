@@ -68,6 +68,11 @@ public class AdditionalCompilationTest extends TestBase {
 	public void testArrayProg3() throws Exception {
 		testProgCompilation(ExampleProgs.arrayProg3());
 	}
+
+	@Test
+	public void testRecordProg() throws Exception {
+		testProgCompilation(ExampleProgs.recordProg());
+	}
 	@Ignore("Array of records not working")
 	@Test
 	public void testCalendarProg() throws Exception {
