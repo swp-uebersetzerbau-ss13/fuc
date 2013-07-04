@@ -1094,7 +1094,7 @@ public class ProjectGrammarImpl implements IGrammarImpl {
 				lastToken.getColumn() + 1, newTerminal);
 		log.debug("Error recovery inserted " + newToken + " before " + curToken + ", lets see if this works...");
 		
-		reportLog.reportWarning(ReportType.UNDEFINED, Arrays.<Token>asList(lastToken, curToken),
+		reportLog.reportWarning(ReportType.UNDEFINED, Arrays.<Token>asList(lastToken),
 				"Error recovery inserted a missing '" + newTokenVal + "' before " + curToken + "!");
 		
 		// Give it a shot!
