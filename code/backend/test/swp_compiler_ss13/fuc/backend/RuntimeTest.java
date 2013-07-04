@@ -16,6 +16,7 @@ import org.junit.*;
 import org.junit.experimental.categories.Category;
 import swp_compiler_ss13.common.backend.BackendException;
 import swp_compiler_ss13.common.backend.Quadruple;
+import swp_compiler_ss13.common.backend.Quadruple.Operator;
 
 /**
  * Runtime tests for the LLVMBackend
@@ -167,6 +168,51 @@ public class RuntimeTest {
 		ExecutionResult res = TACExecutor.runIR(generateCode(tac));
 		assertEquals("15\n", res.output);
   }
+
+	@Test public void arrays__use_reference_two_times() throws Exception {
+		tac.add(new QuadrupleImpl(Operator.DECLARE_ARRAY, "#20", EmptyArgument, "a"));
+		tac.add(new QuadrupleImpl(Operator.DECLARE_ARRAY, "#30", EmptyArgument, null));
+		tac.add(new QuadrupleImpl(Operator.DECLARE_DOUBLE, EmptyArgument, EmptyArgument, null));
+		tac.add(new QuadrupleImpl(Operator.DECLARE_REFERENCE, EmptyArgument, EmptyArgument, "r"));
+		tac.add(new QuadrupleImpl(Operator.ARRAY_GET_REFERENCE, "a", "#15", "r"));
+		tac.add(new QuadrupleImpl(Operator.ARRAY_GET_REFERENCE, "a", "#16", "r"));
+		tac.add(new QuadrupleImpl(Operator.DECLARE_DOUBLE, EmptyArgument, EmptyArgument, "v"));
+		tac.add(new QuadrupleImpl(Operator.ARRAY_SET_DOUBLE, "r", "#25", "#2.7"));
+		tac.add(new QuadrupleImpl(Operator.ARRAY_GET_DOUBLE, "r", "#25", "v"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_STRING, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "s"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, "l"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.DOUBLE_TO_LONG, "v", Quadruple.EmptyArgument, "l"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.LONG_TO_STRING, "l", Quadruple.EmptyArgument, "s"));
+		tac.add(new QuadrupleImpl(Quadruple.Operator.PRINT_STRING, "s", Quadruple.EmptyArgument, Quadruple.EmptyArgument));
+		ExecutionResult res = TACExecutor.runIR(generateCode(tac));
+		assertEquals("2\n", res.output);
+    }
+	@Test public void arrays__reference_self_resolve() throws Exception {
+		tac.add(new QuadrupleImpl(Operator.DECLARE_REFERENCE, EmptyArgument, EmptyArgument, "r"));
+		tac.add(new QuadrupleImpl(Operator.DECLARE_ARRAY, "#20", EmptyArgument, "a"));
+		tac.add(new QuadrupleImpl(Operator.DECLARE_ARRAY, "#30", EmptyArgument, null));
+		tac.add(new QuadrupleImpl(Operator.DECLARE_ARRAY, "#40", EmptyArgument, null));
+		tac.add(new QuadrupleImpl(Operator.DECLARE_LONG, EmptyArgument, EmptyArgument, null));
+		tac.add(new QuadrupleImpl(Operator.ARRAY_GET_REFERENCE, "a", "#15", "r"));
+		tac.add(new QuadrupleImpl(Operator.ARRAY_GET_REFERENCE, "r", "#20", "r"));
+		tac.add(new QuadrupleImpl(Operator.DECLARE_LONG, EmptyArgument, EmptyArgument, "v"));
+		tac.add(new QuadrupleImpl(Operator.ARRAY_GET_LONG, "r", "#25", "v"));
+		ExecutionResult res = TACExecutor.runIR(generateCode(tac));
+		assertEquals("", res.output);
+    }
+	@Test public void arrays__reference_self_resolve_set_long() throws Exception {
+		tac.add(new QuadrupleImpl(Operator.DECLARE_REFERENCE, EmptyArgument, EmptyArgument, "r"));
+		tac.add(new QuadrupleImpl(Operator.DECLARE_ARRAY, "#20", EmptyArgument, "a"));
+		tac.add(new QuadrupleImpl(Operator.DECLARE_ARRAY, "#30", EmptyArgument, null));
+		tac.add(new QuadrupleImpl(Operator.DECLARE_ARRAY, "#40", EmptyArgument, null));
+		tac.add(new QuadrupleImpl(Operator.DECLARE_LONG, EmptyArgument, EmptyArgument, null));
+		tac.add(new QuadrupleImpl(Operator.ARRAY_GET_REFERENCE, "a", "#15", "r"));
+		tac.add(new QuadrupleImpl(Operator.ARRAY_GET_REFERENCE, "r", "#20", "r"));
+		tac.add(new QuadrupleImpl(Operator.ARRAY_SET_LONG, "r", "#25", "#999"));
+		ExecutionResult res = TACExecutor.runIR(generateCode(tac));
+		assertEquals("", res.output);
+    }
+
 
 //	@Test
 //	@Ignore

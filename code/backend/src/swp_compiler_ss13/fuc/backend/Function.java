@@ -453,6 +453,21 @@ public class Function
 		if(derivedType instanceof LLVMBackendArrayType) {
 			LLVMBackendArrayType derivedArType = (LLVMBackendArrayType) derivedType;
 			derivedIRType = Module.getIRAType(derivedArType.getStorageType(), derivedArType.getDimensions());
+			// before the getelementptr instruction, insert out of bounds checks
+			// for arrays
+			for(int idx = 0;
+			    idx < derivedArType.getDimensions().size();
+				idx++)
+			{
+				// dimension is always an integer constant
+				String dim = ""+derivedArType.getDimensions().get(idx);
+				// element index could be a variable => we have to CDL it
+				String elem= cdl(indices.get(idx),Type.Kind.LONG);
+				gen("call void @aoob1(i64 " + elem + ", i64 " + dim + ")");
+/*				System.err.println(
+					"dimension: "+dim+					
+					"\t\tindex: "+elem);*/
+			}
 		}
 		else if(derivedType instanceof LLVMBackendStructType) {
 			LLVMBackendStructType derivedStType = (LLVMBackendStructType) derivedType;
