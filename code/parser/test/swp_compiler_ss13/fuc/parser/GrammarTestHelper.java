@@ -26,6 +26,7 @@ import swp_compiler_ss13.fuc.parser.generator.GeneratorException;
 import swp_compiler_ss13.fuc.parser.generator.LR1Generator;
 import swp_compiler_ss13.fuc.parser.generator.items.LR1Item;
 import swp_compiler_ss13.fuc.parser.generator.states.LR1State;
+import swp_compiler_ss13.fuc.parser.grammar.AGrammarSpec;
 import swp_compiler_ss13.fuc.parser.grammar.Grammar;
 import swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar;
 import swp_compiler_ss13.fuc.parser.grammar.Terminal;
@@ -33,6 +34,7 @@ import swp_compiler_ss13.fuc.parser.parser.LRParser;
 import swp_compiler_ss13.fuc.parser.parser.LexerWrapper;
 import swp_compiler_ss13.fuc.parser.parser.ParserException;
 import swp_compiler_ss13.fuc.parser.parser.tables.LRParsingTable;
+import swp_compiler_ss13.fuc.parser.util.It;
 
 public class GrammarTestHelper {
 	// ------------------------------------------------------------------------
@@ -59,8 +61,14 @@ public class GrammarTestHelper {
 		if (terminal == Terminal.EOF) {
 			return new TokenImpl(terminal.getId(), TokenType.EOF, -1, -1);
 		}
-		return new TokenImpl(terminal.getId(), terminal.getTokenTypes().next(),
-				-1, -1);
+		
+		It<TokenType> typeIt = terminal.getTokenTypes();
+		TokenType tokenType = null;
+		if (typeIt.hasNext()) {
+			tokenType = typeIt.next();
+		}
+		
+		return new TokenImpl(terminal.getId(), tokenType, -1, -1);
 	}
 
 	public static Token t(String value, TokenType type) {
@@ -176,7 +184,8 @@ public class GrammarTestHelper {
 	 */
 	public static AST parseToAst(Lexer lexer, ReportLog reportLog) {
 		// Generate parsing table
-		Grammar grammar = new ProjectGrammar.Complete().getGrammar();
+		AGrammarSpec completeSpec = new ProjectGrammar.Complete();
+		Grammar grammar = completeSpec.getGrammar();
 		ALRGenerator<LR1Item, LR1State> generator = null;
 		try {
 			generator = new LR1Generator(grammar);
@@ -188,6 +197,6 @@ public class GrammarTestHelper {
 		// Run LR-parser with table
 		LRParser lrParser = new LRParser();
 		LexerWrapper lexWrapper = new LexerWrapper(lexer, grammar);
-		return lrParser.parse(lexWrapper, reportLog, table);
+		return lrParser.parse(lexWrapper, reportLog, table, completeSpec.getGrammarImpl());
 	}
 }

@@ -16,6 +16,10 @@ public class ParserException extends RuntimeException {
 		super(msg);
 	}
 	
+	public ParserException(String msg, Throwable cause) {
+		super(msg, cause);
+	}
+	
 	
 	public void addReportLogMessage(String msg){
 		this.reportLogMessage = msg;

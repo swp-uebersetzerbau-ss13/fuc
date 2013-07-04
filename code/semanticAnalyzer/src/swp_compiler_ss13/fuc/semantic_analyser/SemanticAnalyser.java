@@ -29,14 +29,20 @@ import swp_compiler_ss13.common.ast.nodes.leaf.LiteralNode;
 import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
 import swp_compiler_ss13.common.ast.nodes.ternary.BranchNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ArithmeticUnaryExpressionNode;
+import swp_compiler_ss13.common.ast.nodes.unary.ArrayIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.unary.LogicUnaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.unary.PrintNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ReturnNode;
+import swp_compiler_ss13.common.ast.nodes.unary.StructIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.unary.UnaryExpressionNode;
 import swp_compiler_ss13.common.report.ReportLog;
 import swp_compiler_ss13.common.parser.SymbolTable;
 import swp_compiler_ss13.common.report.ReportType;
 import swp_compiler_ss13.common.types.Type;
+import swp_compiler_ss13.common.types.derived.ArrayType;
+import swp_compiler_ss13.common.types.derived.DerivedType;
+import swp_compiler_ss13.common.types.derived.Member;
+import swp_compiler_ss13.common.types.derived.StructType;
 
 public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalysis.SemanticAnalyser {
 
@@ -49,13 +55,6 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 		 */
 		TYPE,
 		/**
-		 * <code>"1"</code> - identifier is initialized,<br/>
-		 * <code>"0"</code> - identifier is not initialized
-		 *
-		 * @see ExpressionNode
-		 */
-		INITIALIZATION_STATUS,
-		/**
 		 * name of identifier
 		 *
 		 * @see IdentifierNode
@@ -65,13 +64,16 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 		TYPE_CHECK,
 		CODE_STATE
 	}
-	private static final String IS_INITIALIZED = "1";
+	
 	private static final String NO_ATTRIBUTE_VALUE = "undefined";
 	private static final String CAN_BREAK = "true";
 	private static final String TYPE_MISMATCH = "type mismatch";
-	private static final String DEAD_CODE = "dead";
+	private static final String DEAD_CODE_BREAK = "dead by break";
+	private static final String DEAD_CODE_RETURN = "dead by return";
+	private static final String STATIC_VALUE = "value";
+	private static final String TYPE_DECLARATION = "type declaration";
+	
 	private ReportLog errorLog;
-	private Map<ASTNode, Map<Attribute, String>> attributes;
 	/**
 	 * Contains all initialized identifiers. As soon it has assigned it will be
 	 * added.
@@ -79,14 +81,12 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 	private Map<SymbolTable, Set<String>> initializedIdentifiers;
 
 	public SemanticAnalyser() {
-		this.attributes = new HashMap<>();
-		this.initializedIdentifiers = new HashMap<>();
+		initializedIdentifiers = new HashMap<>();
 	}
 
 	public SemanticAnalyser(ReportLog log) {
-		this.attributes = new HashMap<>();
-		this.initializedIdentifiers = new HashMap<>();
-		this.errorLog = log;
+		initializedIdentifiers = new HashMap<>();
+		errorLog = log;
 	}
 
 	protected Map<SymbolTable, Set<String>> copy(Map<SymbolTable, Set<String>> m) {
@@ -114,7 +114,6 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 	public AST analyse(AST ast) {
 		assert (errorLog != null);
 
-		attributes.clear();
 		initializedIdentifiers.clear();
 
 		logger.debug("Analyzing ... please stand by!");
@@ -123,26 +122,238 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 		return ast;
 	}
 
+	protected Object getStaticValue(ASTNode node) {
+		return node.getAttributeValue(STATIC_VALUE);
+	}
+	
+	protected void setStaticValue(ASTNode node, Object value) {
+		node.setAttributeValue(STATIC_VALUE, value);
+	}
+
+	protected void evaluateStaticExpressionValue(ExpressionNode node) {
+		Object result = null;
+
+		if (node instanceof LiteralNode) {
+			LiteralNode expr = (LiteralNode) node;
+			switch (expr.getLiteralType().getKind()) {
+				case LONG:
+					result = Long.valueOf(expr.getLiteral());
+					break;
+				case DOUBLE:
+					result = Double.valueOf(expr.getLiteral());
+					break;
+				case BOOLEAN:
+					result = Boolean.valueOf(expr.getLiteral());
+					break;
+				case STRING:
+					result = expr.getLiteral();
+					break;
+			}
+		} else if (node instanceof AssignmentNode) {
+			AssignmentNode expr = (AssignmentNode) node;
+			result = getStaticValue(expr.getRightValue());
+		} else if (node instanceof UnaryExpressionNode) {
+			UnaryExpressionNode expr = (UnaryExpressionNode) node;
+			ExpressionNode rightexpr = expr.getRightValue();
+			Object rightvalue = getStaticValue(rightexpr);
+
+			if (rightvalue == null) {
+				return;
+			}
+
+			if (rightvalue instanceof Number) {
+				boolean useDouble = getType(rightexpr) == Type.Kind.DOUBLE;
+				Number right = (Number) rightvalue;
+
+				switch (expr.getOperator()) {
+					case MINUS:
+						if (useDouble) {
+							result = -right.doubleValue();
+						} else {
+							result = -right.longValue();
+						}
+						break;
+				}
+			} else if (rightvalue instanceof Boolean) {
+				Boolean right = (Boolean) rightvalue;
+
+				switch (expr.getOperator()) {
+					case LOGICAL_NEGATE:
+						result = !right;
+						break;
+				}
+			}
+		} else if (node instanceof BinaryExpressionNode) {
+			BinaryExpressionNode expr = (BinaryExpressionNode) node;
+			ExpressionNode leftexpr = expr.getLeftValue();
+			ExpressionNode rightexpr = expr.getRightValue();
+			Object leftvalue = getStaticValue(leftexpr);
+			Object rightvalue = getStaticValue(rightexpr);
+
+			if (leftvalue == null || rightvalue == null) {
+				return;
+			}
+
+			if (leftvalue instanceof Number && rightvalue instanceof Number) {
+				Number left = (Number) leftvalue;
+				Number right = (Number) rightvalue;
+				boolean useDouble = false;
+
+				if (getType(leftexpr) == Type.Kind.DOUBLE || getType(rightexpr) == Type.Kind.DOUBLE) {
+					useDouble = true;
+				}
+
+				switch (expr.getOperator()) {
+					case ADDITION:
+						if (useDouble) {
+							result = left.doubleValue() + right.doubleValue();
+						} else {
+							result = left.longValue() + right.longValue();
+						}
+						break;
+					case SUBSTRACTION:
+						if (useDouble) {
+							result = left.doubleValue() - right.doubleValue();
+						} else {
+							result = left.longValue() - right.longValue();
+						}
+						break;
+					case MULTIPLICATION:
+						if (useDouble) {
+							result = left.doubleValue() * right.doubleValue();
+						} else {
+							result = left.longValue() * right.longValue();
+						}
+						break;
+					case DIVISION:
+						if (useDouble) {
+							result = left.doubleValue() / right.doubleValue();
+						} else {
+							result = left.longValue() / right.longValue();
+						}
+						break;
+					case LESSTHAN:
+						if (useDouble) {
+							result = left.doubleValue() < right.doubleValue();
+						} else {
+							result = left.longValue() < right.longValue();
+						}
+						break;
+					case LESSTHANEQUAL:
+						if (useDouble) {
+							result = left.doubleValue() <= right.doubleValue();
+						} else {
+							result = left.longValue() <= right.longValue();
+						}
+						break;
+					case GREATERTHAN:
+						if (useDouble) {
+							result = left.doubleValue() > right.doubleValue();
+						} else {
+							result = left.longValue() > right.longValue();
+						}
+						break;
+					case GREATERTHANEQUAL:
+						if (useDouble) {
+							result = left.doubleValue() >= right.doubleValue();
+						} else {
+							result = left.longValue() >= right.longValue();
+						}
+						break;
+					case EQUAL:
+						if (useDouble) {
+							result = left.doubleValue() == right.doubleValue();
+						} else {
+							result = left.longValue() == right.longValue();
+						}
+						break;
+					case INEQUAL:
+						if (useDouble) {
+							result = left.doubleValue() != right.doubleValue();
+						} else {
+							result = left.longValue() != right.longValue();
+						}
+						break;
+				}
+			} else if (leftvalue instanceof Boolean && rightvalue instanceof Boolean) {
+				Boolean left = (Boolean) leftvalue;
+				Boolean right = (Boolean) rightvalue;
+
+				switch (expr.getOperator()) {
+					case EQUAL:
+						result = left == right;
+						break;
+					case INEQUAL:
+						result = left != right;
+						break;
+					case LOGICAL_AND:
+						result = left && right;
+						break;
+					case LOGICAL_OR:
+						result = left || right;
+						break;
+				}
+			}
+		}
+
+		if (result != null) {
+			setStaticValue(node, result);
+			logger.debug("static value for " + node + ": " + result.toString());
+		}
+	}
+
+	protected void inheritAttribute(ASTNode parent, ASTNode child, Attribute attr) {
+		String value = getAttribute(parent, attr);
+
+		if (!value.equals(NO_ATTRIBUTE_VALUE)) {
+			setAttribute(child, attr, value);
+		}
+	}
+
+	protected Long getLongValue(ASTNode node) {
+		Object v = getStaticValue(node);
+
+		if (v instanceof Long) {
+			return (Long) v;
+		} else {
+			return null;
+		}
+	}
+
+	protected boolean isValueNumericallyZero(ASTNode node) {
+		Object v = getStaticValue(node);
+
+		if (v instanceof Long) {
+			return (Long) v == 0;
+		} else if (v instanceof Double) {
+			return (Double) v == 0;
+		}
+
+		return false;
+	}
+
 	protected void traverse(ASTNode node, SymbolTable table) {
 		logger.debug("traverse: " + node);
 
+		if (node.getParentNode() != null) {
+			inheritAttribute(node.getParentNode(), node, Attribute.CAN_BREAK);
+		}
+
 		switch (node.getNodeType()) {
 			case BasicIdentifierNode:
-				logger.trace("handle BasicIdentifierNode");
-				this.handleNode((BasicIdentifierNode) node, table);
+				handleNode((BasicIdentifierNode) node, table);
 				break;
 			case BreakNode:
-				this.handleNode((BreakNode) node, table);
+				handleNode((BreakNode) node, table);
 				break;
 			case LiteralNode:
-				logger.trace("handle LiteralNode");
-				this.handleNode((LiteralNode) node, table);
+				handleNode((LiteralNode) node, table);
 				break;
 			case ArithmeticUnaryExpressionNode:
-				logger.trace("handle ArithmeticUnaryExpressionNode");
-				this.handleNode((ArithmeticUnaryExpressionNode) node, table);
+				handleNode((ArithmeticUnaryExpressionNode) node, table);
 				break;
 			case ArrayIdentifierNode:
+				handleNode((ArrayIdentifierNode) node, table);
 				break;
 			case DeclarationNode:
 				break;
@@ -153,18 +364,16 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 				handleNode((PrintNode) node, table);
 				break;
 			case ReturnNode:
-				logger.trace("handle ReturnNode");
-				this.handleNode((ReturnNode) node, table);
+				handleNode((ReturnNode) node, table);
 				break;
 			case StructIdentifierNode:
+				handleNode((StructIdentifierNode) node, table);
 				break;
 			case ArithmeticBinaryExpressionNode:
-				logger.trace("handle ArithmeticBinaryExpressionNode");
-				this.handleNode((ArithmeticBinaryExpressionNode) node, table);
+				handleNode((ArithmeticBinaryExpressionNode) node, table);
 				break;
 			case AssignmentNode:
-				logger.trace("handle AssignmentNode");
-				this.handleNode((AssignmentNode) node, table);
+				handleNode((AssignmentNode) node, table);
 				break;
 			case DoWhileNode:
 				handleNode((DoWhileNode) node, table);
@@ -182,11 +391,18 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 				handleNode((BranchNode) node, table);
 				break;
 			case BlockNode:
-				logger.trace("handle BlockNode");
-				this.handleNode((BlockNode) node, table);
+				handleNode((BlockNode) node, table);
 				break;
 			default:
 				throw new IllegalArgumentException("unknown ASTNodeType");
+		}
+		
+		if (node.getParentNode() != null) {
+			inheritAttribute(node, node.getParentNode(), Attribute.CODE_STATE);
+		}
+
+		if (node instanceof ExpressionNode && !hasTypeError(node)) {
+			evaluateStaticExpressionValue((ExpressionNode) node);
 		}
 	}
 
@@ -203,11 +419,11 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 		TreeSet<Type.Kind> types = new TreeSet<>();
 		Type.Kind leftType = getType(left);
 		Type.Kind rightType = getType(right);
-		
+
 		if (leftType == null || rightType == null) {
 			return null;
 		}
-		
+
 		types.add(leftType);
 		types.add(rightType);
 
@@ -240,7 +456,7 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 	 * Loops
 	 */
 	protected void checkLoopNode(LoopNode node, SymbolTable table) {
-		if (!hasAttribute(node.getCondition(), Attribute.TYPE, Type.Kind.BOOLEAN.name())) {
+		if (getType(node.getCondition()) != Type.Kind.BOOLEAN) {
 			errorLog.reportError(ReportType.TYPE_MISMATCH, node.coverage(), "The condition must be of type bool.");
 		}
 	}
@@ -269,12 +485,7 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 
 		checkLoopNode(node, table);
 	}
-
-	protected void handleNode(BreakNode node, SymbolTable table) {
-		if (!hasAttribute(node.getParentNode(), Attribute.CAN_BREAK, CAN_BREAK)) {
-			errorLog.reportError(ReportType.UNDEFINED, node.coverage(), "Break can only be used in a loop.");
-		}
-	}
+	
 
 	/*
 	 * Branch node
@@ -296,7 +507,7 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 		Map<SymbolTable, Set<String>> beforeTrue = copy(initializedIdentifiers);
 		List<SymbolTable> beforeTrueTableChain = getSymbolTableChain(table);
 		traverse(node.getStatementNodeOnTrue(), table);
-
+		
 		if (node.getStatementNodeOnFalse() != null) {
 			Map<SymbolTable, Set<String>> beforeFalse = copy(initializedIdentifiers);
 			initializedIdentifiers = beforeTrue;
@@ -319,13 +530,18 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 					initializedIdentifiers.get(s).retainAll(beforeFalse.get(s));
 				}
 			}
+			
+			if (isDeadPath(node.getStatementNodeOnTrue()) != isDeadPath(node.getStatementNodeOnFalse())) {
+				removeAttribute(node, Attribute.CODE_STATE);
+			}
 		} else {
 			logger.debug("No else branch, reset initialization.");
 			initializedIdentifiers = beforeTrue;
 		}
 
-		if (!hasAttribute(node.getCondition(), Attribute.TYPE, Type.Kind.BOOLEAN.name())) {
+		if (getType(node.getCondition()) != Type.Kind.BOOLEAN) {
 			errorLog.reportError(ReportType.TYPE_MISMATCH, node.coverage(), "The condition must be of type bool.");
+			markTypeError(node);
 		}
 	}
 
@@ -347,16 +563,15 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 
 		Type.Kind type = leastUpperBoundType(left, right);
 
-		if (hasAttribute(left, Attribute.TYPE_CHECK, TYPE_MISMATCH)
-			|| hasAttribute(right, Attribute.TYPE_CHECK, TYPE_MISMATCH)) {
-			setAttribute(node, Attribute.TYPE_CHECK, TYPE_MISMATCH);
+		if (hasTypeError(left) || hasTypeError(right)) {
+			markTypeError(node);
 		} else {
 			if (type == null) {
-				setAttribute(node, Attribute.TYPE_CHECK, TYPE_MISMATCH);
+				markTypeError(node);
 				errorLog.reportError(ReportType.TYPE_MISMATCH, node.coverage(),
 					"No implicit cast (no upper bound) defined for " + getType(left) + " and " + getType(right) + ".");
 			} else {
-				setAttribute(node, Attribute.TYPE, type.name());
+				setType(node, type);
 			}
 		}
 	}
@@ -365,10 +580,10 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 		ExpressionNode expression = node.getRightValue();
 		traverse(expression, table);
 
-		if (hasAttribute(expression, Attribute.TYPE_CHECK, TYPE_MISMATCH)) {
-			setAttribute(node, Attribute.TYPE_CHECK, TYPE_MISMATCH);
+		if (hasTypeError(expression)) {
+			markTypeError(node);
 		} else {
-			setAttribute(node, Attribute.TYPE, getAttribute(expression, Attribute.TYPE));
+			setType(node, getType(expression));
 		}
 	}
 
@@ -378,13 +593,18 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 	protected void handleNode(ArithmeticBinaryExpressionNode node, SymbolTable table) {
 		binaryExpression(node, table);
 
-		if (!hasAttribute(node, Attribute.TYPE_CHECK, TYPE_MISMATCH)) {
+		if (!hasTypeError(node)) {
 			Type.Kind type = getType(node);
 
 			if (!isNumeric(type) /*|| (type == Type.Kind.STRING && node.getOperator() == BinaryExpressionNode.BinaryOperator.ADDITION)*/) {
-				setAttribute(node, Attribute.TYPE_CHECK, TYPE_MISMATCH);
+				markTypeError(node);
 				errorLog.reportError(ReportType.TYPE_MISMATCH, node.coverage(),
 					"Operator " + node.getOperator().name() + " is not defined for " + getType(node) + ".");
+			} else if (node.getOperator() == BinaryExpressionNode.BinaryOperator.DIVISION) {
+				if (isValueNumericallyZero(node.getRightValue())) {
+					errorLog.reportError(ReportType.DIVISION_BY_ZERO, node.getRightValue().coverage(), "Division by zero.");
+					markTypeError(node);
+				}
 			}
 		}
 	}
@@ -392,9 +612,9 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 	protected void handleNode(ArithmeticUnaryExpressionNode node, SymbolTable table) {
 		unaryExpression(node, table);
 
-		if (hasAttribute(node, Attribute.TYPE_CHECK, TYPE_MISMATCH)) {
+		if (!hasTypeError(node)) {
 			if (!isNumeric(getType(node))) {
-				setAttribute(node, Attribute.TYPE_CHECK, TYPE_MISMATCH);
+				markTypeError(node);
 				errorLog.reportError(ReportType.TYPE_MISMATCH, node.coverage(),
 					"Operation " + node.getOperator() + " is not defined for " + getType(node) + ".");
 			}
@@ -404,13 +624,13 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 	protected void handleNode(RelationExpressionNode node, SymbolTable table) {
 		binaryExpression(node, table);
 
-		if (!hasAttribute(node, Attribute.TYPE_CHECK, TYPE_MISMATCH)) {
+		if (!hasTypeError(node)) {
 			Type.Kind type = getType(node);
 
 			BinaryExpressionNode.BinaryOperator op = node.getOperator();
 
-			if (!isNumeric(type) && (op != BinaryExpressionNode.BinaryOperator.EQUAL || op != BinaryExpressionNode.BinaryOperator.INEQUAL)) {
-				setAttribute(node, Attribute.TYPE_CHECK, TYPE_MISMATCH);
+			if (!isNumeric(type) && (op != BinaryExpressionNode.BinaryOperator.EQUAL && op != BinaryExpressionNode.BinaryOperator.INEQUAL)) {
+				markTypeError(node);
 				errorLog.reportError(ReportType.TYPE_MISMATCH, node.coverage(),
 					"Operator " + node.getOperator() + " expects numeric operands.");
 			} else {
@@ -428,9 +648,9 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 	protected void handleNode(LogicBinaryExpressionNode node, SymbolTable table) {
 		binaryExpression(node, table);
 
-		if (!hasAttribute(node, Attribute.TYPE_CHECK, TYPE_MISMATCH)) {
+		if (!hasTypeError(node)) {
 			if (!isBool(getType(node))) {
-				setAttribute(node, Attribute.TYPE_CHECK, TYPE_MISMATCH);
+				markTypeError(node);
 				errorLog.reportError(ReportType.TYPE_MISMATCH, node.coverage(),
 					"Operator " + node.getOperator() + " expects boolean operands");
 			}
@@ -440,9 +660,9 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 	protected void handleNode(LogicUnaryExpressionNode node, SymbolTable table) {
 		unaryExpression(node, table);
 
-		if (!hasAttribute(node, Attribute.TYPE_CHECK, TYPE_MISMATCH)) {
+		if (!hasTypeError(node)) {
 			if (!isBool(getType(node))) {
-				setAttribute(node, Attribute.TYPE_CHECK, TYPE_MISMATCH);
+				markTypeError(node);
 				errorLog.reportError(ReportType.TYPE_MISMATCH, node.coverage(),
 					"Operator " + node.getOperator() + " expects boolean operand.");
 			}
@@ -453,36 +673,42 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 	 * Block
 	 */
 	protected void handleNode(BlockNode node, SymbolTable table) {
-		if (hasAttribute(node.getParentNode(), Attribute.CAN_BREAK, CAN_BREAK)) {
-			setAttribute(node, Attribute.CAN_BREAK, CAN_BREAK);
-		}
-
 		SymbolTable blockScope = node.getSymbolTable();
 
 		for (StatementNode child : node.getStatementList()) {
-			if (hasAttribute(node, Attribute.CODE_STATE, DEAD_CODE)) {
-				errorLog.reportError(ReportType.UNDEFINED, child.coverage(),
-					"Unreachable statement, see previous “return” in block.");
+			if (isDeadPath(node)) {
+				errorLog.reportError(ReportType.TYPE_MISMATCH, child.coverage(),
+					"Unreachable statement, see previous “return” or „break“.");
 			}
 
-			this.traverse(child, blockScope);
+			traverse(child, blockScope);
+		}
+		
+		if (node.getParentNode() != null && isDeadPathByReturn(node)) {
+			isDeadPathByReturn(node.getParentNode());
 		}
 	}
 
 	protected void handleNode(AssignmentNode node, SymbolTable table) {
-		traverse(node.getLeftValue(), table);
-		traverse(node.getRightValue(), table);
+		IdentifierNode lvalue = node.getLeftValue();
+		ExpressionNode rvalue = node.getRightValue();
+
+		traverse(rvalue, table);
+		traverse(lvalue, table);
 
 		if (hasAttribute(node.getLeftValue(), Attribute.TYPE_CHECK, TYPE_MISMATCH)
 			|| hasAttribute(node.getRightValue(), Attribute.TYPE_CHECK, TYPE_MISMATCH)) {
-			setAttribute(node, Attribute.TYPE_CHECK, TYPE_MISMATCH);
+			markTypeError(node);
 		} else if (getType(node.getLeftValue())
 			!= leastUpperBoundType(node.getLeftValue(), node.getRightValue())) {
 
-			setAttribute(node, Attribute.TYPE_CHECK, TYPE_MISMATCH);
+			markTypeError(node);
 			errorLog.reportError(ReportType.TYPE_MISMATCH, node.coverage(),
 				"Expected " + getType(node.getLeftValue())
 				+ " found " + getType(node.getRightValue()));
+		} else if (getTypeDeclaration(lvalue) instanceof DerivedType) {
+			errorLog.reportError(ReportType.TYPE_MISMATCH, lvalue.coverage(), "Only primitve types can be assigned.");
+			markTypeError(node);
 		} else {
 			markIdentifierAsInitialized(table, getAttribute(node.getLeftValue(), Attribute.IDENTIFIER));
 			setAttribute(node, Attribute.TYPE, getAttribute(node.getLeftValue(), Attribute.TYPE));
@@ -496,27 +722,29 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 	 * Leaf nodes
 	 */
 	protected void handleNode(LiteralNode node, SymbolTable table) {
-		setAttribute(node, Attribute.INITIALIZATION_STATUS, IS_INITIALIZED);
 		setAttribute(node, Attribute.TYPE, node.getLiteralType().getKind().name());
 	}
 
 	protected void handleNode(BasicIdentifierNode node, SymbolTable table) {
 		String identifier = node.getIdentifier();
-		boolean initialzed = isInitialized(table, identifier);
 		Type t = table.lookupType(node.getIdentifier());
-
-		logger.debug("BasicIdentifierNode: identifier=" + identifier + ", initialized=" + initialzed + ", type=" + t);
+		boolean initialzed = isInitialized(table, identifier);
 
 		if (t == null) {
-			setAttribute(node, Attribute.TYPE_CHECK, TYPE_MISMATCH);
 			errorLog.reportError(ReportType.UNDECLARED_VARIABLE_USAGE, node.coverage(),
 				"Identifier “" + identifier + "” has not been declared.");
-
+			markTypeError(node);
 			return;
 		}
 
+		boolean derived = t.getKind() == Type.Kind.ARRAY || t.getKind() == Type.Kind.STRUCT;
+		logger.debug("BasicIdentifierNode: identifier=" + identifier + ", initialized=" + initialzed + ", type=" + t);
+
+
+
 		setAttribute(node, Attribute.IDENTIFIER, identifier);
 		setAttribute(node, Attribute.TYPE, t.getKind().name());
+		setTypeDeclaration(node, t);
 
 		/*
 		 * checks
@@ -526,7 +754,7 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 		if (node.getParentNode() instanceof AssignmentNode) {
 			AssignmentNode p = (AssignmentNode) node.getParentNode();
 			reportInitialization = p.getLeftValue() != node;
-		} else if (node.getParentNode().getNodeType() != ASTNode.ASTNodeType.AssignmentNode) {
+		} else if (node.getParentNode().getNodeType() != ASTNode.ASTNodeType.AssignmentNode && !derived) {
 			reportInitialization = true;
 		}
 
@@ -536,21 +764,80 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 		}
 	}
 
+	protected void handleNode(ArrayIdentifierNode node, SymbolTable table) {
+		ExpressionNode index = node.getIndexNode();
+		IdentifierNode identifier = node.getIdentifierNode();
+
+		traverse(index, table);
+		traverse(identifier, table);
+
+		if (getTypeDeclaration(identifier) instanceof ArrayType) {
+			ArrayType identifierType = (ArrayType) getTypeDeclaration(identifier);
+			Type t = identifierType.getInnerType();
+			setNodeType(node, t);
+
+			if (getType(index) == Type.Kind.LONG) {
+				Long indexValue = getLongValue(index);
+
+				if (indexValue != null) {
+					if (indexValue < 0) {
+						errorLog.reportError(ReportType.TYPE_MISMATCH, index.coverage(), "Array index can not be negative.");
+						markTypeError(node);
+					} else if (indexValue >= identifierType.getLength()) {
+						errorLog.reportError(ReportType.TYPE_MISMATCH, index.coverage(), "Array index (" + indexValue + ") is out of bound.");
+						markTypeError(node);
+					}
+				}
+			} else {
+				errorLog.reportError(ReportType.TYPE_MISMATCH, index.coverage(), "Array index must be of type long.");
+				markTypeError(node);
+			}
+		} else {
+			errorLog.reportError(ReportType.TYPE_MISMATCH, node.coverage(), "Array access to non array type.");
+			markTypeError(node);
+		}
+	}
+
+	protected void handleNode(StructIdentifierNode node, SymbolTable table) {
+		IdentifierNode struct = node.getIdentifierNode();
+		traverse(struct, table);
+
+		Type t = getTypeDeclaration(struct);
+
+		if (t instanceof StructType) {
+			StructType st = (StructType) t;
+			Type ft = getStructMemberType(st, node.getFieldName());
+			setNodeType(node, ft);
+		} else {
+			markTypeError(node);
+			errorLog.reportError(ReportType.TYPE_MISMATCH, node.coverage(), "Trying to access a field of a non struct type.");
+		}
+	}
+
+	protected void handleNode(BreakNode node, SymbolTable table) {
+		if (!canBreak(node.getParentNode())) {
+			errorLog.reportError(ReportType.TYPE_MISMATCH, node.coverage(), "Break can only be used in a loop.");
+			markTypeError(node);
+		}
+		
+		markDeadPathByBreak(node.getParentNode());
+	}
+	
 	protected void handleNode(ReturnNode node, SymbolTable table) {
 		IdentifierNode identifier = node.getRightValue();
 
 		if (identifier != null) {
 			traverse(identifier, table);
 
-			if (!getAttribute(identifier, Attribute.TYPE).equals(Type.Kind.LONG.name())) {
+			if (getType(identifier) != Type.Kind.LONG) {
 				errorLog.reportError(ReportType.TYPE_MISMATCH, node.coverage(),
 					"Only variables of type long can be returned.");
 			}
 		}
 
-		setAttribute(node.getParentNode(), Attribute.CODE_STATE, DEAD_CODE);
+		markDeadPathByReturn(node.getParentNode());
 	}
-	
+
 	protected void handleNode(PrintNode node, SymbolTable table) {
 		IdentifierNode identifier = node.getRightValue();
 		traverse(identifier, table);
@@ -561,6 +848,63 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 		Set<String> identifiers = this.initializedIdentifiers.get(declarationTable);
 
 		return identifiers != null && identifiers.contains(identifier);
+	}
+
+	protected Type getStructMemberType(StructType s, String field) {
+		for (Member m : s.members()) {
+			if (m.getName().equals(field)) {
+				return m.getType();
+			}
+		}
+
+		return null;
+	}
+
+	protected void setType(ASTNode node, Type.Kind t) {
+		setAttribute(node, Attribute.TYPE, t.name());
+	}
+	
+	protected void setNodeType(ASTNode node, Type t) {
+		setTypeDeclaration(node, t);
+		setAttribute(node, Attribute.TYPE, t.getKind().name());
+	}
+	
+	protected void markTypeError(ASTNode node) {
+		setAttribute(node, Attribute.TYPE_CHECK, TYPE_MISMATCH);
+	}
+	
+	protected void markDeadPathByBreak(ASTNode node) {
+		setAttribute(node, Attribute.CODE_STATE, DEAD_CODE_BREAK);
+	}
+	
+	protected void markDeadPathByReturn(ASTNode node) {
+		setAttribute(node, Attribute.CODE_STATE, DEAD_CODE_RETURN);
+	}
+	
+	protected boolean isDeadPath(ASTNode node) {
+		return hasAttribute(node, Attribute.CODE_STATE, DEAD_CODE_BREAK) || isDeadPathByReturn(node);
+	}
+	
+	protected boolean isDeadPathByReturn(ASTNode node) {
+		return hasAttribute(node, Attribute.CODE_STATE, DEAD_CODE_RETURN);
+	}
+	
+	protected boolean canBreak(ASTNode node) {
+		return hasAttribute(node, Attribute.CAN_BREAK, CAN_BREAK);
+	}
+	
+	protected boolean hasTypeError(ASTNode node) {
+		return hasAttribute(node, Attribute.TYPE_CHECK, TYPE_MISMATCH);
+	}
+
+	protected void setTypeDeclaration(ASTNode node, Type t) {
+		node.setAttributeValue(TYPE_DECLARATION, t);
+	}
+	
+	protected Type getTypeDeclaration(ASTNode node) {
+		Object t = node.getAttributeValue(TYPE_DECLARATION);
+		assert t instanceof Type;
+		return (Type)t;
 	}
 
 	protected void markIdentifierAsInitialized(SymbolTable table, String identifier) {
@@ -574,19 +918,21 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 	}
 
 	protected String getAttribute(ASTNode node, Attribute attribute) {
-		Map<Attribute, String> nodeMap = this.attributes.get(node);
-		if (nodeMap == null) {
+		Object v = node.getAttributeValue(attribute);
+		
+		if (v instanceof String) {
+			return (String)v;
+		} else {
 			return NO_ATTRIBUTE_VALUE;
 		}
-		String value = nodeMap.get(attribute);
-		return value == null ? NO_ATTRIBUTE_VALUE : value;
 	}
 
 	protected void setAttribute(ASTNode node, Attribute attribute, String value) {
-		if (!this.attributes.containsKey(node)) {
-			this.attributes.put(node, new HashMap<Attribute, String>());
-		}
-		this.attributes.get(node).put(attribute, value);
+		node.setAttributeValue(attribute, value);
+	}
+	
+	protected void removeAttribute(ASTNode node, Attribute attr) {
+		setAttribute(node, attr, NO_ATTRIBUTE_VALUE);
 	}
 
 	protected boolean hasAttribute(ASTNode node, Attribute attribute, String value) {

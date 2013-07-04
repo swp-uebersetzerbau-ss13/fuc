@@ -85,6 +85,6 @@ public class LRTableKey {
    
    @Override
    public String toString() {
-      return "[Key " + state.getId() + "|" + symbol.toString() + "]";
+      return "[Key '" + state.getId() + "'|'" + symbol.toString() + "']";
    }
 }

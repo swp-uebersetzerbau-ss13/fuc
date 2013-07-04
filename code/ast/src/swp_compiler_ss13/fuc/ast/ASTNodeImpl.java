@@ -85,6 +85,7 @@ public abstract class ASTNodeImpl implements ASTNode {
 		}
 	}
 
+
 	/**
 	 * {@inheritDoc}
 	 */

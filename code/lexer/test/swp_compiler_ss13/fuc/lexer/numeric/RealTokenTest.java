@@ -57,28 +57,13 @@ public class RealTokenTest {
 		PA.setValue(this.lexer, "actualTokenValue", Constants.DOUBLESTRING5);
 		PA.invokeMethod(this.lexer, "matchToken()");
 		assertEquals(TokenType.REAL, PA.getValue(this.lexer, "actualTokenType"));
-
-		PA.setValue(this.lexer, "actualTokenValue", Constants.DOUBLESTRING6);
-		PA.invokeMethod(this.lexer, "matchToken()");
-		assertEquals(TokenType.REAL, PA.getValue(this.lexer, "actualTokenType"));
-
-		PA.setValue(this.lexer, "actualTokenValue", Constants.DOUBLESTRING7);
-		PA.invokeMethod(this.lexer, "matchToken()");
-		assertEquals(TokenType.REAL, PA.getValue(this.lexer, "actualTokenType"));
-
-		PA.setValue(this.lexer, "actualTokenValue", Constants.DOUBLESTRING8);
-		PA.invokeMethod(this.lexer, "matchToken()");
-		assertEquals(TokenType.REAL, PA.getValue(this.lexer, "actualTokenType"));
-
-		PA.setValue(this.lexer, "actualTokenValue", Constants.DOUBLESTRING9);
-		PA.invokeMethod(this.lexer, "matchToken()");
-		assertEquals(TokenType.REAL, PA.getValue(this.lexer, "actualTokenType"));
 	}
 
 	/**
 	 * Test for getting the correct kind of class for real token
 	 * 
 	 * @throws UnsupportedEncodingException
+	 *             : UTF-8 encoding not supported
 	 */
 	@Test
 	public void getCorrectClassForTokenTest()
@@ -157,38 +142,61 @@ public class RealTokenTest {
 		assertTrue(token.getDoubleValue() == Double.valueOf("1.23123")
 				.doubleValue());
 
-		token = (RealToken) this.lexer.getNextToken();
-		assertEquals(Constants.DOUBLESTRING6, token.getValue());
-		assertEquals(TokenType.REAL, token.getTokenType());
-		assertEquals(1, token.getLine().intValue());
-		assertEquals(51, token.getColumn().intValue());
-		assertTrue(token.getDoubleValue() == Double.valueOf(
-				Constants.DOUBLESTRING6).doubleValue());
+		Token normalToken = this.lexer.getNextToken();
+		assertEquals(Constants.MINUSSTRING, normalToken.getValue());
+		assertEquals(TokenType.MINUS, normalToken.getTokenType());
+		assertEquals(1, normalToken.getLine().intValue());
+		assertEquals(51, normalToken.getColumn().intValue());
 
 		token = (RealToken) this.lexer.getNextToken();
-		assertEquals(Constants.DOUBLESTRING7, token.getValue());
+		assertEquals(Constants.DOUBLESTRING6.substring(1), token.getValue());
 		assertEquals(TokenType.REAL, token.getTokenType());
 		assertEquals(1, token.getLine().intValue());
-		assertEquals(60, token.getColumn().intValue());
+		assertEquals(52, token.getColumn().intValue());
 		assertTrue(token.getDoubleValue() == Double.valueOf(
-				"-12312.300000000001").doubleValue());
+				Constants.DOUBLESTRING6.substring(1)).doubleValue());
+
+		normalToken = this.lexer.getNextToken();
+		assertEquals(Constants.MINUSSTRING, normalToken.getValue());
+		assertEquals(TokenType.MINUS, normalToken.getTokenType());
+		assertEquals(1, normalToken.getLine().intValue());
+		assertEquals(60, normalToken.getColumn().intValue());
 
 		token = (RealToken) this.lexer.getNextToken();
-		assertEquals(Constants.DOUBLESTRING8, token.getValue());
+		assertEquals(Constants.DOUBLESTRING7.substring(1), token.getValue());
 		assertEquals(TokenType.REAL, token.getTokenType());
 		assertEquals(1, token.getLine().intValue());
-		assertEquals(71, token.getColumn().intValue());
+		assertEquals(61, token.getColumn().intValue());
 		assertTrue(token.getDoubleValue() == Double.valueOf(
-				"-12312.300000000001").doubleValue());
+				"12312.300000000001").doubleValue());
+
+		normalToken = this.lexer.getNextToken();
+		assertEquals(Constants.MINUSSTRING, normalToken.getValue());
+		assertEquals(TokenType.MINUS, normalToken.getTokenType());
+		assertEquals(1, normalToken.getLine().intValue());
+		assertEquals(71, normalToken.getColumn().intValue());
 
 		token = (RealToken) this.lexer.getNextToken();
-		assertEquals(Constants.DOUBLESTRING9, token.getValue());
+		assertEquals(Constants.DOUBLESTRING8.substring(1), token.getValue());
 		assertEquals(TokenType.REAL, token.getTokenType());
 		assertEquals(1, token.getLine().intValue());
-		assertEquals(82, token.getColumn().intValue());
+		assertEquals(72, token.getColumn().intValue());
 		assertTrue(token.getDoubleValue() == Double.valueOf(
-				Constants.DOUBLESTRING9).doubleValue());
+				"12312.300000000001").doubleValue());
 
+		normalToken = this.lexer.getNextToken();
+		assertEquals(Constants.MINUSSTRING, normalToken.getValue());
+		assertEquals(TokenType.MINUS, normalToken.getTokenType());
+		assertEquals(1, normalToken.getLine().intValue());
+		assertEquals(82, normalToken.getColumn().intValue());
+
+		token = (RealToken) this.lexer.getNextToken();
+		assertEquals(Constants.DOUBLESTRING9.substring(1), token.getValue());
+		assertEquals(TokenType.REAL, token.getTokenType());
+		assertEquals(1, token.getLine().intValue());
+		assertEquals(83, token.getColumn().intValue());
+		assertTrue(token.getDoubleValue() == Double.valueOf(
+				Constants.DOUBLESTRING9.substring(1)).doubleValue());
 	}
 
 	/**

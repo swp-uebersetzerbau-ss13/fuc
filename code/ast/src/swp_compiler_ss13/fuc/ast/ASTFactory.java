@@ -4,6 +4,7 @@ import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.ast.ASTNode;
 import swp_compiler_ss13.common.ast.nodes.ExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.IdentifierNode;
+import swp_compiler_ss13.common.ast.nodes.StatementNode;
 import swp_compiler_ss13.common.ast.nodes.binary.AssignmentNode;
 import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode.BinaryOperator;
@@ -91,6 +92,39 @@ public class ASTFactory {
 		this.node = parent;
 		return this.node;
 	}
+	
+	/**
+	 * Adds the given node to the current node and handles different node
+	 * types like {@link BranchNode}, {@link LoopNode} and
+	 * {@link BlockNode}
+	 * 
+	 * @param stmt The {@link StatementNode} which should be added to the
+	 * current {@link #node}
+	 */
+	private void addStatement(StatementNode stmt) {
+	     switch (this.node.getNodeType()) {
+	        case BranchNode:
+	           BranchNode branch = ((BranchNode) this.node);
+	           if (branch.getStatementNodeOnTrue() == null) {
+	              branch.setStatementNodeOnTrue(stmt);
+	           } else if ((branch.getStatementNodeOnFalse() == null)) {
+	              branch.setStatementNodeOnFalse(stmt);
+	           } else {
+	              assert (false);
+	           }
+	           break;
+	        case DoWhileNode:
+	        case WhileNode:
+	           ((LoopNode) this.node).setLoopBody(stmt);
+	           break;
+	        case BlockNode:
+	           ((BlockNode) this.node).addStatement(stmt);
+	           break;
+	        default:
+	           assert (false);
+	           break;
+	        }
+	}
 
 	/**
 	 * adds a declaration to the current node
@@ -128,28 +162,7 @@ public class ASTFactory {
 		}
 
 		block.setSymbolTable(new SymbolTableImpl(((BlockNode) parentBlock).getSymbolTable()));
-		switch (this.node.getNodeType()) {
-		case BranchNode:
-			BranchNode branch = ((BranchNode) this.node);
-			if (branch.getStatementNodeOnTrue() == null) {
-				branch.setStatementNodeOnTrue(block);
-			} else if ((branch.getStatementNodeOnFalse() == null)) {
-				branch.setStatementNodeOnFalse(block);
-			} else {
-				assert (false);
-			}
-			break;
-		case DoWhileNode:
-		case WhileNode:
-			((LoopNode) this.node).setLoopBody(block);
-			break;
-		case BlockNode:
-			((BlockNode) this.node).addStatement(block);
-			break;
-		default:
-			assert (false);
-			break;
-		}
+		addStatement(block);
 		this.node = block;
 		return block;
 	}
@@ -163,7 +176,7 @@ public class ASTFactory {
 	 */
 	public ReturnNode addReturn(IdentifierNode identifier) {
 		ReturnNode ret = new ReturnNodeImpl();
-		((BlockNode) this.node).addStatement(ret);
+		addStatement(ret);
 		ret.setParentNode(this.node);
 		ret.setRightValue(identifier);
 		if (identifier != null) {
@@ -185,7 +198,7 @@ public class ASTFactory {
 	 */
 	public BranchNode addBranch(ExpressionNode condition) {
 		BranchNode branch = new BranchNodeImpl();
-		((BlockNode) this.node).addStatement(branch);
+		addStatement(branch);
 		branch.setParentNode(this.node);
 		branch.setCondition(condition);
 		condition.setParentNode(branch);
@@ -206,12 +219,11 @@ public class ASTFactory {
 	 * @return the created LoopNode
 	 */
 	protected LoopNode addLoop(ExpressionNode condition, LoopNode loop) {
-		((BlockNode) this.node).addStatement(loop);
+		addStatement(loop);
 		loop.setParentNode(this.node);
 		loop.setCondition(condition);
 		condition.setParentNode(loop);
 		this.node = loop;
-		this.addBlock();
 		return loop;
 	}
 
@@ -252,7 +264,7 @@ public class ASTFactory {
 	 */
 	public PrintNode addPrint(IdentifierNode identifier) {
 		PrintNodeImpl print = new PrintNodeImpl();
-		((BlockNode) this.node).addStatement(print);
+		addStatement(print);
 		print.setParentNode(this.node);
 		print.setRightValue(identifier);
 		identifier.setParentNode(print);
@@ -266,7 +278,7 @@ public class ASTFactory {
 	 */
 	public BreakNode addBreak() {
 		BreakNodeImpl breaknode = new BreakNodeImpl();
-		((BlockNode) this.node).addStatement(breaknode);
+		addStatement(breaknode);
 		breaknode.setParentNode(this.node);
 		return breaknode;
 	}
@@ -279,7 +291,7 @@ public class ASTFactory {
 	 * @return the added ExpressionNode
 	 */
 	public ExpressionNode addExpression(ExpressionNode expression) {
-		((BlockNode) this.node).addStatement(expression);
+		addStatement(expression);
 		expression.setParentNode(this.node);
 		return expression;
 	}
@@ -447,8 +459,10 @@ public class ASTFactory {
 	 */
 	public ArrayIdentifierNode newArrayIdentifier(ExpressionNode indexNode, IdentifierNode identifier) {
 		ArrayIdentifierNode arrayIdentifier = new ArrayIdentifierNodeImpl();
+
 		arrayIdentifier.setIndexNode(indexNode);
 		arrayIdentifier.setIdentifierNode(identifier);
+		indexNode.setParentNode(arrayIdentifier);
 		identifier.setParentNode(arrayIdentifier);
 		return arrayIdentifier;
 	}

@@ -100,4 +100,28 @@ public class ArrayTest {
 		AST expected = factory.getAST();
 		ASTComparator.compareAST(expected, ast);
 	}
+	
+	@Test
+	public void testArrayTest4() {
+		String input = "long[10] n;\n"
+				+ "long i;\n"
+				+ "print n[i];\n";
+
+		// Run LR-parser
+		AST ast = GrammarTestHelper.parseToAst(input);
+		assertNotNull(ast);
+
+		// Create reference AST
+		ASTFactory factory = new ASTFactory();
+		factory.addDeclaration("n", new ArrayType(new LongType(), 10));
+		factory.addDeclaration("i", new LongType());
+
+		factory.addPrint(
+				factory.newArrayIdentifier(
+						factory.newBasicIdentifier("i"),
+						factory.newBasicIdentifier("n")));
+		
+		AST expected = factory.getAST();
+		ASTComparator.compareAST(expected, ast);
+	}
 }

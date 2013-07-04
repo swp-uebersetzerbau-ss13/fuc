@@ -1,10 +1,8 @@
 package swp_compiler_ss13.fuc.parser.generator.states;
 
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
-import java.util.Map;
-import java.util.Set;
 
 import swp_compiler_ss13.fuc.parser.generator.FirstSets;
 import swp_compiler_ss13.fuc.parser.generator.GrammarInfo;
@@ -29,7 +27,7 @@ public class LR1State extends ALRState<LR1Item> {
 	// ----------------------------------------------
 	// --------------------------------------------------------------------------
 	private final LR0State kernel;
-	private final Map<LR0Item, LR1Item> itemsWithKernels;
+	private final LinkedHashMap<LR0Item, LR1Item> itemsWithKernels;
 
 	// cache
 	private final int hashCode;
@@ -43,12 +41,12 @@ public class LR1State extends ALRState<LR1Item> {
 	 * @see LR1State
 	 * @param items
 	 */
-	public LR1State(Set<LR1Item> items) {
+	public LR1State(LinkedHashSet<LR1Item> items) {
 		super(items);
 
 		// Extract kernel and calc hash once
 		int tmpHashCode = 0;
-		itemsWithKernels = new HashMap<>();
+		itemsWithKernels = new LinkedHashMap<>();
 		for (LR1Item item : items) {
 			itemsWithKernels.put(item.getLR0Kernel(), item);
 			tmpHashCode += item.hashCode();
@@ -66,7 +64,7 @@ public class LR1State extends ALRState<LR1Item> {
 
 		// Extract kernel and calc hash once
 		int tmpHashCode = 0;
-		itemsWithKernels = new HashMap<>();
+		itemsWithKernels = new LinkedHashMap<>();
 		for (LR1Item item : items) {
 			itemsWithKernels.put(item.getLR0Kernel(), item);
 			tmpHashCode += item.hashCode();
@@ -82,7 +80,7 @@ public class LR1State extends ALRState<LR1Item> {
 	// --------------------------------------------------------------------------
 	@Override
 	public LR1State goTo(Symbol symbol) {
-		HashSet<LR1Item> ret = new HashSet<>();
+		LinkedHashSet<LR1Item> ret = new LinkedHashSet<>();
 
 		// Find all items where the given symbol follows and add them shifted
 		for (LR1Item item : items) {
@@ -106,9 +104,9 @@ public class LR1State extends ALRState<LR1Item> {
 	 * {@link LR1Item}s. For a description of this algorithm, see Modern
 	 * Compiler Implementation for Java, page 63.
 	 */
-	private HashSet<LR1Item> closureItems(GrammarInfo grammarInfo) {
+	private LinkedHashSet<LR1Item> closureItems(GrammarInfo grammarInfo) {
 		// The closure contains all items of the source...
-		HashMap<LR0Item, ITerminalSet> items = new HashMap<>();
+		LinkedHashMap<LR0Item, ITerminalSet> items = new LinkedHashMap<>();
 		for (LR1Item item : this.items) {
 			items.put(item.getLR0Kernel(), item.getLookaheads());
 		}
@@ -164,7 +162,7 @@ public class LR1State extends ALRState<LR1Item> {
 		}
 		
 		// Collect resulting LR(1) items
-		HashSet<LR1Item> result = new HashSet<LR1Item>();
+		LinkedHashSet<LR1Item> result = new LinkedHashSet<LR1Item>();
 		for (LR0Item lr0Item : items.keySet()) {
 			result.add(new LR1Item(lr0Item.getProduction(), lr0Item.getPosition(),
 					items.get(lr0Item)));

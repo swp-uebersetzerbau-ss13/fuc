@@ -145,11 +145,6 @@
     <ant antfile="build.xml" dir="${test.dir}" target="run-tests-runtime" inheritall="false" />
 	</target>
 
-	<!-- === run cross  tests === -->
-	<target name="run-tests-cross" description="run cross tests">
-    <ant antfile="build.xml" dir="${test.dir}" target="run-tests-cross" inheritall="false" />
-	</target>
-
 	<!-- === dist === -->
 	<target name="dist" description="distribute the FUC Compiler (minimal)">
 		<!-- Clean everything, we dont want to have the compiled tests in our jars -->
@@ -265,7 +260,7 @@
 		<jar destfile="${dist.dir}/Fuc-Gui-Ide-Ast.jar" basedir="${visu.gui.ide.ast.dir}/${bin.dir}">
 			<zipfileset dir="${dist.dir}/temp" includes="swp_compiler_ss13.fuc.gui.ide.mvc.Controller" fullpath="META-INF/services/swp_compiler_ss13.fuc.gui.ide.mvc.Controller" />
 		</jar>
-		
+
 		<!-- create the visu-gui-ide-ast-semantic package -->
 		<echo message="swp_compiler_ss13.fuc.gui.ast.Semantic_Controller" file="${dist.dir}/temp/swp_compiler_ss13.fuc.gui.ide.mvc.Controller" />
 		<jar destfile="${dist.dir}/Fuc-Gui-Ide-Ast-Semantic.jar" basedir="${visu.gui.ide.ast.sem.dir}/${bin.dir}">
@@ -289,7 +284,7 @@
 		<jar destfile="${dist.dir}/Fuc-Gui-Ide-Text-Result.jar" basedir="${visu.gui.ide.text.result.dir}/${bin.dir}">
 			<zipfileset dir="${dist.dir}/temp" includes="swp_compiler_ss13.fuc.gui.ide.mvc.Controller" fullpath="META-INF/services/swp_compiler_ss13.fuc.gui.ide.mvc.Controller" />
 		</jar>
-		
+
 		<!-- create the visu-gui-ide-text-target package -->
 		<echo message="swp_compiler_ss13.fuc.gui.text.target.TextGUITargetVisualizationController" file="${dist.dir}/temp/swp_compiler_ss13.fuc.gui.ide.mvc.Controller" />
 		<jar destfile="${dist.dir}/Fuc-Gui-Ide-Text-Target.jar" basedir="${visu.gui.ide.text.target.dir}/${bin.dir}">

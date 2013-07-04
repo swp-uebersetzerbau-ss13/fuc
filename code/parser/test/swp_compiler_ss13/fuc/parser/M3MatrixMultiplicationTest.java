@@ -7,7 +7,13 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import swp_compiler_ss13.common.ast.AST;
+import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode.BinaryOperator;
+import swp_compiler_ss13.common.types.derived.ArrayType;
+import swp_compiler_ss13.common.types.primitive.LongType;
+import swp_compiler_ss13.common.types.primitive.StringType;
 import swp_compiler_ss13.fuc.ast.ASTFactory;
+import swp_compiler_ss13.fuc.parser.errorHandling.ParserASTXMLVisualization;
+import swp_compiler_ss13.fuc.parser.parser.LRParser;
 
 public class M3MatrixMultiplicationTest {
 	static {
@@ -40,7 +46,6 @@ public class M3MatrixMultiplicationTest {
 	}
 
 	@Test
-	@Ignore
 	public void testMatrixMultiplicationOrgLexer() throws Exception {
 		String input = "# return 0\n"
 				+ "# prints:\n"
@@ -69,7 +74,7 @@ public class M3MatrixMultiplicationTest {
 				+ "string br;\n"
 				+ "\n"
 				+ "sep = \"|\";\n"
-				+ "br = \"\n\";\n"
+				+ "br = \"\\n\";\n"
 				+ "\n"
 				+ "ax = 4;\n"
 				+ "ay = 3;\n"
@@ -126,30 +131,206 @@ public class M3MatrixMultiplicationTest {
 		checkAst(ast);
 	}
 
-	private static void checkAst(AST ast) {
-		assertNotNull(ast);
+	private static void checkAst(AST actual) {
+		assertNotNull(actual);
 		
-		ASTFactory factory = new ASTFactory();
-//		factory.addDeclaration("l", new LongType());
-//		factory.addDeclaration("d", new DoubleType());
-//		factory.addDeclaration("s", new StringType(LRParser.STRING_LENGTH));
-//		factory.addDeclaration("b", new BooleanType());
-//
-//		factory.addDeclaration("linebreak", new StringType(LRParser.STRING_LENGTH));
-//		factory.addAssignment(factory.newBasicIdentifier("linebreak"), factory.newLiteral("\"\\n\"", new StringType(4L)));
-//		factory.addAssignment(factory.newBasicIdentifier("b"), factory.newLiteral("true", new BooleanType()));
-//		factory.addAssignment(factory.newBasicIdentifier("l"), factory.newLiteral("18121313223", new LongType()));
-//		factory.addAssignment(factory.newBasicIdentifier("d"), factory.newLiteral("-23.23e-100", new DoubleType()));
-//		factory.addAssignment(factory.newBasicIdentifier("s"), factory.newLiteral("\"jagÄrEttString\\\"\\n\"", new StringType(20L)));
-//		
-//		factory.addPrint(factory.newBasicIdentifier("b")); factory.addPrint(factory.newBasicIdentifier("linebreak"));
-//		factory.addPrint(factory.newBasicIdentifier("l")); factory.addPrint(factory.newBasicIdentifier("linebreak"));
-//		factory.addPrint(factory.newBasicIdentifier("d")); factory.addPrint(factory.newBasicIdentifier("linebreak"));
-//		factory.addPrint(factory.newBasicIdentifier("s"));
-//		
-//		factory.addReturn(null);
+		ASTFactory factory = new ASTFactory();factory.addDeclaration("ax", new LongType());
+		factory.addDeclaration("ay", new LongType());
+		factory.addDeclaration("bx", new LongType());
+		factory.addDeclaration("by", new LongType());
+		factory.addDeclaration("ix", new LongType());
+		factory.addDeclaration("iy", new LongType());
+		factory.addDeclaration("i", new LongType());		 
+		//Matrix 
+		factory.addDeclaration("a", new ArrayType(new ArrayType(new LongType(), 4), 3));
+		factory.addDeclaration("b", new ArrayType(new ArrayType(new LongType(), 3), 2));
+		factory.addDeclaration("c", new ArrayType(new ArrayType(new LongType(), 4), 2));
+		//String		 
+		factory.addDeclaration("sep", new StringType(LRParser.STRING_LENGTH));
+		factory.addDeclaration("br", new StringType(LRParser.STRING_LENGTH));
+		factory.addAssignment(factory.newBasicIdentifier("sep"), factory.newLiteral("\"|\"", new StringType(20L)));
+		factory.addAssignment(factory.newBasicIdentifier("br"), factory.newLiteral("\"\\n\"", new StringType(20L)));
+		//value
+		factory.addAssignment(factory.newBasicIdentifier("ax"), factory.newLiteral("4", new LongType()));
+		factory.addAssignment(factory.newBasicIdentifier("ay"), factory.newLiteral("3", new LongType()));
+		factory.addAssignment(factory.newBasicIdentifier("bx"), factory.newLiteral("3", new LongType()));
+		factory.addAssignment(factory.newBasicIdentifier("by"), factory.newLiteral("2", new LongType()));
+		factory.addAssignment(factory.newBasicIdentifier("ix"), factory.newLiteral("0", new LongType()));
 		
-		AST expected = factory.getAST();
-		ASTComparator.compareAST(expected, ast);
+		//init a
+		addMatrixInit(factory, "0", "0", "a", "1");
+		addMatrixInit(factory, "0", "1", "a", "2");
+		addMatrixInit(factory, "0", "2", "a", "3");
+
+		addMatrixInit(factory, "1", "0", "a", "2");
+		addMatrixInit(factory, "1", "1", "a", "4");
+		addMatrixInit(factory, "1", "2", "a", "6");
+		
+		addMatrixInit(factory, "2", "0", "a", "3");
+		addMatrixInit(factory, "2", "1", "a", "6");
+		addMatrixInit(factory, "2", "2", "a", "9");
+		
+		addMatrixInit(factory, "3", "0", "a", "4");
+		addMatrixInit(factory, "3", "1", "a", "8");
+		addMatrixInit(factory, "3", "2", "a", "12");
+		
+		// Init b
+		addMatrixInit(factory, "0", "0", "b", "1");		
+		addMatrixInit(factory, "0", "1", "b", "5");
+		
+		addMatrixInit(factory, "1", "0", "b", "2");
+		addMatrixInit(factory, "1", "1", "b", "7");
+		
+		addMatrixInit(factory, "2", "0", "b", "3");
+		addMatrixInit(factory, "2", "1", "b", "9");
+		
+		// Init c
+		addMatrixInit(factory, "0", "0", "c", "0");
+		addMatrixInit(factory, "1", "0", "c", "0");
+		addMatrixInit(factory, "2", "0", "c", "0");
+		addMatrixInit(factory, "3", "0", "c", "0");
+		
+		addMatrixInit(factory, "0", "1", "c", "0");
+		addMatrixInit(factory, "1", "1", "c", "0");
+		addMatrixInit(factory, "2", "1", "c", "0");
+		addMatrixInit(factory, "3", "1", "c", "0");
+		
+		// 1st while loop
+		factory.addWhile(
+        		factory.newBinaryExpression(
+        				BinaryOperator.LESSTHAN,
+        				factory.newBasicIdentifier("ix"),
+        				factory.newBasicIdentifier("ax")));
+			
+			factory.addBlock();
+			factory.addAssignment(factory.newBasicIdentifier("iy"), factory.newLiteral("0", new LongType()));
+			
+			// 2nd while loop
+			factory.addWhile(
+	        		factory.newBinaryExpression(
+	        				BinaryOperator.LESSTHAN,
+	        				factory.newBasicIdentifier("iy"),
+	        				factory.newBasicIdentifier("by")));
+				factory.addBlock();
+				factory.addAssignment(factory.newBasicIdentifier("i"), factory.newLiteral("0", new LongType()));
+				
+				// 3rd while loop with three  conditions
+				factory.addWhile(
+						factory.newBinaryExpression( 	
+        						BinaryOperator.LOGICAL_AND,
+        						factory.newBinaryExpression( 	
+		        						BinaryOperator.LESSTHAN,
+				        				factory.newBasicIdentifier("i"),
+				        				factory.newBasicIdentifier("bx")),
+				        		factory.newBinaryExpression( 	
+		        						BinaryOperator.LESSTHAN,
+		        						factory.newBasicIdentifier("i"),
+				        				factory.newBasicIdentifier("ay"))));
+					factory.addBlock();
+					//c[ix][iy] = a[ix][i] * b[i][iy] + c[ix][iy];
+					factory.addAssignment(
+							//c[ix][iy]
+							factory.newArrayIdentifier(
+									factory.newBasicIdentifier("iy"),
+									factory.newArrayIdentifier(
+											factory.newBasicIdentifier("ix"),
+											factory.newBasicIdentifier("c"))),
+									//a[ix][i]
+									factory.newBinaryExpression(
+			        						BinaryOperator.ADDITION,
+									//b[i][iy]
+									factory.newBinaryExpression(
+					        				BinaryOperator.MULTIPLICATION,
+											
+										factory.newArrayIdentifier(
+												factory.newBasicIdentifier("i"),
+												factory.newArrayIdentifier(
+														factory.newBasicIdentifier("ix"),
+														factory.newBasicIdentifier("a"))),
+										factory.newArrayIdentifier(
+												factory.newBasicIdentifier("iy"),
+												factory.newArrayIdentifier(
+														factory.newBasicIdentifier("i"),
+														factory.newBasicIdentifier("b")))
+											),
+									//c[ix][iy]		
+									factory.newArrayIdentifier(
+											factory.newBasicIdentifier("iy"),
+											factory.newArrayIdentifier(
+													factory.newBasicIdentifier("ix"),
+													factory.newBasicIdentifier("c")))));
+					
+					factory.goToParent();	// -> 3rd loop
+					factory.goToParent();	// -> 2nd loops body
+				factory.goToParent();	// -> 2nd loop
+				factory.goToParent();	// -> 1st loops body
+			factory.goToParent();	// -> 1st loop
+			factory.goToParent();	// -> root-body
+					
+		factory.addAssignment(factory.newBasicIdentifier("ix"), factory.newLiteral("0", new LongType()));
+		// 4th while loop
+		factory.addWhile(
+        		factory.newBinaryExpression(
+        				BinaryOperator.LESSTHAN,
+        				factory.newBasicIdentifier("ix"),
+        				factory.newBasicIdentifier("ax")));
+			
+			factory.addBlock();
+			factory.addAssignment(factory.newBasicIdentifier("iy"), factory.newLiteral("0", new LongType()));
+			
+			// 5th while loop
+			factory.addWhile(
+	        		factory.newBinaryExpression(
+	        				BinaryOperator.LESSTHAN,
+	        				factory.newBasicIdentifier("iy"),
+	        				factory.newBasicIdentifier("by")));
+			
+				factory.addBlock();
+				factory.addPrint(
+					factory.newArrayIdentifier(
+						factory.newBasicIdentifier("iy"),
+						factory.newArrayIdentifier(
+								factory.newBasicIdentifier("ix"),
+								factory.newBasicIdentifier("c"))
+								));
+				
+				// if statement
+				factory.addBranch(
+						factory.newBinaryExpression(
+		        				BinaryOperator.INEQUAL,
+						factory.newBinaryExpression(
+		        				BinaryOperator.ADDITION,
+        		        				factory.newBasicIdentifier("iy"),
+        		        				factory.newLiteral("1", new LongType())),
+		        				factory.newBasicIdentifier("by")));
+					factory.addPrint( 
+							factory.newBasicIdentifier("sep"));
+        						
+        			factory.goToParent();	// -> 5th loop body
+    			factory.goToParent();	// -> 5th loop
+				factory.goToParent();	// -> 4th loop body
+				
+				factory.addPrint(factory.newBasicIdentifier("br"));
+				
+			factory.goToParent();	// -> 4th loop
+			factory.goToParent();	// -> root body
+		
+		factory.addReturn(null);
+		
+		ParserASTXMLVisualization vis = new ParserASTXMLVisualization();
+ 		System.out.println(vis.visualizeAST(actual));
+ 		
+ 		AST expected = factory.getAST();
+ 		System.out.println(vis.visualizeAST(expected));
+		ASTComparator.compareAST(expected, actual);
+	}
+	
+	private static void addMatrixInit(ASTFactory factory, String index0, String index1, String basicId, String val) {
+		factory.addAssignment(
+				factory.newArrayIdentifier(
+						factory.newLiteral(index1, new LongType()),
+						factory.newArrayIdentifier(factory.newLiteral(index0, new LongType()),
+								factory.newBasicIdentifier(basicId))),
+				factory.newLiteral(val, new LongType()));
 	}
 }

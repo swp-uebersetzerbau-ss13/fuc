@@ -61,7 +61,7 @@ public class Error_Multiple_Pluses_in_expProgTest {
 			new TokenImpl("+", TokenType.PLUS, 1, 1),
 			new TokenImpl("1", TokenType.NUM, 1, 1),
 			new TokenImpl(";", TokenType.SEMICOLON, 1, 1),
-			new TokenImpl("$", TokenType.EOF, 1, 1)
+			new TokenImpl(null, TokenType.EOF, 1, 1)
 		));
 	}
 
