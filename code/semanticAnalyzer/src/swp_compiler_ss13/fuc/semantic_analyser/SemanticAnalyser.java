@@ -68,12 +68,12 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 	private static final String NO_ATTRIBUTE_VALUE = "undefined";
 	private static final String CAN_BREAK = "true";
 	private static final String TYPE_MISMATCH = "type mismatch";
-	private static final String DEAD_CODE = "dead";
+	private static final String DEAD_CODE_BREAK = "dead by break";
+	private static final String DEAD_CODE_RETURN = "dead by return";
 	private static final String STATIC_VALUE = "value";
 	private static final String TYPE_DECLARATION = "type declaration";
 	
 	private ReportLog errorLog;
-	private Map<ASTNode, Map<Attribute, String>> attributes;
 	/**
 	 * Contains all initialized identifiers. As soon it has assigned it will be
 	 * added.
@@ -81,12 +81,10 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 	private Map<SymbolTable, Set<String>> initializedIdentifiers;
 
 	public SemanticAnalyser() {
-		attributes = new HashMap<>();
 		initializedIdentifiers = new HashMap<>();
 	}
 
 	public SemanticAnalyser(ReportLog log) {
-		attributes = new HashMap<>();
 		initializedIdentifiers = new HashMap<>();
 		errorLog = log;
 	}
@@ -116,7 +114,6 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 	public AST analyse(AST ast) {
 		assert (errorLog != null);
 
-		attributes.clear();
 		initializedIdentifiers.clear();
 
 		logger.debug("Analyzing ... please stand by!");
@@ -338,7 +335,9 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 	protected void traverse(ASTNode node, SymbolTable table) {
 		logger.debug("traverse: " + node);
 
-		inheritAttribute(node.getParentNode(), node, Attribute.CAN_BREAK);
+		if (node.getParentNode() != null) {
+			inheritAttribute(node.getParentNode(), node, Attribute.CAN_BREAK);
+		}
 
 		switch (node.getNodeType()) {
 			case BasicIdentifierNode:
@@ -396,6 +395,10 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 				break;
 			default:
 				throw new IllegalArgumentException("unknown ASTNodeType");
+		}
+		
+		if (node.getParentNode() != null) {
+			inheritAttribute(node, node.getParentNode(), Attribute.CODE_STATE);
 		}
 
 		if (node instanceof ExpressionNode && !hasTypeError(node)) {
@@ -482,12 +485,7 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 
 		checkLoopNode(node, table);
 	}
-
-	protected void handleNode(BreakNode node, SymbolTable table) {
-		if (!hasAttribute(node.getParentNode(), Attribute.CAN_BREAK, CAN_BREAK)) {
-			errorLog.reportError(ReportType.UNDEFINED, node.coverage(), "Break can only be used in a loop.");
-		}
-	}
+	
 
 	/*
 	 * Branch node
@@ -509,7 +507,7 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 		Map<SymbolTable, Set<String>> beforeTrue = copy(initializedIdentifiers);
 		List<SymbolTable> beforeTrueTableChain = getSymbolTableChain(table);
 		traverse(node.getStatementNodeOnTrue(), table);
-
+		
 		if (node.getStatementNodeOnFalse() != null) {
 			Map<SymbolTable, Set<String>> beforeFalse = copy(initializedIdentifiers);
 			initializedIdentifiers = beforeTrue;
@@ -531,6 +529,10 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 					logger.debug(s + ": f:" + initializedIdentifiers.get(s) + ",  t:" + beforeFalse.get(s));
 					initializedIdentifiers.get(s).retainAll(beforeFalse.get(s));
 				}
+			}
+			
+			if (isDeadPath(node.getStatementNodeOnTrue()) != isDeadPath(node.getStatementNodeOnFalse())) {
+				removeAttribute(node, Attribute.CODE_STATE);
 			}
 		} else {
 			logger.debug("No else branch, reset initialization.");
@@ -674,12 +676,16 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 		SymbolTable blockScope = node.getSymbolTable();
 
 		for (StatementNode child : node.getStatementList()) {
-			if (hasAttribute(node, Attribute.CODE_STATE, DEAD_CODE)) {
-				errorLog.reportError(ReportType.UNDEFINED, child.coverage(),
-					"Unreachable statement, see previous “return” in block.");
+			if (isDeadPath(node)) {
+				errorLog.reportError(ReportType.TYPE_MISMATCH, child.coverage(),
+					"Unreachable statement, see previous “return” or „break“.");
 			}
 
 			traverse(child, blockScope);
+		}
+		
+		if (node.getParentNode() != null && isDeadPathByReturn(node)) {
+			isDeadPathByReturn(node.getParentNode());
 		}
 	}
 
@@ -808,19 +814,28 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 		}
 	}
 
+	protected void handleNode(BreakNode node, SymbolTable table) {
+		if (!canBreak(node.getParentNode())) {
+			errorLog.reportError(ReportType.TYPE_MISMATCH, node.coverage(), "Break can only be used in a loop.");
+			markTypeError(node);
+		}
+		
+		markDeadPathByBreak(node.getParentNode());
+	}
+	
 	protected void handleNode(ReturnNode node, SymbolTable table) {
 		IdentifierNode identifier = node.getRightValue();
 
 		if (identifier != null) {
 			traverse(identifier, table);
 
-			if (!getAttribute(identifier, Attribute.TYPE).equals(Type.Kind.LONG.name())) {
+			if (getType(identifier) != Type.Kind.LONG) {
 				errorLog.reportError(ReportType.TYPE_MISMATCH, node.coverage(),
 					"Only variables of type long can be returned.");
 			}
 		}
 
-		setAttribute(node.getParentNode(), Attribute.CODE_STATE, DEAD_CODE);
+		markDeadPathByReturn(node.getParentNode());
 	}
 
 	protected void handleNode(PrintNode node, SymbolTable table) {
@@ -858,6 +873,26 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 		setAttribute(node, Attribute.TYPE_CHECK, TYPE_MISMATCH);
 	}
 	
+	protected void markDeadPathByBreak(ASTNode node) {
+		setAttribute(node, Attribute.CODE_STATE, DEAD_CODE_BREAK);
+	}
+	
+	protected void markDeadPathByReturn(ASTNode node) {
+		setAttribute(node, Attribute.CODE_STATE, DEAD_CODE_RETURN);
+	}
+	
+	protected boolean isDeadPath(ASTNode node) {
+		return hasAttribute(node, Attribute.CODE_STATE, DEAD_CODE_BREAK) || isDeadPathByReturn(node);
+	}
+	
+	protected boolean isDeadPathByReturn(ASTNode node) {
+		return hasAttribute(node, Attribute.CODE_STATE, DEAD_CODE_RETURN);
+	}
+	
+	protected boolean canBreak(ASTNode node) {
+		return hasAttribute(node, Attribute.CAN_BREAK, CAN_BREAK);
+	}
+	
 	protected boolean hasTypeError(ASTNode node) {
 		return hasAttribute(node, Attribute.TYPE_CHECK, TYPE_MISMATCH);
 	}
@@ -865,7 +900,7 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 	protected void setTypeDeclaration(ASTNode node, Type t) {
 		node.setAttributeValue(TYPE_DECLARATION, t);
 	}
-
+	
 	protected Type getTypeDeclaration(ASTNode node) {
 		Object t = node.getAttributeValue(TYPE_DECLARATION);
 		assert t instanceof Type;
@@ -883,19 +918,21 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 	}
 
 	protected String getAttribute(ASTNode node, Attribute attribute) {
-		Map<Attribute, String> nodeMap = this.attributes.get(node);
-		if (nodeMap == null) {
+		Object v = node.getAttributeValue(attribute);
+		
+		if (v instanceof String) {
+			return (String)v;
+		} else {
 			return NO_ATTRIBUTE_VALUE;
 		}
-		String value = nodeMap.get(attribute);
-		return value == null ? NO_ATTRIBUTE_VALUE : value;
 	}
 
 	protected void setAttribute(ASTNode node, Attribute attribute, String value) {
-		if (!this.attributes.containsKey(node)) {
-			this.attributes.put(node, new HashMap<Attribute, String>());
-		}
-		this.attributes.get(node).put(attribute, value);
+		node.setAttributeValue(attribute, value);
+	}
+	
+	protected void removeAttribute(ASTNode node, Attribute attr) {
+		setAttribute(node, attr, NO_ATTRIBUTE_VALUE);
 	}
 
 	protected boolean hasAttribute(ASTNode node, Attribute attribute, String value) {
