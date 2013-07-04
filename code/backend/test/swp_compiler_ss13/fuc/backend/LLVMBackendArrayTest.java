@@ -75,7 +75,7 @@ public class LLVMBackendArrayTest extends TestBase {
 		           "  store double 0.0, double* %x\n"+
 		           "  %a = alloca [20 x double]\n"+
 				   "  call void @aoob1(i64 12, i64 20)\n"+
-		           "  %a.0 = getelementptr [20 x double]* %a, i64 0, i64 12\n"+
+		           "  %a.0 = getelementptr [20 x double]* %a, i64 0, i32 12\n"+
 		           "  %x.0 = load double* %a.0\n"+
 		           "  store double %x.0, double* %x\n"+
 		           "  ret i64 0\n"+
@@ -95,7 +95,7 @@ public class LLVMBackendArrayTest extends TestBase {
 		           "  %a = alloca [20 x double]\n"+
 				   "  call void @aoob1(i64 12, i64 20)\n"+
 		           "  %x.0 = load double* %x\n"+
-		           "  %a.0 = getelementptr [20 x double]* %a, i64 0, i64 12\n"+
+		           "  %a.0 = getelementptr [20 x double]* %a, i64 0, i32 12\n"+
 		           "  store double %x.0, double* %a.0\n"+
 		           "  ret i64 0\n"+
 		           "",
@@ -109,7 +109,7 @@ public class LLVMBackendArrayTest extends TestBase {
 		expectMain("",
 				   "  %a = alloca [20 x double]\n"+
 				   "  call void @aoob1(i64 12, i64 20)\n"+
-		           "  %a.0 = getelementptr [20 x double]* %a, i64 0, i64 12\n"+
+		           "  %a.0 = getelementptr [20 x double]* %a, i64 0, i32 12\n"+
 		           "  store double 88.6, double* %a.0\n"+
 		           "  ret i64 0\n"+
 		           "",
@@ -123,7 +123,7 @@ public class LLVMBackendArrayTest extends TestBase {
         expectMain("",
 				   "  %a = alloca [20 x i64]\n"+
 				   "  call void @aoob1(i64 12, i64 20)\n"+
-		           "  %a.0 = getelementptr [20 x i64]* %a, i64 0, i64 12\n"+
+		           "  %a.0 = getelementptr [20 x i64]* %a, i64 0, i32 12\n"+
 		           "  store i64 17, i64* %a.0\n"+
 		           "  ret i64 0\n"+
 		           "",
@@ -150,7 +150,7 @@ public class LLVMBackendArrayTest extends TestBase {
 		           "  store double 0.0, double* %v\n"+
 				   "  call void @aoob1(i64 15, i64 20)\n"+
 				   "  call void @aoob1(i64 25, i64 30)\n"+
-		           "  %a.0 = getelementptr [20 x [30 x double]]* %a, i64 0, i64 15, i64 25\n"+
+		           "  %a.0 = getelementptr [20 x [30 x double]]* %a, i64 0, i32 15, i32 25\n"+
 		           "  %v.0 = load double* %a.0\n"+
 		           "  store double %v.0, double* %v\n"+
 		           "  ret i64 0\n"+
@@ -173,7 +173,7 @@ public class LLVMBackendArrayTest extends TestBase {
 		           "  store double 0.0, double* %v\n"+
 				   "  call void @aoob1(i64 16, i64 20)\n"+
 				   "  call void @aoob1(i64 25, i64 30)\n"+
-		           "  %a.0 = getelementptr [20 x [30 x double]]* %a, i64 0, i64 16, i64 25\n"+
+		           "  %a.0 = getelementptr [20 x [30 x double]]* %a, i64 0, i32 16, i32 25\n"+
 		           "  %v.0 = load double* %a.0\n"+
 		           "  store double %v.0, double* %v\n"+
 		           "  ret i64 0\n"+
@@ -197,7 +197,7 @@ public class LLVMBackendArrayTest extends TestBase {
 				   "  call void @aoob1(i64 15, i64 20)\n"+
 				   "  call void @aoob1(i64 20, i64 30)\n"+
 				   "  call void @aoob1(i64 25, i64 40)\n"+
-		           "  %a.0 = getelementptr [20 x [30 x [40 x i64]]]* %a, i64 0, i64 15, i64 20, i64 25\n"+
+		           "  %a.0 = getelementptr [20 x [30 x [40 x i64]]]* %a, i64 0, i32 15, i32 20, i32 25\n"+
 		           "  %v.0 = load double* %a.0\n"+
 		           "  store double %v.0, double* %v\n"+
 		           "  ret i64 0\n"+
@@ -218,7 +218,7 @@ public class LLVMBackendArrayTest extends TestBase {
 				   "  call void @aoob1(i64 15, i64 20)\n"+
 				   "  call void @aoob1(i64 20, i64 30)\n"+
 				   "  call void @aoob1(i64 25, i64 40)\n"+
-		           "  %a.0 = getelementptr [20 x [30 x [40 x i64]]]* %a, i64 0, i64 15, i64 20, i64 25\n"+
+		           "  %a.0 = getelementptr [20 x [30 x [40 x i64]]]* %a, i64 0, i32 15, i32 20, i32 25\n"+
 		           "  store double 999, double* %a.0\n"+
 		           "  ret i64 0\n"+
 		           "",
@@ -242,10 +242,10 @@ public class LLVMBackendArrayTest extends TestBase {
 		           "  store i8* %x.0, i8** %x\n"+
 				   "  call void @aoob1(i64 2, i64 4)\n"+
 		           "  %.tmp.0 = getelementptr [14 x i8]* @.string_1, i64 0, i64 0\n"+
-		           "  %a.0 = getelementptr [4 x i8*]* %a, i64 0, i64 2\n"+
+		           "  %a.0 = getelementptr [4 x i8*]* %a, i64 0, i32 2\n"+
 		           "  store i8* %.tmp.0, i8** %a.0\n"+
 				   "  call void @aoob1(i64 2, i64 4)\n"+
-		           "  %a.2 = getelementptr [4 x i8*]* %a, i64 0, i64 2\n"+
+		           "  %a.2 = getelementptr [4 x i8*]* %a, i64 0, i32 2\n"+
 		           "  %x.1 = load i8** %a.2\n"+
 		           "  store i8* %x.1, i8** %x\n"+
 		           "  %x.2 = load i8** %x\n"+

@@ -213,6 +213,17 @@ public class RuntimeTest {
 		assertEquals("", res.output);
     }
 
+	@Test public void simple_structs_get_set() throws Exception {
+		tac.add(new QuadrupleImpl(Operator.DECLARE_STRUCT, "#2", EmptyArgument, "s"));
+		tac.add(new QuadrupleImpl(Operator.DECLARE_LONG, EmptyArgument, EmptyArgument, "a"));
+		tac.add(new QuadrupleImpl(Operator.DECLARE_LONG, EmptyArgument, EmptyArgument, "b"));
+		tac.add(new QuadrupleImpl(Operator.DECLARE_LONG, EmptyArgument, EmptyArgument, "x"));
+		tac.add(new QuadrupleImpl(Operator.STRUCT_GET_LONG, "s", "a", "x"));
+
+		ExecutionResult res = LLVMExecutor.runIR(generateCode(tac));
+		assertEquals("", res.output);
+	}
+
 
 //	@Test
 //	@Ignore
