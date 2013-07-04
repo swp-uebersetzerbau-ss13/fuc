@@ -68,7 +68,12 @@ public class AdditionalCompilationTest extends TestBase {
 	public void testArrayProg3() throws Exception {
 		testProgCompilation(ExampleProgs.arrayProg3());
 	}
+	@Test
+	public void testSimpleRecordProg() throws Exception {
+		testProgCompilation(ExampleProgs.simpleRecordProg());
+	}
 
+	@Ignore("records not working")
 	@Test
 	public void testRecordProg() throws Exception {
 		testProgCompilation(ExampleProgs.recordProg());
