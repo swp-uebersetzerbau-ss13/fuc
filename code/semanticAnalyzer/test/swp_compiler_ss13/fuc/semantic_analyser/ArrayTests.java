@@ -7,7 +7,6 @@ import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import swp_compiler_ss13.common.ast.AST;
@@ -21,6 +20,7 @@ import swp_compiler_ss13.common.parser.SymbolTable;
 import swp_compiler_ss13.common.report.ReportType;
 import swp_compiler_ss13.common.types.derived.ArrayType;
 import swp_compiler_ss13.common.types.primitive.BooleanType;
+import swp_compiler_ss13.common.types.primitive.DoubleType;
 import swp_compiler_ss13.common.types.primitive.LongType;
 import swp_compiler_ss13.fuc.ast.ASTFactory;
 import swp_compiler_ss13.fuc.ast.ASTImpl;
@@ -338,9 +338,10 @@ public class ArrayTests {
 		assertEquals(errors.size(), 1);
 		assertEquals(errors.get(0).getReportType(), ReportType.TYPE_MISMATCH);
 	}
-	
+
 	/**
-	 * # error: assignment of 1-dimensional-array to 2-dimensional-array and vice versa<br/>
+	 * # error: assignment of 1-dimensional-array to 2-dimensional-array and
+	 * vice versa<br/>
 	 * long [1][1] a;<br/>
 	 * long [1] b;<br/>
 	 * <br/>
@@ -351,7 +352,8 @@ public class ArrayTests {
 	public void testMultiDimensionalArrayAssignmentError() {
 		ASTFactory astFactory = new ASTFactory();
 
-		astFactory.addDeclaration("a", new ArrayType(new ArrayType(new LongType(), 1),1));
+		astFactory.addDeclaration("a", new ArrayType(new ArrayType(
+				new LongType(), 1), 1));
 		astFactory.addDeclaration("b", new ArrayType(new LongType(), 1));
 
 		astFactory.addAssignment(astFactory.newBasicIdentifier("a"),
@@ -368,7 +370,7 @@ public class ArrayTests {
 		assertEquals(errors.get(0).getReportType(), ReportType.TYPE_MISMATCH);
 		assertEquals(errors.get(1).getReportType(), ReportType.TYPE_MISMATCH);
 	}
-	
+
 	/**
 	 * # error: assignment of arrays of different lengths <br/>
 	 * long [1] a;<br/>
@@ -385,6 +387,95 @@ public class ArrayTests {
 
 		astFactory.addAssignment(astFactory.newBasicIdentifier("a"),
 				astFactory.newBasicIdentifier("b"));
+
+		AST ast = astFactory.getAST();
+		analyser.analyse(ast);
+
+		System.out.println(log);
+		List<LogEntry> errors = log.getErrors();
+		assertEquals(errors.size(), 1);
+		assertEquals(errors.get(0).getReportType(), ReportType.TYPE_MISMATCH);
+	}
+
+	/**
+	 * <pre>
+	 * # error: invalid array index type
+	 * long [1] a;
+	 * long l;
+	 * 
+	 * l = a[1.0];
+	 * </pre>
+	 */
+	@Test
+	public void testArrayIndexTypeError() {
+		ASTFactory astFactory = new ASTFactory();
+
+		astFactory.addDeclaration("a", new ArrayType(new LongType(), 1));
+		astFactory.addDeclaration("l", new LongType());
+
+		astFactory.addAssignment(astFactory.newBasicIdentifier("l"), astFactory
+				.newArrayIdentifier(
+						astFactory.newLiteral("1.0", new DoubleType()),
+						astFactory.newBasicIdentifier("a")));
+
+		AST ast = astFactory.getAST();
+		analyser.analyse(ast);
+
+		System.out.println(log);
+		List<LogEntry> errors = log.getErrors();
+		assertEquals(errors.size(), 1);
+		assertEquals(errors.get(0).getReportType(), ReportType.TYPE_MISMATCH);
+	}
+
+	/**
+	 * <pre>
+	 * # error: array access to non array type
+	 * long a;
+	 * long l;
+	 * 
+	 * l = a[1];
+	 * </pre>
+	 */
+	@Test
+	public void testNonArrayAccessError() {
+		ASTFactory astFactory = new ASTFactory();
+
+		astFactory.addDeclaration("a", new LongType());
+		astFactory.addDeclaration("l", new LongType());
+
+		astFactory.addAssignment(
+				astFactory.newBasicIdentifier("l"),
+				astFactory.newArrayIdentifier(
+						astFactory.newLiteral("1", new LongType()),
+						astFactory.newBasicIdentifier("a")));
+
+		AST ast = astFactory.getAST();
+		analyser.analyse(ast);
+
+		System.out.println(log);
+		List<LogEntry> errors = log.getErrors();
+		assertEquals(errors.size(), 1);
+		assertEquals(errors.get(0).getReportType(), ReportType.TYPE_MISMATCH);
+	}
+
+	/**
+	 * <pre>
+	 * # error: negative array index
+	 * long[1] a;
+	 * 
+	 * a[-1] = 1;
+	 * </pre>
+	 */
+	@Test
+	public void testNegativeArrayIndexError() {
+		ASTFactory astFactory = new ASTFactory();
+
+		astFactory.addDeclaration("a", new ArrayType(new LongType(), 1));
+		astFactory.addAssignment(
+				astFactory.newArrayIdentifier(
+						astFactory.newLiteral("-1", new LongType()),
+						astFactory.newBasicIdentifier("a")),
+				astFactory.newLiteral("1", new LongType()));
 
 		AST ast = astFactory.getAST();
 		analyser.analyse(ast);
