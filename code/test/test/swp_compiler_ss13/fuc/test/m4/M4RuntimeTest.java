@@ -76,10 +76,10 @@ public class M4RuntimeTest extends TestBase {
 	public void testArrayProg3() throws Exception {
 		testProgRuntime(ExampleProgs.arrayProg3());
 	}
-
+/*
 	@Test
 	public void testCalendarProg() throws Exception {
 		testProgRuntime(ExampleProgs.calendarProg());
 	}
-
+*/
 }

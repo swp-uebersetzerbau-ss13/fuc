@@ -67,10 +67,10 @@ public class M4CompilationTest extends TestBase {
 	public void testArrayProg3() throws Exception {
 		testProgCompilation(ExampleProgs.arrayProg3());
 	}
-
+/*
 	@Test
 	public void testCalendarProg() throws Exception {
 		testProgCompilation(ExampleProgs.calendarProg());
 	}
-
+*/
 }
