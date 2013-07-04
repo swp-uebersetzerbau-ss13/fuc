@@ -20,7 +20,9 @@ import swp_compiler_ss13.common.ast.ASTNode;
  */
 public class AST_Component {
 
+
 	private static final Logger LOG = Logger.getLogger(AST_Component.class);
+	private static final boolean START_CHILD_VISIBLE_STATE = true;
 
 	private static final int BUTTON_LAYER = 2;
 	private static final int CHILD_LAYER = 1;
@@ -66,8 +68,8 @@ public class AST_Component {
 			}
 		}
 		wrapper.add(arrows, AST_LayoutManager.ARROWS, ARROW_LAYER);
-
-		arrows.setVisible(false);
+		arrows.deletePoints();
+		arrows.setVisible(START_CHILD_VISIBLE_STATE);
 	}
 
 	void toggleSize() {
@@ -86,7 +88,7 @@ public class AST_Component {
 	public void addChild(AST_Component child) {
 		astChildren.add(child);
 		children.add(child.component);
-		child.component.setVisible(false);
+		child.component.setVisible(START_CHILD_VISIBLE_STATE);
 		wrapper.add(child.component, AST_LayoutManager.CHILDREN, CHILD_LAYER);
 	}
 
