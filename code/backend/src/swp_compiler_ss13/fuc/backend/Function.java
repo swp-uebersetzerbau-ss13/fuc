@@ -25,7 +25,7 @@ import static swp_compiler_ss13.common.types.Type.Kind.BOOLEAN;
 public class Function
 {
 	/**
-	 * This maps a variable's name (not its
+	 * Maps a variable's name (not its
 	 * identifier, which is %{name}) to the
 	 * number of times it has been used in
 	 * the module already.
@@ -42,42 +42,102 @@ public class Function
 	 */
 	private Map<String,Integer> variableUseCount;
 
+	/**
+	 * Holds the function's generated
+	 * LLVM IR code.
+	 *
+	 */
 	private StringBuilder code;
 
+	/**
+	 * Get the LLVM IR code generated for
+	 * this functions.
+	 *
+	 * @return the LLVM IR code
+	 */
 	public String getCode() {
 		return this.code.toString() + "}\n";
 	}
 
+	/**
+	 * Maps TAC references by their name to
+	 * their destination (another reference,
+	 * or a variable) and a list in indices
+	 * into this destination.
+	 *
+	 */
 	private Map<String,Map.Entry<String,List<String>>> references;
 
-	private Map<String,DerivedType> derivedTypes;
+	/**
+	 * Contains all variables of derived type
+	 * that have been declared in this function.
+	 *
+	 */
+	private Map<String,DerivedType> derivedVariables;
 
+	/**
+	 * The type of this function's return value.
+	 *
+	 */
 	private Type.Kind returnType;
 
+	/**
+	 * This function's name.
+	 *
+	 */
 	private String name;
 
+	/**
+	 * Get this function's name.
+	 *
+	 * @return the name
+	 */
 	public String getName() {
 		return name;
 	}
 
+	/**
+	 * Get the type function's return value.
+	 *
+	 * @return a <code>Type.Kind</code> value
+	 */
 	public Type.Kind getReturnType() {
 		return returnType;
 	}
 
+	/**
+	 * This function's arguments (name and type).
+	 *
+	 */
 	private List<Map.Entry<String,Type.Kind>> arguments;
 
+	/**
+	 * Get this function's arguments.
+	 *
+	 * @return a <code>List<Map.Entry<String,Type.Kind>></code> value
+	 */
 	public List<Map.Entry<String,Type.Kind>> getArguments() {
 		return arguments;
 	}
 
+	/**
+	 * The <code>Module</code>, in which this
+	 * function exists.
+	 *
+	 */
 	private Module parent;
 
+	/**
+	 * Get this function's parent.
+	 *
+	 * @return a <code>Module</code> value
+	 */
 	public Module getParent() {
 		return parent;
 	}
 
 	/**
-	 * Creates a new <code>Module</code> instance.
+	 * Creates a new <code>Function</code> instance.
 	 *
 	 * to write the LLVM IR
 	 */
@@ -88,7 +148,7 @@ public class Function
 	{
 		variableUseCount = new HashMap<String,Integer>();
 		references = new HashMap<String,Map.Entry<String,List<String>>>();
-		derivedTypes = new HashMap<String,DerivedType>();
+		derivedVariables = new HashMap<String,DerivedType>();
 		code = new StringBuilder();
 
 		this.returnType = returnType;
@@ -144,7 +204,7 @@ public class Function
 		try {
 			ssa_suffix = variableUseCount.get(variable);
 		} catch (NullPointerException e) {
-			throw new BackendException("Use of undeclared variable");
+			throw new BackendException("Use of undeclared variable \"" + variable + "\"");
 		}
 		variableUseCount.put(variable, ssa_suffix + 1);
 		return "%" + variable + "." + String.valueOf(ssa_suffix);
@@ -251,6 +311,14 @@ public class Function
 		addPrimitiveAssign(type, variable, initializer);
 	}
 
+	/**
+	 * Declare a variable of derived type.
+	 *
+	 * @param type a <code>DerivedType</code> value
+	 * @param identifier a <code>String</code> value
+	 * @return a <code>String</code> value
+	 * @exception BackendException if an error occurs
+	 */
 	public String addDerivedDeclare(DerivedType type, String identifier) throws BackendException {
 		String irType = "";
 
@@ -268,7 +336,7 @@ public class Function
 
 		String variableIdentifier = "%" + identifier;
 		variableUseCount.put(identifier, 0);
-		derivedTypes.put(identifier, type);
+		derivedVariables.put(identifier, type);
 		gen(variableIdentifier + " = alloca " + irType);
 		return variableIdentifier;
 	}
@@ -331,7 +399,7 @@ public class Function
 				indices.add(index);
 				break;
 			case STRUCT:
-				DerivedType type = derivedTypes.get(src);
+				DerivedType type = derivedVariables.get(src);
 
 				if(type instanceof LLVMBackendArrayType) {
 					type = (DerivedType) ((LLVMBackendArrayType) type).getStorageType();
@@ -341,7 +409,7 @@ public class Function
 					List<Member> members = ((LLVMBackendStructType) type).getMembers();
 					for(Member m: members) {
 						if(m.getName().equals(index)) {
-							indices.add(String.valueOf(members.indexOf(m)));
+							indices.add("#" + String.valueOf(members.indexOf(m)));
 							break;
 						}
 					}
@@ -374,7 +442,7 @@ public class Function
 				indices.add(index);
 				break;
 			case STRUCT:
-				DerivedType type = derivedTypes.get(derived);
+				DerivedType type = derivedVariables.get(derived);
 
 				if(type instanceof LLVMBackendArrayType) {
 					type = (DerivedType) ((LLVMBackendArrayType) type).getStorageType();
@@ -407,7 +475,7 @@ public class Function
 
 		String primitiveIRType = Module.getIRType(primitiveType);
 
-		DerivedType derivedType = derivedTypes.get(derived);
+		DerivedType derivedType = derivedVariables.get(derived);
 		String derivedIRType = "";
 		if(derivedType instanceof LLVMBackendArrayType) {
 			LLVMBackendArrayType derivedArType = (LLVMBackendArrayType) derivedType;
@@ -424,7 +492,7 @@ public class Function
 				String elem= cdl(indices.get(idx),Type.Kind.LONG);
 				gen("call void @aoob1(i64 " + elem + ", i64 " + dim + ")");
 /*				System.err.println(
-					"dimension: "+dim+					
+					"dimension: "+dim+
 					"\t\tindex: "+elem);*/
 			}
 		}
