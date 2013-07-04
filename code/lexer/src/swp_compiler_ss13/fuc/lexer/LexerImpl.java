@@ -96,7 +96,7 @@ public class LexerImpl implements Lexer {
 	 */
 	private void init() {
 
-		this.actualTokenValue = null;
+		this.actualTokenValue = "";
 		this.actualTokenType = TokenType.EOF;
 		this.actualLine = 1;
 		this.actualColumn = 1;
