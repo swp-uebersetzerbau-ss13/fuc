@@ -384,7 +384,7 @@ public class Function
 					List<Member> members = ((LLVMBackendStructType) type).getMembers();
 					for(Member m: members) {
 						if(m.getName().equals(index)) {
-							indices.add(String.valueOf(members.indexOf(m)));
+							indices.add("#" + String.valueOf(members.indexOf(m)));
 							break;
 						}
 					}
