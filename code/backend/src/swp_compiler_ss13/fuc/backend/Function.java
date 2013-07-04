@@ -17,9 +17,9 @@ import static swp_compiler_ss13.common.types.Type.*;
 import static swp_compiler_ss13.common.types.Type.Kind.BOOLEAN;
 
 /**
- * This class allows for the generation of an LLVM IR module.
- * Each methode that begins with "add" generates LLVM IR code
- * and writes it to the <code>PrintWriter</code> <code>out</code>.
+ * This class allows for the generation of an LLVM IR function.
+ * Each method that begins with "add" generates LLVM IR code
+ * and appends it to the functions <code>code</code>.
  *
  */
 public class Function
@@ -42,7 +42,7 @@ public class Function
 	 */
 	private Map<String,Integer> variableUseCount;
 
-	private StringBuffer code;
+	private StringBuilder code;
 
 	public String getCode() {
 		return this.code.toString() + "}\n";
@@ -89,7 +89,7 @@ public class Function
 		variableUseCount = new HashMap<String,Integer>();
 		references = new HashMap<String,Map.Entry<String,List<String>>>();
 		derivedTypes = new HashMap<String,DerivedType>();
-		code = new StringBuffer();
+		code = new StringBuilder();
 
 		this.returnType = returnType;
 		this.arguments = arguments;
@@ -119,7 +119,7 @@ public class Function
 
 	/**
 	 * Append the LLVM IR prefixed with two spaces
-	 * to the code <code>StringBuffer</code>
+	 * to the code <code>StringBuilder</code>
 	 *
 	 * @param code a <code>String</code> value
 	 */
@@ -397,7 +397,7 @@ public class Function
 				throw new BackendException("Unexpected derived type: " + derivedTypeKind.toString());
 		}
 
-		StringBuffer indexList = new StringBuffer();
+		StringBuilder indexList = new StringBuilder();
 		for(String i: indices) {
 			indexList.append(", ");
 			indexList.append("i32" /* For some (undocumented) reason, LLVM won't accept i64 here for structs. Module.getIRType(Type.Kind.LONG) */);

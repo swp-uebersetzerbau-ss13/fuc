@@ -475,7 +475,7 @@ public class LLVMBackend implements Backend
 		/* Get the generated LLVM IR code and
 		 * append the uncaught handler to the main
 		 * function's code. */
-		StringBuffer code = new StringBuffer(m.getCode());
+		StringBuilder code = new StringBuilder(m.getCode());
 		code.insert(code.length() - 2, this.llvm_uncaught);
 		out.write(code.toString());
 

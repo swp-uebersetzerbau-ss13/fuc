@@ -26,7 +26,7 @@ public class Module
 {
 	private Map<String,Function> functions;
 
-	private StringBuffer dataSegment;
+	private StringBuilder dataSegment;
 
 	public Function addFunction(String name,
 	                            Type.Kind returnType,
@@ -52,7 +52,7 @@ public class Module
 	}
 
 	public String getCode() {
-		StringBuffer code = new StringBuffer();
+		StringBuilder code = new StringBuilder();
 
 		if(!dataSegment.toString().equals("")) {
 			code.append(dataSegment.toString());
@@ -80,7 +80,7 @@ public class Module
 
 	public Module() {
 		functions = new HashMap<String,Function>();
-		dataSegment = new StringBuffer();
+		dataSegment = new StringBuilder();
 		stringLiterals = new ArrayList<Integer>();
 	}
 
