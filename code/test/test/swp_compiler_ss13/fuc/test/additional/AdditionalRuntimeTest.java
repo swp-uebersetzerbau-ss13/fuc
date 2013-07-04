@@ -1,10 +1,11 @@
-package swp_compiler_ss13.fuc.test.m4;
+package swp_compiler_ss13.fuc.test.additional;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import swp_compiler_ss13.common.backend.BackendException;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
@@ -30,9 +31,9 @@ import java.io.IOException;
  *
  * @author Jens V. Fischer
  */
-public class M4RuntimeTest extends TestBase {
+public class AdditionalRuntimeTest extends TestBase {
 
-	private static Logger logger = Logger.getLogger(M4RuntimeTest.class);
+	private static Logger logger = Logger.getLogger(AdditionalRuntimeTest.class);
 
 
 	@BeforeClass
@@ -76,10 +77,10 @@ public class M4RuntimeTest extends TestBase {
 	public void testArrayProg3() throws Exception {
 		testProgRuntime(ExampleProgs.arrayProg3());
 	}
-/*
+	@Ignore("Array of records not working")
 	@Test
 	public void testCalendarProg() throws Exception {
 		testProgRuntime(ExampleProgs.calendarProg());
 	}
-*/
+	
 }
