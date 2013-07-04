@@ -69,4 +69,30 @@ public class M1RuntimeTest extends TestBase {
 		testProgRuntime(ExampleProgs.parenthesesProg());
 	}
 
+
+	@Test
+	public void testDoubleDeclaration() throws Exception {
+		testProgRuntime(ExampleProgs.doubleDeclaration());
+	}
+
+	@Test
+	public void testInvalidIds() throws Exception {
+		testProgRuntime(ExampleProgs.invalidIds());
+	}
+
+	@Test
+	public void testMultipleMinusENotation() throws Exception {
+		testProgRuntime(ExampleProgs.multipleMinusENotation());
+	}
+
+	@Test
+	public void testMultiplePlusesInExp() throws Exception {
+		testProgRuntime(ExampleProgs.multiplePlusesInExp());
+	}
+
+	@Test
+	public void testUndefReturn() throws Exception {
+		testProgRuntime(ExampleProgs.undefReturnProg());
+	}
+
 }
