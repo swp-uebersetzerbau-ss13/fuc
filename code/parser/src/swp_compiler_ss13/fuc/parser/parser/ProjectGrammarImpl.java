@@ -842,7 +842,7 @@ public class ProjectGrammarImpl implements IGrammarImpl {
 						struct.setCoverage(declarationNode.coverage());
 					}
 					
-					StructType type = new StructType("record", members);
+					StructType type = new StructType(members);
 					struct.setType(type);
 					
 					Token rcb = unpack(objs[3], Token.class);

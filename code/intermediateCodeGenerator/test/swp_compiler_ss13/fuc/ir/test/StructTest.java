@@ -33,11 +33,11 @@ public class StructTest {
 		// reset symbol table variable counter
 		PA.setValue(SymbolTableImpl.class, "ext", 0);
 
-		StructType simpleStruct = new StructType("simple", new Member[] {
+		StructType simpleStruct = new StructType(new Member[] {
 				new Member("name", new StringType(255L)),
 				new Member("value", new LongType()) });
 
-		StructType complexStruct = new StructType("complex", new Member[] {
+		StructType complexStruct = new StructType(new Member[] {
 				new Member("a", new StringType(255L)),
 				new Member("b", simpleStruct) });
 		ASTFactory f;

@@ -1,16 +1,15 @@
 package swp_compiler_ss13.fuc.backend;
 
-import swp_compiler_ss13.common.backend.*;
-import swp_compiler_ss13.common.types.*;
-import swp_compiler_ss13.common.types.primitive.*;
-import swp_compiler_ss13.common.types.derived.*;
+import java.util.Arrays;
+import java.util.List;
 
-import java.util.*;
+import swp_compiler_ss13.common.types.derived.Member;
+import swp_compiler_ss13.common.types.derived.StructType;
 
 public class LLVMBackendStructType extends StructType
 {
 	public LLVMBackendStructType(List<Member> members) {
-		super("", members.toArray(new Member[members.size()]));
+		super(members.toArray(new Member[members.size()]));
 	}
 
 	public List<Member> getMembers() {
