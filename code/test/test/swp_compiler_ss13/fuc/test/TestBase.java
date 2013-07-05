@@ -3,6 +3,7 @@ package swp_compiler_ss13.fuc.test;
 import junit.extensions.PA;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.junit.Assume;
 import swp_compiler_ss13.common.backend.BackendException;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 import swp_compiler_ss13.common.report.ReportType;
@@ -14,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
 
 /**
  * Base class for tests, providing methods used in the integration tests.
@@ -62,25 +64,35 @@ public abstract class TestBase {
 
 	protected InputStream testProgCompilation(Object[] prog) throws BackendException, IntermediateCodeGeneratorException,
 			IOException, InterruptedException {
+
 		InputStream compilationResult = compiler.compile((String) prog[0]);
+
 		ReportLogImpl log = compiler.getErrlog();
+		ReportType[] expectedReportTypes = (ReportType[]) prog[3];
 
-		String msg = "Expected ReportLog entries: " + new ArrayList<ReportType>(Arrays.asList((ReportType[]) prog[3]))
-				+ ". Actual: " + log.getEntries().toString();
+		/* test for expected report log entries from parser if program does not compile */
+		if (compiler.errlogAfterParser.hasErrors()){
+			String msg = "Error in Parser: Expected ReportLog entries: " + Arrays.deepToString(expectedReportTypes)
+					+ ". Actual: " + log.getEntries().toString();
+			assertArrayEquals(msg, (Object[]) prog[3], compiler.getErrlogAfterParser().getEntries().toArray());
+			return null;
+		}
 
-		/* test for expected report log entries (errors and warnings) if program does not compile */
-		if (log.hasErrors()){
-			assertArrayEquals("Compilation produces unexpected errors: " + msg, (Object[]) prog[3], log.getEntries().toArray());
+		/* test for expected report log entries from analyzer if program does not compile */
+		if (compiler.errlogAfterAnalyzer.hasErrors()){
+			String msg = "Error in Analyzer: Expected ReportLog entries: " + Arrays.deepToString(expectedReportTypes)
+					+ ". Actual: " + log.getEntries().toString();
+			assertArrayEquals(msg, expectedReportTypes, compiler.getErrlogAfterAnalyzer().getEntries().toArray());
 			return null;
 		}
 
 		/* test for expected report log entries (i.e. warnings), if program compiles */
-		assertArrayEquals("Compilation produces unexpected warnings: " + msg, (Object[]) prog[3], log.getEntries().toArray());
-
-		/* assert that something was compiled*/
-		assertTrue(compilationResult != null);
+		String msg = "Unexpected warnings after successfull compilation.\n Expected ReportLog entries: " + Arrays.deepToString(expectedReportTypes)
+				+ ". Actual: " + log.getEntries().toString();
+		assertArrayEquals(msg, expectedReportTypes, log.getEntries().toArray());
 
 		return compilationResult;
+
 	}
 
 	protected void testProgRuntime(Object[] prog) throws BackendException, IntermediateCodeGeneratorException, IOException, InterruptedException {
