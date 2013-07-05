@@ -1,4 +1,4 @@
-package swp_compiler_ss13.fuc.test.additional;
+package swp_compiler_ss13.fuc.test;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -7,11 +7,10 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import swp_compiler_ss13.common.backend.BackendException;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 import swp_compiler_ss13.common.test.ExampleProgs;
-import swp_compiler_ss13.fuc.test.Compiler;
-import swp_compiler_ss13.fuc.test.TestBase;
 
 import java.io.IOException;
 
@@ -38,11 +37,8 @@ public class AdditionalRuntimeTest extends TestBase {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-
 		Logger.getRootLogger().setLevel(Level.ERROR);
-
-		 /* only run tests if lli (dynamic compiler from LLVM) is found */
-		Assume.assumeTrue(checkForLLIInstallation());
+		assumeLLVMInstallation();
 	}
 
 	@Before
@@ -52,50 +48,52 @@ public class AdditionalRuntimeTest extends TestBase {
 
 	@Test
 	public void testEmptyProg() throws IOException, InterruptedException, BackendException, IntermediateCodeGeneratorException {
-		testProgRuntime(ExampleProgs.emptyProg());
+		testProg(ExampleProgs.emptyProg());
 	}
 
 	/* regression test against return bug */
 	@Test
 	public void testReturnProg() throws Exception {
-		testProgRuntime(ExampleProgs.returnProg());
+		testProg(ExampleProgs.returnProg());
 	}
 
 	@Test
 	/* Compilation with Semantic Analyser fails */
 	public void testArrayProg1() throws Exception {
-		testProgRuntime(ExampleProgs.arrayProg1());
+		testProg(ExampleProgs.arrayProg1());
 	}
 
 	@Test
 	public void testArrayProg2() throws Exception {
-		testProgRuntime(ExampleProgs.arrayProg2());
+		testProg(ExampleProgs.arrayProg2());
 	}
 
 	@Test
-	/* Compilation with Semantic Analyser fails */
 	public void testArrayProg3() throws Exception {
-		testProgRuntime(ExampleProgs.arrayProg3());
+		testProg(ExampleProgs.arrayProg3());
 	}
 	
 	@Test
 	public void testNestedLoopsProg() throws Exception {
-		testProgRuntime(ExampleProgs.nestedLoopsProg());
+		testProg(ExampleProgs.nestedLoopsProg());
 	}
-	@Ignore("records not working")
+
+	@Category(IgnoredTest.class)
 	@Test
 	public void testSimpleRecordProg() throws Exception {
-		testProgRuntime(ExampleProgs.simpleRecordProg());
+		testProg(ExampleProgs.simpleRecordProg());
 	}
-	@Ignore("records not working")
+
+	@Category(IgnoredTest.class)
 	@Test
 	public void testRecordProg() throws Exception {
-		testProgRuntime(ExampleProgs.recordProg());
+		testProg(ExampleProgs.recordProg());
 	}
-	@Ignore("Array of records not working")
+
+	@Category(IgnoredTest.class)
 	@Test
 	public void testCalendarProg() throws Exception {
-		testProgRuntime(ExampleProgs.calendarProg());
+		testProg(ExampleProgs.calendarProg());
 	}
 	
 }

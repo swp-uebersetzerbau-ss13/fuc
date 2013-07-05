@@ -11,7 +11,6 @@ import swp_compiler_ss13.fuc.backend.LLVMExecutor;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
 
 import static org.junit.Assert.*;
@@ -32,37 +31,37 @@ public abstract class TestBase {
 	protected static Logger logger = Logger.getLogger(TestBase.class);
 
 
-	/*
-	 * Check if lli is correctly installed.
-	 */
-	protected static boolean checkForLLIInstallation() {
+//	/*
+//	 * Check if lli is correctly installed.
+//	 */
+//	protected static boolean checkForLLIInstallation() {
+//
+//		Level level = Logger.getRootLogger().getLevel();
+//
+//		Logger.getRootLogger().setLevel(Level.FATAL);
+//		boolean hasLLI;
+//		try {
+//			PA.invokeMethod(LLVMExecutor.class, "tryToStartLLI()");
+//			hasLLI = true;
+//		} catch (Exception e) {
+//			hasLLI = false;
+//		}
+//
+//		Logger.getRootLogger().setLevel(Level.INFO);
+//
+//		if (!hasLLI) {
+//			logger.warn("Runtime tests are ignored, because of missing LLVM lli installation.");
+//			String infoMsg = "If you have LLVM installed you might need to check your $PATH: "
+//					+ "Intellij IDEA: Run -> Edit Configurations -> Environment variables; "
+//					+ "Eclipse: Run Configurations -> Environment; " + "Shell: Check $PATH";
+//			logger.info(infoMsg);
+//		}
+//		Logger.getRootLogger().setLevel(level);
+//
+//		return hasLLI;
+//	}
 
-		Level level = Logger.getRootLogger().getLevel();
-
-		Logger.getRootLogger().setLevel(Level.FATAL);
-		boolean hasLLI;
-		try {
-			PA.invokeMethod(LLVMExecutor.class, "tryToStartLLI()");
-			hasLLI = true;
-		} catch (Exception e) {
-			hasLLI = false;
-		}
-
-		Logger.getRootLogger().setLevel(Level.INFO);
-
-		if (!hasLLI) {
-			logger.warn("Runtime tests are ignored, because of missing LLVM lli installation.");
-			String infoMsg = "If you have LLVM installed you might need to check your $PATH: "
-					+ "Intellij IDEA: Run -> Edit Configurations -> Environment variables; "
-					+ "Eclipse: Run Configurations -> Environment; " + "Shell: Check $PATH";
-			logger.info(infoMsg);
-		}
-		Logger.getRootLogger().setLevel(level);
-
-		return hasLLI;
-	}
-
-	protected InputStream testProgCompilation(Object[] prog) throws BackendException, IntermediateCodeGeneratorException,
+	protected void testProg(Object[] prog) throws BackendException, IntermediateCodeGeneratorException,
 			IOException, InterruptedException {
 
 		InputStream compilationResult = compiler.compile((String) prog[0]);
@@ -75,7 +74,7 @@ public abstract class TestBase {
 			String msg = "Error in Parser: Expected ReportLog entries: " + Arrays.deepToString(expectedReportTypes)
 					+ ". Actual: " + log.getEntries().toString();
 			assertArrayEquals(msg, (Object[]) prog[3], compiler.getErrlogAfterParser().getEntries().toArray());
-			return null;
+			return;
 		}
 
 		/* test for expected report log entries from analyzer if program does not compile */
@@ -83,7 +82,7 @@ public abstract class TestBase {
 			String msg = "Error in Analyzer: Expected ReportLog entries: " + Arrays.deepToString(expectedReportTypes)
 					+ ". Actual: " + log.getEntries().toString();
 			assertArrayEquals(msg, expectedReportTypes, compiler.getErrlogAfterAnalyzer().getEntries().toArray());
-			return null;
+			return;
 		}
 
 		/* test for expected report log entries (i.e. warnings), if program compiles */
@@ -91,15 +90,17 @@ public abstract class TestBase {
 				+ ". Actual: " + log.getEntries().toString();
 		assertArrayEquals(msg, expectedReportTypes, log.getEntries().toArray());
 
-		return compilationResult;
-
-	}
-
-	protected void testProgRuntime(Object[] prog) throws BackendException, IntermediateCodeGeneratorException, IOException, InterruptedException {
-		InputStream compilationResult = testProgCompilation(prog);
 		LLVMExecutor.ExecutionResult executionResult = LLVMExecutor.runIR(compilationResult);
 		assertEquals(prog[1], executionResult.exitCode);
 		assertEquals(prog[2], executionResult.output);
+	}
+
+	protected static void assumeLLVMInstallation(){
+		try {
+			PA.invokeMethod(LLVMExecutor.class, "tryToStartLLI()");
+		} catch (Exception e) {
+			Assume.assumeNoException("No LLVM Installation found", e);
+		}
 	}
 
 }

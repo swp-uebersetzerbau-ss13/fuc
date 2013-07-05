@@ -1,4 +1,4 @@
-package swp_compiler_ss13.fuc.test.m2;
+package swp_compiler_ss13.fuc.test;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -7,8 +7,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import swp_compiler_ss13.common.test.ExampleProgs;
-import swp_compiler_ss13.fuc.test.Compiler;
-import swp_compiler_ss13.fuc.test.TestBase;
 
 /**
  * <p>
@@ -32,11 +30,8 @@ public class M2RuntimeTest extends TestBase {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-
 		Logger.getRootLogger().setLevel(Level.ERROR);
-
-		/* only run tests if lli (dynamic compiler from LLVM) is found */
-		Assume.assumeTrue(checkForLLIInstallation());
+		assumeLLVMInstallation();
 	}
 
 	@Before
@@ -46,17 +41,17 @@ public class M2RuntimeTest extends TestBase {
 
 	@Test
 	public void testAssignmentProg() throws Exception {
-		testProgRuntime(ExampleProgs.assignmentProg());
+		testProg(ExampleProgs.assignmentProg());
 	}
 
 	@Test
 	public void testCondProg() throws Exception {
-		testProgRuntime(ExampleProgs.condProg());
+		testProg(ExampleProgs.condProg());
 	}
 
 	@Test
 	public void testPrintProg() throws Exception {
-		testProgRuntime(ExampleProgs.printProg());
+		testProg(ExampleProgs.printProg());
 	}
 
 }

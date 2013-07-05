@@ -1,4 +1,4 @@
-package swp_compiler_ss13.fuc.test.m1;
+package swp_compiler_ss13.fuc.test;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -9,8 +9,6 @@ import org.junit.Test;
 import swp_compiler_ss13.common.backend.BackendException;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 import swp_compiler_ss13.common.test.ExampleProgs;
-import swp_compiler_ss13.fuc.test.Compiler;
-import swp_compiler_ss13.fuc.test.TestBase;
 
 import java.io.IOException;
 
@@ -37,11 +35,8 @@ public class M1RuntimeTest extends TestBase {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-
 		Logger.getRootLogger().setLevel(Level.ERROR);
-
-		 /* only run tests if lli (dynamic compiler from LLVM) is found */
-		Assume.assumeTrue(checkForLLIInstallation());
+		assumeLLVMInstallation();
 	}
 
 	@Before
@@ -51,22 +46,48 @@ public class M1RuntimeTest extends TestBase {
 
 	@Test
 	public void testSimpleAddProg() throws IOException, InterruptedException, BackendException, IntermediateCodeGeneratorException {
-		testProgRuntime(ExampleProgs.simpleAddProg());
+		testProg(ExampleProgs.simpleAddProg());
 	}
 
 	@Test
 	public void testAddProg() throws IOException, InterruptedException, BackendException, IntermediateCodeGeneratorException {
-		testProgRuntime(ExampleProgs.addProg());
+		testProg(ExampleProgs.addProg());
 	}
 
 	@Test
 	public void testSimpleMulProg() throws IOException, InterruptedException, BackendException, IntermediateCodeGeneratorException {
-		testProgRuntime(ExampleProgs.simpleMulProg());
+		testProg(ExampleProgs.simpleMulProg());
 	}
 
 	@Test
 	public void testParenthesesProg() throws IOException, InterruptedException, BackendException, IntermediateCodeGeneratorException {
-		testProgRuntime(ExampleProgs.parenthesesProg());
+		testProg(ExampleProgs.parenthesesProg());
+	}
+
+
+	@Test
+	public void testDoubleDeclaration() throws Exception {
+		testProg(ExampleProgs.doubleDeclaration());
+	}
+
+	@Test
+	public void testInvalidIds() throws Exception {
+		testProg(ExampleProgs.invalidIds());
+	}
+
+	@Test
+	public void testMultipleMinusENotation() throws Exception {
+		testProg(ExampleProgs.multipleMinusENotation());
+	}
+
+	@Test
+	public void testMultiplePlusesInExp() throws Exception {
+		testProg(ExampleProgs.multiplePlusesInExp());
+	}
+
+	@Test
+	public void testUndefReturn() throws Exception {
+		testProg(ExampleProgs.undefReturnProg());
 	}
 
 }
