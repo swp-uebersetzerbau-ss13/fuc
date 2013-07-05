@@ -200,7 +200,7 @@ public class LRParser {
 //				Error error = (Error) action;
 				List<Token> list = new ArrayList<Token>();
 				list.add(token);
-				reportLog.reportError(ReportType.UNDEFINED,list,
+				reportLog.reportError(ReportType.WORD_NOT_IN_GRAMMAR,list,
 						"An error occurred: Expected one of " + possibleTerminals.toString() + ", but got: '" + token.getTerminal() + "'");
 						throw new ParserException("Got Error State from Actiontable");
 			}

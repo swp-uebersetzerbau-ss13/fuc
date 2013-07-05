@@ -84,7 +84,7 @@ public class M1MultiplePlusesInExpTest {
 	private static List<LogEntry> createExpectedEntries() {
 		// Expected entries
 		List<LogEntry> expected = new LinkedList<>();
-		expected.add(new LogEntry(Type.ERROR, ReportType.UNDEFINED, tokens(new TokenImpl("+", TokenType.PLUS, 5, 12)), ""));
+		expected.add(new LogEntry(Type.ERROR, ReportType.WORD_NOT_IN_GRAMMAR, tokens(new TokenImpl("+", TokenType.PLUS, 5, 12)), ""));
 		return expected;
 	}
 }

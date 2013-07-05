@@ -67,7 +67,7 @@ public class LRParserTest {
 		ReportLogImpl reportLog = new ReportLogImpl();
 		GrammarTestHelper.parseToAst(input, reportLog);
 		
-		LogEntry entry = new LogEntry(Type.WARNNING, ReportType.UNDEFINED, Arrays.<Token>asList(new TokenImpl("1", TokenType.NUM, 2, 5)), "");
+		LogEntry entry = new LogEntry(Type.ERROR, ReportType.WORD_NOT_IN_GRAMMAR, Arrays.<Token>asList(new TokenImpl("1", TokenType.NUM, 2, 5)), "");
 		GrammarTestHelper.compareReportLogEntries(Arrays.asList(entry), reportLog.getEntries());
 	}
 	
@@ -83,9 +83,9 @@ public class LRParserTest {
 		Token l = new TokenImpl("l", TokenType.ID, 1, 6);
 		Token one = new TokenImpl("1", TokenType.NUM, 2, 5);
 		Token l2 = new TokenImpl("l", TokenType.ID, 3, 8);
-		LogEntry entry0 = new LogEntry(Type.WARNNING, ReportType.UNDEFINED, Arrays.<Token>asList(l), "");
-		LogEntry entry1 = new LogEntry(Type.WARNNING, ReportType.UNDEFINED, Arrays.<Token>asList(one), "");
-		LogEntry entry2 = new LogEntry(Type.WARNNING, ReportType.UNDEFINED, Arrays.<Token>asList(l2), "");
+		LogEntry entry0 = new LogEntry(Type.ERROR, ReportType.WORD_NOT_IN_GRAMMAR, Arrays.<Token>asList(l), "");
+		LogEntry entry1 = new LogEntry(Type.ERROR, ReportType.WORD_NOT_IN_GRAMMAR, Arrays.<Token>asList(one), "");
+		LogEntry entry2 = new LogEntry(Type.ERROR, ReportType.WORD_NOT_IN_GRAMMAR, Arrays.<Token>asList(l2), "");
 		GrammarTestHelper.compareReportLogEntries(Arrays.asList(entry0, entry1, entry2), reportLog.getEntries());
 	}
 	
@@ -107,9 +107,9 @@ public class LRParserTest {
 		Token l = new TokenImpl("l", TokenType.ID, 1, 6);
 		Token one = new TokenImpl("1", TokenType.NUM, 2, 5);
 		Token returnn = new TokenImpl("return", TokenType.RETURN, 4, 1);
-		LogEntry entry0 = new LogEntry(Type.WARNNING, ReportType.UNDEFINED, Arrays.<Token>asList(l), "");
-		LogEntry entry1 = new LogEntry(Type.WARNNING, ReportType.UNDEFINED, Arrays.<Token>asList(one), "");
-		LogEntry entry2 = new LogEntry(Type.ERROR, ReportType.UNDEFINED, Arrays.<Token>asList(returnn), "");
+		LogEntry entry0 = new LogEntry(Type.ERROR, ReportType.WORD_NOT_IN_GRAMMAR, Arrays.<Token>asList(l), "");
+		LogEntry entry1 = new LogEntry(Type.ERROR, ReportType.WORD_NOT_IN_GRAMMAR, Arrays.<Token>asList(one), "");
+		LogEntry entry2 = new LogEntry(Type.ERROR, ReportType.WORD_NOT_IN_GRAMMAR, Arrays.<Token>asList(returnn), "");
 		GrammarTestHelper.compareReportLogEntries(Arrays.asList(entry0, entry1, entry2), reportLog.getEntries());
 	}
 	
@@ -127,7 +127,7 @@ public class LRParserTest {
 		ReportLogImpl reportLog = new ReportLogImpl();
 		GrammarTestHelper.parseToAst(input, reportLog);
 		
-		LogEntry entry = new LogEntry(Type.WARNNING, ReportType.UNDEFINED, Arrays.<Token>asList(new TokenImpl(";", TokenType.SEMICOLON, 4, 8)), "");
+		LogEntry entry = new LogEntry(Type.ERROR, ReportType.WORD_NOT_IN_GRAMMAR, Arrays.<Token>asList(new TokenImpl(";", TokenType.SEMICOLON, 4, 8)), "");
 		GrammarTestHelper.compareReportLogEntries(Arrays.asList(entry), reportLog.getEntries());
 	}
 	
@@ -142,7 +142,7 @@ public class LRParserTest {
 		ReportLogImpl reportLog = new ReportLogImpl();
 		GrammarTestHelper.parseToAst(input, reportLog);
 		
-		LogEntry entry = new LogEntry(Type.WARNNING, ReportType.UNDEFINED, Arrays.<Token>asList(new TokenImpl(";", TokenType.SEMICOLON, 5, 9)), "");
+		LogEntry entry = new LogEntry(Type.ERROR, ReportType.WORD_NOT_IN_GRAMMAR, Arrays.<Token>asList(new TokenImpl(";", TokenType.SEMICOLON, 5, 9)), "");
 		GrammarTestHelper.compareReportLogEntries(Arrays.asList(entry), reportLog.getEntries());
 	}
 	
@@ -158,8 +158,8 @@ public class LRParserTest {
 		ReportLogImpl reportLog = new ReportLogImpl();
 		GrammarTestHelper.parseToAst(input, reportLog);
 		
-		LogEntry entry0 = new LogEntry(Type.WARNNING, ReportType.UNDEFINED, Arrays.<Token>asList(new TokenImpl("if", TokenType.IF, 3, 1)), "");
-		LogEntry entry1 = new LogEntry(Type.WARNNING, ReportType.UNDEFINED, Arrays.<Token>asList(new TokenImpl("1", TokenType.NUM, 3, 9)), "");
+		LogEntry entry0 = new LogEntry(Type.ERROR, ReportType.WORD_NOT_IN_GRAMMAR, Arrays.<Token>asList(new TokenImpl("if", TokenType.IF, 3, 1)), "");
+		LogEntry entry1 = new LogEntry(Type.ERROR, ReportType.WORD_NOT_IN_GRAMMAR, Arrays.<Token>asList(new TokenImpl("1", TokenType.NUM, 3, 9)), "");
 		GrammarTestHelper.compareReportLogEntries(Arrays.asList(entry0, entry1), reportLog.getEntries());
 	}
 }
