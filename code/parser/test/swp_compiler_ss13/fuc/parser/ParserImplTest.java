@@ -1,8 +1,10 @@
 package swp_compiler_ss13.fuc.parser;
 
-import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.t;
+
+import org.junit.Test;
 
 import swp_compiler_ss13.common.parser.Parser;
 import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;

@@ -34,7 +34,7 @@ public class LRParser {
 	// --------------------------------------------------------------------------
 	public static final Long STRING_LENGTH = 255L;
 
-	private final Logger log = Logger.getLogger(LRParser.class);
+	private final Logger log = Logger.getLogger(getClass());
 	
 	/** Used to store Tokens that are (re-)inserted into the token stream */
 	private final LinkedList<TokenEx> errorTokenStream = new LinkedList<>();

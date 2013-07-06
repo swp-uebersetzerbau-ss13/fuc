@@ -11,7 +11,6 @@ import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.print
 import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.returnn;
 import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.sem;
 
-import org.apache.log4j.BasicConfigurator;
 import org.junit.Test;
 
 import swp_compiler_ss13.common.ast.AST;
@@ -24,15 +23,10 @@ import swp_compiler_ss13.common.types.primitive.LongType;
 import swp_compiler_ss13.common.types.primitive.StringType;
 import swp_compiler_ss13.fuc.ast.ASTFactory;
 import swp_compiler_ss13.fuc.lexer.token.RealTokenImpl;
-import swp_compiler_ss13.fuc.parser.errorHandling.ParserASTXMLVisualization;
 import swp_compiler_ss13.fuc.parser.grammar.Terminal;
 import swp_compiler_ss13.fuc.parser.parser.LRParser;
 
 public class M2PrintTest {
-	static {
-		BasicConfigurator.configure();
-	}
-	
 	@Test
 	public void testPrint() {
 		// Simulate input
@@ -117,8 +111,6 @@ public class M2PrintTest {
 		factory.addReturn(null);
 		
 		AST expected = factory.getAST();
-		ParserASTXMLVisualization vis = new ParserASTXMLVisualization();
-		vis.visualizeAST(expected);
 		ASTComparator.compareAST(expected, ast);
 	}
 }
