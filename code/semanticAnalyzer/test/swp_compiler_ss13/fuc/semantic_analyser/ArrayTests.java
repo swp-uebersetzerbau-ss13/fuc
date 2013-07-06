@@ -11,6 +11,8 @@ import org.junit.Test;
 
 import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.ast.nodes.binary.AssignmentNode;
+import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode;
+import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode.BinaryOperator;
 import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.LiteralNode;
 import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
@@ -316,7 +318,7 @@ public class ArrayTests {
 		System.out.println(log);
 		assertFalse(log.hasErrors());
 	}
-	
+
 	/**
 	 * <pre>
 	 * # a[6][2] is out of bound
@@ -512,6 +514,46 @@ public class ArrayTests {
 						astFactory.newLiteral("-1", new LongType()),
 						astFactory.newBasicIdentifier("a")),
 				astFactory.newLiteral("1", new LongType()));
+
+		AST ast = astFactory.getAST();
+		analyser.analyse(ast);
+
+		System.out.println(log);
+		List<LogEntry> errors = log.getErrors();
+		assertEquals(errors.size(), 1);
+		assertEquals(errors.get(0).getReportType(), ReportType.TYPE_MISMATCH);
+	}
+
+	/**
+	 * <pre>
+	 * # error: addition with array
+	 * double d;
+	 * long[1] a1;
+	 * double[1][1] a2;
+	 * 
+	 * d = d - (a2[0] + a1[0]);
+	 * </pre>
+	 */
+	@Test
+	public void testArrayArithmeticTypeError() {
+		ASTFactory astFactory = new ASTFactory();
+
+		astFactory.addDeclaration("d", new DoubleType());
+		astFactory.addDeclaration("a1", new ArrayType(new LongType(), 1));
+		astFactory.addDeclaration("a2", new ArrayType(new ArrayType(
+				new LongType(), 1), 1));
+
+		BinaryExpressionNode add = astFactory.newBinaryExpression(
+				BinaryOperator.ADDITION,
+				astFactory.newArrayIdentifier(
+						astFactory.newLiteral("0", new LongType()),
+						astFactory.newBasicIdentifier("a2")),
+				astFactory.newArrayIdentifier(
+						astFactory.newLiteral("0", new LongType()),
+						astFactory.newBasicIdentifier("a1")));
+		astFactory.addAssignment(astFactory.newBasicIdentifier("d"), astFactory
+				.newBinaryExpression(BinaryOperator.SUBSTRACTION,
+						astFactory.newBasicIdentifier("d"), add));
 
 		AST ast = astFactory.getAST();
 		analyser.analyse(ast);

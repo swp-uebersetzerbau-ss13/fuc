@@ -11,6 +11,7 @@ import org.junit.Test;
 
 import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.ast.nodes.binary.AssignmentNode;
+import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode.BinaryOperator;
 import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.LiteralNode;
 import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
@@ -442,5 +443,66 @@ public class OtherTests {
 		List<LogEntry> errors = log.getErrors();
 		assertEquals(errors.size(), 1);
 		assertEquals(errors.get(0).getReportType(), ReportType.TYPE_MISMATCH);
+	}
+
+	/**
+	 * <pre>
+	 * # no errors expected
+	 * 
+	 * long l;
+	 * double d;
+	 * bool b;
+	 * string s;
+	 * 
+	 * l = d;
+	 * d = l;
+	 * s = l;
+	 * s = d;
+	 * s = b;
+	 * s = l + s;
+	 * s = d + s;
+	 * s = b + s;
+	 * 
+	 * return d;
+	 * </pre>
+	 */
+	@Test
+	public void testImplicitTypeConversion() {
+		ASTFactory astFactory = new ASTFactory();
+		astFactory.addDeclaration("l", new LongType());
+		astFactory.addDeclaration("d", new DoubleType());
+		astFactory.addDeclaration("b", new BooleanType());
+		astFactory.addDeclaration("s", new StringType(20L));
+
+		astFactory.addAssignment(astFactory.newBasicIdentifier("l"),
+				astFactory.newBasicIdentifier("d"));
+		astFactory.addAssignment(astFactory.newBasicIdentifier("d"),
+				astFactory.newBasicIdentifier("l"));
+		astFactory.addAssignment(astFactory.newBasicIdentifier("s"),
+				astFactory.newBasicIdentifier("l"));
+		astFactory.addAssignment(astFactory.newBasicIdentifier("s"),
+				astFactory.newBasicIdentifier("d"));
+		astFactory.addAssignment(astFactory.newBasicIdentifier("s"),
+				astFactory.newBasicIdentifier("b"));
+		astFactory.addAssignment(astFactory.newBasicIdentifier("s"), astFactory
+				.newBinaryExpression(BinaryOperator.ADDITION,
+						astFactory.newBasicIdentifier("l"),
+						astFactory.newBasicIdentifier("s")));
+		astFactory.addAssignment(astFactory.newBasicIdentifier("s"), astFactory
+				.newBinaryExpression(BinaryOperator.ADDITION,
+						astFactory.newBasicIdentifier("d"),
+						astFactory.newBasicIdentifier("s")));
+		astFactory.addAssignment(astFactory.newBasicIdentifier("s"), astFactory
+				.newBinaryExpression(BinaryOperator.ADDITION,
+						astFactory.newBasicIdentifier("b"),
+						astFactory.newBasicIdentifier("s")));
+		
+		astFactory.addReturn(astFactory.newBasicIdentifier("s"));
+
+		AST ast = astFactory.getAST();
+		analyser.analyse(ast);
+
+		System.out.println(log);
+		assertFalse(log.hasErrors());
 	}
 }
