@@ -51,7 +51,7 @@ public class StructTests {
 	 */
 	@Test
 	public void testStructAssigment() {
-		Type structType = new StructType("struct", new Member("b", new BooleanType()));
+		Type structType = new StructType(new Member("b", new BooleanType()));
 		ASTFactory astFactory = new ASTFactory();
 		astFactory.addDeclaration("s", structType);
 		astFactory.addDeclaration("b", new BooleanType());
@@ -103,10 +103,10 @@ public class StructTests {
 	@Test
 	public void tsetNestedStructAssigmentTypeError() {
 		Member longMember = new Member("t", new LongType());
-		Type innerStructType = new StructType("s", longMember);
+		Type innerStructType = new StructType(longMember);
 		Member boolMember = new Member("t", new BooleanType());
 		Member structMember = new Member("s", innerStructType);
-		Type structType = new StructType("struct", boolMember, structMember);
+		Type structType = new StructType(boolMember, structMember);
 		ASTFactory astFactory = new ASTFactory();
 		astFactory.addDeclaration("s", structType);
 		astFactory.addDeclaration("b", new BooleanType());
@@ -140,7 +140,7 @@ public class StructTests {
 	 */
 	@Test
 	public void testStructAssigmentTypeError() {
-		Type structType = new StructType("struct", new Member("b", new BooleanType()));
+		Type structType = new StructType(new Member("b", new BooleanType()));
 		ASTFactory astFactory = new ASTFactory();
 		astFactory.addDeclaration("s", structType);
 		astFactory.addDeclaration("l", new LongType());
@@ -168,7 +168,7 @@ public class StructTests {
 	public void testInnerStructAssigmentTypeError() {
 		Member boolMember = new Member("b", new BooleanType());
 		Member longMember = new Member("l", new LongType());
-		Type structType = new StructType("struct", boolMember, longMember);
+		Type structType = new StructType(boolMember, longMember);
 		ASTFactory astFactory = new ASTFactory();
 		astFactory.addDeclaration("s", structType);
 		IdentifierNode identifier_s1 = astFactory.newBasicIdentifier("s");
