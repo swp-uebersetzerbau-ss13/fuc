@@ -438,10 +438,11 @@ public class ArrayTests {
 	/**
 	 * <pre>
 	 * # error: invalid array index type
+	 * 
 	 * long [1] a;
 	 * long l;
 	 * 
-	 * l = a[1.0];
+	 * l = a[true];
 	 * </pre>
 	 */
 	@Test
@@ -453,7 +454,7 @@ public class ArrayTests {
 
 		astFactory.addAssignment(astFactory.newBasicIdentifier("l"), astFactory
 				.newArrayIdentifier(
-						astFactory.newLiteral("1.0", new DoubleType()),
+						astFactory.newLiteral("true", new BooleanType()),
 						astFactory.newBasicIdentifier("a")));
 
 		AST ast = astFactory.getAST();
@@ -463,6 +464,35 @@ public class ArrayTests {
 		List<LogEntry> errors = log.getErrors();
 		assertEquals(errors.size(), 1);
 		assertEquals(errors.get(0).getReportType(), ReportType.TYPE_MISMATCH);
+	}
+	
+	/**
+	 * <pre>
+	 * # no errors expected
+	 * 
+	 * long [2] a;
+	 * long l;
+	 * 
+	 * l = a[1.9];
+	 * </pre>
+	 */
+	@Test
+	public void testArrayIndexDoubleType() {
+		ASTFactory astFactory = new ASTFactory();
+
+		astFactory.addDeclaration("a", new ArrayType(new LongType(), 2));
+		astFactory.addDeclaration("l", new LongType());
+
+		astFactory.addAssignment(astFactory.newBasicIdentifier("l"), astFactory
+				.newArrayIdentifier(
+						astFactory.newLiteral("1.9", new DoubleType()),
+						astFactory.newBasicIdentifier("a")));
+
+		AST ast = astFactory.getAST();
+		analyser.analyse(ast);
+
+		System.out.println(log);
+		assertFalse(log.hasErrors());
 	}
 
 	/**

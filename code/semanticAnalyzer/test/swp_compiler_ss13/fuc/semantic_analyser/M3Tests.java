@@ -140,11 +140,11 @@ public class M3Tests {
 		astFactory.addDeclaration("i", new LongType());
 		// # matrix
 		astFactory.addDeclaration("a", new ArrayType(new ArrayType(
-				new LongType(), 4), 3));
+				new LongType(), 3), 4));
 		astFactory.addDeclaration("b", new ArrayType(new ArrayType(
-				new LongType(), 3), 2));
+				new LongType(), 2), 3));
 		astFactory.addDeclaration("c", new ArrayType(new ArrayType(
-				new LongType(), 4), 2));
+				new LongType(), 2), 4));
 		// string sep;
 		astFactory.addDeclaration("sep", new StringType(20L));
 		// string br;
