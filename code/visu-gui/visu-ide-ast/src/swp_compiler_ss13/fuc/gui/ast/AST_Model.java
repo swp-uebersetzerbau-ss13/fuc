@@ -24,9 +24,6 @@ public class AST_Model extends AbstractModel {
 
 	@Override
 	public boolean setAST(AST ast) {
-		if (ast == null && node == null || ast != null && ast.getRootNode() == node) {
-			return false;
-		}
 		setNode(ast == null ? null : ast.getRootNode());
 		return true;
 	}

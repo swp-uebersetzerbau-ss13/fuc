@@ -291,6 +291,6 @@ public class LoopTests {
 		System.out.println(log);
 		List<LogEntry> errors = log.getErrors();
 		assertEquals(errors.size(), 1);
-		assertEquals(errors.get(0).getReportType(), ReportType.TYPE_MISMATCH);
+		assertEquals(errors.get(0).getReportType(), ReportType.INVALID_BREAK_POSITION);
 	}
 }
