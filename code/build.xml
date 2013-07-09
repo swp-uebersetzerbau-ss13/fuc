@@ -140,11 +140,6 @@
 		<ant antfile="build.xml" dir="${visu.token.dir}" target="run-tests" inheritall="false" />
 	</target>
 
-	<!-- === run runtime tests === -->
-	<target name="run-tests-runtime" description="run runtime tests">
-    <ant antfile="build.xml" dir="${test.dir}" target="run-tests-runtime" inheritall="false" />
-	</target>
-
 	<!-- === dist === -->
 	<target name="dist" description="distribute the FUC Compiler (minimal)">
 		<!-- Clean everything, we dont want to have the compiled tests in our jars -->

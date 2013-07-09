@@ -29,8 +29,8 @@ import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.common.parser.Parser;
 import swp_compiler_ss13.common.semanticAnalysis.SemanticAnalyser;
-import swp_compiler_ss13.fuc.backend.TACExecutor;
-import swp_compiler_ss13.fuc.backend.TACExecutor.ExecutionResult;
+import swp_compiler_ss13.fuc.backend.LLVMExecutor;
+import swp_compiler_ss13.fuc.backend.LLVMExecutor.ExecutionResult;
 import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
 import swp_compiler_ss13.fuc.gui.ide.data.FucIdeButton;
 import swp_compiler_ss13.fuc.gui.ide.data.FucIdeMenu;
@@ -652,7 +652,7 @@ public class FucIdeController {
 				program.put(filename, copy1);
 
 				if (filename.endsWith(".ll")) {
-					ExecutionResult r = TACExecutor.runIR(copy2);
+					ExecutionResult r = LLVMExecutor.runIR(copy2);
 					output.append("Executing ").append(filename).append(":\n\n");
 					output.append(r.output);
 					output.append("\nExit Code: ");

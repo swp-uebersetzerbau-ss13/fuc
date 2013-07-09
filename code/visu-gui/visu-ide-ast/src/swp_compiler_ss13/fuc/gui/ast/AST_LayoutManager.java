@@ -22,8 +22,8 @@ class AST_LayoutManager implements LayoutManager {
 	private int minWidth;
 	private int minHeight;
 	private int buttonDif;
-	private static final int VGAP = 50;
-	private static final int HGAP = 20;
+	private static final int VGAP = 30;
+	private static final int HGAP = 10;
 
 	public AST_LayoutManager() {
 		children = new ArrayList<>();

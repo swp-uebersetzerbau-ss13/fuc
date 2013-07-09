@@ -9,7 +9,6 @@ import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.plus;
 import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.returnn;
 import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.sem;
 
-import org.apache.log4j.BasicConfigurator;
 import org.junit.Test;
 
 import swp_compiler_ss13.common.ast.AST;
@@ -21,10 +20,6 @@ import swp_compiler_ss13.fuc.ast.ASTFactory;
 import swp_compiler_ss13.fuc.parser.grammar.Terminal;
 
 public class M2AssignmentTest {
-	static {
-		BasicConfigurator.configure();
-	}
-
 	@Test
 	public void testAssignment() {
 		// Simulate input

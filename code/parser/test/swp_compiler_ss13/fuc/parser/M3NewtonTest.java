@@ -2,24 +2,19 @@ package swp_compiler_ss13.fuc.parser;
 
 import static org.junit.Assert.assertNotNull;
 
-import org.apache.log4j.BasicConfigurator;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode.BinaryOperator;
+import swp_compiler_ss13.common.ast.nodes.unary.UnaryExpressionNode.UnaryOperator;
 import swp_compiler_ss13.common.types.primitive.DoubleType;
 import swp_compiler_ss13.common.types.primitive.LongType;
 import swp_compiler_ss13.common.types.primitive.StringType;
 import swp_compiler_ss13.fuc.ast.ASTFactory;
-import swp_compiler_ss13.fuc.parser.errorHandling.ParserASTXMLVisualization;
 import swp_compiler_ss13.fuc.parser.parser.LRParser;
 
 public class M3NewtonTest {
-	static {
-		BasicConfigurator.configure();
-	}
-	
 	@Test
 	@Ignore
 	public void testNewton() {
@@ -46,7 +41,6 @@ public class M3NewtonTest {
 	}
 
 	@Test
-	@Ignore
 	public void testNewtonOrgLexer() throws Exception {
 		String input = "# returns 0\n"
 				+ "# outputs:\n"
@@ -86,79 +80,73 @@ public class M3NewtonTest {
  		factory.addDeclaration("guess", new DoubleType());
  		factory.addDeclaration("res", new StringType(LRParser.STRING_LENGTH));
  		//Assign values
- 		factory.addAssignment(factory.newBasicIdentifier("radicand"), factory.newLiteral("2", new DoubleType()));
- 		factory.addAssignment(factory.newBasicIdentifier("guess"), factory.newLiteral("1;x", new DoubleType()));
- 		factory.addAssignment(factory.newBasicIdentifier("error"), factory.newLiteral("radicand", new DoubleType()));
- 		factory.addAssignment(factory.newBasicIdentifier("res"), factory.newLiteral("i hate floating point numbers", new StringType(4L)));
+ 		factory.addAssignment(factory.newBasicIdentifier("radicand"),
+ 				factory.newLiteral("2", new LongType()));
+ 		factory.addAssignment(factory.newBasicIdentifier("guess"),
+ 				factory.newLiteral("1", new LongType()));
+ 		factory.addAssignment(factory.newBasicIdentifier("error"),
+ 				factory.newBasicIdentifier("radicand"));
+ 		factory.addAssignment(factory.newBasicIdentifier("res"),
+ 				factory.newLiteral("\"i hate floating point numbers\"", new StringType(4L)));
  		 
  		//while loop
- 		
  		factory.addWhile(
         		factory.newBinaryExpression(
         				BinaryOperator.GREATERTHANEQUAL,
         				factory.newBasicIdentifier("error"),
-        				factory.newLiteral(" 0.0001", new LongType()))
-        				);
+        				factory.newLiteral("0.0001", new DoubleType())));
+ 				factory.addBlock();
         		factory.addAssignment(        				 
           				factory.newBasicIdentifier("guess"),
-          				(          						
           				factory.newBinaryExpression(
-								BinaryOperator.ADDITION,
-          				(factory.newBinaryExpression
-          						(
-								BinaryOperator.DIVISION,
-								factory.newBasicIdentifier("radicand"),
-								factory.newBasicIdentifier("guess"))
-								),
-								factory.newBasicIdentifier("guess"))							
-        				));
+          						BinaryOperator.DIVISION,
+          						factory.newBinaryExpression(
+									BinaryOperator.ADDITION,
+									factory.newBinaryExpression(
+											BinaryOperator.DIVISION,
+											factory.newBasicIdentifier("radicand"),
+											factory.newBasicIdentifier("guess")),
+									factory.newBasicIdentifier("guess")),
+								factory.newLiteral("2.0", new DoubleType())));
  				// another assignment
-        				factory.addAssignment(  
-        						factory.newBasicIdentifier("error"),
-        						(          						
-        		          				factory.newBinaryExpression(
-        										BinaryOperator.MULTIPLICATION,
-        										factory.newBasicIdentifier("guess"),
-        											(factory.newBinaryExpression
-        													(
-        															BinaryOperator.SUBSTRACTION,
-        															factory.newBasicIdentifier("gues"),
-        															factory.newBasicIdentifier("radicand"))
-        													)
-        		          							)							
-        		        		)
-        		        		);
+				factory.addAssignment(  
+						factory.newBasicIdentifier("error"),
+		          				factory.newBinaryExpression(
+										BinaryOperator.SUBSTRACTION,
+										factory.newBinaryExpression(
+												BinaryOperator.MULTIPLICATION,
+												factory.newBasicIdentifier("guess"),
+												factory.newBasicIdentifier("guess")),
+										factory.newBasicIdentifier("radicand")));
         					 
         		// if statement
-        				factory.addBranch(
-        						factory.newBinaryExpression(
-        		        				BinaryOperator.LESSTHAN,
-        		        				factory.newBasicIdentifier("error"),
-        		        				factory.newLiteral("0", new LongType()))
-        						);
-        				
-        				factory.addAssignment(factory.newBasicIdentifier("error"), 
+				factory.addBranch(
+						factory.newBinaryExpression(
+		        				BinaryOperator.LESSTHAN,
+		        				factory.newBasicIdentifier("error"),
+		        				factory.newLiteral("0", new LongType())));
+        				factory.addBlock();
+        				factory.addAssignment(
+        						factory.newBasicIdentifier("error"), 
         						factory.newBinaryExpression(
         		        				BinaryOperator.MULTIPLICATION,
         		        				factory.newBasicIdentifier("error"),
-        		        				factory.newLiteral("-1", new LongType())
-        						
-        						
-        						));
+        		        				factory.newUnaryExpression(
+        		        						UnaryOperator.MINUS,
+        		        						factory.newLiteral("1", new LongType()))));
         	 				 
-		factory.goToParent();
+		factory.goToParent();	// -> if
+		factory.goToParent();	// -> while block
+		factory.goToParent();	// -> while
+		factory.goToParent();	// -> root node
  		
  		//print
  		factory.addPrint(factory.newBasicIdentifier("res"));
  		factory.addPrint(factory.newBasicIdentifier("guess"));
  		factory.addReturn(null);
 		
-		 
- 		ParserASTXMLVisualization vis = new ParserASTXMLVisualization();
- 		vis.visualizeAST(ast);
  		
  		AST expected = factory.getAST();
- 		vis.visualizeAST(expected);
 		ASTComparator.compareAST(expected, ast);
 	}
 }

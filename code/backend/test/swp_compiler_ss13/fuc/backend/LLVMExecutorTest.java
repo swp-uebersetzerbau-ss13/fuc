@@ -94,7 +94,7 @@ public class LLVMExecutorTest extends TestBase {
 		out.println("OR_BOOLEAN|#FALSE|#TRUE|b");
 		out.close();
 
-		List quadruples = (List) PA.invokeMethod(LLVMExecutor.class, "readTAC(java.io.InputStream)",
+		List<?> quadruples = (List<?>) PA.invokeMethod(LLVMExecutor.class, "readTAC(java.io.InputStream)",
 				new ByteArrayInputStream(os.toByteArray()));
 
 		Quadruple[] expectedQuadruples = new Quadruple[3];

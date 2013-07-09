@@ -6,7 +6,6 @@ import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.tokens;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.log4j.BasicConfigurator;
 import org.junit.Test;
 
 import swp_compiler_ss13.common.lexer.TokenType;
@@ -18,10 +17,6 @@ import swp_compiler_ss13.fuc.lexer.token.TokenImpl;
 import swp_compiler_ss13.fuc.parser.parser.ParserException;
 
 public class M1MultipleMinusENotationTest {
-	static {
-		BasicConfigurator.configure();
-	}
-
 //	@Test
 //	public void testErrorMultipleMinusENotationId() {
 //		// Generate parsing table

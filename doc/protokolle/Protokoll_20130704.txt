@@ -1,0 +1,109 @@
+1 Check TODOs
+2 Statusbericht
+3 Deep Copy
+4 Testing
+5 Präsentation
+6 Zeitplanung
+7 Weiteres
+8 TODOs
+
+
+1 Check TODOs
+---------------------------------------------------
+In-Bound-Checks bei Arrays mit statischem Feld Zugriff: done
+In-Bound-Checks bei Arrays mit dynamischen Feld Zugriff: done, noch nicht im Master
+Arrays fixen im IntermediateCodeGenerator: done
+Error Recovery im Parser: done
+GUI fixen: fast fertig 
+Weitere tests: done
+
+
+2 Statusbericht
+---------------------------------------------------
+
+Intermediate Code Generator:
+Structs implementiert. Arrays implementiert. IRGen umstruktiert.
+
+GUI:
+JavaByte Code wird angezeigt von Target-Code-Visualisuerung.
+AST kann verkleinert angezeigt werden.
+
+Semantische Analyse:
+weitere Tests, 95% Coverage.
+Tests für OutOfBounds bei statischen Arrayzugriffen.
+Dead-Code Erkennung
+
+Cross- / Integrationstest:
+Refactoered und verschönert.
+LLVM Executor getestet.
+
+Backend:
+OutOfBoundsException bei Arrays.
+Structs müssen noch gefixed werden.
+Refactoring
+
+Parser:
+Reduktionen getestet. Coverage und parents gefixed.
+Error Recovery (panic mode).
+
+Lexer:
+mehr tests implementiert für m3
+EOF Token überarbeitet
+Bug in einem regulären Ausdruck behoben
+
+Tay Ho:
+ExampleProgs erweitert
+Bugs: 
+- StructZugriff -> undeclared
+- DoWhile in While ergibt falsche Ergebnisse
+
+
+3 Deep Copy
+---------------------------------------------------
+Deep Copy wird nicht unterstützt.
+Deerp Copy wird auch weiterhin nicht implementiert, es sei denn die JavaBites Gruppe besteht darauf
+
+
+4 Testing
+---------------------------------------------------
+Alle Tests als runtime tests.
+
+ErrorTypes:
+Die ErrorTypes im ReportLog von JavaBites und FUC sind nicht gleich. Das führt in Cross-Tests zu Problemen.
+Weietere neue ErrorTypes einfügen.
+
+
+5 Präsentation
+---------------------------------------------------
+* M3 Präsentation                                               (4)    []
+* GUI-Demo                                                      (5)    [Eduard]
+* Projektstruktur/Organisation (und ihr Verlauf)                (1)    []
+** Tests                                                        (1.1)
+*** Travis                                                      (1.2)
+* Design der einzelnen Module                                   (2)    []
+* LLVM                                                          (3)    [Moritz]
+* Lessons learned                                               (6)    []
+
+-> Jede Gruppe trägt Punkte im GIST zusammen
+-> Präsentation auf Englisch
+-> Fertige Präsentation wird Dienstag auf Mailing Liste geschickt
+-> https://gist.github.com/namor-swp13/5928153#file-gistfile1-txt
+
+
+6 Zeitplanung:
+---------------------------------------------------
+Tests und Bugfixen
+Präsentationsstichpunkte bis Wochenende
+
+
+7 Weiteres:
+---------------------------------------------------
+Eventuell Test Coverage in Travis aktivieren
+
+
+8 TODO:
+---------------------------------------------------
+- Deep Copy mit anderer Gruppe abklären.
+- Fehlerbehebung in den CrossTests angehen.
+- Jede Gruppe schreibt im GIST Stichpunkte für Vortrag.
+-> https://gist.github.com/namor-swp13/5928153#file-gistfile1-txt
