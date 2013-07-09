@@ -23,6 +23,8 @@ public class Compiler {
 	private IntermediateCodeGeneratorImpl irgen;
 	private LLVMBackend backend;
 	private ReportLogImpl errlog;
+	protected ReportLogImpl errlogAfterParser;
+	protected ReportLogImpl errlogAfterAnalyzer;
 
 	public Compiler() {
 		this.lexer = new LexerImpl();
@@ -43,20 +45,39 @@ public class Compiler {
 	protected InputStream compile(String prog) throws BackendException,
 			IntermediateCodeGeneratorException, IOException, InterruptedException {
 		errlog = new ReportLogImpl();
+
 		lexer.setSourceStream(new ByteArrayInputStream(prog.getBytes("UTF-8")));
+
 		parser.setLexer(lexer);
 		parser.setReportLog(errlog);
 		AST ast = parser.getParsedAST();
-		if (errlog.hasErrors()) return null;
+		errlogAfterParser = errlog.clone();
+		if (errlog.hasErrors())
+			return null;
+
 		analyser.setReportLog(errlog);
 		AST ast2 = analyser.analyse(ast);
-		if (errlog.hasErrors()) return null;
+		errlogAfterAnalyzer = errlog.clone();
+		if (errlog.hasErrors())
+			return null;
+
 		List<Quadruple> tac = irgen.generateIntermediateCode(ast2);
+
 		Map<String, InputStream> targets = backend.generateTargetCode("prog", tac);
+
 		return targets.get(targets.keySet().iterator().next());
 	}
 
 	public ReportLogImpl getErrlog() {
 		return errlog;
 	}
+
+	public ReportLogImpl getErrlogAfterParser() {
+		return errlogAfterParser;
+	}
+
+	public ReportLogImpl getErrlogAfterAnalyzer() {
+		return errlogAfterAnalyzer;
+	}
+
 }
