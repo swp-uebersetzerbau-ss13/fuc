@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import swp_compiler_ss13.common.ast.AST;
@@ -467,6 +468,7 @@ public class OtherTests {
 	 * </pre>
 	 */
 	@Test
+	@Ignore
 	public void testImplicitTypeConversion() {
 		ASTFactory astFactory = new ASTFactory();
 		astFactory.addDeclaration("l", new LongType());
