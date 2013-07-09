@@ -427,12 +427,16 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 		types.add(leftType);
 		types.add(rightType);
 
-		if (types.size() == 1) {
+		if (types.size() == 1 && !(types.contains(Type.Kind.ARRAY) || types.contains(Type.Kind.STRUCT))) {
 			return types.first();
 		}
 
 		if (types.contains(Type.Kind.LONG) && types.contains(Type.Kind.DOUBLE)) {
 			return Type.Kind.DOUBLE;
+		}
+		
+		if (types.contains(Type.Kind.STRING) && !(types.contains(Type.Kind.ARRAY) || types.contains(Type.Kind.STRUCT))) {
+			return Type.Kind.STRING;
 		}
 
 		return null;
@@ -596,7 +600,7 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 		if (!hasTypeError(node)) {
 			Type.Kind type = getType(node);
 
-			if (!isNumeric(type) /*|| (type == Type.Kind.STRING && node.getOperator() == BinaryExpressionNode.BinaryOperator.ADDITION)*/) {
+			if (!isNumeric(type) && !(type == Type.Kind.STRING && node.getOperator() == BinaryExpressionNode.BinaryOperator.ADDITION)) {
 				markTypeError(node);
 				errorLog.reportError(ReportType.TYPE_MISMATCH, node.coverage(),
 					"Operator " + node.getOperator().name() + " is not defined for " + getType(node) + ".");
@@ -677,7 +681,7 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 
 		for (StatementNode child : node.getStatementList()) {
 			if (isDeadPath(node)) {
-				errorLog.reportError(ReportType.TYPE_MISMATCH, child.coverage(),
+				errorLog.reportError(ReportType.UNREACHABLE_CODE, child.coverage(),
 					"Unreachable statement, see previous “return” or „break“.");
 			}
 
@@ -781,10 +785,10 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 
 				if (indexValue != null) {
 					if (indexValue < 0) {
-						errorLog.reportError(ReportType.TYPE_MISMATCH, index.coverage(), "Array index can not be negative.");
+						errorLog.reportError(ReportType.INVALID_ARRAY_ACCESS, index.coverage(), "Array index can not be negative.");
 						markTypeError(node);
 					} else if (indexValue >= identifierType.getLength()) {
-						errorLog.reportError(ReportType.TYPE_MISMATCH, index.coverage(), "Array index (" + indexValue + ") is out of bound.");
+						errorLog.reportError(ReportType.INVALID_ARRAY_ACCESS, index.coverage(), "Array index (" + indexValue + ") is out of bound.");
 						markTypeError(node);
 					}
 				}
@@ -816,7 +820,7 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 
 	protected void handleNode(BreakNode node, SymbolTable table) {
 		if (!canBreak(node.getParentNode())) {
-			errorLog.reportError(ReportType.TYPE_MISMATCH, node.coverage(), "Break can only be used in a loop.");
+			errorLog.reportError(ReportType.INVALID_BREAK_POSITION, node.coverage(), "Break can only be used in a loop.");
 			markTypeError(node);
 		}
 		
