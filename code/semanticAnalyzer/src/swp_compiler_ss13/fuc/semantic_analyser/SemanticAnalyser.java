@@ -64,15 +64,14 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 		TYPE_CHECK,
 		CODE_STATE
 	}
-	
 	private static final String NO_ATTRIBUTE_VALUE = "undefined";
 	private static final String CAN_BREAK = "true";
 	private static final String TYPE_MISMATCH = "type mismatch";
 	private static final String DEAD_CODE_BREAK = "dead by break";
 	private static final String DEAD_CODE_RETURN = "dead by return";
+	private static final String CODE_IS_ALIVE = "alive";
 	private static final String STATIC_VALUE = "value";
 	private static final String TYPE_DECLARATION = "type declaration";
-	
 	private ReportLog errorLog;
 	/**
 	 * Contains all initialized identifiers. As soon it has assigned it will be
@@ -125,7 +124,7 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 	protected Object getStaticValue(ASTNode node) {
 		return node.getAttributeValue(STATIC_VALUE);
 	}
-	
+
 	protected void setStaticValue(ASTNode node, Object value) {
 		node.setAttributeValue(STATIC_VALUE, value);
 	}
@@ -396,7 +395,7 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 			default:
 				throw new IllegalArgumentException("unknown ASTNodeType");
 		}
-		
+
 		if (node.getParentNode() != null) {
 			inheritAttribute(node, node.getParentNode(), Attribute.CODE_STATE);
 		}
@@ -427,12 +426,16 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 		types.add(leftType);
 		types.add(rightType);
 
-		if (types.size() == 1) {
+		if (types.size() == 1 && !(types.contains(Type.Kind.ARRAY) || types.contains(Type.Kind.STRUCT))) {
 			return types.first();
 		}
 
 		if (types.contains(Type.Kind.LONG) && types.contains(Type.Kind.DOUBLE)) {
 			return Type.Kind.DOUBLE;
+		}
+
+		if (types.contains(Type.Kind.STRING) && !(types.contains(Type.Kind.ARRAY) || types.contains(Type.Kind.STRUCT))) {
+			return Type.Kind.STRING;
 		}
 
 		return null;
@@ -458,6 +461,10 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 	protected void checkLoopNode(LoopNode node, SymbolTable table) {
 		if (getType(node.getCondition()) != Type.Kind.BOOLEAN) {
 			errorLog.reportError(ReportType.TYPE_MISMATCH, node.coverage(), "The condition must be of type bool.");
+		}
+
+		if (isDeadPathByBreak(node)) {
+			markPathAsAlive(node);
 		}
 	}
 
@@ -485,7 +492,7 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 
 		checkLoopNode(node, table);
 	}
-	
+
 
 	/*
 	 * Branch node
@@ -507,12 +514,20 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 		Map<SymbolTable, Set<String>> beforeTrue = copy(initializedIdentifiers);
 		List<SymbolTable> beforeTrueTableChain = getSymbolTableChain(table);
 		traverse(node.getStatementNodeOnTrue(), table);
-		
+
 		if (node.getStatementNodeOnFalse() != null) {
 			Map<SymbolTable, Set<String>> beforeFalse = copy(initializedIdentifiers);
 			initializedIdentifiers = beforeTrue;
+			
+			setAttribute(node.getStatementNodeOnTrue(), Attribute.CODE_STATE,
+				getAttribute(node, Attribute.CODE_STATE));
+			markPathAsAlive(node);
+			
 			traverse(node.getStatementNodeOnFalse(), table);
 
+			setAttribute(node.getStatementNodeOnFalse(), Attribute.CODE_STATE,
+				getAttribute(node, Attribute.CODE_STATE));
+			
 			/*
 			 * Remove all initializations that do not occur in both branches.
 			 */
@@ -530,13 +545,20 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 					initializedIdentifiers.get(s).retainAll(beforeFalse.get(s));
 				}
 			}
-			
+
 			if (isDeadPath(node.getStatementNodeOnTrue()) != isDeadPath(node.getStatementNodeOnFalse())) {
-				removeAttribute(node, Attribute.CODE_STATE);
+				logger.debug("Different code status true=" + isDeadPath(node.getStatementNodeOnTrue()) + ", false="
+					+ isDeadPath(node.getStatementNodeOnFalse()) + " -> set to alive.");
+				markPathAsAlive(node);
+			} else {
+				if (isDeadPathByReturn(node.getStatementNodeOnTrue()) || isDeadPathByReturn(node.getStatementNodeOnFalse())) {
+					markDeadPathByReturn(node);
+				}
 			}
 		} else {
 			logger.debug("No else branch, reset initialization.");
 			initializedIdentifiers = beforeTrue;
+			markPathAsAlive(node);
 		}
 
 		if (getType(node.getCondition()) != Type.Kind.BOOLEAN) {
@@ -596,7 +618,7 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 		if (!hasTypeError(node)) {
 			Type.Kind type = getType(node);
 
-			if (!isNumeric(type) /*|| (type == Type.Kind.STRING && node.getOperator() == BinaryExpressionNode.BinaryOperator.ADDITION)*/) {
+			if (!isNumeric(type) && !(type == Type.Kind.STRING && node.getOperator() == BinaryExpressionNode.BinaryOperator.ADDITION)) {
 				markTypeError(node);
 				errorLog.reportError(ReportType.TYPE_MISMATCH, node.coverage(),
 					"Operator " + node.getOperator().name() + " is not defined for " + getType(node) + ".");
@@ -677,13 +699,13 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 
 		for (StatementNode child : node.getStatementList()) {
 			if (isDeadPath(node)) {
-				errorLog.reportError(ReportType.TYPE_MISMATCH, child.coverage(),
+				errorLog.reportError(ReportType.UNREACHABLE_CODE, child.coverage(),
 					"Unreachable statement, see previous “return” or „break“.");
 			}
 
 			traverse(child, blockScope);
 		}
-		
+
 		if (node.getParentNode() != null && isDeadPathByReturn(node)) {
 			isDeadPathByReturn(node.getParentNode());
 		}
@@ -781,10 +803,10 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 
 				if (indexValue != null) {
 					if (indexValue < 0) {
-						errorLog.reportError(ReportType.TYPE_MISMATCH, index.coverage(), "Array index can not be negative.");
+						errorLog.reportError(ReportType.INVALID_ARRAY_ACCESS, index.coverage(), "Array index can not be negative.");
 						markTypeError(node);
 					} else if (indexValue >= identifierType.getLength()) {
-						errorLog.reportError(ReportType.TYPE_MISMATCH, index.coverage(), "Array index (" + indexValue + ") is out of bound.");
+						errorLog.reportError(ReportType.INVALID_ARRAY_ACCESS, index.coverage(), "Array index (" + indexValue + ") is out of bound.");
 						markTypeError(node);
 					}
 				}
@@ -816,13 +838,13 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 
 	protected void handleNode(BreakNode node, SymbolTable table) {
 		if (!canBreak(node.getParentNode())) {
-			errorLog.reportError(ReportType.TYPE_MISMATCH, node.coverage(), "Break can only be used in a loop.");
+			errorLog.reportError(ReportType.INVALID_BREAK_POSITION, node.coverage(), "Break can only be used in a loop.");
 			markTypeError(node);
 		}
-		
+
 		markDeadPathByBreak(node.getParentNode());
 	}
-	
+
 	protected void handleNode(ReturnNode node, SymbolTable table) {
 		IdentifierNode identifier = node.getRightValue();
 
@@ -863,36 +885,46 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 	protected void setType(ASTNode node, Type.Kind t) {
 		setAttribute(node, Attribute.TYPE, t.name());
 	}
-	
+
 	protected void setNodeType(ASTNode node, Type t) {
 		setTypeDeclaration(node, t);
 		setAttribute(node, Attribute.TYPE, t.getKind().name());
 	}
-	
+
 	protected void markTypeError(ASTNode node) {
 		setAttribute(node, Attribute.TYPE_CHECK, TYPE_MISMATCH);
 	}
-	
+
 	protected void markDeadPathByBreak(ASTNode node) {
+		logger.debug("Mark as dead by break: " + node);
 		setAttribute(node, Attribute.CODE_STATE, DEAD_CODE_BREAK);
 	}
-	
+
 	protected void markDeadPathByReturn(ASTNode node) {
+		logger.debug("Mark as dead by return: " + node);
 		setAttribute(node, Attribute.CODE_STATE, DEAD_CODE_RETURN);
 	}
-	
+
+	protected void markPathAsAlive(ASTNode node) {
+		setAttribute(node, Attribute.CODE_STATE, CODE_IS_ALIVE);
+	}
+
 	protected boolean isDeadPath(ASTNode node) {
 		return hasAttribute(node, Attribute.CODE_STATE, DEAD_CODE_BREAK) || isDeadPathByReturn(node);
 	}
-	
+
+	protected boolean isDeadPathByBreak(ASTNode node) {
+		return hasAttribute(node, Attribute.CODE_STATE, DEAD_CODE_BREAK);
+	}
+
 	protected boolean isDeadPathByReturn(ASTNode node) {
 		return hasAttribute(node, Attribute.CODE_STATE, DEAD_CODE_RETURN);
 	}
-	
+
 	protected boolean canBreak(ASTNode node) {
 		return hasAttribute(node, Attribute.CAN_BREAK, CAN_BREAK);
 	}
-	
+
 	protected boolean hasTypeError(ASTNode node) {
 		return hasAttribute(node, Attribute.TYPE_CHECK, TYPE_MISMATCH);
 	}
@@ -900,11 +932,11 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 	protected void setTypeDeclaration(ASTNode node, Type t) {
 		node.setAttributeValue(TYPE_DECLARATION, t);
 	}
-	
+
 	protected Type getTypeDeclaration(ASTNode node) {
 		Object t = node.getAttributeValue(TYPE_DECLARATION);
 		assert t instanceof Type;
-		return (Type)t;
+		return (Type) t;
 	}
 
 	protected void markIdentifierAsInitialized(SymbolTable table, String identifier) {
@@ -919,9 +951,9 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 
 	protected String getAttribute(ASTNode node, Attribute attribute) {
 		Object v = node.getAttributeValue(attribute);
-		
+
 		if (v instanceof String) {
-			return (String)v;
+			return (String) v;
 		} else {
 			return NO_ATTRIBUTE_VALUE;
 		}
@@ -930,7 +962,7 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 	protected void setAttribute(ASTNode node, Attribute attribute, String value) {
 		node.setAttributeValue(attribute, value);
 	}
-	
+
 	protected void removeAttribute(ASTNode node, Attribute attr) {
 		setAttribute(node, attr, NO_ATTRIBUTE_VALUE);
 	}

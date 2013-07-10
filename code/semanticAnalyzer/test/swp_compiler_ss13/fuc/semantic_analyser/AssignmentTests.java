@@ -58,7 +58,7 @@ public class AssignmentTests {
 		// Identifier
 		BasicIdentifierNode identifier = new BasicIdentifierNodeImpl();
 		identifier.setIdentifier("l");
-		
+
 		// Value
 		LiteralNode value = new LiteralNodeImpl();
 		value.setLiteral("4");
@@ -68,10 +68,10 @@ public class AssignmentTests {
 		AssignmentNode assignment = new AssignmentNodeImpl();
 		assignment.setLeftValue(identifier);
 		assignment.setRightValue(value);
-		
+
 		identifier.setParentNode(assignment);
 		value.setParentNode(assignment);
-		
+
 		// Program
 		SymbolTable symbolTable = new SymbolTableImpl();
 
@@ -88,9 +88,10 @@ public class AssignmentTests {
 		System.out.println(log);
 		List<LogEntry> errors = log.getErrors();
 		assertEquals(errors.size(), 1);
-		assertEquals(errors.get(0).getReportType(), ReportType.UNDECLARED_VARIABLE_USAGE);
+		assertEquals(errors.get(0).getReportType(),
+				ReportType.UNDECLARED_VARIABLE_USAGE);
 	}
-	
+
 	/**
 	 * # error: assignment of boolean to long-identifier<br/>
 	 * long l;<br/>
@@ -397,7 +398,7 @@ public class AssignmentTests {
 		SymbolTable branchBlockTable = new SymbolTableImpl(symbolTable);
 		branchBlockTable.insert("b", new LongType());
 		branchBlockTable.insert("l", new BooleanType());
-		
+
 		BlockNode branchBlock = new BlockNodeImpl();
 		branchBlock.addDeclaration(declaration_b2);
 		branchBlock.addDeclaration(declaration_l2);
@@ -434,5 +435,4 @@ public class AssignmentTests {
 
 		assertFalse(log.hasErrors());
 	}
-
 }

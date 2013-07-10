@@ -17,15 +17,93 @@ import static swp_compiler_ss13.common.types.Type.*;
 import static swp_compiler_ss13.common.types.Type.Kind.BOOLEAN;
 
 /**
- * This class allows for the generation of an LLVM IR module.
- * Each methode that begins with "add" generates LLVM IR code
- * and writes it to the <code>PrintWriter</code> <code>out</code>.
+ * This class corresponds to an LLVM IR function.
+ * Each method that begins with "add" generates LLVM IR code
+ * and appends it to the functions <code>code</code>.
  *
  */
 public class Function
 {
 	/**
-	 * This maps a variable's name (not its
+	 * This function's name.
+	 *
+	 */
+	private String name;
+
+	/**
+	 * Get this function's name.
+	 *
+	 * @return the name
+	 */
+	public String getName() {
+		return name;
+	}
+
+	/**
+	 * The type of this function's return value.
+	 *
+	 */
+	private Type.Kind returnType;
+
+	/**
+	 * Get the type function's return value.
+	 *
+	 * @return a <code>Type.Kind</code> value
+	 */
+	public Type.Kind getReturnType() {
+		return returnType;
+	}
+
+	/**
+	 * This function's arguments (name and type).
+	 *
+	 */
+	private List<Map.Entry<String,Type.Kind>> arguments;
+
+	/**
+	 * Get this function's arguments.
+	 *
+	 * @return a <code>List<Map.Entry<String,Type.Kind>></code> value
+	 */
+	public List<Map.Entry<String,Type.Kind>> getArguments() {
+		return arguments;
+	}
+
+	/**
+	 * The <code>Module</code>, in which this
+	 * function exists.
+	 *
+	 */
+	private Module parent;
+
+	/**
+	 * Get this function's parent.
+	 *
+	 * @return a <code>Module</code> value
+	 */
+	public Module getParent() {
+		return parent;
+	}
+
+	/**
+	 * Holds the function's generated
+	 * LLVM IR code.
+	 *
+	 */
+	private StringBuilder code;
+
+	/**
+	 * Get the LLVM IR code generated for
+	 * this functions.
+	 *
+	 * @return the LLVM IR code
+	 */
+	public String getCode() {
+		return this.code.toString() + "}\n";
+	}
+
+	/**
+	 * Maps a variable's name (not its
 	 * identifier, which is %{name}) to the
 	 * number of times it has been used in
 	 * the module already.
@@ -42,44 +120,29 @@ public class Function
 	 */
 	private Map<String,Integer> variableUseCount;
 
-	private StringBuffer code;
-
-	public String getCode() {
-		return this.code.toString() + "}\n";
-	}
-
+	/**
+	 * Maps TAC references by their name to
+	 * their destination (another reference,
+	 * or a variable) and a list in indices
+	 * into this destination.
+	 *
+	 */
 	private Map<String,Map.Entry<String,List<String>>> references;
 
-	private Map<String,DerivedType> derivedTypes;
-
-	private Type.Kind returnType;
-
-	private String name;
-
-	public String getName() {
-		return name;
-	}
-
-	public Type.Kind getReturnType() {
-		return returnType;
-	}
-
-	private List<Map.Entry<String,Type.Kind>> arguments;
-
-	public List<Map.Entry<String,Type.Kind>> getArguments() {
-		return arguments;
-	}
-
-	private Module parent;
-
-	public Module getParent() {
-		return parent;
-	}
+	/**
+	 * Contains all variables of derived type
+	 * that have been declared in this function.
+	 *
+	 */
+	private Map<String,DerivedType> derivedVariables;
 
 	/**
-	 * Creates a new <code>Module</code> instance.
+	 * Creates a new <code>Function</code> instance.
 	 *
-	 * to write the LLVM IR
+	 * @param parent the <code>Module</code> in which the function exists
+	 * @param name the function's name
+	 * @param returnType the type of the functions's return value
+	 * @param arguments a <code>List<Map.Entry<String,Type.Kind>></code> of the function's arguments
 	 */
 	public Function(Module parent,
 	                String name,
@@ -88,8 +151,8 @@ public class Function
 	{
 		variableUseCount = new HashMap<String,Integer>();
 		references = new HashMap<String,Map.Entry<String,List<String>>>();
-		derivedTypes = new HashMap<String,DerivedType>();
-		code = new StringBuffer();
+		derivedVariables = new HashMap<String,DerivedType>();
+		code = new StringBuilder();
 
 		this.returnType = returnType;
 		this.arguments = arguments;
@@ -119,7 +182,7 @@ public class Function
 
 	/**
 	 * Append the LLVM IR prefixed with two spaces
-	 * to the code <code>StringBuffer</code>
+	 * to the code <code>StringBuilder</code>
 	 *
 	 * @param code a <code>String</code> value
 	 */
@@ -144,7 +207,7 @@ public class Function
 		try {
 			ssa_suffix = variableUseCount.get(variable);
 		} catch (NullPointerException e) {
-			throw new BackendException("Use of undeclared variable");
+			throw new BackendException("Use of undeclared variable \"" + variable + "\"");
 		}
 		variableUseCount.put(variable, ssa_suffix + 1);
 		return "%" + variable + "." + String.valueOf(ssa_suffix);
@@ -192,8 +255,10 @@ public class Function
 	 *  is removed. If given a variable (anything without leading # character),
 	 *  it is being loaded and the temporary register name is returned.
 	 *
-	 *	@param constantOrIdentifier Name of a constant or identifier.
-	 *  @returns name of usable primitive
+	 * @param constantOrIdentifier constant (value) or identifier.
+	 * @param type the type of the first argument
+	 * @return a <code>String</code> that can be used in LLVM IR instructions
+	 * @exception BackendException if an error occurs
 	 */
 	private String cdl(String constantOrIdentifier, Kind type) throws BackendException {
 		if(constantOrIdentifier.charAt(0) == '#')
@@ -213,7 +278,7 @@ public class Function
 		else {
 			/* identifier */
 			String id = getUseIdentifierForVariable(constantOrIdentifier);
-			gen(id + " = load " + Module.getIRType(type) + "* %"+constantOrIdentifier);
+			gen(id + " = load " + Module.getIRType(type) + "* %" + constantOrIdentifier);
 			return id;
 		}
 	}
@@ -251,6 +316,14 @@ public class Function
 		addPrimitiveAssign(type, variable, initializer);
 	}
 
+	/**
+	 * Declare a variable of derived type.
+	 *
+	 * @param type the type of the variable
+	 * @param identifierthe variable's name
+	 * @return (LLVM IR) identifier for the variable
+	 * @exception BackendException if an error occurs
+	 */
 	public String addDerivedDeclare(DerivedType type, String identifier) throws BackendException {
 		String irType = "";
 
@@ -268,7 +341,7 @@ public class Function
 
 		String variableIdentifier = "%" + identifier;
 		variableUseCount.put(identifier, 0);
-		derivedTypes.put(identifier, type);
+		derivedVariables.put(identifier, type);
 		gen(variableIdentifier + " = alloca " + irType);
 		return variableIdentifier;
 	}
@@ -316,6 +389,17 @@ public class Function
 		}
 	}
 
+	/**
+	 * Gets a reference to one of the elements/members of
+	 * a derived type and store the reference in the backend.
+	 * Does not generate any LLVM IR code.
+	 *
+	 * @param derivedType the type of the variable or reference being indexed into
+	 * @param derived a variable or reference to index into
+	 * @param index the index, which internal type depends on <code>derivedType</code>
+	 * @param dst the name of the new reference
+	 * @exception BackendException if an error occurs
+	 */
 	public void addReferenceDerivedGet(Type.Kind derivedType, String derived, String index, String dst) throws BackendException {
 		String src = derived;
 		List<String> indices = new LinkedList<String>();
@@ -331,7 +415,7 @@ public class Function
 				indices.add(index);
 				break;
 			case STRUCT:
-				DerivedType type = derivedTypes.get(src);
+				DerivedType type = derivedVariables.get(src);
 
 				if(type instanceof LLVMBackendArrayType) {
 					type = (DerivedType) ((LLVMBackendArrayType) type).getStorageType();
@@ -341,7 +425,7 @@ public class Function
 					List<Member> members = ((LLVMBackendStructType) type).getMembers();
 					for(Member m: members) {
 						if(m.getName().equals(index)) {
-							indices.add(String.valueOf(members.indexOf(m)));
+							indices.add("#" + String.valueOf(members.indexOf(m)));
 							break;
 						}
 					}
@@ -355,6 +439,19 @@ public class Function
 		references.put(dst,new AbstractMap.SimpleEntry<String,List<String>>(src, indices));
 	}
 
+	/**
+	 * Gets or sets a primitive value contained inside a
+	 * derived value.
+	 *
+	 * @param derivedTypeKind the <code>Type.Kind</code> of the derived value
+	 * @param derived the name for either a variable or a reference being the derived value
+	 * @param index the index, which internal type depends on <code>derivedTypeKind</code>
+	 * @param primitiveType the <code>Type.Kind</code> of the primitive value
+	 * @param primitive if setting, a constant (value) or a variable name to read;
+	 *                  if getting, the variable where the value is to written
+	 * @param set true if setting; false if getting
+	 * @exception BackendException if an error occurs
+	 */
 	public void addPrimitiveDerivedSetOrGet(Type.Kind derivedTypeKind,
 	                                        String derived,
 	                                        String index,
@@ -374,7 +471,7 @@ public class Function
 				indices.add(index);
 				break;
 			case STRUCT:
-				DerivedType type = derivedTypes.get(derived);
+				DerivedType type = derivedVariables.get(derived);
 
 				if(type instanceof LLVMBackendArrayType) {
 					type = (DerivedType) ((LLVMBackendArrayType) type).getStorageType();
@@ -384,7 +481,7 @@ public class Function
 					List<Member> members = ((LLVMBackendStructType) type).getMembers();
 					for(Member m: members) {
 						if(m.getName().equals(index)) {
-							indices.add(String.valueOf(members.indexOf(m)));
+							indices.add("#" + String.valueOf(Integer.valueOf(members.indexOf(m))));
 							break;
 						}
 					}
@@ -397,21 +494,47 @@ public class Function
 				throw new BackendException("Unexpected derived type: " + derivedTypeKind.toString());
 		}
 
-		StringBuffer indexList = new StringBuffer();
+		StringBuilder indexList = new StringBuilder();
 		for(String i: indices) {
 			indexList.append(", ");
-			indexList.append(Module.getIRType(Type.Kind.LONG));
+			indexList.append("i32" /* For some (undocumented) reason, LLVM won't accept i64 here for structs. Module.getIRType(Type.Kind.LONG) */);
 			indexList.append(" ");
-			indexList.append(cdl(i, Type.Kind.LONG));
+			String idx = cdl(i, Type.Kind.LONG);
+
+			if(i.charAt(0) == '#') {
+				indexList.append(idx);
+			}
+			else {
+				/* Because of the undocumented behaviour mentioned above we also have
+				 * to convert indices in long variables down to 32 bit integers */
+				String indexUseIdentifier = getUseIdentifierForVariable(i);
+				gen(indexUseIdentifier + " = trunc " + Module.getIRType(Type.Kind.LONG) + " " + idx + " to i32");
+				indexList.append(indexUseIdentifier);
+			}
 		}
 
 		String primitiveIRType = Module.getIRType(primitiveType);
 
-		DerivedType derivedType = derivedTypes.get(derived);
+		DerivedType derivedType = derivedVariables.get(derived);
 		String derivedIRType = "";
 		if(derivedType instanceof LLVMBackendArrayType) {
 			LLVMBackendArrayType derivedArType = (LLVMBackendArrayType) derivedType;
 			derivedIRType = Module.getIRAType(derivedArType.getStorageType(), derivedArType.getDimensions());
+			// before the getelementptr instruction, insert out of bounds checks
+			// for arrays
+			for(int idx = 0;
+			    idx < derivedArType.getDimensions().size();
+				idx++)
+			{
+				// dimension is always an integer constant
+				String dim = ""+derivedArType.getDimensions().get(idx);
+				// element index could be a variable => we have to CDL it
+				String elem= cdl(indices.get(idx),Type.Kind.LONG);
+				gen("call void @aoob1(i64 " + elem + ", i64 " + dim + ")");
+/*				System.err.println(
+					"dimension: "+dim+
+					"\t\tindex: "+elem);*/
+			}
 		}
 		else if(derivedType instanceof LLVMBackendStructType) {
 			LLVMBackendStructType derivedStType = (LLVMBackendStructType) derivedType;

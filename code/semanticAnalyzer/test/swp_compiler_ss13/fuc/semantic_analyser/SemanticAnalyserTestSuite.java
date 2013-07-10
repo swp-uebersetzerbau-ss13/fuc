@@ -8,7 +8,8 @@ import org.junit.runners.Suite.SuiteClasses;
 @SuiteClasses({ ArithmeticExpressionTests.class, AssignmentTests.class,
 		BranchTests.class, LogicExpressionTests.class, LoopTests.class,
 		OtherTests.class, M1Tests.class, M2Tests.class,
-		RelationExpressionTests.class, ArrayTests.class, StructTests.class })
+		RelationExpressionTests.class, ArrayTests.class, StructTests.class,
+		M3Tests.class })
 public class SemanticAnalyserTestSuite {
 
 }

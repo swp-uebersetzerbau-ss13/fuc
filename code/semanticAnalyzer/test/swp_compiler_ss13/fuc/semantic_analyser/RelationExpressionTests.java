@@ -19,6 +19,9 @@ import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
 import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
 import swp_compiler_ss13.common.parser.SymbolTable;
 import swp_compiler_ss13.common.report.ReportType;
+import swp_compiler_ss13.common.types.derived.ArrayType;
+import swp_compiler_ss13.common.types.derived.Member;
+import swp_compiler_ss13.common.types.derived.StructType;
 import swp_compiler_ss13.common.types.primitive.BooleanType;
 import swp_compiler_ss13.common.types.primitive.DoubleType;
 import swp_compiler_ss13.common.types.primitive.LongType;
@@ -346,5 +349,71 @@ public class RelationExpressionTests {
 
 		System.out.println(log);
 		assertFalse(log.hasErrors());
+	}
+	
+	/**
+	 * <pre>
+	 * # error: comparison of arrays
+	 * long[1] a1;
+	 * long[1] a2;
+	 * bool b;
+	 * 
+	 * b = a1 == a2;
+	 * </pre>
+	 */
+	@Test
+	public void testArrayComparisonError() {
+		ASTFactory astFactory = new ASTFactory();
+
+		astFactory.addDeclaration("a1", new ArrayType(new LongType(), 1));
+		astFactory.addDeclaration("a2", new ArrayType(new LongType(), 1));
+		astFactory.addDeclaration("b", new BooleanType());
+
+		astFactory.addAssignment(
+				astFactory.newBasicIdentifier("b"),
+				astFactory.newBinaryExpression(BinaryOperator.EQUAL,
+						astFactory.newBasicIdentifier("a1"),
+						astFactory.newBasicIdentifier("a2")));
+
+		AST ast = astFactory.getAST();
+		analyser.analyse(ast);
+
+		System.out.println(log);
+		List<LogEntry> errors = log.getErrors();
+		assertEquals(errors.size(), 1);
+		assertEquals(errors.get(0).getReportType(), ReportType.TYPE_MISMATCH);
+	}
+	
+	/**
+	 * <pre>
+	 * # error: comparison of structs
+	 * struct{long l} s1;
+	 * struct{long l} s2;
+	 * bool b;
+	 * 
+	 * b = s1 == s2;
+	 * </pre>
+	 */
+	@Test
+	public void testStructComparisonError() {
+		ASTFactory astFactory = new ASTFactory();
+
+		astFactory.addDeclaration("s1", new StructType(new Member("l", new LongType())));
+		astFactory.addDeclaration("s2", new StructType(new Member("l", new LongType())));
+		astFactory.addDeclaration("b", new BooleanType());
+
+		astFactory.addAssignment(
+				astFactory.newBasicIdentifier("b"),
+				astFactory.newBinaryExpression(BinaryOperator.EQUAL,
+						astFactory.newBasicIdentifier("s1"),
+						astFactory.newBasicIdentifier("s2")));
+
+		AST ast = astFactory.getAST();
+		analyser.analyse(ast);
+
+		System.out.println(log);
+		List<LogEntry> errors = log.getErrors();
+		assertEquals(errors.size(), 1);
+		assertEquals(errors.get(0).getReportType(), ReportType.TYPE_MISMATCH);
 	}
 }

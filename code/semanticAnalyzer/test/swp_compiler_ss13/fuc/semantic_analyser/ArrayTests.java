@@ -7,10 +7,13 @@ import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.ast.nodes.binary.AssignmentNode;
+import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode;
+import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode.BinaryOperator;
 import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.LiteralNode;
 import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
@@ -219,7 +222,7 @@ public class ArrayTests {
 	 * long [1] a;<br/>
 	 * long l;<br/>
 	 * <br/>
-	 * l = a[2];
+	 * l = a[1];
 	 */
 	@Test
 	public void testOutOfBoundsError() {
@@ -241,7 +244,7 @@ public class ArrayTests {
 		ArrayIdentifierNode arrayIdentifier_a = new ArrayIdentifierNodeImpl();
 		arrayIdentifier_a.setIdentifierNode(identifier_a);
 		LiteralNode value = new LiteralNodeImpl();
-		value.setLiteral("2");
+		value.setLiteral("1");
 		value.setLiteralType(new LongType());
 		arrayIdentifier_a.setIndexNode(value);
 		identifier_a.setParentNode(arrayIdentifier_a);
@@ -274,36 +277,40 @@ public class ArrayTests {
 		System.out.println(log);
 		List<LogEntry> errors = log.getErrors();
 		assertEquals(errors.size(), 1);
-		// TODO correct reportType
-		assertEquals(errors.get(0).getReportType(), ReportType.TYPE_MISMATCH);
+		assertEquals(errors.get(0).getReportType(), ReportType.INVALID_ARRAY_ACCESS);
 	}
 
 	/**
-	 * # no errors expected<br/>
-	 * long [1][1] a;<br/>
-	 * long l;<br/>
-	 * <br/>
-	 * l = a[0][0];<br/>
-	 * a[0][0] = l;
+	 * <pre>
+	 * # no errors expected
+	 * long [7][3] a;
+	 * long [4][8] a;
+	 * long l;
+	 * 
+	 * l = a[2][6];
+	 * b[7][3] = l;
+	 * </pre>
 	 */
 	@Test
 	public void testMultiDimensionalArray() {
 		ASTFactory astFactory = new ASTFactory();
 
 		astFactory.addDeclaration("a", new ArrayType(new ArrayType(
-				new LongType(), 1), 1));
+				new LongType(), 7), 3));
+		astFactory.addDeclaration("b", new ArrayType(new ArrayType(
+				new LongType(), 4), 8));
 		astFactory.addDeclaration("l", new LongType());
 
 		astFactory.addAssignment(astFactory.newBasicIdentifier("l"), astFactory
-				.newArrayIdentifier(astFactory.newLiteral("0", new LongType()),
+				.newArrayIdentifier(astFactory.newLiteral("6", new LongType()),
 						astFactory.newArrayIdentifier(
-								astFactory.newLiteral("0", new LongType()),
+								astFactory.newLiteral("2", new LongType()),
 								astFactory.newBasicIdentifier("a"))));
 		astFactory.addAssignment(astFactory.newArrayIdentifier(
-				astFactory.newLiteral("0", new LongType()),
+				astFactory.newLiteral("3", new LongType()),
 				astFactory.newArrayIdentifier(
-						astFactory.newLiteral("0", new LongType()),
-						astFactory.newBasicIdentifier("a"))), astFactory
+						astFactory.newLiteral("7", new LongType()),
+						astFactory.newBasicIdentifier("b"))), astFactory
 				.newBasicIdentifier("l"));
 
 		AST ast = astFactory.getAST();
@@ -311,6 +318,38 @@ public class ArrayTests {
 
 		System.out.println(log);
 		assertFalse(log.hasErrors());
+	}
+
+	/**
+	 * <pre>
+	 * # a[6][2] is out of bound
+	 * long [7][3] a;
+	 * long l;
+	 * 
+	 * l = a[6][2];
+	 * </pre>
+	 */
+	@Test
+	public void testMultiDimensionalArrayOutOfBoundError() {
+		ASTFactory astFactory = new ASTFactory();
+
+		astFactory.addDeclaration("a", new ArrayType(new ArrayType(
+				new LongType(), 7), 3));
+		astFactory.addDeclaration("l", new LongType());
+
+		astFactory.addAssignment(astFactory.newBasicIdentifier("l"), astFactory
+				.newArrayIdentifier(astFactory.newLiteral("2", new LongType()),
+						astFactory.newArrayIdentifier(
+								astFactory.newLiteral("6", new LongType()),
+								astFactory.newBasicIdentifier("a"))));
+
+		AST ast = astFactory.getAST();
+		analyser.analyse(ast);
+
+		System.out.println(log);
+		List<LogEntry> errors = log.getErrors();
+		assertEquals(errors.size(), 1);
+		assertEquals(errors.get(0).getReportType(), ReportType.INVALID_ARRAY_ACCESS);
 	}
 
 	/**
@@ -400,10 +439,11 @@ public class ArrayTests {
 	/**
 	 * <pre>
 	 * # error: invalid array index type
+	 * 
 	 * long [1] a;
 	 * long l;
 	 * 
-	 * l = a[1.0];
+	 * l = a[true];
 	 * </pre>
 	 */
 	@Test
@@ -415,7 +455,7 @@ public class ArrayTests {
 
 		astFactory.addAssignment(astFactory.newBasicIdentifier("l"), astFactory
 				.newArrayIdentifier(
-						astFactory.newLiteral("1.0", new DoubleType()),
+						astFactory.newLiteral("true", new BooleanType()),
 						astFactory.newBasicIdentifier("a")));
 
 		AST ast = astFactory.getAST();
@@ -425,6 +465,36 @@ public class ArrayTests {
 		List<LogEntry> errors = log.getErrors();
 		assertEquals(errors.size(), 1);
 		assertEquals(errors.get(0).getReportType(), ReportType.TYPE_MISMATCH);
+	}
+	
+	/**
+	 * <pre>
+	 * # no errors expected
+	 * 
+	 * long [2] a;
+	 * long l;
+	 * 
+	 * l = a[1.9];
+	 * </pre>
+	 */
+	@Test
+	@Ignore
+	public void testArrayIndexDoubleType() {
+		ASTFactory astFactory = new ASTFactory();
+
+		astFactory.addDeclaration("a", new ArrayType(new LongType(), 2));
+		astFactory.addDeclaration("l", new LongType());
+
+		astFactory.addAssignment(astFactory.newBasicIdentifier("l"), astFactory
+				.newArrayIdentifier(
+						astFactory.newLiteral("1.9", new DoubleType()),
+						astFactory.newBasicIdentifier("a")));
+
+		AST ast = astFactory.getAST();
+		analyser.analyse(ast);
+
+		System.out.println(log);
+		assertFalse(log.hasErrors());
 	}
 
 	/**
@@ -476,6 +546,46 @@ public class ArrayTests {
 						astFactory.newLiteral("-1", new LongType()),
 						astFactory.newBasicIdentifier("a")),
 				astFactory.newLiteral("1", new LongType()));
+
+		AST ast = astFactory.getAST();
+		analyser.analyse(ast);
+
+		System.out.println(log);
+		List<LogEntry> errors = log.getErrors();
+		assertEquals(errors.size(), 1);
+		assertEquals(errors.get(0).getReportType(), ReportType.INVALID_ARRAY_ACCESS);
+	}
+
+	/**
+	 * <pre>
+	 * # error: addition with array
+	 * double d;
+	 * long[1] a1;
+	 * double[1][1] a2;
+	 * 
+	 * d = d - (a2[0] + a1[0]);
+	 * </pre>
+	 */
+	@Test
+	public void testArrayArithmeticTypeError() {
+		ASTFactory astFactory = new ASTFactory();
+
+		astFactory.addDeclaration("d", new DoubleType());
+		astFactory.addDeclaration("a1", new ArrayType(new LongType(), 1));
+		astFactory.addDeclaration("a2", new ArrayType(new ArrayType(
+				new LongType(), 1), 1));
+
+		BinaryExpressionNode add = astFactory.newBinaryExpression(
+				BinaryOperator.ADDITION,
+				astFactory.newArrayIdentifier(
+						astFactory.newLiteral("0", new LongType()),
+						astFactory.newBasicIdentifier("a2")),
+				astFactory.newArrayIdentifier(
+						astFactory.newLiteral("0", new LongType()),
+						astFactory.newBasicIdentifier("a1")));
+		astFactory.addAssignment(astFactory.newBasicIdentifier("d"), astFactory
+				.newBinaryExpression(BinaryOperator.SUBSTRACTION,
+						astFactory.newBasicIdentifier("d"), add));
 
 		AST ast = astFactory.getAST();
 		analyser.analyse(ast);

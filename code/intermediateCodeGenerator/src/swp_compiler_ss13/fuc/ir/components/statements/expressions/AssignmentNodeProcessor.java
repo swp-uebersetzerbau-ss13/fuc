@@ -77,7 +77,6 @@ public class AssignmentNodeProcessor extends NodeProcessor {
 
 		Type typeForCastCheckLeft = leftType;
 		Type typeForCastCheckRight = rightType;
-		boolean castSupported = true;
 
 		if (leftType instanceof ArrayType) {
 			Type baseType = ArrayHelper.getBaseType(leftType, assignment.getLeftValue());

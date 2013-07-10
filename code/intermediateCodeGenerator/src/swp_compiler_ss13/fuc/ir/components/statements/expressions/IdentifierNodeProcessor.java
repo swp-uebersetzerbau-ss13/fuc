@@ -78,9 +78,10 @@ public class IdentifierNodeProcessor extends NodeProcessor {
 
 		Type baseType = ArrayHelper.getBaseType(arrayType, node);
 		boolean isOuterMostDimension = ArrayHelper.isOuterMostDimension(node);
+		boolean isTargetOfAssignment = ArrayHelper.isTargetOfAssignment(node);
+		boolean isNeededAsReference = ArrayHelper.isNeededAsReference(node);
 		if (isOuterMostDimension) {
 			// we are at the outermost dimension of the array
-			boolean isTargetOfAssignment = ArrayHelper.isTargetOfAssignment(node);
 			if (isTargetOfAssignment) {
 				// the value of the array is not used, but a new value
 				// is assigned to this array.
@@ -99,10 +100,21 @@ public class IdentifierNodeProcessor extends NodeProcessor {
 			else {
 				// the value of the array is used somewhere
 				// now we need to use one of the array_get_{TYPE} methods
-				String tmp = this.state.nextTemporaryIdentifier(baseType);
-				this.state.addIntermediateCode(QuadrupleFactory.declare(tmp, baseType));
-				this.state.addIntermediateCode(QuadrupleFactory.arrayGetType(baseType, baseValue, indexValue, tmp));
-				this.state.pushIntermediateResult(baseType, tmp);
+				if (isNeededAsReference) {
+					// reference is needed for structs in arrays in arrays in
+					// structs etc.
+
+					String tmp = this.state.nextTemporaryIdentifier(baseType);
+					this.state.addIntermediateCode(QuadrupleFactory.declareReference(tmp));
+					this.state.addIntermediateCode(QuadrupleFactory.arrayReference(baseValue, indexValue, tmp));
+					this.state.pushIntermediateResult(baseType, tmp);
+				}
+				else {
+					String tmp = this.state.nextTemporaryIdentifier(baseType);
+					this.state.addIntermediateCode(QuadrupleFactory.declare(tmp, baseType));
+					this.state.addIntermediateCode(QuadrupleFactory.arrayGetType(baseType, baseValue, indexValue, tmp));
+					this.state.pushIntermediateResult(baseType, tmp);
+				}
 			}
 		}
 		else {

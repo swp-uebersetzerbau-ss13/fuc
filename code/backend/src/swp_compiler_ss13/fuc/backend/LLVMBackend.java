@@ -141,6 +141,16 @@ public class LLVMBackend implements Backend
 		return tac;
 	}
 
+	/**
+	 * Parse an array declaration in three address code.
+	 *
+	 * @param tacIterator an iterator for the three address code,
+	 *                    must be directly behind the operator which
+	 *                    started the declaration.
+	 * @param size the number of elements in the array
+	 * @return the type of the new array as a <code>LLVMBackendArrayType</code> value
+	 * @exception BackendException if an error occurs
+	 */
 	private LLVMBackendArrayType parseArrayDeclaration(Iterator<Quadruple> tacIterator, int size) throws BackendException {
 		boolean done = false;
 		Type type = null;
@@ -185,6 +195,16 @@ public class LLVMBackend implements Backend
 		return new LLVMBackendArrayType(dimensions, type);
 	}
 
+	/**
+	 * Parse a struct declaration in three address code.
+	 *
+	 * @param tacIterator an iterator for the three address code,
+	 *                    must be directly behind the operator which
+	 *                    started the declaration.
+	 * @param size the number of members in the struct
+	 * @return the type of the new struct as a <code>LLVMBackendStructType</code> value
+	 * @exception BackendException if an error occurs
+	 */
 	private LLVMBackendStructType parseStructDeclaration(Iterator<Quadruple> tacIterator, int size) throws BackendException {
 		int i = 0;
 		List<Member> members = new LinkedList<Member>();
@@ -475,7 +495,7 @@ public class LLVMBackend implements Backend
 		/* Get the generated LLVM IR code and
 		 * append the uncaught handler to the main
 		 * function's code. */
-		StringBuffer code = new StringBuffer(m.getCode());
+		StringBuilder code = new StringBuilder(m.getCode());
 		code.insert(code.length() - 2, this.llvm_uncaught);
 		out.write(code.toString());
 
