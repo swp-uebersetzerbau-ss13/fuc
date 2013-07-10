@@ -26,7 +26,6 @@ public class M3RuntimeTest extends TestBase {
 		testProg(ExampleProgs.fibProg());
 	}
 
-	@Category(IgnoredTest.class)
 	@Test
 	public void testMatrixMultiplicationProg() throws Exception {
 		testProg(ExampleProgs.matrixMultiplicationProg());
