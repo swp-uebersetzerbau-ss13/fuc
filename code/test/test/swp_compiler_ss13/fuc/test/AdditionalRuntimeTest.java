@@ -79,13 +79,11 @@ public class AdditionalRuntimeTest extends TestBase {
 		testProg(ExampleProgs.nestedLoopsProg());
 	}
 
-	@Category(IgnoredTest.class)
 	@Test
 	public void testSimpleRecordProg() throws Exception {
 		testProg(ExampleProgs.simpleRecordProg());
 	}
 
-	@Category(IgnoredTest.class)
 	@Test
 	public void testRecordProg() throws Exception {
 		testProg(ExampleProgs.recordProg());
