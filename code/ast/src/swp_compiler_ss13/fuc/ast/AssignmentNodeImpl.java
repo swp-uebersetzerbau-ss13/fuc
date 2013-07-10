@@ -39,18 +39,6 @@ public class AssignmentNodeImpl extends ASTNodeImpl implements AssignmentNode {
 	}
 
 	@Override
-	public Integer getNumberOfNodes() {
-		Integer nodes = 1;
-		if (this.leftNode != null) {
-			nodes += this.leftNode.getNumberOfNodes();
-		}
-		if (this.rightNode != null) {
-			nodes += this.rightNode.getNumberOfNodes();
-		}
-		return nodes;
-	}
-
-	@Override
 	public List<ASTNode> getChildren() {
 		List<ASTNode> nodes = new LinkedList<>();
 		if (this.leftNode != null) {

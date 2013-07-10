@@ -39,11 +39,6 @@ public class LiteralNodeImpl extends ASTNodeImpl implements LiteralNode {
 	}
 
 	@Override
-	public Integer getNumberOfNodes() {
-		return 1;
-	}
-
-	@Override
 	public Iterator<ASTNode> getDFSLTRNodeIterator() {
 		return new EmptyIterator();
 	}

@@ -33,14 +33,6 @@ public class PrintNodeImpl extends ASTNodeImpl implements PrintNode {
 	}
 
 	@Override
-	public Integer getNumberOfNodes() {
-		if (this.node == null) {
-			return 1;
-		}
-		return 1 + this.node.getNumberOfNodes();
-	}
-
-	@Override
 	public List<ASTNode> getChildren() {
 		List<ASTNode> children = new LinkedList<>();
 		if (this.node != null) {

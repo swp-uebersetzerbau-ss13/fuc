@@ -54,15 +54,6 @@ public class BlockNodeImpl extends ASTNodeImpl implements BlockNode {
 	}
 
 	@Override
-	public Integer getNumberOfNodes() {
-		int nodes = 1 + this.getNumberOfDeclarations();
-		for (StatementNode stn : this.statementNodes) {
-			nodes += stn.getNumberOfNodes();
-		}
-		return nodes;
-	}
-
-	@Override
 	public List<ASTNode> getChildren() {
 		List<ASTNode> children = new LinkedList<>();
 		children.addAll(this.declarationNodes);

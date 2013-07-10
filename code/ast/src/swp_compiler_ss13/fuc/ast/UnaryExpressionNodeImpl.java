@@ -31,15 +31,6 @@ public abstract class UnaryExpressionNodeImpl extends ASTNodeImpl implements Una
 	private UnaryOperator operator;
 
 	@Override
-	public Integer getNumberOfNodes() {
-		Integer nodes = 1;
-		if (this.rightExpression != null) {
-			nodes += this.rightExpression.getNumberOfNodes();
-		}
-		return nodes;
-	}
-
-	@Override
 	public List<ASTNode> getChildren() {
 		List<ASTNode> children = new LinkedList<>();
 		if (this.rightExpression != null) {

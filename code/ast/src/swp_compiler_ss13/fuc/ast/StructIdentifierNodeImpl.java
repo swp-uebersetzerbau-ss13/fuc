@@ -39,14 +39,6 @@ public class StructIdentifierNodeImpl extends ASTNodeImpl implements
 	}
 
 	@Override
-	public Integer getNumberOfNodes() {
-		if (this.identifier == null) {
-			return 1;
-		}
-		return 1 + this.identifier.getNumberOfNodes();
-	}
-
-	@Override
 	public List<ASTNode> getChildren() {
 		List<ASTNode> children = new LinkedList<>();
 		if (this.identifier != null) {

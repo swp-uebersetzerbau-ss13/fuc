@@ -35,18 +35,6 @@ public abstract class BinaryExpressionNodeImpl extends ASTNodeImpl implements Bi
 	private BinaryOperator operator;
 
 	@Override
-	public Integer getNumberOfNodes() {
-		Integer nodes = 1;
-		if (this.leftExpression != null) {
-			nodes += this.leftExpression.getNumberOfNodes();
-		}
-		if (this.rightExpression != null) {
-			nodes += this.rightExpression.getNumberOfNodes();
-		}
-		return nodes;
-	}
-
-	@Override
 	public List<ASTNode> getChildren() {
 		List<ASTNode> children = new LinkedList<>();
 		if (this.leftExpression != null) {
