@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Test Results &mdash; AllTestsSuite</title>
+<title>Test Results &mdash; TestSuite</title>
 <style type="text/css">
           html {
             height: 100%
@@ -572,8 +572,8 @@ jQuery.cookie = function(name, value, options) {
 <body>
 <div id="container">
 <div id="header">
-<div class="time">2.30 s</div>
-<h1>AllTestsSuite: <strong><span class="total">24 total, </span><span class="error">2 error, </span><span class="passed">22 passed</span></strong>
+<div class="time">2.39 s</div>
+<h1>TestSuite: <strong><span class="total">24 total, </span><span class="passed">24 passed</span></strong>
 </h1>
 <div id="treecontrol">
 <ul>
@@ -589,115 +589,110 @@ jQuery.cookie = function(name, value, options) {
 </div>
 <div id="content">
 <ul id="tree">
-<li xmlns="" class="level top failed open">
+<li xmlns="" class="level top open">
 <span><em class="time">
-<div class="time">2.30 s</div>
-</em>AllTestsSuite</span>
+<div class="time">2.39 s</div>
+</em>TestSuite</span>
 <ul>
 <li class="level suite open">
 <span><em class="time">
-<div class="time">948 ms</div>
+<div class="time">988 ms</div>
 </em>M1RuntimeTest</span>
 <ul>
 <li class="level test">
 <span><em class="time">
-<div class="time">364 ms</div>
+<div class="time">387 ms</div>
 </em><em class="status">passed</em>testAddProg</span>
 </li>
 <li class="level test">
 <span><em class="time">
-<div class="time">97 ms</div>
+<div class="time">109 ms</div>
 </em><em class="status">passed</em>testSimpleAddProg</span>
 </li>
 <li class="level test">
 <span><em class="time">
-<div class="time">67 ms</div>
+<div class="time">78 ms</div>
 </em><em class="status">passed</em>testMultipleMinusENotation</span>
 </li>
 <li class="level test">
 <span><em class="time">
-<div class="time">79 ms</div>
+<div class="time">78 ms</div>
 </em><em class="status">passed</em>testDoubleDeclaration</span>
 </li>
 <li class="level test">
 <span><em class="time">
-<div class="time">50 ms</div>
+<div class="time">43 ms</div>
 </em><em class="status">passed</em>testMultiplePlusesInExp</span>
 </li>
 <li class="level test">
 <span><em class="time">
-<div class="time">58 ms</div>
+<div class="time">62 ms</div>
 </em><em class="status">passed</em>testSimpleMulProg</span>
 </li>
 <li class="level test">
 <span><em class="time">
-<div class="time">61 ms</div>
+<div class="time">60 ms</div>
 </em><em class="status">passed</em>testInvalidIds</span>
 </li>
 <li class="level test">
 <span><em class="time">
-<div class="time">85 ms</div>
+<div class="time">86 ms</div>
 </em><em class="status">passed</em>testUndefReturn</span>
 </li>
 <li class="level test">
 <span><em class="time">
-<div class="time">87 ms</div>
+<div class="time">85 ms</div>
 </em><em class="status">passed</em>testParenthesesProg</span>
 </li>
 </ul>
 </li>
 <li class="level suite open">
 <span><em class="time">
-<div class="time">288 ms</div>
+<div class="time">285 ms</div>
 </em>M2RuntimeTest</span>
 <ul>
 <li class="level test">
 <span><em class="time">
-<div class="time">104 ms</div>
+<div class="time">112 ms</div>
 </em><em class="status">passed</em>testPrintProg</span>
 </li>
 <li class="level test">
 <span><em class="time">
-<div class="time">79 ms</div>
+<div class="time">75 ms</div>
 </em><em class="status">passed</em>testAssignmentProg</span>
 </li>
 <li class="level test">
 <span><em class="time">
-<div class="time">105 ms</div>
+<div class="time">98 ms</div>
 </em><em class="status">passed</em>testCondProg</span>
 </li>
 </ul>
 </li>
-<li class="level suite failed open">
+<li class="level suite open">
 <span><em class="time">
-<div class="time">419 ms</div>
+<div class="time">435 ms</div>
 </em>M3RuntimeTest</span>
 <ul>
 <li class="level test">
 <span><em class="time">
-<div class="time">242 ms</div>
+<div class="time">244 ms</div>
 </em><em class="status">passed</em>testMatrixMultiplicationProg</span>
 </li>
 <li class="level test">
 <span><em class="time">
-<div class="time">102 ms</div>
+<div class="time">99 ms</div>
 </em><em class="status">passed</em>testFibProg</span>
 </li>
-<li class="level test failed open">
+<li class="level test">
 <span><em class="time">
-<div class="time">75 ms</div>
-</em><em class="status">error</em>testNewtonProg</span>
-<ul>
-<li class="text">
-<span class="stderr">swp_compiler_ss13.common.backend.BackendException: Use of undeclared variable &quot;#2&quot;<br/>	at swp_compiler_ss13.fuc.backend.Function.getUseIdentifierForVariable(Function.java:210)<br/>	at swp_compiler_ss13.fuc.backend.Function.addPrimitiveConversion(Function.java:585)<br/>	at swp_compiler_ss13.fuc.backend.LLVMBackend.generateTargetCode(LLVMBackend.java:325)<br/>	at swp_compiler_ss13.fuc.test.Compiler.compile(Compiler.java:66)<br/>	at swp_compiler_ss13.fuc.test.TestBase.testProg(TestBase.java:37)<br/>	at swp_compiler_ss13.fuc.test.M3RuntimeTest.testNewtonProg(M3RuntimeTest.java:37)<br/>	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)<br/>	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)<br/>	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)<br/>	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:47)<br/>	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)<br/>	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:44)<br/>	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)<br/>	at org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26)<br/>	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:271)<br/>	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:70)<br/>	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:50)<br/>	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:238)<br/>	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:63)<br/>	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:236)<br/>	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:53)<br/>	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:229)<br/>	at org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26)<br/>	at org.junit.runners.ParentRunner.run(ParentRunner.java:309)<br/>	at org.junit.runners.Suite.runChild(Suite.java:127)<br/>	at org.junit.runners.Suite.runChild(Suite.java:26)<br/>	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:238)<br/>	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:63)<br/>	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:236)<br/>	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:53)<br/>	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:229)<br/>	at org.junit.runners.ParentRunner.run(ParentRunner.java:309)<br/>	at org.junit.runner.JUnitCore.run(JUnitCore.java:160)<br/>	at com.intellij.junit4.JUnit4IdeaTestRunner.startRunnerWithArgs(JUnit4IdeaTestRunner.java:77)<br/>	at com.intellij.rt.execution.junit.JUnitStarter.prepareStreamsAndStart(JUnitStarter.java:195)<br/>	at com.intellij.rt.execution.junit.JUnitStarter.main(JUnitStarter.java:63)<br/>	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)<br/>	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)<br/>	at com.intellij.rt.execution.application.AppMain.main(AppMain.java:120)<br/></span>
+<div class="time">92 ms</div>
+</em><em class="status">passed</em>testNewtonProg</span>
 </li>
 </ul>
 </li>
-</ul>
-</li>
-<li class="level suite failed open">
+<li class="level suite open">
 <span><em class="time">
-<div class="time">648 ms</div>
+<div class="time">681 ms</div>
 </em>AdditionalRuntimeTest</span>
 <ul>
 <li class="level test">
@@ -707,47 +702,42 @@ jQuery.cookie = function(name, value, options) {
 </li>
 <li class="level test">
 <span><em class="time">
-<div class="time">67 ms</div>
+<div class="time">68 ms</div>
 </em><em class="status">passed</em>testArrayProg2</span>
 </li>
 <li class="level test">
 <span><em class="time">
-<div class="time">67 ms</div>
+<div class="time">71 ms</div>
 </em><em class="status">passed</em>testArrayProg3</span>
 </li>
 <li class="level test">
 <span><em class="time">
-<div class="time">58 ms</div>
+<div class="time">69 ms</div>
 </em><em class="status">passed</em>testEmptyProg</span>
 </li>
 <li class="level test">
 <span><em class="time">
-<div class="time">89 ms</div>
+<div class="time">92 ms</div>
 </em><em class="status">passed</em>testRecordProg</span>
 </li>
 <li class="level test">
 <span><em class="time">
-<div class="time">59 ms</div>
+<div class="time">67 ms</div>
 </em><em class="status">passed</em>testSimpleRecordProg</span>
 </li>
 <li class="level test">
 <span><em class="time">
-<div class="time">81 ms</div>
+<div class="time">71 ms</div>
 </em><em class="status">passed</em>testReturnProg</span>
-</li>
-<li class="level test failed open">
-<span><em class="time">
-<div class="time">81 ms</div>
-</em><em class="status">error</em>testCalendarProg</span>
-<ul>
-<li class="text">
-<span class="stderr">swp_compiler_ss13.common.backend.BackendException: Use of undeclared variable &quot;#TRUE&quot;<br/>	at swp_compiler_ss13.fuc.backend.Function.getUseIdentifierForVariable(Function.java:210)<br/>	at swp_compiler_ss13.fuc.backend.Function.addBranch(Function.java:790)<br/>	at swp_compiler_ss13.fuc.backend.LLVMBackend.generateTargetCode(LLVMBackend.java:480)<br/>	at swp_compiler_ss13.fuc.test.Compiler.compile(Compiler.java:66)<br/>	at swp_compiler_ss13.fuc.test.TestBase.testProg(TestBase.java:37)<br/>	at swp_compiler_ss13.fuc.test.AdditionalRuntimeTest.testCalendarProg(AdditionalRuntimeTest.java:94)<br/>	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)<br/>	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)<br/>	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)<br/>	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:47)<br/>	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)<br/>	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:44)<br/>	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)<br/>	at org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26)<br/>	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:271)<br/>	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:70)<br/>	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:50)<br/>	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:238)<br/>	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:63)<br/>	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:236)<br/>	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:53)<br/>	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:229)<br/>	at org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26)<br/>	at org.junit.runners.ParentRunner.run(ParentRunner.java:309)<br/>	at org.junit.runners.Suite.runChild(Suite.java:127)<br/>	at org.junit.runners.Suite.runChild(Suite.java:26)<br/>	at org.junit.runners.ParentRunner$3.run(ParentRunner.java:238)<br/>	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:63)<br/>	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:236)<br/>	at org.junit.runners.ParentRunner.access$000(ParentRunner.java:53)<br/>	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:229)<br/>	at org.junit.runners.ParentRunner.run(ParentRunner.java:309)<br/>	at org.junit.runner.JUnitCore.run(JUnitCore.java:160)<br/>	at com.intellij.junit4.JUnit4IdeaTestRunner.startRunnerWithArgs(JUnit4IdeaTestRunner.java:77)<br/>	at com.intellij.rt.execution.junit.JUnitStarter.prepareStreamsAndStart(JUnitStarter.java:195)<br/>	at com.intellij.rt.execution.junit.JUnitStarter.main(JUnitStarter.java:63)<br/>	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)<br/>	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:57)<br/>	at com.intellij.rt.execution.application.AppMain.main(AppMain.java:120)<br/></span>
-</li>
-</ul>
 </li>
 <li class="level test">
 <span><em class="time">
-<div class="time">80 ms</div>
+<div class="time">99 ms</div>
+</em><em class="status">passed</em>testCalendarProg</span>
+</li>
+<li class="level test">
+<span><em class="time">
+<div class="time">78 ms</div>
 </em><em class="status">passed</em>testNestedLoopsProg</span>
 </li>
 </ul>
@@ -758,7 +748,7 @@ jQuery.cookie = function(name, value, options) {
 </div>
 </div>
 <div id="footer">
-<p>Generated by IntelliJ IDEA on 7/10/13 5:15 PM</p>
+<p>Generated by IntelliJ IDEA on 7/10/13 8:23 PM</p>
 </div>
 </body>
 </html>
