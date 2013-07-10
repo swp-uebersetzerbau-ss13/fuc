@@ -17,70 +17,13 @@ import static swp_compiler_ss13.common.types.Type.*;
 import static swp_compiler_ss13.common.types.Type.Kind.BOOLEAN;
 
 /**
- * This class allows for the generation of an LLVM IR function.
+ * This class corresponds to an LLVM IR function.
  * Each method that begins with "add" generates LLVM IR code
  * and appends it to the functions <code>code</code>.
  *
  */
 public class Function
 {
-	/**
-	 * Maps a variable's name (not its
-	 * identifier, which is %{name}) to the
-	 * number of times it has been used in
-	 * the module already.
-	 * This is necessary because LLVM's IR
-	 * allows only for static single assignment
-	 * (SSA), wich means we have to store the
-	 * variable's actual value as the destination
-	 * of a static pointer and generate a new
-	 * 'use' variable (%{name}.{use_number})
-	 * for every time the variable is read
-	 * from or written to and route the pointer
-	 * access through that use variable.
-	 *
-	 */
-	private Map<String,Integer> variableUseCount;
-
-	/**
-	 * Holds the function's generated
-	 * LLVM IR code.
-	 *
-	 */
-	private StringBuilder code;
-
-	/**
-	 * Get the LLVM IR code generated for
-	 * this functions.
-	 *
-	 * @return the LLVM IR code
-	 */
-	public String getCode() {
-		return this.code.toString() + "}\n";
-	}
-
-	/**
-	 * Maps TAC references by their name to
-	 * their destination (another reference,
-	 * or a variable) and a list in indices
-	 * into this destination.
-	 *
-	 */
-	private Map<String,Map.Entry<String,List<String>>> references;
-
-	/**
-	 * Contains all variables of derived type
-	 * that have been declared in this function.
-	 *
-	 */
-	private Map<String,DerivedType> derivedVariables;
-
-	/**
-	 * The type of this function's return value.
-	 *
-	 */
-	private Type.Kind returnType;
-
 	/**
 	 * This function's name.
 	 *
@@ -95,6 +38,12 @@ public class Function
 	public String getName() {
 		return name;
 	}
+
+	/**
+	 * The type of this function's return value.
+	 *
+	 */
+	private Type.Kind returnType;
 
 	/**
 	 * Get the type function's return value.
@@ -137,9 +86,63 @@ public class Function
 	}
 
 	/**
+	 * Holds the function's generated
+	 * LLVM IR code.
+	 *
+	 */
+	private StringBuilder code;
+
+	/**
+	 * Get the LLVM IR code generated for
+	 * this functions.
+	 *
+	 * @return the LLVM IR code
+	 */
+	public String getCode() {
+		return this.code.toString() + "}\n";
+	}
+
+	/**
+	 * Maps a variable's name (not its
+	 * identifier, which is %{name}) to the
+	 * number of times it has been used in
+	 * the module already.
+	 * This is necessary because LLVM's IR
+	 * allows only for static single assignment
+	 * (SSA), wich means we have to store the
+	 * variable's actual value as the destination
+	 * of a static pointer and generate a new
+	 * 'use' variable (%{name}.{use_number})
+	 * for every time the variable is read
+	 * from or written to and route the pointer
+	 * access through that use variable.
+	 *
+	 */
+	private Map<String,Integer> variableUseCount;
+
+	/**
+	 * Maps TAC references by their name to
+	 * their destination (another reference,
+	 * or a variable) and a list in indices
+	 * into this destination.
+	 *
+	 */
+	private Map<String,Map.Entry<String,List<String>>> references;
+
+	/**
+	 * Contains all variables of derived type
+	 * that have been declared in this function.
+	 *
+	 */
+	private Map<String,DerivedType> derivedVariables;
+
+	/**
 	 * Creates a new <code>Function</code> instance.
 	 *
-	 * to write the LLVM IR
+	 * @param parent the <code>Module</code> in which the function exists
+	 * @param name the function's name
+	 * @param returnType the type of the functions's return value
+	 * @param arguments a <code>List<Map.Entry<String,Type.Kind>></code> of the function's arguments
 	 */
 	public Function(Module parent,
 	                String name,
@@ -252,8 +255,10 @@ public class Function
 	 *  is removed. If given a variable (anything without leading # character),
 	 *  it is being loaded and the temporary register name is returned.
 	 *
-	 *	@param constantOrIdentifier Name of a constant or identifier.
-	 *  @returns name of usable primitive
+	 * @param constantOrIdentifier constant (value) or identifier.
+	 * @param type the type of the first argument
+	 * @return a <code>String</code> that can be used in LLVM IR instructions
+	 * @exception BackendException if an error occurs
 	 */
 	private String cdl(String constantOrIdentifier, Kind type) throws BackendException {
 		if(constantOrIdentifier.charAt(0) == '#')
@@ -273,7 +278,7 @@ public class Function
 		else {
 			/* identifier */
 			String id = getUseIdentifierForVariable(constantOrIdentifier);
-			gen(id + " = load " + Module.getIRType(type) + "* %"+constantOrIdentifier);
+			gen(id + " = load " + Module.getIRType(type) + "* %" + constantOrIdentifier);
 			return id;
 		}
 	}
@@ -314,9 +319,9 @@ public class Function
 	/**
 	 * Declare a variable of derived type.
 	 *
-	 * @param type a <code>DerivedType</code> value
-	 * @param identifier a <code>String</code> value
-	 * @return a <code>String</code> value
+	 * @param type the type of the variable
+	 * @param identifierthe variable's name
+	 * @return (LLVM IR) identifier for the variable
 	 * @exception BackendException if an error occurs
 	 */
 	public String addDerivedDeclare(DerivedType type, String identifier) throws BackendException {
@@ -384,6 +389,17 @@ public class Function
 		}
 	}
 
+	/**
+	 * Gets a reference to one of the elements/members of
+	 * a derived type and store the reference in the backend.
+	 * Does not generate any LLVM IR code.
+	 *
+	 * @param derivedType the type of the variable or reference being indexed into
+	 * @param derived a variable or reference to index into
+	 * @param index the index, which internal type depends on <code>derivedType</code>
+	 * @param dst the name of the new reference
+	 * @exception BackendException if an error occurs
+	 */
 	public void addReferenceDerivedGet(Type.Kind derivedType, String derived, String index, String dst) throws BackendException {
 		String src = derived;
 		List<String> indices = new LinkedList<String>();
@@ -423,6 +439,19 @@ public class Function
 		references.put(dst,new AbstractMap.SimpleEntry<String,List<String>>(src, indices));
 	}
 
+	/**
+	 * Gets or sets a primitive value contained inside a
+	 * derived value.
+	 *
+	 * @param derivedTypeKind the <code>Type.Kind</code> of the derived value
+	 * @param derived the name for either a variable or a reference being the derived value
+	 * @param index the index, which internal type depends on <code>derivedTypeKind</code>
+	 * @param primitiveType the <code>Type.Kind</code> of the primitive value
+	 * @param primitive if setting, a constant (value) or a variable name to read;
+	 *                  if getting, the variable where the value is to written
+	 * @param set true if setting; false if getting
+	 * @exception BackendException if an error occurs
+	 */
 	public void addPrimitiveDerivedSetOrGet(Type.Kind derivedTypeKind,
 	                                        String derived,
 	                                        String index,
