@@ -28,10 +28,10 @@ public class BranchHelper {
 	public static Quadruple optimizedBranch(String conditionValue, String trueLabel, String falseLabel)
 			throws IntermediateCodeGeneratorException {
 		if (conditionValue.startsWith("#")) {
-			if (conditionValue.toUpperCase() == "#TRUE") {
+			if (conditionValue.toUpperCase().equals("#TRUE")) {
 				return QuadrupleFactory.jump(trueLabel);
 			}
-			else if (conditionValue.toUpperCase() == "#FALSE") {
+			else if (conditionValue.toUpperCase().equals("#FALSE")) {
 				return QuadrupleFactory.jump(falseLabel);
 			}
 			else {
@@ -43,5 +43,4 @@ public class BranchHelper {
 			return QuadrupleFactory.branch(conditionValue, trueLabel, falseLabel);
 		}
 	}
-
 }
