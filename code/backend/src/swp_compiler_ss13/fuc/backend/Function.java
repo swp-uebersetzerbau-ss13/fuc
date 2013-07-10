@@ -499,7 +499,18 @@ public class Function
 			indexList.append(", ");
 			indexList.append("i32" /* For some (undocumented) reason, LLVM won't accept i64 here for structs. Module.getIRType(Type.Kind.LONG) */);
 			indexList.append(" ");
-			indexList.append(cdl(i, Type.Kind.LONG));
+			String idx = cdl(i, Type.Kind.LONG);
+
+			if(i.charAt(0) == '#') {
+				indexList.append(idx);
+			}
+			else {
+				/* Because of the undocumented behaviour mentioned above we also have
+				 * to convert indices in long variables down to 32 bit integers */
+				String indexUseIdentifier = getUseIdentifierForVariable(i);
+				gen(indexUseIdentifier + " = trunc " + Module.getIRType(Type.Kind.LONG) + " " + idx + " to i32");
+				indexList.append(indexUseIdentifier);
+			}
 		}
 
 		String primitiveIRType = Module.getIRType(primitiveType);
