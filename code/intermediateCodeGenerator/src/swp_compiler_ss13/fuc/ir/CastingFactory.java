@@ -83,6 +83,10 @@ public class CastingFactory {
 	 * @return The Quadruple for the cast
 	 */
 	public static Quadruple longToDouble(String leftValue, String castedLeft) {
+		if (leftValue.startsWith("#")) {
+			leftValue = leftValue + ".0";
+			return new QuadrupleImpl(Operator.ASSIGN_DOUBLE, leftValue, castedLeft);
+		}
 		return new QuadrupleImpl(Operator.LONG_TO_DOUBLE, leftValue, castedLeft);
 	}
 
@@ -96,6 +100,13 @@ public class CastingFactory {
 	 * @return The Quadruple for the cast
 	 */
 	public static Quadruple doubleToLong(String leftValue, String castedLeft) {
+		if (leftValue.startsWith("#")) {
+			int decimalpoint = leftValue.lastIndexOf('.');
+			if (decimalpoint >= 0) {
+				leftValue = leftValue.substring(0, decimalpoint);
+			}
+			return new QuadrupleImpl(Operator.ASSIGN_LONG, leftValue, castedLeft);
+		}
 		return new QuadrupleImpl(Operator.DOUBLE_TO_LONG, leftValue, castedLeft);
 	}
 
@@ -141,10 +152,22 @@ public class CastingFactory {
 			throws IntermediateCodeGeneratorException {
 		switch (type.getKind()) {
 		case BOOLEAN:
+			if (value.equals("#TRUE")) {
+				return new QuadrupleImpl(Operator.ASSIGN_STRING, "#\"true\"", tmp);
+			}
+			if (value.equals("#FALSE")) {
+				return new QuadrupleImpl(Operator.ASSIGN_STRING, "#\"false\"", tmp);
+			}
 			return new QuadrupleImpl(Operator.BOOLEAN_TO_STRING, value, tmp);
 		case DOUBLE:
+			if (value.startsWith("#")) {
+				return new QuadrupleImpl(Operator.ASSIGN_STRING, "#\"" + value.substring(1) + "\"", tmp);
+			}
 			return new QuadrupleImpl(Operator.DOUBLE_TO_STRING, value, tmp);
 		case LONG:
+			if (value.startsWith("#")) {
+				return new QuadrupleImpl(Operator.ASSIGN_STRING, "#\"" + value.substring(1) + "\"", tmp);
+			}
 			return new QuadrupleImpl(Operator.LONG_TO_STRING, value, tmp);
 		default:
 			break;
