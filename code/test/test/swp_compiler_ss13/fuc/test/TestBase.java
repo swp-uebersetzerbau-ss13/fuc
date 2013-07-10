@@ -31,36 +31,6 @@ public abstract class TestBase {
 	protected static Logger logger = Logger.getLogger(TestBase.class);
 
 
-//	/*
-//	 * Check if lli is correctly installed.
-//	 */
-//	protected static boolean checkForLLIInstallation() {
-//
-//		Level level = Logger.getRootLogger().getLevel();
-//
-//		Logger.getRootLogger().setLevel(Level.FATAL);
-//		boolean hasLLI;
-//		try {
-//			PA.invokeMethod(LLVMExecutor.class, "tryToStartLLI()");
-//			hasLLI = true;
-//		} catch (Exception e) {
-//			hasLLI = false;
-//		}
-//
-//		Logger.getRootLogger().setLevel(Level.INFO);
-//
-//		if (!hasLLI) {
-//			logger.warn("Runtime tests are ignored, because of missing LLVM lli installation.");
-//			String infoMsg = "If you have LLVM installed you might need to check your $PATH: "
-//					+ "Intellij IDEA: Run -> Edit Configurations -> Environment variables; "
-//					+ "Eclipse: Run Configurations -> Environment; " + "Shell: Check $PATH";
-//			logger.info(infoMsg);
-//		}
-//		Logger.getRootLogger().setLevel(level);
-//
-//		return hasLLI;
-//	}
-
 	protected void testProg(Object[] prog) throws BackendException, IntermediateCodeGeneratorException,
 			IOException, InterruptedException {
 
@@ -69,26 +39,26 @@ public abstract class TestBase {
 		ReportLogImpl log = compiler.getErrlog();
 		ReportType[] expectedReportTypes = (ReportType[]) prog[3];
 
-		/* test for expected report log entries from parser if program does not compile */
+		/* test for expected report log errors from parser if program does not compile */
 		if (compiler.errlogAfterParser.hasErrors()){
 			String msg = "Error in Parser: Expected ReportLog entries: " + Arrays.deepToString(expectedReportTypes)
-					+ ". Actual: " + log.getEntries().toString();
+					+ ". Actual: " + log.getErrors().toString();
 			assertArrayEquals(msg, (Object[]) prog[3], compiler.getErrlogAfterParser().getEntries().toArray());
 			return;
 		}
 
-		/* test for expected report log entries from analyzer if program does not compile */
+		/* test for expected report log errors from analyzer if program does not compile */
 		if (compiler.errlogAfterAnalyzer.hasErrors()){
 			String msg = "Error in Analyzer: Expected ReportLog entries: " + Arrays.deepToString(expectedReportTypes)
-					+ ". Actual: " + log.getEntries().toString();
+					+ ". Actual: " + log.getErrors().toString();
 			assertArrayEquals(msg, expectedReportTypes, compiler.getErrlogAfterAnalyzer().getEntries().toArray());
 			return;
 		}
 
-		/* test for expected report log entries (i.e. warnings), if program compiles */
+		/* test for expected report log errors if program compiles */
 		String msg = "Unexpected warnings after successfull compilation.\n Expected ReportLog entries: " + Arrays.deepToString(expectedReportTypes)
-				+ ". Actual: " + log.getEntries().toString();
-		assertArrayEquals(msg, expectedReportTypes, log.getEntries().toArray());
+				+ ". Actual: " + log.getErrors().toString();
+		assertArrayEquals(msg, expectedReportTypes, log.getErrors().toArray());
 
 		LLVMExecutor.ExecutionResult executionResult = LLVMExecutor.runIR(compilationResult);
 		/* If the exit code is 1, lli may have crashed because it got invalid LLVM IR code
