@@ -322,6 +322,7 @@ public class SourceCodeView implements View {
 		public void insertString(FilterBypass fb, int offset, String str, AttributeSet attr)
 				throws BadLocationException {
 			// Create new text
+			LOG.debug("insert code");
 			StringBuilder b = new StringBuilder(getSourceCode());
 			b.insert(offset, str);
 			statusChanged(fb, b.toString(), offset + str.length());
@@ -336,6 +337,7 @@ public class SourceCodeView implements View {
 		@Override
 		public void remove(FilterBypass fb, int offset, int length) throws BadLocationException {
 			// Create new text
+			LOG.debug("remove code");
 			StringBuilder b = new StringBuilder(getSourceCode());
 			b.delete(offset, offset + length);
 
@@ -346,6 +348,7 @@ public class SourceCodeView implements View {
 		public void replace(FilterBypass fb, int offset, int length, String str, AttributeSet attrs)
 				throws BadLocationException {
 			// Create new text
+			LOG.debug("replace code");
 			StringBuilder b = new StringBuilder(getSourceCode());
 			b.replace(offset, offset + length, str);
 
@@ -414,7 +417,14 @@ public class SourceCodeView implements View {
 										}
 										boolean oldValue = setSourceCode;
 										setSourceCode = true;
-										ide.setSourceCode(sourceCode.toString());
+										try {
+											Document document = sourceCodeField.getDocument();
+											document.remove(0, document.getLength());
+											document.insertString(0, sourceCode.toString(),
+													defaultAttributes);
+										} catch (BadLocationException e) {
+											LOG.error("error while inserting new source code", e);
+										}
 										setSourceCode = oldValue;
 										file = newFile;
 									} catch (FileNotFoundException e1) {
