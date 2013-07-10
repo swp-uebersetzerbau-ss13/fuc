@@ -14,7 +14,6 @@ import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.retur
 import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.sem;
 import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.times;
 
-import org.apache.log4j.BasicConfigurator;
 import org.junit.Test;
 
 import swp_compiler_ss13.common.ast.AST;
@@ -26,10 +25,6 @@ import swp_compiler_ss13.fuc.ast.ASTFactory;
 import swp_compiler_ss13.fuc.parser.grammar.Terminal;
 
 public class M1ParathesesTest {
-	static {
-		BasicConfigurator.configure();
-	}
-
 	@Test
 	public void testParatheses() {
 		// Simulate input

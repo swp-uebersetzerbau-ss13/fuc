@@ -34,7 +34,7 @@ public class LRParser {
 	// --------------------------------------------------------------------------
 	public static final Long STRING_LENGTH = 255L;
 
-	private final Logger log = Logger.getLogger(LRParser.class);
+	private final Logger log = Logger.getLogger(getClass());
 	
 	/** Used to store Tokens that are (re-)inserted into the token stream */
 	private final LinkedList<TokenEx> errorTokenStream = new LinkedList<>();
@@ -200,7 +200,7 @@ public class LRParser {
 //				Error error = (Error) action;
 				List<Token> list = new ArrayList<Token>();
 				list.add(token);
-				reportLog.reportError(ReportType.UNDEFINED,list,
+				reportLog.reportError(ReportType.WORD_NOT_IN_GRAMMAR,list,
 						"An error occurred: Expected one of " + possibleTerminals.toString() + ", but got: '" + token.getTerminal() + "'");
 						throw new ParserException("Got Error State from Actiontable");
 			}

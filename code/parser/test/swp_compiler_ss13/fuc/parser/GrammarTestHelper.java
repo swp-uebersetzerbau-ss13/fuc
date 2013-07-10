@@ -37,6 +37,10 @@ import swp_compiler_ss13.fuc.parser.parser.tables.LRParsingTable;
 import swp_compiler_ss13.fuc.parser.util.It;
 
 public class GrammarTestHelper {
+	static {
+		// Logging configuration goes here
+//		Logger.getRootLogger().setLevel(Level.ERROR);
+	}
 	// ------------------------------------------------------------------------
 	// --- Token factory methods ----------------------------------------------
 	// ------------------------------------------------------------------------
@@ -186,17 +190,28 @@ public class GrammarTestHelper {
 		// Generate parsing table
 		AGrammarSpec completeSpec = new ProjectGrammar.Complete();
 		Grammar grammar = completeSpec.getGrammar();
+//		long startGen = System.nanoTime();
 		ALRGenerator<LR1Item, LR1State> generator = null;
 		try {
 			generator = new LR1Generator(grammar);
 		} catch (GeneratorException err) {
 			throw new RuntimeException("An unexpected parser generator exception occured: ", err);
 		}
+//		long endGen = System.nanoTime();
+//		long durationGen = endGen - startGen;
+//		double durationSndsGen = durationGen / 10e9;
+//		System.err.println("Generator took: " + durationSndsGen + " [s]");
+		
 		LRParsingTable table = generator.getParsingTable();
 
 		// Run LR-parser with table
 		LRParser lrParser = new LRParser();
 		LexerWrapper lexWrapper = new LexerWrapper(lexer, grammar);
-		return lrParser.parse(lexWrapper, reportLog, table, completeSpec.getGrammarImpl());
+//		long startParser = System.nanoTime();
+		AST result = lrParser.parse(lexWrapper, reportLog, table, completeSpec.getGrammarImpl());
+//		long endParser = System.nanoTime();
+//		double durationSndsParser = (endParser - startParser) / 10e9;
+//		System.err.println("Parser took: " + durationSndsParser + " [s]");
+		return result;
 	}
 }

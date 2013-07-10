@@ -34,7 +34,7 @@ public class RecordTest {
 		// Construct expected AST
 		ASTFactory factory = new ASTFactory();
 		factory.addDeclaration("x",
-				new StructType("record",
+				new StructType(
 						new Member("i", new LongType()),
 						new Member("j", new LongType())));
 		

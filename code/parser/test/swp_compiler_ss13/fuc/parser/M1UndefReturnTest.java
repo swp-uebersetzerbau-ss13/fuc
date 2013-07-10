@@ -2,7 +2,6 @@ package swp_compiler_ss13.fuc.parser;
 
 import static org.junit.Assert.assertNotNull;
 
-import org.apache.log4j.BasicConfigurator;
 import org.junit.Test;
 
 import swp_compiler_ss13.common.ast.AST;
@@ -10,10 +9,6 @@ import swp_compiler_ss13.common.types.primitive.LongType;
 import swp_compiler_ss13.fuc.ast.ASTFactory;
 
 public class M1UndefReturnTest {
-	static {
-		BasicConfigurator.configure();
-	}
-
 //	@Test
 //	public void testErrorUndefReturn() {
 //		// Simulate input

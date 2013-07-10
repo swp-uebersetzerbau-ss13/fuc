@@ -2,7 +2,6 @@ package swp_compiler_ss13.fuc.parser;
 
 import static org.junit.Assert.assertNotNull;
 
-import org.apache.log4j.BasicConfigurator;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -12,14 +11,9 @@ import swp_compiler_ss13.common.types.derived.ArrayType;
 import swp_compiler_ss13.common.types.primitive.LongType;
 import swp_compiler_ss13.common.types.primitive.StringType;
 import swp_compiler_ss13.fuc.ast.ASTFactory;
-import swp_compiler_ss13.fuc.parser.errorHandling.ParserASTXMLVisualization;
 import swp_compiler_ss13.fuc.parser.parser.LRParser;
 
 public class M3MatrixMultiplicationTest {
-	static {
-		BasicConfigurator.configure();
-	}
-	
 	@Test
 	@Ignore
 	public void testMatrixMultiplication() {
@@ -316,12 +310,8 @@ public class M3MatrixMultiplicationTest {
 			factory.goToParent();	// -> root body
 		
 		factory.addReturn(null);
-		
-		ParserASTXMLVisualization vis = new ParserASTXMLVisualization();
- 		System.out.println(vis.visualizeAST(actual));
  		
  		AST expected = factory.getAST();
- 		System.out.println(vis.visualizeAST(expected));
 		ASTComparator.compareAST(expected, actual);
 	}
 	

@@ -16,7 +16,6 @@ import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.rb;
 import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.returnn;
 import static swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete.sem;
 
-import org.apache.log4j.BasicConfigurator;
 import org.junit.Test;
 
 import swp_compiler_ss13.common.ast.AST;
@@ -34,10 +33,6 @@ import swp_compiler_ss13.fuc.parser.grammar.Terminal;
 import swp_compiler_ss13.fuc.parser.parser.LRParser;
 
 public class M2CondTest {
-	static {
-		BasicConfigurator.configure();
-	}
-
 	@Test
 	public void testCond() {
 		// Simulate input
