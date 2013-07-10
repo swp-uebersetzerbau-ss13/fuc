@@ -869,13 +869,13 @@ public class ProjectGrammarImpl implements IGrammarImpl {
 	private void insertDecl(BlockNode block, DeclarationNode decl) throws ReduceException {
 		//Here is no coverage to set.
 		SymbolTable symbolTable = block.getSymbolTable();
-		if (symbolTable.isDeclaredInCurrentScope(decl.getIdentifier())) {
-			reportLog.reportError(ReportType.DOUBLE_DECLARATION, decl.coverage(), "The variable '" + 
-			decl.getIdentifier() + "' of type '" + decl.getType() + "' has been declared twice in this scope!");
-			throw new ParserException("double id exception");
-		}
+//		if (symbolTable.isDeclaredInCurrentScope(decl.getIdentifier())) {
+//			reportLog.reportError(ReportType.DOUBLE_DECLARATION, decl.coverage(), "The variable '" + 
+//			decl.getIdentifier() + "' of type '" + decl.getType() + "' has been declared twice in this scope!");
+//			throw new ParserException("double id exception");
+//		}
 		block.addDeclaration(decl);
-		block.getSymbolTable().insert(decl.getIdentifier(), decl.getType());
+		symbolTable.insert(decl.getIdentifier(), decl.getType());
 		decl.setParentNode(block);
 		
 	}

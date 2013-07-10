@@ -30,6 +30,7 @@ import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
 import swp_compiler_ss13.common.ast.nodes.ternary.BranchNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ArithmeticUnaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ArrayIdentifierNode;
+import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
 import swp_compiler_ss13.common.ast.nodes.unary.LogicUnaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.unary.PrintNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ReturnNode;
@@ -43,6 +44,7 @@ import swp_compiler_ss13.common.types.derived.ArrayType;
 import swp_compiler_ss13.common.types.derived.DerivedType;
 import swp_compiler_ss13.common.types.derived.Member;
 import swp_compiler_ss13.common.types.derived.StructType;
+import swp_compiler_ss13.fuc.symbolTable.SymbolTableImpl;
 
 public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalysis.SemanticAnalyser {
 
@@ -78,6 +80,9 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 	 * added.
 	 */
 	private Map<SymbolTable, Set<String>> initializedIdentifiers;
+	
+	/** Used for the detection of double-declaration within a single block. */
+	private SymbolTable currentTempTable = null;
 
 	public SemanticAnalyser() {
 		initializedIdentifiers = new HashMap<>();
@@ -355,6 +360,7 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 				handleNode((ArrayIdentifierNode) node, table);
 				break;
 			case DeclarationNode:
+			   handleNode((DeclarationNode) node, table);
 				break;
 			case LogicUnaryExpressionNode:
 				handleNode((LogicUnaryExpressionNode) node, table);
@@ -696,6 +702,12 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 	 */
 	protected void handleNode(BlockNode node, SymbolTable table) {
 		SymbolTable blockScope = node.getSymbolTable();
+		
+		// Create new empty SymbolTable for double declaration
+		currentTempTable = new SymbolTableImpl();
+		for (DeclarationNode decl : node.getDeclarationList()) {
+		   traverse(decl, blockScope);
+		}
 
 		for (StatementNode child : node.getStatementList()) {
 			if (isDeadPath(node)) {
@@ -818,6 +830,15 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 			errorLog.reportError(ReportType.TYPE_MISMATCH, node.coverage(), "Array access to non array type.");
 			markTypeError(node);
 		}
+	}
+	
+	protected void handleNode(DeclarationNode node, SymbolTable table) {
+      // Check for double declaration
+	   if (!currentTempTable.insert(node.getIdentifier(), node.getType())) {
+	      Type type = currentTempTable.lookupTypeInCurrentScope(node.getIdentifier());
+	      errorLog.reportError(ReportType.DOUBLE_DECLARATION, node.coverage(),
+	            "There already is an identifier '" + node.getIdentifier() + "' (with type '" + type + "') in this scope!");
+	   }
 	}
 
 	protected void handleNode(StructIdentifierNode node, SymbolTable table) {

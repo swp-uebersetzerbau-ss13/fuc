@@ -152,7 +152,7 @@ public class AssignmentTests {
 		declaration_l1.setIdentifier("l1");
 		declaration_l1.setType(new LongType());
 		DeclarationNode declaration_l2 = new DeclarationNodeImpl();
-		declaration_l2.setIdentifier("l1");
+		declaration_l2.setIdentifier("l2");
 		declaration_l2.setType(new LongType());
 
 		// l1 = l2 = 1;

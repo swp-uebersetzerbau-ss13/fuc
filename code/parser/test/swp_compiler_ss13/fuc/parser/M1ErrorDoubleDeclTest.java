@@ -1,20 +1,13 @@
 package swp_compiler_ss13.fuc.parser;
 
-import static org.junit.Assert.fail;
-import static swp_compiler_ss13.fuc.parser.GrammarTestHelper.tokens;
-
-import java.util.LinkedList;
-import java.util.List;
+import static org.junit.Assert.assertFalse;
 
 import org.junit.Test;
 
-import swp_compiler_ss13.common.lexer.TokenType;
-import swp_compiler_ss13.common.report.ReportType;
-import swp_compiler_ss13.fuc.errorLog.LogEntry;
-import swp_compiler_ss13.fuc.errorLog.LogEntry.Type;
+import swp_compiler_ss13.common.ast.AST;
+import swp_compiler_ss13.common.types.primitive.LongType;
+import swp_compiler_ss13.fuc.ast.ASTFactory;
 import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
-import swp_compiler_ss13.fuc.lexer.token.TokenImpl;
-import swp_compiler_ss13.fuc.parser.parser.ParserException;
 
 public class M1ErrorDoubleDeclTest {
 //	@Test
@@ -49,26 +42,15 @@ public class M1ErrorDoubleDeclTest {
 		String input = "# error: two decls for same id i\n"
 				+ "long i;\n"
 				+ "long i;\n";
-		
 		ReportLogImpl reportLog = new ReportLogImpl();
-
-		// Check output
-		try {
-			GrammarTestHelper.parseToAst(input, reportLog);
-			fail("Expected double id exception!");
-		} catch (ParserException err) {
-			// Check for correct error
-			GrammarTestHelper.compareReportLogEntries(createExpectedEntries(), reportLog.getEntries());
-		}
-	}
-	
-	private static List<LogEntry> createExpectedEntries() {
-		// Expected entries
-		List<LogEntry> expected = new LinkedList<>();
-		expected.add(new LogEntry(Type.ERROR, ReportType.DOUBLE_DECLARATION,
-				tokens(new TokenImpl("long", TokenType.LONG_SYMBOL, 3, 1),
-						new TokenImpl("i", TokenType.ID, 3, 6),
-						new TokenImpl(";", TokenType.SEMICOLON, 3, 7)), ""));
-		return expected;
+		AST ast = GrammarTestHelper.parseToAst(input, reportLog);
+		assertFalse(reportLog.hasErrors() || reportLog.hasWarnings());
+		
+		ASTFactory factory = new ASTFactory();
+		factory.addDeclaration("i", new LongType());
+		factory.addDeclaration("i", new LongType());
+		
+		AST expected = factory.getAST();
+		ASTComparator.compareAST(expected, ast);
 	}
 }
