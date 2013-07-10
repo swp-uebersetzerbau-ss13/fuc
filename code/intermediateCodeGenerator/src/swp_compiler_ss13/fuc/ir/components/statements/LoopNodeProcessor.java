@@ -4,8 +4,10 @@ import swp_compiler_ss13.common.ast.nodes.ExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.binary.DoWhileNode;
 import swp_compiler_ss13.common.ast.nodes.binary.WhileNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.BreakNode;
+import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 import swp_compiler_ss13.common.types.Type.Kind;
+import swp_compiler_ss13.fuc.ir.BranchHelper;
 import swp_compiler_ss13.fuc.ir.GeneratorExecutor;
 import swp_compiler_ss13.fuc.ir.GeneratorState;
 import swp_compiler_ss13.fuc.ir.QuadrupleFactory;
@@ -80,8 +82,8 @@ public class LoopNodeProcessor extends NodeProcessor {
 
 		// create the ir code
 
-		this.state.addIntermediateCode(QuadrupleFactory.branch(
-				conditionResult.getValue(), beforeLoop, endOfLoop));
+		Quadruple branchQuadruple = BranchHelper.optimizedBranch(conditionResult.getValue(), beforeLoop, endOfLoop);
+		this.state.addIntermediateCode(branchQuadruple);
 		this.state.addIntermediateCode(QuadrupleFactory.label(endOfLoop));
 
 		this.state.popBreakLabel();
@@ -123,8 +125,8 @@ public class LoopNodeProcessor extends NodeProcessor {
 		}
 
 		// create the ir code
-		this.state.addIntermediateCode(QuadrupleFactory.branch(
-				conditionResult.getValue(), loopBody, endOfLoop));
+		Quadruple branchQuadruple = BranchHelper.optimizedBranch(conditionResult.getValue(), loopBody, endOfLoop);
+		this.state.addIntermediateCode(branchQuadruple);
 		this.state.addIntermediateCode(QuadrupleFactory.label(loopBody));
 
 		this.executor.processWithoutResult(node.getLoopBody());
