@@ -2,12 +2,9 @@ package swp_compiler_ss13.fuc.test;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import swp_compiler_ss13.common.backend.BackendException;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 import swp_compiler_ss13.common.test.ExampleProgs;
@@ -58,7 +55,6 @@ public class AdditionalRuntimeTest extends TestBase {
 	}
 
 	@Test
-	/* Compilation with Semantic Analyser fails */
 	public void testArrayProg1() throws Exception {
 		testProg(ExampleProgs.arrayProg1());
 	}
@@ -88,7 +84,6 @@ public class AdditionalRuntimeTest extends TestBase {
 		testProg(ExampleProgs.recordProg());
 	}
 
-	@Category(IgnoredTest.class)
 	@Test
 	public void testCalendarProg() throws Exception {
 		testProg(ExampleProgs.calendarProg());

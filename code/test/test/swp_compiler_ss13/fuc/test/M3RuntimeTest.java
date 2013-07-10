@@ -3,7 +3,6 @@ package swp_compiler_ss13.fuc.test;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.junit.*;
-import org.junit.experimental.categories.Category;
 import swp_compiler_ss13.common.test.ExampleProgs;
 
 public class M3RuntimeTest extends TestBase {
@@ -31,7 +30,6 @@ public class M3RuntimeTest extends TestBase {
 		testProg(ExampleProgs.matrixMultiplicationProg());
 	}
 
-	@Category(IgnoredTest.class)
 	@Test
 	public void testNewtonProg() throws Exception {
 		testProg(ExampleProgs.newtonProg());
