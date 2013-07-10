@@ -73,7 +73,6 @@ public class AdditionalRuntimeTest extends TestBase {
 		testProg(ExampleProgs.arrayProg3());
 	}
 
-	@Category(IgnoredTest.class)	
 	@Test
 	public void testNestedLoopsProg() throws Exception {
 		testProg(ExampleProgs.nestedLoopsProg());
