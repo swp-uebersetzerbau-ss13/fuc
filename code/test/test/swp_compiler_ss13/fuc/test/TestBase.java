@@ -91,7 +91,14 @@ public abstract class TestBase {
 		assertArrayEquals(msg, expectedReportTypes, log.getEntries().toArray());
 
 		LLVMExecutor.ExecutionResult executionResult = LLVMExecutor.runIR(compilationResult);
-		assertEquals(prog[1], executionResult.exitCode);
+		/* If the exit code is 1, lli may have crashed because it got invalid LLVM IR code
+		 * from the backend. In this case print lli's output for verbosity. */
+		if(executionResult.exitCode == 1) {
+			assertEquals(executionResult.output, prog[1], executionResult.exitCode);
+		}
+		else {
+			assertEquals(prog[1], executionResult.exitCode);
+		}
 		assertEquals(prog[2], executionResult.output);
 	}
 
