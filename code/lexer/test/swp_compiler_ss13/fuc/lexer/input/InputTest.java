@@ -21,7 +21,7 @@ import swp_compiler_ss13.fuc.lexer.util.Constants;
 /**
  * Testclass for setting the input of the lexer correct
  * 
- * @author "Thomas Benndorf", "Tay Phuong Ho"
+ * @author "Thomas Benndorf"
  * 
  */
 public class InputTest {
@@ -60,7 +60,6 @@ public class InputTest {
 	@Test
 	public void getTokenTest() {
 		Token token = this.lexer.getNextToken();
-		assertTrue(token != null);
 		assertEquals("test1", token.getValue());
 		assertTrue(token.getLine() == 1);
 		assertTrue(token.getColumn() == 2);

@@ -3,15 +3,9 @@
  */
 package swp_compiler_ss13.fuc.lexer.milestone.m2;
 
-import swp_compiler_ss13.common.lexer.BoolToken;
-import swp_compiler_ss13.common.lexer.NumToken;
-import swp_compiler_ss13.common.lexer.RealToken;
 import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.fuc.lexer.LexerImpl;
-import swp_compiler_ss13.fuc.lexer.token.BoolTokenImpl;
-import swp_compiler_ss13.fuc.lexer.token.NumTokenImpl;
-import swp_compiler_ss13.fuc.lexer.token.RealTokenImpl;
 import swp_compiler_ss13.fuc.lexer.token.TokenImpl;
 import static org.junit.Assert.*;
 
@@ -24,7 +18,7 @@ import org.junit.Test;
 
 /**
  * @author Tay, Ho Phuong
- * TODO: check lines and columns
+ * @author "Thomas Benndorf" (refactoring)
  */
 public class Multiline_String_PrintProgTest {
 	private String prog =
@@ -95,39 +89,8 @@ public class Multiline_String_PrintProgTest {
 			comparisonToken = list.remove(0);
 			token = this.lexer.getNextToken();
 
-			assertTrue(token != null);
 			assertEquals(comparisonToken.getValue(), token.getValue());		
 			assertEquals(comparisonToken.getTokenType(), token.getTokenType());
-			
-			if (token.getTokenType().equals(TokenType.NUM)) {
-
-				NumToken comparisonNumToken = new NumTokenImpl(
-						comparisonToken.getValue(), null, null, null);
-				NumToken numToken = new NumTokenImpl(token.getValue(), null,
-						null, null);
-				assertEquals(comparisonNumToken.getLongValue(),
-						numToken.getLongValue());
-
-			} else if (token.getTokenType().equals(TokenType.REAL)) {
-
-				RealToken comparisonRealToken = new RealTokenImpl(
-						comparisonToken.getValue(), null, null, null);
-				RealToken realToken = new RealTokenImpl(token.getValue(), null,
-						null, null);
-				assertEquals(comparisonRealToken.getDoubleValue(),
-						realToken.getDoubleValue());
-
-			} else if (token.getTokenType().equals(TokenType.TRUE) 
-					|| token.getTokenType().equals(TokenType.FALSE)) {
-
-				BoolToken comparisonBoolToken = new BoolTokenImpl(
-						comparisonToken.getValue(), null, null, null);
-				BoolToken boolToken = new BoolTokenImpl(token.getValue(), null,
-						null, null);
-				assertEquals(comparisonBoolToken.getBooleanValue(),
-						boolToken.getBooleanValue());
-
-			}
 
 		} while (token.getTokenType() != TokenType.EOF);
 	}
