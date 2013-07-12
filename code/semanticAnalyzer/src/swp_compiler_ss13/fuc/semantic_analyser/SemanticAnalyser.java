@@ -1,5 +1,6 @@
 package swp_compiler_ss13.fuc.semantic_analyser;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -835,9 +836,26 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 	protected void handleNode(DeclarationNode node, SymbolTable table) {
       // Check for double declaration
 	   if (!currentTempTable.insert(node.getIdentifier(), node.getType())) {
-	      Type type = currentTempTable.lookupTypeInCurrentScope(node.getIdentifier());
+	      Type oldType = currentTempTable.lookupTypeInCurrentScope(node.getIdentifier());
 	      errorLog.reportError(ReportType.DOUBLE_DECLARATION, node.coverage(),
-	            "There already is an identifier '" + node.getIdentifier() + "' (with type '" + type + "') in this scope!");
+	            "There already is an identifier '" + node.getIdentifier() + "' (with type '" + oldType + "') in this scope!");
+	   }
+	   
+	   // Special handling for record-declarations:
+	   if (node.getType().getKind() == Type.Kind.STRUCT) {
+	      StructType type = (StructType) node.getType();
+	      List <Member> members = Arrays.asList(type.members());
+	      for (int i = 0; i < members.size(); i++) {
+	         Member member1 = members.get(i);
+   	      for (int j = 0; j < i; j++) {
+	            Member member2 = members.get(j);
+	            if (member1.getName().equals(member2.getName())) {
+	               Type oldType = member1.getType();
+	               errorLog.reportError(ReportType.DOUBLE_DECLARATION, node.coverage(),
+	                     "There already is an identifier '" + node.getIdentifier() + "' (with type '" + oldType + "') in this scope!");
+	            }
+   	      }
+   	   }
 	   }
 	}
 
