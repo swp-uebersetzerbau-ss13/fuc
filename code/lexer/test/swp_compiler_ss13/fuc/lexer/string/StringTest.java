@@ -15,7 +15,7 @@ import swp_compiler_ss13.fuc.lexer.LexerImpl;
 import swp_compiler_ss13.fuc.lexer.util.Constants;
 
 /**
- * Testclass for tokenizing of strings TODO: implement
+ * Testclass for tokenizing of strings
  * 
  * @author "Thomas Benndorf"
  * 
@@ -26,26 +26,6 @@ public class StringTest {
 	@Before
 	public void setUp() throws Exception {
 		this.lexer = new LexerImpl();
-	}
-
-	/**
-	 * Test for matching of strings
-	 */
-	@Test
-	public void matchingStringsTest() {
-		/*
-		 * FIXME: PA.invokeMethode() throws IllegalArgumentException
-		 * 
-		 * PA.setValue(this.lexer, "actualTokenValue", Constants.STRING1);
-		 * PA.invokeMethod(this.lexer, "matchToken()");
-		 * assertEquals(TokenType.STRING, PA.getValue(this.lexer,
-		 * "actualTokenType"));
-		 * 
-		 * PA.setValue(this.lexer, "actualTokenValue", Constants.STRING2);
-		 * PA.invokeMethod(this.lexer, "matchToken()");
-		 * assertEquals(TokenType.STRING, PA.getValue(this.lexer,
-		 * "actualTokenType"));
-		 */
 	}
 
 	/**

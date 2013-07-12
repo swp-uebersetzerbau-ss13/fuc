@@ -63,9 +63,9 @@ public class AST_Component {
 			JComponent label = nodeComponent.getComponent();
 			label.setToolTipText(node.getNodeType().name());
 			wrapper.add(label, AST_LayoutManager.BUTTON, BUTTON_LAYER);
-			if (!node.getChildren().isEmpty()) {
+//			if (!node.getChildren().isEmpty()) {
 				label.addMouseListener(new ClickListener());
-			}
+//			}
 		}
 		wrapper.add(arrows, AST_LayoutManager.ARROWS, ARROW_LAYER);
 		arrows.deletePoints();
@@ -113,7 +113,11 @@ public class AST_Component {
 		@Override
 		public void mouseClicked(MouseEvent e) {
 			LOG.debug("button clicked");
-			controller.viewStateChanged();
+			if(e.isMetaDown()){
+				controller.toggleNodeSize();
+			}else{
+				controller.viewStateChanged();
+			}
 		}
 	}
 }
