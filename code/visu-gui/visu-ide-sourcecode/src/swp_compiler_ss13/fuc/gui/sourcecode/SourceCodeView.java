@@ -2,6 +2,7 @@ package swp_compiler_ss13.fuc.gui.sourcecode;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
@@ -21,15 +22,23 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 
+import javax.swing.ButtonGroup;
 import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JEditorPane;
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
+import javax.swing.JSlider;
 import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.AttributeSet;
@@ -157,7 +166,51 @@ public class SourceCodeView implements View {
 	@Override
 	public void initComponents(IDE ide) {
 		AbstractDocument document = (AbstractDocument) sourceCodeField.getDocument();
-		document.setDocumentFilter(new SourceCodeListener(ide));
+		final SourceCodeListener filter = new SourceCodeListener(ide);
+		document.setDocumentFilter(filter);
+		JMenu menu1 = new JMenu("Highlight");
+		JMenuItem highlighSettings = new JMenuItem("highlight settings");
+		final JDialog dialog = new JDialog((Frame) null, "Highlight Settings", false);
+		dialog.setLayout(new BorderLayout());
+		dialog.add(
+				new JLabel(
+						"change the amount of characters read, before running the parser and the semantic analyser in the backgound (0 means only lexer is running):"),
+				BorderLayout.NORTH);
+		final JSlider slider = new JSlider(0, 100, 20);
+		slider.setMajorTickSpacing(10);
+		slider.setMinorTickSpacing(1);
+		slider.setPaintTicks(true);
+		slider.setPaintLabels(true);
+		slider.setToolTipText(Integer.toString(20));
+		dialog.add(slider, BorderLayout.CENTER);
+		dialog.pack();
+		slider.addChangeListener(new ChangeListener() {
+
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				filter.MIN_CHANGE_TO_HIGHLIGHT = slider.getValue();
+				slider.setToolTipText(Integer.toString(slider.getValue()));
+			}
+		});
+		ActionListener l = new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				dialog.setVisible(true);
+			}
+		};
+		highlighSettings.addActionListener(l);
+		// quickHighlight.addActionListener(l);
+		// mediumHighlight.addActionListener(l);
+		// noHighlight.addActionListener(l);
+		// highlightGroup.add(quickHighlight);
+		// highlightGroup.add(mediumHighlight);
+		// highlightGroup.add(noHighlight);
+		menu1.add(highlighSettings);
+		// menu1.add(quickHighlight);
+		// menu1.add(mediumHighlight);
+		// menu1.add(noHighlight);
+		ide.addMenu(menu1, Position.SOURCE_CODE, true);
 		FileListener listener = new FileListener(ide);
 		JMenu menu = new JMenu("File");
 		JMenuItem loadFile = new JMenuItem("Open File...");
@@ -191,13 +244,15 @@ public class SourceCodeView implements View {
 
 	private class SourceCodeListener extends DocumentFilter {
 		private final IDE ide;
+		private int MIN_CHANGE_TO_HIGHLIGHT = 20;
+		private int change = 0;
 
 		public SourceCodeListener(IDE ide) {
 			this.ide = ide;
 		}
 
-		private void statusChanged(FilterBypass fb, String text, int caretPosition)
-				throws BadLocationException {
+		private void statusChanged(FilterBypass fb, String text, int caretPosition,
+				boolean runParserAndSemantic) throws BadLocationException {
 			LOG.trace("Received change");
 			// Clear document and rewrite it with defaultAttributes
 			fb.remove(0, fb.getDocument().getLength());
@@ -223,13 +278,15 @@ public class SourceCodeView implements View {
 							errorLines.add(token.getLine());
 						}
 					}
-
-					AST ast = ide.runParser(tokens, false);
-					if (ast != null) {
-						handleReportlog(fb, lineOffsets, errorLines);
-						ast = ide.runSemanticAnalysis(ast, false);
+					if (runParserAndSemantic) {
+						change = 0;
+						AST ast = ide.runParser(tokens, false);
 						if (ast != null) {
 							handleReportlog(fb, lineOffsets, errorLines);
+							ast = ide.runSemanticAnalysis(ast, false);
+							if (ast != null) {
+								handleReportlog(fb, lineOffsets, errorLines);
+							}
 						}
 					}
 
@@ -245,12 +302,16 @@ public class SourceCodeView implements View {
 			}
 
 			// Update source-code
+			updateSourceCode(text);
+			sourceCodeField.setCaretPosition(caretPosition);
+		}
+
+		private void updateSourceCode(String text) {
 			boolean oldValue = setSourceCode;
 			setSourceCode = false;
 			LOG.info("send sourcecode");
 			ide.setSourceCode(text);
 			setSourceCode = oldValue;
-			sourceCodeField.setCaretPosition(caretPosition);
 		}
 
 		private void handleReportlog(FilterBypass fb, int[] lineOffsets, MyList errorLines)
@@ -318,20 +379,22 @@ public class SourceCodeView implements View {
 			}
 		}
 
+		private String getSourceCode() {
+			String code = ide.getSourceCode();
+			return code == null ? "" : code;
+		}
+
 		@Override
 		public void insertString(FilterBypass fb, int offset, String str, AttributeSet attr)
 				throws BadLocationException {
 			// Create new text
-			LOG.debug("insert code");
 			StringBuilder b = new StringBuilder(getSourceCode());
 			b.insert(offset, str);
-			statusChanged(fb, b.toString(), offset + str.length());
+			LOG.debug("insert code");
+			change += str.length();
+			statusChanged(fb, b.toString(), offset + str.length(), MIN_CHANGE_TO_HIGHLIGHT > 0
+					&& change >= MIN_CHANGE_TO_HIGHLIGHT);
 
-		}
-
-		private String getSourceCode() {
-			String code = ide.getSourceCode();
-			return code == null ? "" : code;
 		}
 
 		@Override
@@ -340,8 +403,10 @@ public class SourceCodeView implements View {
 			LOG.debug("remove code");
 			StringBuilder b = new StringBuilder(getSourceCode());
 			b.delete(offset, offset + length);
+			change += length;
+			statusChanged(fb, b.toString(), offset, MIN_CHANGE_TO_HIGHLIGHT > 0
+					&& change >= MIN_CHANGE_TO_HIGHLIGHT);
 
-			statusChanged(fb, b.toString(), offset);
 		}
 
 		@Override
@@ -351,8 +416,9 @@ public class SourceCodeView implements View {
 			LOG.debug("replace code");
 			StringBuilder b = new StringBuilder(getSourceCode());
 			b.replace(offset, offset + length, str);
-
-			statusChanged(fb, b.toString(), offset + str.length());
+			change += str.length();
+			statusChanged(fb, b.toString(), offset + str.length(), MIN_CHANGE_TO_HIGHLIGHT > 0
+					&& change >= MIN_CHANGE_TO_HIGHLIGHT);
 		}
 	}
 

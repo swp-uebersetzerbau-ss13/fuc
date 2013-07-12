@@ -3,6 +3,7 @@ package swp_compiler_ss13.fuc.gui.ide;
 import java.awt.Component;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
@@ -36,6 +37,7 @@ import swp_compiler_ss13.fuc.gui.ide.data.FucIdeButton;
 import swp_compiler_ss13.fuc.gui.ide.data.FucIdeMenu;
 import swp_compiler_ss13.fuc.gui.ide.data.FucIdeStatusLabel;
 import swp_compiler_ss13.fuc.gui.ide.data.FucIdeTab;
+import swp_compiler_ss13.fuc.gui.ide.java.JavaExecuter;
 import swp_compiler_ss13.fuc.gui.ide.mvc.Controller;
 import swp_compiler_ss13.fuc.gui.ide.mvc.Position;
 
@@ -75,7 +77,8 @@ public class FucIdeController {
 
 	private void redirectSystemStreams() {
 		final StringWriter consoleWriter = new StringWriter();
-		this.appender = new WriterAppender(new PatternLayout("%d{ISO8601} %p - %m%n"), consoleWriter);
+		this.appender = new WriterAppender(new PatternLayout("%d{ISO8601} %p - %m%n"),
+				consoleWriter);
 		this.appender.setName("GUI_APPENDER");
 		this.appender.setThreshold(org.apache.log4j.Level.INFO);
 		Logger.getRootLogger().addAppender(this.appender);
@@ -179,7 +182,8 @@ public class FucIdeController {
 			notify = notify || c.getModel().setTAC(null);
 			notify = notify || c.getModel().setTargetCode(null);
 			if (notify) {
-				logger.info("notifying the controller " + c.getClass().getName() + " about model changes");
+				logger.info("notifying the controller " + c.getClass().getName()
+						+ " about model changes");
 				c.notifyModelChanged();
 			}
 			this.model.addTab(c);
@@ -303,7 +307,6 @@ public class FucIdeController {
 		for (FucIdeMenu menu : menus) {
 			if (menu.isAlwaysVisible() || menu.getPosition() == position) {
 				this.view.addMenu(menu);
-				break;
 			}
 		}
 
@@ -359,8 +362,8 @@ public class FucIdeController {
 
 	public void onExecPressed() {
 		if (this.model.getExecutable() == null) {
-			new FucIdeCriticalError(this.view, "There is nothing to execute. Please press 'compile' before 'execute'!",
-					true);
+			new FucIdeCriticalError(this.view,
+					"There is nothing to execute. Please press 'compile' before 'execute'!", true);
 		}
 
 		String output = this.runProgram(this.model.getExecutable(), false);
@@ -483,7 +486,8 @@ public class FucIdeController {
 				AST checkedAST = this.runSemanticAnalysis(ast, silent, reportlog);
 				this.notifyASTChanged(ast);
 				if (checkedAST != null && !this.reportLogContainsErrors(reportlog)) {
-					List<Quadruple> tac = this.runIntermediateCodeGenerator(checkedAST, silent, reportlog);
+					List<Quadruple> tac = this.runIntermediateCodeGenerator(checkedAST, silent,
+							reportlog);
 					this.notifyTACChanged(tac);
 					if (tac != null && !this.reportLogContainsErrors(reportlog)) {
 						Map<String, InputStream> target = this.runBackend(tac, silent, reportlog);
@@ -614,7 +618,8 @@ public class FucIdeController {
 		return null;
 	}
 
-	public Map<String, InputStream> runBackend(List<Quadruple> tac, boolean silent, ReportLogImpl log) {
+	public Map<String, InputStream> runBackend(List<Quadruple> tac, boolean silent,
+			ReportLogImpl log) {
 		Backend backend = this.model.getActiveBackend();
 		try {
 			Map<String, InputStream> target = backend.generateTargetCode("main", tac);
@@ -643,29 +648,39 @@ public class FucIdeController {
 	public String runProgram(Map<String, InputStream> program, boolean silent) {
 		try {
 			StringBuilder output = new StringBuilder();
+			File javaFile = null;
+			ExecutionResult r = null;
+			String filename = null;
 			for (Entry<String, InputStream> file : program.entrySet()) {
-				String filename = file.getKey();
+				filename = file.getKey();
 				InputStream filecontent = file.getValue();
 				InputStream[] copy = this.cloneInputStream(filecontent);
 				InputStream copy1 = copy[0];
 				InputStream copy2 = copy[1];
 				program.put(filename, copy1);
-
 				if (filename.endsWith(".ll")) {
-					ExecutionResult r = LLVMExecutor.runIR(copy2);
-					output.append("Executing ").append(filename).append(":\n\n");
-					output.append(r.output);
-					output.append("\nExit Code: ");
-					output.append(r.exitCode);
-					output.append("\n\n\n");
-				}
 
-				if (filename.endsWith(".class")) {
-					throw new UnsupportedOperationException(
-							"Execution of Code is currently only supported for LLVM. Please use LLVM Backend!");
+					r = LLVMExecutor.runIR(copy2);
+				} else if (filename.endsWith(".class")) {
+					if (javaFile == null) {
+						javaFile = JavaExecuter.cloneInputStream(filename, copy2);
+					} else {
+						JavaExecuter.cloneInputStream(filename, copy2);
+					}
 				}
 			}
-
+			if (javaFile != null) {
+				filename = javaFile.getName();
+				JavaExecuter ex = new JavaExecuter(javaFile);
+				r = new ExecutionResult(ex.getProcessOutput(), ex.getReturnValue(), null);
+			}
+			if (r != null) {
+				output.append("Executing ").append(filename).append(":\n\n");
+				output.append(r.output);
+				output.append("\nExit Code: ");
+				output.append(r.exitCode);
+				output.append("\n\n\n");
+			}
 			return output.toString();
 		} catch (Throwable th) {
 			if (silent) {
@@ -676,8 +691,7 @@ public class FucIdeController {
 						this.view,
 						"It seems you are missing the program 'lli'. 'lli' is required to execute LLVM Code.\nPlease install 'lli' or check your path if it is already installed!",
 						true);
-			}
-			else {
+			} else {
 				new FucIdeCriticalError(this.view, th, true);
 			}
 			return null;
