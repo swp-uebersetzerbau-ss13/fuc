@@ -7,6 +7,7 @@ import org.junit.Assume;
 import swp_compiler_ss13.common.backend.BackendException;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 import swp_compiler_ss13.common.report.ReportType;
+import swp_compiler_ss13.common.test.Program;
 import swp_compiler_ss13.fuc.backend.LLVMExecutor;
 
 import java.io.IOException;
@@ -31,19 +32,19 @@ public abstract class TestBase {
 	protected static Logger logger = Logger.getLogger(TestBase.class);
 
 
-	protected void testProg(Object[] prog) throws BackendException, IntermediateCodeGeneratorException,
+	protected void testProg(Program prog) throws BackendException, IntermediateCodeGeneratorException,
 			IOException, InterruptedException {
 
-		InputStream compilationResult = compiler.compile((String) prog[0]);
+		InputStream compilationResult = compiler.compile(prog.programCode);
 
 		ReportLogImpl log = compiler.getErrlog();
-		ReportType[] expectedReportTypes = (ReportType[]) prog[3];
+		ReportType[] expectedReportTypes = prog.expecteReportTypes;
 
 		/* test for expected report log errors from parser if program does not compile */
 		if (compiler.errlogAfterParser.hasErrors()){
 			String msg = "Error in Parser: Expected ReportLog entries: " + Arrays.deepToString(expectedReportTypes)
 					+ ". Actual: " + log.getErrors().toString();
-			assertArrayEquals(msg, (Object[]) prog[3], compiler.getErrlogAfterParser().getEntries().toArray());
+			assertArrayEquals(msg, prog.expecteReportTypes, compiler.getErrlogAfterParser().getEntries().toArray());
 			return;
 		}
 
@@ -64,12 +65,12 @@ public abstract class TestBase {
 		/* If the exit code is 1, lli may have crashed because it got invalid LLVM IR code
 		 * from the backend. In this case print lli's output for verbosity. */
 		if(executionResult.exitCode == 1) {
-			assertEquals(executionResult.output, prog[1], executionResult.exitCode);
+			assertEquals(executionResult.output, prog.expectedExitcode, (Integer) executionResult.exitCode);
 		}
 		else {
-			assertEquals(prog[1], executionResult.exitCode);
+			assertEquals(prog.expectedExitcode, (Integer) executionResult.exitCode);
 		}
-		assertEquals(prog[2], executionResult.output);
+		assertEquals(prog.expectedOutput, executionResult.output);
 	}
 
 	protected static void assumeLLVMInstallation(){
