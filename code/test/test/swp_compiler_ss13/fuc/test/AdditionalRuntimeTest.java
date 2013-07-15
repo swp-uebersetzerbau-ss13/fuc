@@ -88,5 +88,9 @@ public class AdditionalRuntimeTest extends TestBase {
 	public void testCalendarProg() throws Exception {
 		testProg(ExampleProgs.calendarProg());
 	}
-	
+
+	@Test
+	public void testRecordDoubleDeclarationProg() throws Exception {
+		testProg(ExampleProgs.recordDoubleDProg());
+	}
 }
