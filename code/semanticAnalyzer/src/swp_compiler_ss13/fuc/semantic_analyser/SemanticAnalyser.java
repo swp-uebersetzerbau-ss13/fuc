@@ -44,7 +44,6 @@ import swp_compiler_ss13.common.types.derived.ArrayType;
 import swp_compiler_ss13.common.types.derived.DerivedType;
 import swp_compiler_ss13.common.types.derived.Member;
 import swp_compiler_ss13.common.types.derived.StructType;
-import swp_compiler_ss13.fuc.symbolTable.SymbolTableImpl;
 
 public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalysis.SemanticAnalyser {
 
@@ -75,14 +74,12 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 	private static final String STATIC_VALUE = "value";
 	private static final String TYPE_DECLARATION = "type declaration";
 	private ReportLog errorLog;
+	
 	/**
 	 * Contains all initialized identifiers. As soon it has assigned it will be
 	 * added.
 	 */
 	private Map<SymbolTable, Set<String>> initializedIdentifiers;
-	
-	/** Used for the detection of double-declaration within a single block. */
-	private SymbolTable currentTempTable = null;
 
 	public SemanticAnalyser() {
 		initializedIdentifiers = new HashMap<>();
@@ -360,7 +357,6 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 				handleNode((ArrayIdentifierNode) node, table);
 				break;
 			case DeclarationNode:
-			   handleNode((DeclarationNode) node, table);
 				break;
 			case LogicUnaryExpressionNode:
 				handleNode((LogicUnaryExpressionNode) node, table);
@@ -524,16 +520,16 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 		if (node.getStatementNodeOnFalse() != null) {
 			Map<SymbolTable, Set<String>> beforeFalse = copy(initializedIdentifiers);
 			initializedIdentifiers = beforeTrue;
-			
+
 			setAttribute(node.getStatementNodeOnTrue(), Attribute.CODE_STATE,
 				getAttribute(node, Attribute.CODE_STATE));
 			markPathAsAlive(node);
-			
+
 			traverse(node.getStatementNodeOnFalse(), table);
 
 			setAttribute(node.getStatementNodeOnFalse(), Attribute.CODE_STATE,
 				getAttribute(node, Attribute.CODE_STATE));
-			
+
 			/*
 			 * Remove all initializations that do not occur in both branches.
 			 */
@@ -700,14 +696,43 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 	/*
 	 * Block
 	 */
+	protected void checkDeclarations(BlockNode node) {
+		Set<String> scope = new HashSet<>();
+		
+		for (DeclarationNode declaration : node.getDeclarationList()) {
+			String name = declaration.getIdentifier();
+
+			if (scope.contains(name)) {
+				errorLog.reportError(ReportType.DOUBLE_DECLARATION, declaration.coverage(),
+					"A variable named “" + name +"” was already declared in this scope.");
+			}
+
+			scope.add(name);
+
+			/*
+			 * Check struct fields
+			 */
+			if (declaration.getType() instanceof StructType) {
+				Set<String> structFields = new HashSet<>();
+				StructType struct = (StructType)declaration.getType();
+				
+				for (Member field : struct.members()) {
+					String fieldName = field.getName();
+					
+					if (structFields.contains(fieldName)) {
+						errorLog.reportError(ReportType.DOUBLE_DECLARATION, declaration.coverage(),
+							"A field in “" + name + "” named “" + fieldName  +"” was already declared.");
+					}
+					
+					structFields.add(fieldName);
+				}
+			}
+		}
+	}
+
 	protected void handleNode(BlockNode node, SymbolTable table) {
 		SymbolTable blockScope = node.getSymbolTable();
-		
-		// Create new empty SymbolTable for double declaration
-		currentTempTable = new SymbolTableImpl();
-		for (DeclarationNode decl : node.getDeclarationList()) {
-		   traverse(decl, blockScope);
-		}
+		checkDeclarations(node);
 
 		for (StatementNode child : node.getStatementList()) {
 			if (isDeadPath(node)) {
@@ -830,15 +855,6 @@ public class SemanticAnalyser implements swp_compiler_ss13.common.semanticAnalys
 			errorLog.reportError(ReportType.TYPE_MISMATCH, node.coverage(), "Array access to non array type.");
 			markTypeError(node);
 		}
-	}
-	
-	protected void handleNode(DeclarationNode node, SymbolTable table) {
-      // Check for double declaration
-	   if (!currentTempTable.insert(node.getIdentifier(), node.getType())) {
-	      Type type = currentTempTable.lookupTypeInCurrentScope(node.getIdentifier());
-	      errorLog.reportError(ReportType.DOUBLE_DECLARATION, node.coverage(),
-	            "There already is an identifier '" + node.getIdentifier() + "' (with type '" + type + "') in this scope!");
-	   }
 	}
 
 	protected void handleNode(StructIdentifierNode node, SymbolTable table) {
