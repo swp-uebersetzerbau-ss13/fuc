@@ -21,6 +21,8 @@ import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ReturnNode;
 import swp_compiler_ss13.common.parser.SymbolTable;
 import swp_compiler_ss13.common.report.ReportType;
+import swp_compiler_ss13.common.types.derived.Member;
+import swp_compiler_ss13.common.types.derived.StructType;
 import swp_compiler_ss13.common.types.primitive.BooleanType;
 import swp_compiler_ss13.common.types.primitive.DoubleType;
 import swp_compiler_ss13.common.types.primitive.LongType;
@@ -498,7 +500,7 @@ public class OtherTests {
 				.newBinaryExpression(BinaryOperator.ADDITION,
 						astFactory.newBasicIdentifier("b"),
 						astFactory.newBasicIdentifier("s")));
-		
+
 		astFactory.addReturn(astFactory.newBasicIdentifier("s"));
 
 		AST ast = astFactory.getAST();
@@ -507,4 +509,115 @@ public class OtherTests {
 		System.out.println(log);
 		assertFalse(log.hasErrors());
 	}
+
+	/**
+	 * <pre>
+	 * # error: double declaration
+	 * 
+	 * long l;
+	 * long l;
+	 * </pre>
+	 */
+	@Test
+	public void testDoubleDeclarationError() {
+		ASTFactory astFactory = new ASTFactory();
+
+		astFactory.addDeclaration("l", new LongType());
+		astFactory.addDeclaration("l", new LongType());
+
+		AST ast = astFactory.getAST();
+		analyser.analyse(ast);
+
+		System.out.println(log);
+		List<LogEntry> errors = log.getErrors();
+		assertEquals(errors.size(), 1);
+		assertEquals(errors.get(0).getReportType(),
+				ReportType.DOUBLE_DECLARATION);
+	}
+
+	/**
+	 * <pre>
+	 * # error: double declaration
+	 * 
+	 * long l;
+	 * bool l;
+	 * </pre>
+	 */
+	@Test
+	public void testDoubleDeclarationDifferentTypesError() {
+		ASTFactory astFactory = new ASTFactory();
+
+		astFactory.addDeclaration("l", new LongType());
+		astFactory.addDeclaration("l", new BooleanType());
+
+		AST ast = astFactory.getAST();
+		analyser.analyse(ast);
+
+		System.out.println(log);
+		List<LogEntry> errors = log.getErrors();
+		assertEquals(errors.size(), 1);
+		assertEquals(errors.get(0).getReportType(),
+				ReportType.DOUBLE_DECLARATION);
+	}
+
+	/**
+	 * <pre>
+	 * # error: double declaration
+	 * 
+	 * record{long l; long l;} s;
+	 * </pre>
+	 */
+	@Test
+	public void testDoubleDeclarationInStructError() {
+		ASTFactory astFactory = new ASTFactory();
+
+		astFactory.addDeclaration("s", new StructType(new Member("l",
+				new LongType()), new Member("l", new LongType())));
+
+		AST ast = astFactory.getAST();
+		analyser.analyse(ast);
+
+		System.out.println(log);
+		List<LogEntry> errors = log.getErrors();
+		assertEquals(errors.size(), 1);
+		assertEquals(errors.get(0).getReportType(),
+				ReportType.DOUBLE_DECLARATION);
+	}
+
+	/**
+	 * <pre>
+	 * # no errors expected
+	 * 
+	 * record{long l; record{long l;} s;} s;
+	 * long l;
+	 * {long l;}
+	 * while (true){
+	 *     long l;
+	 * }
+	 * </pre>
+	 */
+	@Test
+	public void testNotConflictingDeclarations() {
+		ASTFactory astFactory = new ASTFactory();
+
+		astFactory.addDeclaration("s", new StructType(new Member("l",
+				new LongType()), new Member("s", new StructType(new Member("l",
+				new LongType())))));
+		astFactory.addDeclaration("l", new LongType());
+		astFactory.addBlock();
+		astFactory.addDeclaration("l", new LongType());
+		astFactory.goToParent();
+		astFactory.addWhile(astFactory.newLiteral("true", new BooleanType()));
+		astFactory.addBlock();
+		astFactory.addDeclaration("l", new LongType());
+		astFactory.goToParent();
+		astFactory.goToParent();
+
+		AST ast = astFactory.getAST();
+		analyser.analyse(ast);
+
+		System.out.println(log);
+		assertFalse(log.hasErrors());
+	}
+
 }
