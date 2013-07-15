@@ -34,7 +34,10 @@ public abstract class AGrammarSpec {
 			List<Terminal> terminals = getAllMembers(Terminal.class);
 			List<NonTerminal> nonTerminals = getAllMembers(NonTerminal.class);
 			List<Production> productions = getAllMembers(Production.class);
-			this.grammar = new Grammar(terminals, nonTerminals, productions);
+			List<OpAssociativities> opAssociativitiesList = getAllMembers(OpAssociativities.class);
+			OpAssociativities associativities = opAssociativitiesList.size() == 0 ?
+					new OpAssociativities() : opAssociativitiesList.get(0);
+			this.grammar = new Grammar(terminals, nonTerminals, productions, associativities);
 		} catch (IllegalArgumentException err) {
 			err.printStackTrace();
 		} catch (IllegalAccessException err) {

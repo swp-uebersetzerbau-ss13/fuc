@@ -1,5 +1,7 @@
 package swp_compiler_ss13.fuc.parser.grammar;
 
+import static swp_compiler_ss13.fuc.parser.grammar.OpAssociativities.EAssociativityType.RIGHT;
+
 import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.fuc.parser.parser.IGrammarImpl;
 import swp_compiler_ss13.fuc.parser.parser.ProjectGrammarImpl;
@@ -190,6 +192,8 @@ public class ProjectGrammar {
 				falsee);
 		public static final Production factor7 = new Production(51, factor,
 				stringg);
+		
+		public static final OpAssociativities associativities = new OpAssociativities().set(elsee, RIGHT);
 		
 		@Override
 		public IGrammarImpl getGrammarImpl() {

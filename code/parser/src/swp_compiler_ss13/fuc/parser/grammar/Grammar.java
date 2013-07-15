@@ -9,7 +9,7 @@ import java.util.List;
 
 /**
  * This class represents a context free grammar consisting of
- * {@link Terminal}s, {@link Production}s and {@link NonTerminal}s.
+ * {@link Terminal}s, {@link Production}s, {@link NonTerminal}s and {@link OpAssociativities}.
  * 
  * @author Gero
  */
@@ -17,12 +17,14 @@ public class Grammar {
    private final List<Terminal> terminals;
    private final List<NonTerminal> nonTerminals;
    private final List<Production> productions;
+   private final OpAssociativities associativities;
    
    
-   public Grammar(List<Terminal> terminals, List<NonTerminal> nonTerminals, List<Production> productions) {
+   public Grammar(List<Terminal> terminals, List<NonTerminal> nonTerminals, List<Production> productions, OpAssociativities associativities) {
       this.terminals = terminals;
       this.nonTerminals = nonTerminals;
       this.productions = productions;
+      this.associativities = associativities;
    }
    
    
@@ -54,7 +56,7 @@ public class Grammar {
          productions.addAll(this.productions);
          
          // Create and return grammar
-         return new Grammar(terminals, nonTerminals, productions);
+         return new Grammar(terminals, nonTerminals, productions, associativities);
       }
    }
    
@@ -77,4 +79,8 @@ public class Grammar {
    public List<Production> getProductions() {
       return productions;
    }
+   
+   public OpAssociativities getAssociativities() {
+	return associativities;
+}
 }

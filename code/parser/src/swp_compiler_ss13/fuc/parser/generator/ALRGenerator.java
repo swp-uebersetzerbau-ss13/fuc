@@ -7,7 +7,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
-import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.fuc.parser.generator.automaton.Dfa;
 import swp_compiler_ss13.fuc.parser.generator.automaton.DfaEdge;
 import swp_compiler_ss13.fuc.parser.generator.items.Item;
@@ -16,6 +15,7 @@ import swp_compiler_ss13.fuc.parser.generator.states.AState;
 import swp_compiler_ss13.fuc.parser.generator.states.LR0State;
 import swp_compiler_ss13.fuc.parser.grammar.Grammar;
 import swp_compiler_ss13.fuc.parser.grammar.NonTerminal;
+import swp_compiler_ss13.fuc.parser.grammar.OpAssociativities;
 import swp_compiler_ss13.fuc.parser.grammar.Symbol;
 import swp_compiler_ss13.fuc.parser.grammar.Terminal;
 import swp_compiler_ss13.fuc.parser.parser.states.LRParserState;
@@ -152,12 +152,11 @@ public abstract class ALRGenerator<I extends Item, S extends ALRState<I>> {
 		} else {
 			// Try to resolve conflict...
 			if (action.getType() == SHIFT) {
-				// Shift-Reduce-Conflict. Try to resolve by precedence for
-				// production or terminal..
+				// Shift-Reduce-Conflict. Try to resolve by associativity...
 				Shift shift = (Shift) action;
-				if (curTerminal.getTokenTypes().next() == TokenType.ELSE) {
-					// Fake precedences for Dangling Else: Prefer SHIFT! :-P
-					// TODO Introduce Associativity/Precedences...
+				OpAssociativities associativities = grammarInfo.getGrammar().getAssociativities();
+				if (associativities.isRightAssociative(curTerminal)) {
+					// curTerminal is RIGHT-associative: Nothing to do here, preserve REDUCE!
 				} else {
 					throw new ShiftReduceConflict(shift, reduce, curTerminal);
 				}
