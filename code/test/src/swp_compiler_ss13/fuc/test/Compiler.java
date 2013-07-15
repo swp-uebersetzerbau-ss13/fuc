@@ -11,11 +11,14 @@ import swp_compiler_ss13.fuc.parser.ParserImpl;
 import swp_compiler_ss13.fuc.semantic_analyser.SemanticAnalyser;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Compiler
+ */
 public class Compiler {
 	private LexerImpl lexer;
 	private ParserImpl parser;
@@ -26,6 +29,9 @@ public class Compiler {
 	protected ReportLogImpl errlogAfterParser;
 	protected ReportLogImpl errlogAfterAnalyzer;
 
+	/**
+	 * Initializes a compiler
+	 */
 	public Compiler() {
 		this.lexer = new LexerImpl();
 		this.parser = new ParserImpl();
@@ -34,16 +40,17 @@ public class Compiler {
 		this.backend = new LLVMBackend();
 	}
 
-	public Compiler(LexerImpl lexer, ParserImpl parser, SemanticAnalyser analyser, IntermediateCodeGeneratorImpl irgen, LLVMBackend backend) {
-		this.lexer = lexer;
-		this.parser = parser;
-		this.analyser = analyser;
-		this.irgen = irgen;
-		this.backend = backend;
-	}
-
+	/**
+	 * Compiles a programme.
+	 *
+	 * @param prog the programme to compile
+	 * @return the compilation results (target language code)
+	 * @throws java.io.UnsupportedEncodingException if not utf-8
+	 * @throws IntermediateCodeGeneratorException if an error occurs in the Intermediate Code Generator
+	 * @throws BackendException if an error occurs in the Backend
+	 */
 	protected InputStream compile(String prog) throws BackendException,
-			IntermediateCodeGeneratorException, IOException, InterruptedException {
+			IntermediateCodeGeneratorException, InterruptedException, UnsupportedEncodingException {
 		errlog = new ReportLogImpl();
 
 		lexer.setSourceStream(new ByteArrayInputStream(prog.getBytes("UTF-8")));
@@ -68,15 +75,27 @@ public class Compiler {
 		return targets.get(targets.keySet().iterator().next());
 	}
 
-	public ReportLogImpl getErrlog() {
+	/**
+	 * Get the ReportLog
+	 * @return the ReportLog
+	 */
+	public ReportLogImpl getReportLog() {
 		return errlog;
 	}
 
-	public ReportLogImpl getErrlogAfterParser() {
+	/**
+	 * Get a clone of the ReportLog representing the state of the ReportLog after the parser.
+	 * @return the ReportLog after the parser
+	 */
+	public ReportLogImpl getReportLogAfterParser() {
 		return errlogAfterParser;
 	}
 
-	public ReportLogImpl getErrlogAfterAnalyzer() {
+	/**
+	 * Get a clone of the ReportLog representing the state of the ReportLog after the semantic analyzer.
+	 * @return the ReportLog after the semantic analyzer
+	 */
+	public ReportLogImpl getReportLogAfterAnalyzer() {
 		return errlogAfterAnalyzer;
 	}
 

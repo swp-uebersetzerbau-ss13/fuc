@@ -2,9 +2,27 @@ package swp_compiler_ss13.fuc.test;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import swp_compiler_ss13.common.test.ExampleProgs;
 
+/**
+ * <p>
+ * Tests for the M3 examples.
+ * </p>
+ * <p>
+ * The tests check for results (return values and output) of the
+ * execution of the translated examples. The tests require a LLVM installation
+ * for executing the LLVM IR. All tests are ignored if no <code>lli</code> is
+ * found.
+ * </p>
+ * <p>
+ * All example progs can be found in {@link ExampleProgs}.
+ * </p>
+ *
+ * @author Jens V. Fischer
+ */
 public class M3RuntimeTest extends TestBase {
 
 	private static Logger logger = Logger.getLogger(M3RuntimeTest.class);
