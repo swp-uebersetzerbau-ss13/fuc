@@ -1,7 +1,6 @@
 package swp_compiler_ss13.fuc.test;
 
 import junit.extensions.PA;
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.junit.Assume;
 import swp_compiler_ss13.common.backend.BackendException;
@@ -14,13 +13,21 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 
-import static org.junit.Assert.*;
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Base class for tests, providing methods used in the integration tests.
  * <p>
- * The runtime tests require a LLVM installation for executing the LLVM IR. All
+ * <p>
+ * All integration test are runtime tests. The example programmes are compiled through
+ * all compiler stages. The tests assert, that the the compilation either
+ * produces expected errors or compiles through, producing some kind of target
+ * code. The resulting target code is then executed and the result of the
+ * execution is checked against the expected output (`print` statements) and
+ * exit code (`return` statement).
+ * </p>
+ * The tests require a LLVM installation for executing the LLVM IR. All
  * tests are ignored if no <code>lli</code> is found.
  * </p>
  * 
@@ -37,14 +44,14 @@ public abstract class TestBase {
 
 		InputStream compilationResult = compiler.compile(prog.programCode);
 
-		ReportLogImpl log = compiler.getErrlog();
+		ReportLogImpl log = compiler.getReportLog();
 		ReportType[] expectedReportTypes = prog.expecteReportTypes;
 
 		/* test for expected report log errors from parser if program does not compile */
 		if (compiler.errlogAfterParser.hasErrors()){
 			String msg = "Error in Parser: Expected ReportLog entries: " + Arrays.deepToString(expectedReportTypes)
 					+ ". Actual: " + log.getErrors().toString();
-			assertArrayEquals(msg, prog.expecteReportTypes, compiler.getErrlogAfterParser().getEntries().toArray());
+			assertArrayEquals(msg, prog.expecteReportTypes, compiler.getReportLogAfterParser().getErrors().toArray());
 			return;
 		}
 
@@ -52,7 +59,7 @@ public abstract class TestBase {
 		if (compiler.errlogAfterAnalyzer.hasErrors()){
 			String msg = "Error in Analyzer: Expected ReportLog entries: " + Arrays.deepToString(expectedReportTypes)
 					+ ". Actual: " + log.getErrors().toString();
-			assertArrayEquals(msg, expectedReportTypes, compiler.getErrlogAfterAnalyzer().getEntries().toArray());
+			assertArrayEquals(msg, expectedReportTypes, compiler.getReportLogAfterAnalyzer().getErrors().toArray());
 			return;
 		}
 

@@ -13,10 +13,10 @@ import java.io.IOException;
 
 /**
  * <p>
- * Runtime tests for the additional examples.
+ * Tests for the additional examples.
  * </p>
  * <p>
- * The runtime tests check for results (return values and output) of the
+ * The tests check for results (return values and output) of the
  * execution of the translated examples. The tests require a LLVM installation
  * for executing the LLVM IR. All tests are ignored if no <code>lli</code> is
  * found.
@@ -88,5 +88,9 @@ public class AdditionalRuntimeTest extends TestBase {
 	public void testCalendarProg() throws Exception {
 		testProg(ExampleProgs.calendarProg());
 	}
-	
+
+	@Test
+	public void testRecordDoubleDeclarationProg() throws Exception {
+		testProg(ExampleProgs.recordDoubleDProg());
+	}
 }

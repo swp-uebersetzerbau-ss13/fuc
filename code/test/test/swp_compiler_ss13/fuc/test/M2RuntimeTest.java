@@ -2,7 +2,6 @@ package swp_compiler_ss13.fuc.test;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.junit.Assume;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -10,10 +9,10 @@ import swp_compiler_ss13.common.test.ExampleProgs;
 
 /**
  * <p>
- * Runtime tests for the M2 examples.
+ * Tests for the M2 examples.
  * </p>
  * <p>
- * The runtime tests check for results (return values and output) of the
+ * The tests check for results (return values and output) of the
  * execution of the translated examples. The tests require a LLVM installation
  * for executing the LLVM IR. All tests are ignored if no <code>lli</code> is
  * found.
