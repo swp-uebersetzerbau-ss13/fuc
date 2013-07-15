@@ -26,15 +26,6 @@ public class ReturnNodeImpl extends ASTNodeImpl implements ReturnNode {
 	}
 
 	@Override
-	public Integer getNumberOfNodes() {
-		if (this.rightNode == null) {
-			return 1;
-		}
-
-		return 1 + this.rightNode.getNumberOfNodes();
-	}
-
-	@Override
 	public List<ASTNode> getChildren() {
 		if (this.rightNode == null) {
 			return new LinkedList<>();

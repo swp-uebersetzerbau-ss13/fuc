@@ -107,6 +107,9 @@ public class ASTComparator {
 			fail("ASTs have different number of nodes!");
 		}
 		
+		// Finally, check getNumberOfNodes():
+		assertEquals(expected.getNumberOfNodes(), actual.getNumberOfNodes());
+		
 		// Success!
 	}
 	

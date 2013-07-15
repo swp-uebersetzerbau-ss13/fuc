@@ -33,11 +33,6 @@ public class BasicIdentifierNodeImpl extends ASTNodeImpl implements BasicIdentif
 	}
 
 	@Override
-	public Integer getNumberOfNodes() {
-		return 1;
-	}
-
-	@Override
 	public Iterator<ASTNode> getDFSLTRNodeIterator() {
 		return new EmptyIterator();
 	}

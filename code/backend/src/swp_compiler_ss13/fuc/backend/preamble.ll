@@ -125,3 +125,33 @@ define double @div_double(double,double) {
     call void @__cxa_throw(i8* %exception.instance, i8* bitcast ({ i8*, i8* }* @.exception.DivisionByZero.type.cpp to i8*), i8* null) noreturn
     unreachable
 }
+
+;; array out of bounds checks
+define void @aoob1(i64 %i1, i64 %b1) {
+  ; cast indices and boundaries to 32 bit integers
+  ; (overflows possible but arrays that large (more than 4 billion entries) are improbable)
+  ; (that would mean a at least ~34 gigabyte huge array since we only support 64 bit (=8 byte) variables)
+  %i1.32 = trunc i64 %i1 to i32
+  %b1.32 = trunc i64 %b1 to i32
+  ; check if the index is in-bounds
+  %cmp = icmp ult i32 %i1.32, %b1.32
+  br i1 %cmp, label %InBounds, label %OutOfBounds
+  OutOfBounds:
+        ; Create exception type solely in register from "undef" type, insert nullptr as array reference
+        %1 = insertvalue %.exception.ArrayOutOfBounds.type.ir undef, i8* null, 0
+        ; insert array size == %b1
+        %2 = insertvalue %.exception.ArrayOutOfBounds.type.ir %1, i32 %b1.32, 1
+        ; insert array index == %b2
+        %exception = insertvalue %.exception.ArrayOutOfBounds.type.ir %2, i32 %i1.32, 2
+        ; allocate dynamic memory for exception
+        %cpp_exception = call i8* @__cxa_allocate_exception(i32 16)
+        ; cast memory pointer to correct type
+        %cpp_exception.casted = bitcast i8* %cpp_exception to %.exception.ArrayOutOfBounds.type.ir*
+        ; store previously created exception into the memory area
+        store %.exception.ArrayOutOfBounds.type.ir %exception, %.exception.ArrayOutOfBounds.type.ir* %cpp_exception.casted
+        ; throw the exception with the C++ runtime library
+        call void @__cxa_throw(i8* %cpp_exception , i8* bitcast ({ i8*, i8* }* @.exception.ArrayOutOfBounds.type.cpp to i8*), i8* null) noreturn
+        unreachable
+  InBounds:
+        ret void
+}

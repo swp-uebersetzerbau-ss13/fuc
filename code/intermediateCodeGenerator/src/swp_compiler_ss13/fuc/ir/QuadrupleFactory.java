@@ -478,6 +478,9 @@ public class QuadrupleFactory {
 			return new QuadrupleImpl(Operator.ARRAY_GET_LONG, from, index, to);
 		case STRING:
 			return new QuadrupleImpl(Operator.ARRAY_GET_STRING, from, index, to);
+		case ARRAY:
+		case STRUCT:
+			return QuadrupleFactory.arrayReference(from, index, to);
 		default:
 			break;
 		}

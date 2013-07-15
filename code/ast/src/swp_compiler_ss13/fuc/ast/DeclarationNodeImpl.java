@@ -34,11 +34,6 @@ public class DeclarationNodeImpl extends ASTNodeImpl implements DeclarationNode 
 	private Type type;
 
 	@Override
-	public Integer getNumberOfNodes() {
-		return 1;
-	}
-
-	@Override
 	public Iterator<ASTNode> getDFSLTRNodeIterator() {
 		return new EmptyIterator();
 	}

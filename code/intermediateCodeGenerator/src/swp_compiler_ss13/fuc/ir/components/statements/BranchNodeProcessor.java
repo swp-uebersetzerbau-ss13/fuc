@@ -6,6 +6,7 @@ import swp_compiler_ss13.common.ast.nodes.ternary.BranchNode;
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 import swp_compiler_ss13.common.types.Type.Kind;
+import swp_compiler_ss13.fuc.ir.BranchHelper;
 import swp_compiler_ss13.fuc.ir.GeneratorExecutor;
 import swp_compiler_ss13.fuc.ir.GeneratorState;
 import swp_compiler_ss13.fuc.ir.QuadrupleFactory;
@@ -60,7 +61,9 @@ public class BranchNodeProcessor extends NodeProcessor {
 		String endLabel = this.state.createNewLabel();
 
 		String conditionValue = conditionResult.getValue();
-		Quadruple branchQuadruple = QuadrupleFactory.branch(conditionValue, trueLabel, falseLabel);
+
+		Quadruple branchQuadruple = BranchHelper.optimizedBranch(conditionValue, trueLabel, falseLabel);
+
 		this.state.addIntermediateCode(branchQuadruple);
 		this.state.addIntermediateCode(QuadrupleFactory.label(trueLabel));
 		this.executor.processWithoutResult(onTrue);

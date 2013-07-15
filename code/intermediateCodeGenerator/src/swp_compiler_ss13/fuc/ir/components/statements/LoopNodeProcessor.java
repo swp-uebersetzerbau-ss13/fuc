@@ -4,8 +4,10 @@ import swp_compiler_ss13.common.ast.nodes.ExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.binary.DoWhileNode;
 import swp_compiler_ss13.common.ast.nodes.binary.WhileNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.BreakNode;
+import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 import swp_compiler_ss13.common.types.Type.Kind;
+import swp_compiler_ss13.fuc.ir.BranchHelper;
 import swp_compiler_ss13.fuc.ir.GeneratorExecutor;
 import swp_compiler_ss13.fuc.ir.GeneratorState;
 import swp_compiler_ss13.fuc.ir.QuadrupleFactory;
@@ -53,7 +55,8 @@ public class LoopNodeProcessor extends NodeProcessor {
 	 * @throws IntermediateCodeGeneratorException
 	 *             The condition of the loop is not of type boolean
 	 */
-	public void processDoWhileNode(DoWhileNode node) throws IntermediateCodeGeneratorException {
+	public void processDoWhileNode(DoWhileNode node)
+			throws IntermediateCodeGeneratorException {
 		// label before do while loop
 		String beforeLoop = this.state.createNewLabel();
 
@@ -62,6 +65,10 @@ public class LoopNodeProcessor extends NodeProcessor {
 
 		this.state.pushBreakLabel(endOfLoop);
 
+		this.state.addIntermediateCode(QuadrupleFactory.label(beforeLoop));
+
+		this.executor.processWithoutResult(node.getLoopBody());
+
 		// evaluate the condition
 		ExpressionNode condition = node.getCondition();
 		IntermediateResult conditionResult = this.executor.process(condition);
@@ -69,16 +76,14 @@ public class LoopNodeProcessor extends NodeProcessor {
 		// if condition does not evaluate to boolean throw an error
 		if (conditionResult.getType().getKind() != Kind.BOOLEAN) {
 			throw new IntermediateCodeGeneratorException(
-					"Condition must be of type Boolean but is of type " + conditionResult.getType());
+					"Condition must be of type Boolean but is of type "
+							+ conditionResult.getType());
 		}
 
 		// create the ir code
-		this.state.addIntermediateCode(QuadrupleFactory.label(beforeLoop));
 
-		this.executor.processWithoutResult(node.getLoopBody());
-
-		this.state.addIntermediateCode(QuadrupleFactory.branch(conditionResult.getValue(),
-				beforeLoop, endOfLoop));
+		Quadruple branchQuadruple = BranchHelper.optimizedBranch(conditionResult.getValue(), beforeLoop, endOfLoop);
+		this.state.addIntermediateCode(branchQuadruple);
 		this.state.addIntermediateCode(QuadrupleFactory.label(endOfLoop));
 
 		this.state.popBreakLabel();
@@ -92,7 +97,8 @@ public class LoopNodeProcessor extends NodeProcessor {
 	 * @throws IntermediateCodeGeneratorException
 	 *             The condition of the loop is not of type boolean
 	 */
-	public void processWhileNode(WhileNode node) throws IntermediateCodeGeneratorException {
+	public void processWhileNode(WhileNode node)
+			throws IntermediateCodeGeneratorException {
 
 		// label before condition
 		String beforeCondition = this.state.createNewLabel();
@@ -114,12 +120,13 @@ public class LoopNodeProcessor extends NodeProcessor {
 		// if condition does not evaluate to boolean throw an error
 		if (conditionResult.getType().getKind() != Kind.BOOLEAN) {
 			throw new IntermediateCodeGeneratorException(
-					"Condition must be of type Boolean but is of type " + conditionResult.getType());
+					"Condition must be of type Boolean but is of type "
+							+ conditionResult.getType());
 		}
 
 		// create the ir code
-		this.state.addIntermediateCode(QuadrupleFactory.branch(conditionResult.getValue(),
-				loopBody, endOfLoop));
+		Quadruple branchQuadruple = BranchHelper.optimizedBranch(conditionResult.getValue(), loopBody, endOfLoop);
+		this.state.addIntermediateCode(branchQuadruple);
 		this.state.addIntermediateCode(QuadrupleFactory.label(loopBody));
 
 		this.executor.processWithoutResult(node.getLoopBody());

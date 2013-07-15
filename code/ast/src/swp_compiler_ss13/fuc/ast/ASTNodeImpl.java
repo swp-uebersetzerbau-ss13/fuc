@@ -109,4 +109,13 @@ public abstract class ASTNodeImpl implements ASTNode {
 	public Map<?, ?> getAttributeValues() {
 		return this.attributes;
 	}
+	
+	@Override
+	public Integer getNumberOfNodes() {
+	   int nodes = 1;
+	   for (ASTNode node : getChildren()) {
+	      nodes += node.getNumberOfNodes();
+	   }
+	   return nodes;
+	}
 }

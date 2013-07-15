@@ -34,18 +34,6 @@ public abstract class LoopNodeImpl extends ASTNodeImpl implements LoopNode {
 	protected ExpressionNode condition;
 
 	@Override
-	public Integer getNumberOfNodes() {
-		Integer nodes = 1;
-		if (this.body != null) {
-			nodes += this.body.getNumberOfNodes();
-		}
-		if (this.condition != null) {
-			nodes += this.condition.getNumberOfNodes();
-		}
-		return nodes;
-	}
-
-	@Override
 	public List<ASTNode> getChildren() {
 		List<ASTNode> children = new LinkedList<>();
 		if (this.condition != null) {

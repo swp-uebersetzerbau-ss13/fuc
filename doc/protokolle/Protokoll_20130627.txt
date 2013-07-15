@@ -1,0 +1,34 @@
+Protokoll Sitzung 27.06.2013
+
+1. Check TODOs/Status
+
+-> Nur die 'Status-Runde' da keine sonstigen TODOs von letzter Woche
+-> Lexer nicht anwesend
+-> Codegen kaputt momentan mit Arrays
+-> Backend wurde refactored, dadurch verzögert sich  Exception handling
+-> Backend ansonsten M3 fertig, bis auf Indizierung von 
+-> GUI zeigt jetzt Target-Code, kann Ausführen, und weitere Verbesserungen
+-> Semantische Analaye hat M3 tests soweit fertig
+-> Parser tests sollen diese Woche fertig werden
+-> Prüfung zugriff Structs fertig
+-> Parser soweit bis auf Kleinigkeiten M3 fertig, aber noch nicht im Master
+-> Crosstesting fortgeschritten, Gruppenübergreifendes Crosstesting begonnen in eigenem Branch
+
+2. Crosstesting
+
+-> Alles toll.
+
+3. Milestone 3 Status
+
+-> Aktuelle Version baut nicht, Gui muss gefixed werden. Geplant für heute.
+-> Einwand: Crosstests evtl zeitlich kritisch
+
+4. TODOs
+
+ - In-Bound checks bei statischen Arrays (Semantik)
+ - In-Bound checks bei dynamischen Arrays (Backend)
+ - Arrays fixen (Codegen)
+ - Weiteres Crosstesting (Jens)
+ - Error Recovery (Parser)
+ - GUI Fixen (Eduard)
+ - Weitere Tests (Rest)

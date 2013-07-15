@@ -24,7 +24,7 @@ import org.junit.Test;
 
 /**
  * @author Tay, Ho Phuong
- * TODO: check lines and columns
+ * @author "Thomas Benndorf" (refactoring)
  */
 public class PrintProgTest {
 	private String prog =
@@ -144,7 +144,6 @@ public class PrintProgTest {
 			comparisonToken = list.remove(0);
 			token = this.lexer.getNextToken();
 
-			assertTrue(token != null);
 			assertEquals(comparisonToken.getValue(), token.getValue());		
 			assertEquals(comparisonToken.getTokenType(), token.getTokenType());
 			

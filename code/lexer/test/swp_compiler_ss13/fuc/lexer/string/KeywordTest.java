@@ -4,12 +4,10 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.ByteArrayInputStream;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 
 import junit.extensions.PA;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import swp_compiler_ss13.common.lexer.Lexer;
@@ -129,47 +127,5 @@ public class KeywordTest {
 		assertEquals(TokenType.PRINT, token.getTokenType());
 		assertEquals(1, token.getLine().intValue());
 		assertEquals(31, token.getColumn().intValue());
-	}
-
-	/**
-	 * @deprecated not supported by grammar
-	 * 
-	 * @throws UnsupportedEncodingException
-	 *             : UTF-8 encoding not supported
-	 */
-	@Deprecated
-	@Ignore
-	public void permutatedKeywordsTokenizingTest()
-			throws UnsupportedEncodingException {
-		/*
-		 * permutate "if"-String
-		 */
-		ArrayList<String> permutatedKeywords = this
-				.permutateKeyword(Constants.IFSTRING);
-		for (int i = 0; i < permutatedKeywords.size(); i++) {
-			System.out.println(permutatedKeywords.get(i));
-			this.lexer.setSourceStream(new ByteArrayInputStream(
-					permutatedKeywords.get(i).getBytes("UTF-8")));
-			assertEquals(permutatedKeywords.get(i), this.lexer.getNextToken()
-					.getValue());
-		}
-
-	}
-
-	private ArrayList<String> permutateKeyword(String simpleKeyword) {
-		ArrayList<String> permutatedKeywords = new ArrayList<>();
-		char[] keywordChars = simpleKeyword.toCharArray();
-		for (int i = 0, n = (int) Math.pow(2, keywordChars.length); i < n; i++) {
-			char[] permutation = new char[keywordChars.length];
-			for (int j = 0; j < keywordChars.length; j++) {
-				if ((i >> j & 1) != 0) {
-					permutation[j] = Character.toUpperCase(keywordChars[j]);
-				} else {
-					permutation[j] = keywordChars[j];
-				}
-			}
-			permutatedKeywords.add(new String(permutation));
-		}
-		return permutatedKeywords;
 	}
 }

@@ -2,7 +2,9 @@ package swp_compiler_ss13.fuc.ir;
 
 import swp_compiler_ss13.common.ast.ASTNode;
 import swp_compiler_ss13.common.ast.nodes.binary.AssignmentNode;
+import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ArrayIdentifierNode;
+import swp_compiler_ss13.common.ast.nodes.unary.StructIdentifierNode;
 import swp_compiler_ss13.common.types.Type;
 import swp_compiler_ss13.common.types.derived.ArrayType;
 import swp_compiler_ss13.common.types.derived.StructType;
@@ -54,6 +56,9 @@ public class ArrayHelper {
 				type = ((ArrayType) type).getInnerType();
 				node = ((ArrayIdentifierNode) node).getIdentifierNode();
 			}
+			if (node instanceof BasicIdentifierNode) {
+				break;
+			}
 			if (type instanceof StructType) {
 				Object[] retS = StructHelper.getInternalBaseType(type, node);
 				type = (Type) retS[0];
@@ -101,5 +106,15 @@ public class ArrayHelper {
 	 */
 	public static boolean isOuterMostDimension(ArrayIdentifierNode node) {
 		return !(node.getParentNode() instanceof ArrayIdentifierNode);
+	}
+
+	/**
+	 * Check if a reference is needed to this array instead of a type
+	 * 
+	 * @param node
+	 * @return
+	 */
+	public static boolean isNeededAsReference(ArrayIdentifierNode node) {
+		return (node.getParentNode() instanceof StructIdentifierNode);
 	}
 }

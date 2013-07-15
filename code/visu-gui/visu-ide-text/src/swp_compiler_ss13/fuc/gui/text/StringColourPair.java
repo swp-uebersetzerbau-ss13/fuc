@@ -4,9 +4,11 @@ import java.awt.Color;
 
 /**
  * @author "Eduard Wolf"
- *
+ * 
  */
 public class StringColourPair {
+
+	private static final int MAX_VALUE = 170;
 
 	private String text;
 	private ColorWrapper color;
@@ -48,9 +50,11 @@ public class StringColourPair {
 	 * default wrapper for {@link java.awt.Color}
 	 */
 	public enum DefaultColorWrapper implements ColorWrapper {
-		BLACK(Color.BLACK), BLUE(Color.BLUE), CYAN(Color.CYAN), GRAY(Color.GRAY), GREEN(Color.GREEN), MAGENTA(
-				Color.MAGENTA), ORANGE(Color.ORANGE), PINK(Color.PINK), RED(Color.RED), YELLOW(
-				Color.YELLOW);
+		BLACK(Color.BLACK), BLUE(Color.BLUE), CYAN(new Color(0, MAX_VALUE, MAX_VALUE)), GRAY(
+				Color.GRAY), GREEN(new Color(0, MAX_VALUE, 0)), MAGENTA(Color.MAGENTA), ORANGE(
+				new Color(MAX_VALUE, MAX_VALUE * 3 / 4, 0)), PINK(new Color(MAX_VALUE,
+				MAX_VALUE * 2 / 3, MAX_VALUE * 2 / 3)), RED(Color.RED), YELLOW(new Color(MAX_VALUE,
+				MAX_VALUE, 0));
 
 		private Color color;
 

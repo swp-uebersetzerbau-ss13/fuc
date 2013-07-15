@@ -17,17 +17,39 @@ import static swp_compiler_ss13.common.types.Type.*;
 import static swp_compiler_ss13.common.types.Type.Kind.BOOLEAN;
 
 /**
- * This class allows for the generation of an LLVM IR module.
- * Each methode that begins with "add" generates LLVM IR code
- * and writes it to the <code>PrintWriter</code> <code>out</code>.
+ * This class corresponds to an LLVM IR module.
+ * Code is currently generated with functions, which can
+ * be added with <code>addFunction</code>.
+ * Additionally, it has all static functions, as well as
+ * certain non-static functions (those which need access to
+ * the module's private members) used to convert
+ * types from Java / three address code to LLVM IR.
  *
  */
 public class Module
 {
+	/**
+	 * The functions in this module.
+	 *
+	 */
 	private Map<String,Function> functions;
 
-	private StringBuffer dataSegment;
+	/**
+	 * The data segment for this module, meaning
+	 * code for global variables, global constants, etc.
+	 *
+	 */
+	private StringBuilder dataSegment;
 
+	/**
+	 * Adds a function to this module.
+	 *
+	 * @param name the function's name
+	 * @param returnType the type of the functions's return value
+	 * @param arguments a <code>List<Map.Entry<String,Type.Kind>></code> of the function's arguments
+	 * @return the new function
+	 * @exception BackendException if an error occurs
+	 */
 	public Function addFunction(String name,
 	                            Type.Kind returnType,
 	                            List<Map.Entry<String,Type.Kind>> arguments) throws BackendException {
@@ -51,8 +73,13 @@ public class Module
 		return f;
 	}
 
+	/**
+	 * Get the generated code for the entire module.
+	 *
+	 * @return the LLVM IR code
+	 */
 	public String getCode() {
-		StringBuffer code = new StringBuffer();
+		StringBuilder code = new StringBuilder();
 
 		if(!dataSegment.toString().equals("")) {
 			code.append(dataSegment.toString());
@@ -78,15 +105,19 @@ public class Module
 		return code.toString();
 	}
 
+	/**
+	 * Creates a new module.
+	 *
+	 */
 	public Module() {
 		functions = new HashMap<String,Function>();
-		dataSegment = new StringBuffer();
+		dataSegment = new StringBuilder();
 		stringLiterals = new ArrayList<Integer>();
 	}
 
 	/**
 	 * A list of all the string literals that
-	 * exist in this module where each element
+	 * exist in this module, where each element
 	 * describes a string literal's number with its
 	 * position in the list and that string literal's
 	 * length with the value of the element.
@@ -168,6 +199,7 @@ public class Module
 	{
 		return "@.string_" + String.valueOf(id);
 	}
+
 	/**
 	 * Get the LLVM IR type corresponding to
 	 * a type from the three address code.
@@ -207,9 +239,9 @@ public class Module
 	 * Get the LLVM IR type corresponding to
 	 * an *array* type from the three address code.
 	 *
-	 * @param type the final type of the array, eg: double[][] --> double
-	 * @param sizes a list of sizes of the array dimensions, eg:
-	 *          double x[5][10][7] --> [5,10,7]
+	 * @param type the final type of the array, e.g.: double[][] --> double
+	 * @param dimensions a list of the array dimensions, e.g.:
+	 *                   double x[5][10][7] --> [5,10,7]
 	 * @return the corresponding LLVM IR type for the array
 	 */
 	public static String getIRAType(Type type, List<Integer> dimensions)
@@ -232,6 +264,13 @@ public class Module
 		return irType;
 	}
 
+	/**
+	 * Get the LLVM IR type corresponding to
+	 * a *struct* type from the three address code.
+	 *
+	 * @param members the member's in the struct type
+	 * @return the corresponding LLVM IR type for the struct
+	 */
 	public static String getIRSType(List<Member> members) {
 		String irType = "{ ";
 
@@ -416,6 +455,14 @@ public class Module
 		return irString;
 	}
 
+	/**
+	 * Convert a <code>Quadruple.Operator</code> to
+	 * the type of its first argument.
+	 *
+	 * @param op the operator
+	 * @return the <code>Type.Kind</code> for the first argument
+	 * @exception BackendException if an error occurs
+	 */
 	public static Type.Kind toArgument1TypeKind(Quadruple.Operator op) throws BackendException {
 		Type.Kind kind;
 
@@ -500,6 +547,14 @@ public class Module
 		return kind;
 	}
 
+	/**
+	 * Convert a <code>Quadruple.Operator</code> to
+	 * the type of its second argument.
+	 *
+	 * @param op the operator
+	 * @return the <code>Type.Kind</code> for the second argument
+	 * @exception BackendException if an error occurs
+	 */
 	public static Type.Kind toArgument2TypeKind(Quadruple.Operator op) throws BackendException {
 		Type.Kind kind;
 
@@ -543,6 +598,14 @@ public class Module
 		return kind;
 	}
 
+	/**
+	 * Convert a <code>Quadruple.Operator</code> to
+	 * the type of its result.
+	 *
+	 * @param op the operator
+	 * @return the <code>Type.Kind</code> for the result
+	 * @exception BackendException if an error occurs
+	 */
 	public static Type.Kind toResultTypeKind(Quadruple.Operator op) throws BackendException {
 		Type.Kind kind;
 

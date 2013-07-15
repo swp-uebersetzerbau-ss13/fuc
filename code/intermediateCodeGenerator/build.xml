@@ -85,7 +85,9 @@
 			destdir="${bin.dir}"
 			target="1.7"
 			classpathref="classpath-test"
-			includeantruntime="false" />
+			includeantruntime="false">
+			<exclude name="**/crosstestError/*.java"/>
+		</javac>
 	</target>
 
 	<!-- === run tests === -->
@@ -104,6 +106,7 @@
 			<batchtest>
 				<fileset dir="${test.dir}">
 					<include name="**/*Test.java" />
+					<exclude name="**/crosstestError/*.java" />
 				</fileset>
 			</batchtest>
 		</junit>

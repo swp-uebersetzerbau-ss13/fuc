@@ -31,7 +31,7 @@ public class AdditionalSymbolTest {
 	}
 
 	/**
-	 * Test for matching of semicolon, comment
+	 * Test for matching of semicolon and dot
 	 */
 	@Test
 	public void matchingSemicolonAndEOFTest() {
@@ -43,15 +43,6 @@ public class AdditionalSymbolTest {
 		PA.setValue(this.lexer, "actualTokenValue", Constants.DOT);
 		PA.invokeMethod(this.lexer, "matchToken()");
 		assertEquals(TokenType.DOT, PA.getValue(this.lexer, "actualTokenType"));
-
-		/*
-		 * FIXME: PA.invokeMethode() throws IllegalArgumentException
-		 * 
-		 * PA.setValue(this.lexer, "actualTokenValue", Constants.COMMENT +
-		 * Constants.COMMENT_EXAMPLE); PA.invokeMethod(this.lexer,
-		 * "matchToken()"); assertEquals(TokenType.COMMENT,
-		 * PA.getValue(this.lexer, "actualTokenType"));
-		 */
 
 	}
 
