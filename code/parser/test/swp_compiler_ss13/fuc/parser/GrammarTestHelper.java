@@ -61,7 +61,6 @@ public class GrammarTestHelper {
 	}
 
 	public static Token t(Terminal terminal) {
-		// TODO Handle special terminals better
 		if (terminal == Terminal.EOF) {
 			return new TokenImpl(terminal.getId(), TokenType.EOF, -1, -1);
 		}
@@ -110,7 +109,7 @@ public class GrammarTestHelper {
 	private static void compare(LogEntry expected, LogEntry actual,
 			boolean checkTokenCoords) {
 		assertEquals(expected.getLogType(), actual.getLogType());
-		// TODO Compare error messages?!?!?
+		// Don't compare error messages?!?!?
 		// assertEquals(expected.getMessage(), actual.getMessage());
 		assertEquals(expected.getReportType(), actual.getReportType());
 

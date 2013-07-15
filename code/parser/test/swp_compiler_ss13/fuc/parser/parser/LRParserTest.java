@@ -17,8 +17,8 @@ import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.common.report.ReportType;
 import swp_compiler_ss13.fuc.errorLog.LogEntry;
-import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
 import swp_compiler_ss13.fuc.errorLog.LogEntry.Type;
+import swp_compiler_ss13.fuc.errorLog.ReportLogImpl;
 import swp_compiler_ss13.fuc.lexer.token.TokenImpl;
 import swp_compiler_ss13.fuc.parser.GrammarTestHelper;
 import swp_compiler_ss13.fuc.parser.TestLexer;
@@ -34,11 +34,14 @@ public class LRParserTest {
 				t(sem), t(sem), t(Terminal.EOF));	// One semicolon too much!
 		
 		// Check output
+		ReportLogImpl reportLog = new ReportLogImpl();
 		try {
-			GrammarTestHelper.parseToAst(lexer, new ReportLogImpl());
+			GrammarTestHelper.parseToAst(lexer, reportLog);
 			fail("Expected a Parserexception!");
 		} catch (ParserException err) {
-			// TODO PE: NO_RULE_FOR_THIS_TERMINAL
+			Token sem = new TokenImpl(";", TokenType.SEMICOLON, -1, -1);
+			LogEntry entry = new LogEntry(Type.ERROR, ReportType.WORD_NOT_IN_GRAMMAR, Arrays.<Token>asList(sem), "");
+			GrammarTestHelper.compareReportLogEntries(Arrays.asList(entry), reportLog.getErrors());
 		}
 	}
 	

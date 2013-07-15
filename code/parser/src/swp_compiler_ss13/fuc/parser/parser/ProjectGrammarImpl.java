@@ -53,11 +53,20 @@ import swp_compiler_ss13.fuc.ast.StructIdentifierNodeImpl;
 import swp_compiler_ss13.fuc.ast.WhileNodeImpl;
 import swp_compiler_ss13.fuc.parser.grammar.Production;
 import swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar;
+import swp_compiler_ss13.fuc.parser.grammar.ProjectGrammar.Complete;
 import swp_compiler_ss13.fuc.parser.grammar.Terminal;
 import swp_compiler_ss13.fuc.parser.grammar.TokenEx;
 import swp_compiler_ss13.fuc.parser.parser.ReduceAction.ReduceException;
 import swp_compiler_ss13.fuc.symbolTable.SymbolTableImpl;
 
+/**
+ * This class implements everything necessary for the correct parsing process of the grammar
+ * defined in {@link ProjectGrammar.Complete}. {@link #getReduceAction(Production)}
+ * implements the LR value reductions (which construct the AST), whereas
+ * {@link #tryErrorRecovery(List, TokenEx, TokenEx, Stack)} implements a basic error
+ * recovery for this grammar.
+ * @see Complete#getGrammarImpl()
+ */
 public class ProjectGrammarImpl implements IGrammarImpl {
 	// --------------------------------------------------------------------------
 	// --- variables and constants
