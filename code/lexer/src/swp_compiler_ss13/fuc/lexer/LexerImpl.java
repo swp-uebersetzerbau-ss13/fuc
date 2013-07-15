@@ -18,7 +18,9 @@ import swp_compiler_ss13.fuc.lexer.token.RealTokenImpl;
 import swp_compiler_ss13.fuc.lexer.token.TokenImpl;
 
 /**
- * Implementation of the interface {@link Lexer}
+ * Implementation of the interface {@link Lexer}.
+ * 
+ * The lexer analyses the given source code and splits it into tokens.
  * 
  * @author "Thomas Benndorf"
  * 
@@ -82,6 +84,10 @@ public class LexerImpl implements Lexer {
 			 */
 			this.actualLineValue = this.convertedLines.get(this.actualLine - 1);
 			this.actualTokenValue = "";
+
+			/*
+			 * calculate values for the EOF
+			 */
 			this.isEOF = false;
 			this.lastLine = this.convertedLines.size();
 			this.lastColumn = this.convertedLines.get(this.lastLine - 1)
