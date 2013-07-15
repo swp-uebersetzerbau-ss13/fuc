@@ -470,28 +470,29 @@
 <span class="sourceLineNo">462</span><a name="line.462"></a>
 <span class="sourceLineNo">463</span>                arrayIdentifier.setIndexNode(indexNode);<a name="line.463"></a>
 <span class="sourceLineNo">464</span>                arrayIdentifier.setIdentifierNode(identifier);<a name="line.464"></a>
-<span class="sourceLineNo">465</span>                identifier.setParentNode(arrayIdentifier);<a name="line.465"></a>
-<span class="sourceLineNo">466</span>                return arrayIdentifier;<a name="line.466"></a>
-<span class="sourceLineNo">467</span>        }<a name="line.467"></a>
-<span class="sourceLineNo">468</span><a name="line.468"></a>
-<span class="sourceLineNo">469</span>        /**<a name="line.469"></a>
-<span class="sourceLineNo">470</span>         * creates a StructIdentifierNode<a name="line.470"></a>
-<span class="sourceLineNo">471</span>         * <a name="line.471"></a>
-<span class="sourceLineNo">472</span>         * @param fieldName<a name="line.472"></a>
-<span class="sourceLineNo">473</span>         *            the fieldName of the identifier in the struct<a name="line.473"></a>
-<span class="sourceLineNo">474</span>         * @param identifier<a name="line.474"></a>
-<span class="sourceLineNo">475</span>         *            the IdentifierNode in the struct<a name="line.475"></a>
-<span class="sourceLineNo">476</span>         * @return the created StructIdentifierNode<a name="line.476"></a>
-<span class="sourceLineNo">477</span>         */<a name="line.477"></a>
-<span class="sourceLineNo">478</span>        public StructIdentifierNode newStructIdentifier(String fieldName, IdentifierNode identifier) {<a name="line.478"></a>
-<span class="sourceLineNo">479</span>                StructIdentifierNode structIdentifier = new StructIdentifierNodeImpl();<a name="line.479"></a>
-<span class="sourceLineNo">480</span>                structIdentifier.setFieldName(fieldName);<a name="line.480"></a>
-<span class="sourceLineNo">481</span>                structIdentifier.setIdentifierNode(identifier);<a name="line.481"></a>
-<span class="sourceLineNo">482</span>                identifier.setParentNode(structIdentifier);<a name="line.482"></a>
-<span class="sourceLineNo">483</span>                return structIdentifier;<a name="line.483"></a>
-<span class="sourceLineNo">484</span>        }<a name="line.484"></a>
-<span class="sourceLineNo">485</span><a name="line.485"></a>
-<span class="sourceLineNo">486</span>}<a name="line.486"></a>
+<span class="sourceLineNo">465</span>                indexNode.setParentNode(arrayIdentifier);<a name="line.465"></a>
+<span class="sourceLineNo">466</span>                identifier.setParentNode(arrayIdentifier);<a name="line.466"></a>
+<span class="sourceLineNo">467</span>                return arrayIdentifier;<a name="line.467"></a>
+<span class="sourceLineNo">468</span>        }<a name="line.468"></a>
+<span class="sourceLineNo">469</span><a name="line.469"></a>
+<span class="sourceLineNo">470</span>        /**<a name="line.470"></a>
+<span class="sourceLineNo">471</span>         * creates a StructIdentifierNode<a name="line.471"></a>
+<span class="sourceLineNo">472</span>         * <a name="line.472"></a>
+<span class="sourceLineNo">473</span>         * @param fieldName<a name="line.473"></a>
+<span class="sourceLineNo">474</span>         *            the fieldName of the identifier in the struct<a name="line.474"></a>
+<span class="sourceLineNo">475</span>         * @param identifier<a name="line.475"></a>
+<span class="sourceLineNo">476</span>         *            the IdentifierNode in the struct<a name="line.476"></a>
+<span class="sourceLineNo">477</span>         * @return the created StructIdentifierNode<a name="line.477"></a>
+<span class="sourceLineNo">478</span>         */<a name="line.478"></a>
+<span class="sourceLineNo">479</span>        public StructIdentifierNode newStructIdentifier(String fieldName, IdentifierNode identifier) {<a name="line.479"></a>
+<span class="sourceLineNo">480</span>                StructIdentifierNode structIdentifier = new StructIdentifierNodeImpl();<a name="line.480"></a>
+<span class="sourceLineNo">481</span>                structIdentifier.setFieldName(fieldName);<a name="line.481"></a>
+<span class="sourceLineNo">482</span>                structIdentifier.setIdentifierNode(identifier);<a name="line.482"></a>
+<span class="sourceLineNo">483</span>                identifier.setParentNode(structIdentifier);<a name="line.483"></a>
+<span class="sourceLineNo">484</span>                return structIdentifier;<a name="line.484"></a>
+<span class="sourceLineNo">485</span>        }<a name="line.485"></a>
+<span class="sourceLineNo">486</span><a name="line.486"></a>
+<span class="sourceLineNo">487</span>}<a name="line.487"></a>
 
 
 

@@ -26,6 +26,7 @@ swp_compiler_ss13.fuc.errorLog
 swp_compiler_ss13.fuc.gui.ast
 swp_compiler_ss13.fuc.gui.ide
 swp_compiler_ss13.fuc.gui.ide.data
+swp_compiler_ss13.fuc.gui.ide.java
 swp_compiler_ss13.fuc.gui.ide.mvc
 swp_compiler_ss13.fuc.gui.sourcecode
 swp_compiler_ss13.fuc.gui.text
@@ -55,4 +56,5 @@ swp_compiler_ss13.fuc.parser.parser.tables.actions
 swp_compiler_ss13.fuc.parser.util
 swp_compiler_ss13.fuc.semantic_analyser
 swp_compiler_ss13.fuc.symbolTable
+swp_compiler_ss13.fuc.test
 swp_compiler_ss13.fuc.token.visualization

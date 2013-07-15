@@ -42,7 +42,7 @@
 <span class="sourceLineNo">034</span>        // --------------------------------------------------------------------------<a name="line.34"></a>
 <span class="sourceLineNo">035</span>        public static final Long STRING_LENGTH = 255L;<a name="line.35"></a>
 <span class="sourceLineNo">036</span><a name="line.36"></a>
-<span class="sourceLineNo">037</span>        private final Logger log = Logger.getLogger(LRParser.class);<a name="line.37"></a>
+<span class="sourceLineNo">037</span>        private final Logger log = Logger.getLogger(getClass());<a name="line.37"></a>
 <span class="sourceLineNo">038</span>        <a name="line.38"></a>
 <span class="sourceLineNo">039</span>        /** Used to store Tokens that are (re-)inserted into the token stream */<a name="line.39"></a>
 <span class="sourceLineNo">040</span>        private final LinkedList&lt;TokenEx&gt; errorTokenStream = new LinkedList&lt;&gt;();<a name="line.40"></a>
@@ -208,7 +208,7 @@
 <span class="sourceLineNo">200</span>//                              Error error = (Error) action;<a name="line.200"></a>
 <span class="sourceLineNo">201</span>                                List&lt;Token&gt; list = new ArrayList&lt;Token&gt;();<a name="line.201"></a>
 <span class="sourceLineNo">202</span>                                list.add(token);<a name="line.202"></a>
-<span class="sourceLineNo">203</span>                                reportLog.reportError(ReportType.UNDEFINED,list,<a name="line.203"></a>
+<span class="sourceLineNo">203</span>                                reportLog.reportError(ReportType.WORD_NOT_IN_GRAMMAR,list,<a name="line.203"></a>
 <span class="sourceLineNo">204</span>                                                "An error occurred: Expected one of " + possibleTerminals.toString() + ", but got: '" + token.getTerminal() + "'");<a name="line.204"></a>
 <span class="sourceLineNo">205</span>                                                throw new ParserException("Got Error State from Actiontable");<a name="line.205"></a>
 <span class="sourceLineNo">206</span>                        }<a name="line.206"></a>

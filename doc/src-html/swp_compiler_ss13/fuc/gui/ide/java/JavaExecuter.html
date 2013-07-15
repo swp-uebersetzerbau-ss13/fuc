@@ -1,0 +1,170 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>package swp_compiler_ss13.fuc.gui.ide.java;<a name="line.1"></a>
+<span class="sourceLineNo">002</span><a name="line.2"></a>
+<span class="sourceLineNo">003</span>import java.io.BufferedReader;<a name="line.3"></a>
+<span class="sourceLineNo">004</span>import java.io.File;<a name="line.4"></a>
+<span class="sourceLineNo">005</span>import java.io.FileOutputStream;<a name="line.5"></a>
+<span class="sourceLineNo">006</span>import java.io.IOException;<a name="line.6"></a>
+<span class="sourceLineNo">007</span>import java.io.InputStream;<a name="line.7"></a>
+<span class="sourceLineNo">008</span>import java.io.InputStreamReader;<a name="line.8"></a>
+<span class="sourceLineNo">009</span><a name="line.9"></a>
+<span class="sourceLineNo">010</span>public class JavaExecuter {<a name="line.10"></a>
+<span class="sourceLineNo">011</span>        private final static boolean NO_VERIFY_NEEDED = false;<a name="line.11"></a>
+<span class="sourceLineNo">012</span>        private final static String NO_VERIFY = "-noverify";<a name="line.12"></a>
+<span class="sourceLineNo">013</span><a name="line.13"></a>
+<span class="sourceLineNo">014</span>        Process p;<a name="line.14"></a>
+<span class="sourceLineNo">015</span><a name="line.15"></a>
+<span class="sourceLineNo">016</span>        public JavaExecuter(File classFile) throws IOException {<a name="line.16"></a>
+<span class="sourceLineNo">017</span>                if (classFile == null) throw new NullPointerException();<a name="line.17"></a>
+<span class="sourceLineNo">018</span><a name="line.18"></a>
+<span class="sourceLineNo">019</span>                if (!classFile.exists())<a name="line.19"></a>
+<span class="sourceLineNo">020</span>                        throw new JavaClassProcessRuntimeException(<a name="line.20"></a>
+<span class="sourceLineNo">021</span>                                        "JavaClassProcess can not be started. File does not exists.");<a name="line.21"></a>
+<span class="sourceLineNo">022</span><a name="line.22"></a>
+<span class="sourceLineNo">023</span>                if (classFile.isDirectory())<a name="line.23"></a>
+<span class="sourceLineNo">024</span>                        throw new JavaClassProcessRuntimeException(<a name="line.24"></a>
+<span class="sourceLineNo">025</span>                                        "JavaClassProcess can not be started. Need a file not a directory.");<a name="line.25"></a>
+<span class="sourceLineNo">026</span><a name="line.26"></a>
+<span class="sourceLineNo">027</span>                if (!classFile.getName().endsWith(".class"))<a name="line.27"></a>
+<span class="sourceLineNo">028</span>                        throw new JavaClassProcessRuntimeException(<a name="line.28"></a>
+<span class="sourceLineNo">029</span>                                        "JavaClassProcess can not be started. File has not expected extension.");<a name="line.29"></a>
+<span class="sourceLineNo">030</span><a name="line.30"></a>
+<span class="sourceLineNo">031</span>                String classPath = classFile.getParent();<a name="line.31"></a>
+<span class="sourceLineNo">032</span>                String className = classFile.getName();<a name="line.32"></a>
+<span class="sourceLineNo">033</span>                className = className.substring(0, className.lastIndexOf('.'));<a name="line.33"></a>
+<span class="sourceLineNo">034</span><a name="line.34"></a>
+<span class="sourceLineNo">035</span>                String javaExecutablePath = System.getProperty("java.home") + File.separator + "bin"<a name="line.35"></a>
+<span class="sourceLineNo">036</span>                                + File.separator + "java";<a name="line.36"></a>
+<span class="sourceLineNo">037</span>                ProcessBuilder processBuilder;<a name="line.37"></a>
+<span class="sourceLineNo">038</span>                if (NO_VERIFY_NEEDED) {<a name="line.38"></a>
+<span class="sourceLineNo">039</span>                        processBuilder = new ProcessBuilder(javaExecutablePath, "-Dfile.encoding=UTF-8", "-cp",<a name="line.39"></a>
+<span class="sourceLineNo">040</span>                                        classPath, NO_VERIFY, className);<a name="line.40"></a>
+<span class="sourceLineNo">041</span>                } else {<a name="line.41"></a>
+<span class="sourceLineNo">042</span>                        processBuilder = new ProcessBuilder(javaExecutablePath, "-Dfile.encoding=UTF-8", "-cp",<a name="line.42"></a>
+<span class="sourceLineNo">043</span>                                        classPath, className);<a name="line.43"></a>
+<span class="sourceLineNo">044</span>                }<a name="line.44"></a>
+<span class="sourceLineNo">045</span>                try {<a name="line.45"></a>
+<span class="sourceLineNo">046</span>                        p = processBuilder.<a name="line.46"></a>
+<span class="sourceLineNo">047</span>                                        redirectErrorStream(true).<a name="line.47"></a>
+<span class="sourceLineNo">048</span>                                        start();<a name="line.48"></a>
+<span class="sourceLineNo">049</span>                        p.waitFor();<a name="line.49"></a>
+<span class="sourceLineNo">050</span>                } catch (IOException | InterruptedException e) {<a name="line.50"></a>
+<span class="sourceLineNo">051</span>                        throw new JavaClassProcessRuntimeException(e.getMessage(), e);<a name="line.51"></a>
+<span class="sourceLineNo">052</span>                }<a name="line.52"></a>
+<span class="sourceLineNo">053</span>        }<a name="line.53"></a>
+<span class="sourceLineNo">054</span><a name="line.54"></a>
+<span class="sourceLineNo">055</span>        public Integer getReturnValue() {<a name="line.55"></a>
+<span class="sourceLineNo">056</span>                return p.exitValue();<a name="line.56"></a>
+<span class="sourceLineNo">057</span>        }<a name="line.57"></a>
+<span class="sourceLineNo">058</span><a name="line.58"></a>
+<span class="sourceLineNo">059</span>        public String getProcessOutput() {<a name="line.59"></a>
+<span class="sourceLineNo">060</span>                StringBuilder writer = new StringBuilder();<a name="line.60"></a>
+<span class="sourceLineNo">061</span>                try {<a name="line.61"></a>
+<span class="sourceLineNo">062</span>                        BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));<a name="line.62"></a>
+<span class="sourceLineNo">063</span>                        String line;<a name="line.63"></a>
+<span class="sourceLineNo">064</span>                        while ((line = reader.readLine()) != null) {<a name="line.64"></a>
+<span class="sourceLineNo">065</span>                                writer.append(line);<a name="line.65"></a>
+<span class="sourceLineNo">066</span>                                writer.append('\n');<a name="line.66"></a>
+<span class="sourceLineNo">067</span>                        }<a name="line.67"></a>
+<span class="sourceLineNo">068</span>                        if (writer.length() &gt; 0) {<a name="line.68"></a>
+<span class="sourceLineNo">069</span>                                writer.setLength(writer.length() - 1);<a name="line.69"></a>
+<span class="sourceLineNo">070</span>                        }<a name="line.70"></a>
+<span class="sourceLineNo">071</span>                } catch (IOException e) {<a name="line.71"></a>
+<span class="sourceLineNo">072</span>                        e.printStackTrace();<a name="line.72"></a>
+<span class="sourceLineNo">073</span>                }<a name="line.73"></a>
+<span class="sourceLineNo">074</span>                return writer.toString();<a name="line.74"></a>
+<span class="sourceLineNo">075</span>        }<a name="line.75"></a>
+<span class="sourceLineNo">076</span><a name="line.76"></a>
+<span class="sourceLineNo">077</span>        public InputStream getInputstream() {<a name="line.77"></a>
+<span class="sourceLineNo">078</span>                return p.getInputStream();<a name="line.78"></a>
+<span class="sourceLineNo">079</span>        }<a name="line.79"></a>
+<span class="sourceLineNo">080</span><a name="line.80"></a>
+<span class="sourceLineNo">081</span>        public static File cloneInputStream(String name, InputStream input) throws IOException {<a name="line.81"></a>
+<span class="sourceLineNo">082</span>                File file = new File("build",name);<a name="line.82"></a>
+<span class="sourceLineNo">083</span>                if(!file.exists()){<a name="line.83"></a>
+<span class="sourceLineNo">084</span>                        (new File("build")).mkdirs();<a name="line.84"></a>
+<span class="sourceLineNo">085</span>                        file.createNewFile();<a name="line.85"></a>
+<span class="sourceLineNo">086</span>                }<a name="line.86"></a>
+<span class="sourceLineNo">087</span>                FileOutputStream bout = new FileOutputStream(file);<a name="line.87"></a>
+<span class="sourceLineNo">088</span>                byte buffer[] = new byte[1024];<a name="line.88"></a>
+<span class="sourceLineNo">089</span>                int len;<a name="line.89"></a>
+<span class="sourceLineNo">090</span>                while ((len = input.read(buffer)) &gt; 0) {<a name="line.90"></a>
+<span class="sourceLineNo">091</span>                        bout.write(buffer, 0, len);<a name="line.91"></a>
+<span class="sourceLineNo">092</span>                }<a name="line.92"></a>
+<span class="sourceLineNo">093</span>                bout.flush();<a name="line.93"></a>
+<span class="sourceLineNo">094</span>                bout.close();<a name="line.94"></a>
+<span class="sourceLineNo">095</span>                <a name="line.95"></a>
+<span class="sourceLineNo">096</span>                return file;<a name="line.96"></a>
+<span class="sourceLineNo">097</span>        }<a name="line.97"></a>
+<span class="sourceLineNo">098</span>}<a name="line.98"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

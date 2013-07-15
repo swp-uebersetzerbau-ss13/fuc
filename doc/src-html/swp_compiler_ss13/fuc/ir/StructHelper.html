@@ -1,0 +1,216 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>package swp_compiler_ss13.fuc.ir;<a name="line.1"></a>
+<span class="sourceLineNo">002</span><a name="line.2"></a>
+<span class="sourceLineNo">003</span>import java.util.Stack;<a name="line.3"></a>
+<span class="sourceLineNo">004</span><a name="line.4"></a>
+<span class="sourceLineNo">005</span>import swp_compiler_ss13.common.ast.ASTNode;<a name="line.5"></a>
+<span class="sourceLineNo">006</span>import swp_compiler_ss13.common.ast.nodes.binary.AssignmentNode;<a name="line.6"></a>
+<span class="sourceLineNo">007</span>import swp_compiler_ss13.common.ast.nodes.unary.StructIdentifierNode;<a name="line.7"></a>
+<span class="sourceLineNo">008</span>import swp_compiler_ss13.common.types.Type;<a name="line.8"></a>
+<span class="sourceLineNo">009</span>import swp_compiler_ss13.common.types.derived.ArrayType;<a name="line.9"></a>
+<span class="sourceLineNo">010</span>import swp_compiler_ss13.common.types.derived.Member;<a name="line.10"></a>
+<span class="sourceLineNo">011</span>import swp_compiler_ss13.common.types.derived.StructType;<a name="line.11"></a>
+<span class="sourceLineNo">012</span>import swp_compiler_ss13.common.types.primitive.PrimitiveType;<a name="line.12"></a>
+<span class="sourceLineNo">013</span><a name="line.13"></a>
+<span class="sourceLineNo">014</span>/**<a name="line.14"></a>
+<span class="sourceLineNo">015</span> * This utility class contains helper methods for structs.<a name="line.15"></a>
+<span class="sourceLineNo">016</span> * <a name="line.16"></a>
+<span class="sourceLineNo">017</span> * @author "Frank Zechert"<a name="line.17"></a>
+<span class="sourceLineNo">018</span> * @author "Danny Maasch"<a name="line.18"></a>
+<span class="sourceLineNo">019</span> * @author kaworu<a name="line.19"></a>
+<span class="sourceLineNo">020</span> * @version 3<a name="line.20"></a>
+<span class="sourceLineNo">021</span> */<a name="line.21"></a>
+<span class="sourceLineNo">022</span>public class StructHelper {<a name="line.22"></a>
+<span class="sourceLineNo">023</span><a name="line.23"></a>
+<span class="sourceLineNo">024</span>        /**<a name="line.24"></a>
+<span class="sourceLineNo">025</span>         * Check if the given structIdentifierNode is used as the target of an<a name="line.25"></a>
+<span class="sourceLineNo">026</span>         * assignment. The target of an assignment is the left hand side value<a name="line.26"></a>
+<span class="sourceLineNo">027</span>         * (assignment: target = source)<a name="line.27"></a>
+<span class="sourceLineNo">028</span>         * <a name="line.28"></a>
+<span class="sourceLineNo">029</span>         * @param node<a name="line.29"></a>
+<span class="sourceLineNo">030</span>         *            The node to check<a name="line.30"></a>
+<span class="sourceLineNo">031</span>         * @return true if the node is target of an assignment.<a name="line.31"></a>
+<span class="sourceLineNo">032</span>         */<a name="line.32"></a>
+<span class="sourceLineNo">033</span>        public static boolean isTargetOfAssignment(StructIdentifierNode node) {<a name="line.33"></a>
+<span class="sourceLineNo">034</span>                if (node.getParentNode() instanceof AssignmentNode) {<a name="line.34"></a>
+<span class="sourceLineNo">035</span>                        AssignmentNode parent = (AssignmentNode) node.getParentNode();<a name="line.35"></a>
+<span class="sourceLineNo">036</span>                        if (parent.getLeftValue() == node) {<a name="line.36"></a>
+<span class="sourceLineNo">037</span>                                return true;<a name="line.37"></a>
+<span class="sourceLineNo">038</span>                        }<a name="line.38"></a>
+<span class="sourceLineNo">039</span>                }<a name="line.39"></a>
+<span class="sourceLineNo">040</span>                return false;<a name="line.40"></a>
+<span class="sourceLineNo">041</span>        }<a name="line.41"></a>
+<span class="sourceLineNo">042</span><a name="line.42"></a>
+<span class="sourceLineNo">043</span>        /**<a name="line.43"></a>
+<span class="sourceLineNo">044</span>         * Get the base type of the given derived type. The base type of an<a name="line.44"></a>
+<span class="sourceLineNo">045</span>         * ArrayType is the inner most type.<a name="line.45"></a>
+<span class="sourceLineNo">046</span>         * <a name="line.46"></a>
+<span class="sourceLineNo">047</span>         * @param type<a name="line.47"></a>
+<span class="sourceLineNo">048</span>         *            The type to get the base type for.<a name="line.48"></a>
+<span class="sourceLineNo">049</span>         * @param node<a name="line.49"></a>
+<span class="sourceLineNo">050</span>         *            The node<a name="line.50"></a>
+<span class="sourceLineNo">051</span>         * @return An array with the type and the node<a name="line.51"></a>
+<span class="sourceLineNo">052</span>         */<a name="line.52"></a>
+<span class="sourceLineNo">053</span>        public static Object[] getInternalBaseType(Type type, ASTNode node) {<a name="line.53"></a>
+<span class="sourceLineNo">054</span>                Stack&lt;String&gt; fieldAccess = new Stack&lt;String&gt;();<a name="line.54"></a>
+<span class="sourceLineNo">055</span>                while (!(type instanceof PrimitiveType)) {<a name="line.55"></a>
+<span class="sourceLineNo">056</span>                        if (!(node instanceof StructIdentifierNode)) {<a name="line.56"></a>
+<span class="sourceLineNo">057</span>                                while (!fieldAccess.empty()) {<a name="line.57"></a>
+<span class="sourceLineNo">058</span>                                        String field = fieldAccess.pop();<a name="line.58"></a>
+<span class="sourceLineNo">059</span>                                        Member[] members = ((StructType) type).members();<a name="line.59"></a>
+<span class="sourceLineNo">060</span>                                        for (Member member : members) {<a name="line.60"></a>
+<span class="sourceLineNo">061</span>                                                if (member.getName().equals(field)) {<a name="line.61"></a>
+<span class="sourceLineNo">062</span>                                                        type = member.getType();<a name="line.62"></a>
+<span class="sourceLineNo">063</span>                                                }<a name="line.63"></a>
+<span class="sourceLineNo">064</span>                                        }<a name="line.64"></a>
+<span class="sourceLineNo">065</span>                                }<a name="line.65"></a>
+<span class="sourceLineNo">066</span>                        }<a name="line.66"></a>
+<span class="sourceLineNo">067</span>                        if (type instanceof ArrayType) {<a name="line.67"></a>
+<span class="sourceLineNo">068</span>                                Object[] retA = ArrayHelper.getInternalBaseType(type, node);<a name="line.68"></a>
+<span class="sourceLineNo">069</span>                                type = (Type) retA[0];<a name="line.69"></a>
+<span class="sourceLineNo">070</span>                                node = (ASTNode) retA[1];<a name="line.70"></a>
+<span class="sourceLineNo">071</span>                        }<a name="line.71"></a>
+<span class="sourceLineNo">072</span>                        if (type instanceof StructType) {<a name="line.72"></a>
+<span class="sourceLineNo">073</span>                                if (node instanceof StructIdentifierNode) {<a name="line.73"></a>
+<span class="sourceLineNo">074</span>                                        String field = ((StructIdentifierNode) node).getFieldName();<a name="line.74"></a>
+<span class="sourceLineNo">075</span>                                        node = ((StructIdentifierNode) node).getIdentifierNode();<a name="line.75"></a>
+<span class="sourceLineNo">076</span>                                        fieldAccess.push(field);<a name="line.76"></a>
+<span class="sourceLineNo">077</span>                                }<a name="line.77"></a>
+<span class="sourceLineNo">078</span>                                else {<a name="line.78"></a>
+<span class="sourceLineNo">079</span>                                        break;<a name="line.79"></a>
+<span class="sourceLineNo">080</span>                                }<a name="line.80"></a>
+<span class="sourceLineNo">081</span>                        }<a name="line.81"></a>
+<span class="sourceLineNo">082</span>                }<a name="line.82"></a>
+<span class="sourceLineNo">083</span>                return new Object[] { type, node };<a name="line.83"></a>
+<span class="sourceLineNo">084</span>        }<a name="line.84"></a>
+<span class="sourceLineNo">085</span><a name="line.85"></a>
+<span class="sourceLineNo">086</span>        /**<a name="line.86"></a>
+<span class="sourceLineNo">087</span>         * Get the base type of the given derived type. The base type of an<a name="line.87"></a>
+<span class="sourceLineNo">088</span>         * ArrayType is the inner most type.<a name="line.88"></a>
+<span class="sourceLineNo">089</span>         * <a name="line.89"></a>
+<span class="sourceLineNo">090</span>         * @param type<a name="line.90"></a>
+<span class="sourceLineNo">091</span>         *            The type to get the base type for.<a name="line.91"></a>
+<span class="sourceLineNo">092</span>         * @param node<a name="line.92"></a>
+<span class="sourceLineNo">093</span>         *            The node<a name="line.93"></a>
+<span class="sourceLineNo">094</span>         * @return The base type<a name="line.94"></a>
+<span class="sourceLineNo">095</span>         */<a name="line.95"></a>
+<span class="sourceLineNo">096</span>        public static Type getBaseType(Type type, ASTNode node) {<a name="line.96"></a>
+<span class="sourceLineNo">097</span>                node = getOuterStruct(node);<a name="line.97"></a>
+<span class="sourceLineNo">098</span>                return (Type) getInternalBaseType(type, node)[0];<a name="line.98"></a>
+<span class="sourceLineNo">099</span>        }<a name="line.99"></a>
+<span class="sourceLineNo">100</span><a name="line.100"></a>
+<span class="sourceLineNo">101</span>        /**<a name="line.101"></a>
+<span class="sourceLineNo">102</span>         * Get the outer most struct identifier node<a name="line.102"></a>
+<span class="sourceLineNo">103</span>         * <a name="line.103"></a>
+<span class="sourceLineNo">104</span>         * @param node<a name="line.104"></a>
+<span class="sourceLineNo">105</span>         *            the node to use<a name="line.105"></a>
+<span class="sourceLineNo">106</span>         * @return the outer most struct identifier node<a name="line.106"></a>
+<span class="sourceLineNo">107</span>         */<a name="line.107"></a>
+<span class="sourceLineNo">108</span>        public static ASTNode getOuterStruct(ASTNode node) {<a name="line.108"></a>
+<span class="sourceLineNo">109</span>                while (node.getParentNode() instanceof StructIdentifierNode) {<a name="line.109"></a>
+<span class="sourceLineNo">110</span>                        node = node.getParentNode();<a name="line.110"></a>
+<span class="sourceLineNo">111</span>                }<a name="line.111"></a>
+<span class="sourceLineNo">112</span>                return node;<a name="line.112"></a>
+<span class="sourceLineNo">113</span>        }<a name="line.113"></a>
+<span class="sourceLineNo">114</span><a name="line.114"></a>
+<span class="sourceLineNo">115</span>        /**<a name="line.115"></a>
+<span class="sourceLineNo">116</span>         * Check if the given node is the outer most dimension of a struct.<a name="line.116"></a>
+<span class="sourceLineNo">117</span>         * <a name="line.117"></a>
+<span class="sourceLineNo">118</span>         * @param node<a name="line.118"></a>
+<span class="sourceLineNo">119</span>         *            The node to check<a name="line.119"></a>
+<span class="sourceLineNo">120</span>         * @return true if the given node is the outer most dimension of a struct.<a name="line.120"></a>
+<span class="sourceLineNo">121</span>         */<a name="line.121"></a>
+<span class="sourceLineNo">122</span>        public static boolean isOuterMostDimension(StructIdentifierNode node) {<a name="line.122"></a>
+<span class="sourceLineNo">123</span>                return !(node.getParentNode() instanceof StructIdentifierNode);<a name="line.123"></a>
+<span class="sourceLineNo">124</span>        }<a name="line.124"></a>
+<span class="sourceLineNo">125</span><a name="line.125"></a>
+<span class="sourceLineNo">126</span>        /**<a name="line.126"></a>
+<span class="sourceLineNo">127</span>         * Check if the ArrayType has a field named index<a name="line.127"></a>
+<span class="sourceLineNo">128</span>         * <a name="line.128"></a>
+<span class="sourceLineNo">129</span>         * @param type<a name="line.129"></a>
+<span class="sourceLineNo">130</span>         *            the type to check<a name="line.130"></a>
+<span class="sourceLineNo">131</span>         * @param index<a name="line.131"></a>
+<span class="sourceLineNo">132</span>         *            the fieldname of the struct<a name="line.132"></a>
+<span class="sourceLineNo">133</span>         * @return true if the field exists<a name="line.133"></a>
+<span class="sourceLineNo">134</span>         */<a name="line.134"></a>
+<span class="sourceLineNo">135</span>        public static boolean fieldExists(StructType type, String index) {<a name="line.135"></a>
+<span class="sourceLineNo">136</span>                Member[] members = type.members();<a name="line.136"></a>
+<span class="sourceLineNo">137</span>                for (Member member : members) {<a name="line.137"></a>
+<span class="sourceLineNo">138</span>                        if (member.getName().equals(index)) {<a name="line.138"></a>
+<span class="sourceLineNo">139</span>                                return true;<a name="line.139"></a>
+<span class="sourceLineNo">140</span>                        }<a name="line.140"></a>
+<span class="sourceLineNo">141</span>                }<a name="line.141"></a>
+<span class="sourceLineNo">142</span>                return false;<a name="line.142"></a>
+<span class="sourceLineNo">143</span>        }<a name="line.143"></a>
+<span class="sourceLineNo">144</span>}<a name="line.144"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

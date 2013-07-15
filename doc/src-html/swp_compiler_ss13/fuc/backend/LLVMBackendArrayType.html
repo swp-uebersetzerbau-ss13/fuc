@@ -15,41 +15,63 @@
 <span class="sourceLineNo">007</span><a name="line.7"></a>
 <span class="sourceLineNo">008</span>import java.util.*;<a name="line.8"></a>
 <span class="sourceLineNo">009</span><a name="line.9"></a>
-<span class="sourceLineNo">010</span>public class LLVMBackendArrayType extends ArrayType<a name="line.10"></a>
-<span class="sourceLineNo">011</span>{<a name="line.11"></a>
-<span class="sourceLineNo">012</span>        public LLVMBackendArrayType(List&lt;Integer&gt; dimensions, Type type) {<a name="line.12"></a>
-<span class="sourceLineNo">013</span>                super(type, dimensions.get(0));<a name="line.13"></a>
-<span class="sourceLineNo">014</span>                assert((type instanceof PrimitiveType) ||<a name="line.14"></a>
-<span class="sourceLineNo">015</span>                       (type instanceof StructType));<a name="line.15"></a>
-<span class="sourceLineNo">016</span><a name="line.16"></a>
-<span class="sourceLineNo">017</span>                dimensions.remove(0);<a name="line.17"></a>
-<span class="sourceLineNo">018</span><a name="line.18"></a>
-<span class="sourceLineNo">019</span>                if(dimensions.size() &gt; 0) {<a name="line.19"></a>
-<span class="sourceLineNo">020</span>                        this.type = new LLVMBackendArrayType(dimensions, type);<a name="line.20"></a>
-<span class="sourceLineNo">021</span>                        this.width = this.type.getWidth() * this.length;<a name="line.21"></a>
-<span class="sourceLineNo">022</span>                }<a name="line.22"></a>
-<span class="sourceLineNo">023</span>        }<a name="line.23"></a>
-<span class="sourceLineNo">024</span><a name="line.24"></a>
-<span class="sourceLineNo">025</span>        public List&lt;Integer&gt; getDimensions() {<a name="line.25"></a>
-<span class="sourceLineNo">026</span>                List&lt;Integer&gt; dimensions = new LinkedList&lt;Integer&gt;();<a name="line.26"></a>
-<span class="sourceLineNo">027</span>                dimensions.add(this.length);<a name="line.27"></a>
+<span class="sourceLineNo">010</span>/**<a name="line.10"></a>
+<span class="sourceLineNo">011</span> * Corresponds to an array in three address code<a name="line.11"></a>
+<span class="sourceLineNo">012</span> * and extends the normal &lt;code&gt;ArrayType&lt;/code&gt;<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * with convenience functions for the LLVMBackend.<a name="line.13"></a>
+<span class="sourceLineNo">014</span> *<a name="line.14"></a>
+<span class="sourceLineNo">015</span> */<a name="line.15"></a>
+<span class="sourceLineNo">016</span>public class LLVMBackendArrayType extends ArrayType<a name="line.16"></a>
+<span class="sourceLineNo">017</span>{<a name="line.17"></a>
+<span class="sourceLineNo">018</span>        /**<a name="line.18"></a>
+<span class="sourceLineNo">019</span>         * Creates a new backend array type.<a name="line.19"></a>
+<span class="sourceLineNo">020</span>         *<a name="line.20"></a>
+<span class="sourceLineNo">021</span>         * @param dimensions the dimensions of this array type<a name="line.21"></a>
+<span class="sourceLineNo">022</span>         * @param type the type of the array type's elements<a name="line.22"></a>
+<span class="sourceLineNo">023</span>         */<a name="line.23"></a>
+<span class="sourceLineNo">024</span>        public LLVMBackendArrayType(List&lt;Integer&gt; dimensions, Type type) {<a name="line.24"></a>
+<span class="sourceLineNo">025</span>                super(type, dimensions.get(0));<a name="line.25"></a>
+<span class="sourceLineNo">026</span>                assert((type instanceof PrimitiveType) ||<a name="line.26"></a>
+<span class="sourceLineNo">027</span>                       (type instanceof StructType));<a name="line.27"></a>
 <span class="sourceLineNo">028</span><a name="line.28"></a>
-<span class="sourceLineNo">029</span>                if(this.type instanceof LLVMBackendArrayType) {<a name="line.29"></a>
-<span class="sourceLineNo">030</span>                        dimensions.addAll(((LLVMBackendArrayType) this.type).getDimensions());<a name="line.30"></a>
-<span class="sourceLineNo">031</span>                }<a name="line.31"></a>
-<span class="sourceLineNo">032</span><a name="line.32"></a>
-<span class="sourceLineNo">033</span>                return dimensions;<a name="line.33"></a>
-<span class="sourceLineNo">034</span>        }<a name="line.34"></a>
-<span class="sourceLineNo">035</span><a name="line.35"></a>
-<span class="sourceLineNo">036</span>        public Type getStorageType() {<a name="line.36"></a>
-<span class="sourceLineNo">037</span>                if(this.type instanceof LLVMBackendArrayType) {<a name="line.37"></a>
-<span class="sourceLineNo">038</span>                        return ((LLVMBackendArrayType) this.type).getStorageType();<a name="line.38"></a>
-<span class="sourceLineNo">039</span>                }<a name="line.39"></a>
-<span class="sourceLineNo">040</span>                else {<a name="line.40"></a>
-<span class="sourceLineNo">041</span>                        return this.type;<a name="line.41"></a>
-<span class="sourceLineNo">042</span>                }<a name="line.42"></a>
-<span class="sourceLineNo">043</span>        }<a name="line.43"></a>
-<span class="sourceLineNo">044</span>}<a name="line.44"></a>
+<span class="sourceLineNo">029</span>                dimensions.remove(0);<a name="line.29"></a>
+<span class="sourceLineNo">030</span><a name="line.30"></a>
+<span class="sourceLineNo">031</span>                if(dimensions.size() &gt; 0) {<a name="line.31"></a>
+<span class="sourceLineNo">032</span>                        this.type = new LLVMBackendArrayType(dimensions, type);<a name="line.32"></a>
+<span class="sourceLineNo">033</span>                        this.width = this.type.getWidth() * this.length;<a name="line.33"></a>
+<span class="sourceLineNo">034</span>                }<a name="line.34"></a>
+<span class="sourceLineNo">035</span>        }<a name="line.35"></a>
+<span class="sourceLineNo">036</span><a name="line.36"></a>
+<span class="sourceLineNo">037</span>        /**<a name="line.37"></a>
+<span class="sourceLineNo">038</span>         * Get the dimensions.<a name="line.38"></a>
+<span class="sourceLineNo">039</span>         *<a name="line.39"></a>
+<span class="sourceLineNo">040</span>         * @return the dimensions<a name="line.40"></a>
+<span class="sourceLineNo">041</span>         */<a name="line.41"></a>
+<span class="sourceLineNo">042</span>        public List&lt;Integer&gt; getDimensions() {<a name="line.42"></a>
+<span class="sourceLineNo">043</span>                List&lt;Integer&gt; dimensions = new LinkedList&lt;Integer&gt;();<a name="line.43"></a>
+<span class="sourceLineNo">044</span>                dimensions.add(this.length);<a name="line.44"></a>
+<span class="sourceLineNo">045</span><a name="line.45"></a>
+<span class="sourceLineNo">046</span>                if(this.type instanceof LLVMBackendArrayType) {<a name="line.46"></a>
+<span class="sourceLineNo">047</span>                        dimensions.addAll(((LLVMBackendArrayType) this.type).getDimensions());<a name="line.47"></a>
+<span class="sourceLineNo">048</span>                }<a name="line.48"></a>
+<span class="sourceLineNo">049</span><a name="line.49"></a>
+<span class="sourceLineNo">050</span>                return dimensions;<a name="line.50"></a>
+<span class="sourceLineNo">051</span>        }<a name="line.51"></a>
+<span class="sourceLineNo">052</span><a name="line.52"></a>
+<span class="sourceLineNo">053</span>        /**<a name="line.53"></a>
+<span class="sourceLineNo">054</span>         * Get the type of the elements.<a name="line.54"></a>
+<span class="sourceLineNo">055</span>         *<a name="line.55"></a>
+<span class="sourceLineNo">056</span>         * @return the elements' type<a name="line.56"></a>
+<span class="sourceLineNo">057</span>         */<a name="line.57"></a>
+<span class="sourceLineNo">058</span>        public Type getStorageType() {<a name="line.58"></a>
+<span class="sourceLineNo">059</span>                if(this.type instanceof LLVMBackendArrayType) {<a name="line.59"></a>
+<span class="sourceLineNo">060</span>                        return ((LLVMBackendArrayType) this.type).getStorageType();<a name="line.60"></a>
+<span class="sourceLineNo">061</span>                }<a name="line.61"></a>
+<span class="sourceLineNo">062</span>                else {<a name="line.62"></a>
+<span class="sourceLineNo">063</span>                        return this.type;<a name="line.63"></a>
+<span class="sourceLineNo">064</span>                }<a name="line.64"></a>
+<span class="sourceLineNo">065</span>        }<a name="line.65"></a>
+<span class="sourceLineNo">066</span>}<a name="line.66"></a>
 
 
 
